@@ -1,0 +1,6 @@
+version: 1
+
+name: prepare
+
+workflow: workflows/prepare.md
+runtime: templates/runtime/runtime-prepare.md

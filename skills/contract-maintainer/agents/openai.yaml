@@ -1,0 +1,4 @@
+interface:
+  display_name: "契约维护助手"
+  short_description: "基于 OpenSpec 和场景清单自动生成校验引用服务间交互契约"
+  default_prompt: "维护服务间交互契约"

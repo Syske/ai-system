@@ -1,0 +1,64 @@
+version: 2
+
+default:
+  skill: explore-codebase
+
+routes:
+
+  prepare:
+    workflow: prepare
+
+  spec:
+    workflow: spec
+
+  bootstrap:
+    workflow: bootstrap
+
+  dev-setup:
+    workflow: dev-setup
+
+  develop:
+    workflow: develop
+
+  bugfix:
+    workflow: bugfix
+
+  review:
+    workflow: review
+
+  verify:
+    workflow: verify
+
+  release:
+    workflow: release
+
+  analysis:
+    workflow: analysis
+
+  knowledge:
+    workflow: knowledge
+
+  explore:
+    skill: explore-codebase
+
+  browse:
+    skill: agent-browser
+
+  implement:
+    alias: develop
+
+  openspec:
+    alias: spec
+
+  debug:
+    alias: bugfix
+
+execution_rules:
+
+  strict_mode: true
+
+  rules:
+    - "Route lookup is the only entry point for workflow dispatch"
+    - "Fallback to the default route for unknown intents"
+    - "Workflows define their own execution chain (Preconditions, Next); never hardcode pipelines here"
+    - "Skills are invoked by runtimes, not directly by route (unless listed in a standalone skill shortcut)"

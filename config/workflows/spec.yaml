@@ -1,0 +1,6 @@
+version: 1
+
+name: spec
+
+workflow: workflows/spec.md
+runtime: templates/runtime/runtime-spec.md

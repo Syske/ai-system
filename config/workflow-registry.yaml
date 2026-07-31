@@ -1,0 +1,16 @@
+version: 1
+
+default: bootstrap
+
+workflows:
+  bootstrap: config/workflows/bootstrap.yaml
+  dev-setup: config/workflows/dev-setup.yaml
+  prepare: config/workflows/prepare.yaml
+  spec: config/workflows/spec.yaml
+  develop: config/workflows/develop.yaml
+  bugfix: config/workflows/bugfix.yaml
+  review: config/workflows/review.yaml
+  verify: config/workflows/verify.yaml
+  release: config/workflows/release.yaml
+  analysis: config/workflows/analysis.yaml
+  knowledge: config/workflows/knowledge.yaml

@@ -1,0 +1,6 @@
+version: 1
+
+name: bootstrap
+
+workflow: workflows/bootstrap.md
+runtime: templates/runtime/runtime-bootstrap.md

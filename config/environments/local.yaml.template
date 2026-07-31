@@ -1,0 +1,19 @@
+workspace:
+  root: D:/workspace/ai-workspace
+  repository_root: D:/workspace/ai-workspace/projects
+
+build:
+  java_home: D:/tools/java/jdk8
+  maven_home: D:/tools/apache-maven-3.6.3
+  maven_settings: "D:/tools/apache-maven-3.6.3/conf/settings - coolcollege.xml"
+
+layers:
+  ai_system:
+    path: D:/workspace/ai-workspace/ai-system
+    description: AI Operating System core
+  projects:
+    path: D:/workspace/ai-workspace/projects
+    description: all code repository
+  methodologies:
+    path: D:/workspace/ai-workspace/methodologies
+    description: governance standards, openspec, specs, contracts

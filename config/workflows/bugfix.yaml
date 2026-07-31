@@ -1,0 +1,6 @@
+version: 1
+
+name: bugfix
+
+workflow: workflows/bugfix.md
+runtime: templates/runtime/runtime-bugfix.md

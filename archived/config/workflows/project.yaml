@@ -1,0 +1,25 @@
+version: 1
+
+name: project
+display_name: Project
+description: Initialize project execution context.
+
+workflow: workflows/project.md
+runtime: templates/runtime/runtime-project.md
+
+inputs:
+  required:
+    - project
+
+  optional:
+    - repository
+    - branch
+
+outputs:
+  - project_context
+
+next:
+  - dev-setup
+
+stop_conditions:
+  - project_not_found

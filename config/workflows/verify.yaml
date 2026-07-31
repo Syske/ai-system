@@ -1,0 +1,6 @@
+version: 1
+
+name: verify
+
+workflow: workflows/verify.md
+runtime: templates/runtime/runtime-verify.md

@@ -1,0 +1,6 @@
+version: 1
+
+name: knowledge
+
+workflow: workflows/knowledge.md
+runtime: templates/runtime/runtime-knowledge.md

@@ -1,0 +1,6 @@
+version: 1
+
+name: dev-setup
+
+workflow: workflows/dev-setup.md
+runtime: templates/runtime/runtime-dev-setup.md

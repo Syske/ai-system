@@ -1,0 +1,6 @@
+version: 1
+
+name: review
+
+workflow: workflows/review.md
+runtime: templates/runtime/runtime-review.md

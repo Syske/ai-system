@@ -1,0 +1,6 @@
+version: 1
+
+name: release
+
+workflow: workflows/release.md
+runtime: templates/runtime/runtime-release.md

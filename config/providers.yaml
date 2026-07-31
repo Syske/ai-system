@@ -1,0 +1,23 @@
+providers:
+
+  opencode:
+
+    enabled: true
+
+  claude:
+
+    enabled: true
+
+  codex:
+
+    enabled: false
+
+default:
+
+  provider: opencode
+
+methodology:
+
+  defaultProvider: openspec-cn
+
+  registry: "{methodologies_root}/providers"

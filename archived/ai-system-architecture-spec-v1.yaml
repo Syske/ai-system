@@ -1,0 +1,191 @@
+version: 1
+
+root: ai-system
+
+goal:
+  - Establish a strict AI Operating System directory layout
+  - Separate decision, execution, governance, and tooling layers
+  - Enable deterministic routing from CLI → runtime → skills
+
+---
+
+structure:
+
+  ai-system:
+    description: "Core AI Operating System"
+
+    children:
+
+      bootstrap:
+        description: "Immutable system definition layer"
+        must_contain:
+          - ai-bootstrap.yaml
+          - environment.yaml
+        rules:
+          - "Defines global structure mapping"
+          - "Must NOT depend on runtime or skills"
+          - "Must be stable across projects"
+
+      routing:
+        description: "Decision & workflow routing layer"
+        must_contain:
+          - ai-routing.yaml
+          - pipeline-definitions.yaml
+          - fallback-routing.yaml
+        rules:
+          - "Maps command → skill → runtime"
+          - "Can be modified without changing structure"
+          - "Must NOT contain execution logic"
+
+      cli:
+        description: "Single entry point for AI system"
+        must_contain:
+          - ai-run.js
+          - dispatcher.js
+        optional:
+          - commands/
+        rules:
+          - "Only responsibility: trigger dispatch"
+          - "Must NOT contain business logic"
+          - "Must NOT directly call skills"
+
+      runtime:
+        description: "Execution adapters layer"
+        children:
+          opencode:
+            must_contain:
+              - adapter.js
+              - executor.js
+            rules:
+              - "Wraps opencode CLI execution"
+              - "No routing or decision logic"
+
+          claude:
+            must_contain:
+              - adapter.js
+
+          agents:
+            must_contain:
+              - adapter.js
+
+      skills:
+        description: "Core capability modules (business logic)"
+        rules:
+          - "Each skill is self-contained execution unit"
+          - "Must be stateless"
+          - "Must NOT decide next step"
+
+        children:
+          bugfix: {}
+          implement: {}
+          mock-test: {}
+          java-maven: {}
+          openspec-propose: {}
+          review-changes: {}
+          repository-maintainer: {}
+
+      governance:
+        description: "Policy & constraint layer (system law)"
+        must_contain:
+          - policies/
+          - repo-lint.md
+          - review-standard.md
+          - violation-rules.md
+
+        policies:
+          must_contain:
+            - skill-policy.md
+            - routing-policy.md
+            - security-policy.md
+            - quality-gates.md
+
+        rules:
+          - "Defines constraints for all other layers"
+          - "Must NOT execute code"
+          - "Must NOT depend on runtime"
+
+      maintainers:
+        description: "System introspection & health monitoring layer"
+        must_contain:
+          - dependency-graph.md
+          - capability-matrix.md
+          - health-check.md
+          - duplication-report.md
+          - weekly-report.md
+
+        rules:
+          - "Reads system state only"
+          - "Produces reports only"
+          - "Must NOT modify runtime behavior"
+
+      tools:
+        description: "Reusable utility layer"
+        rules:
+          - "Pure functions / scripts only"
+          - "No dependency on AI routing"
+
+        examples:
+          - maven/
+          - mockito/
+          - reflection-utils/
+          - repo-lint.py
+          - git-tools/
+          - test-utils/
+
+      templates:
+        description: "Prompt and skill templates"
+        must_contain:
+          - skill-template.md
+          - routing-template.md
+          - test-template.md
+          - spec-template.md
+
+      logs:
+        description: "Execution logs (optional)"
+        optional: true
+        structure:
+          - runs/
+          - errors/
+          - maintainer/
+
+---
+
+constraints:
+
+  layering_rules:
+    - "bootstrap → defines system"
+    - "routing → decides execution"
+    - "cli → triggers execution only"
+    - "runtime → executes only"
+    - "skills → business logic only"
+    - "governance → constraints only"
+    - "maintainers → observability only"
+    - "tools → utilities only"
+
+  forbidden:
+    - "skills calling routing"
+    - "runtime making decisions"
+    - "cli implementing business logic"
+    - "governance executing code"
+
+---
+
+migration_rules:
+
+  allowed_operations:
+    - move files
+    - rename folders
+    - split large skills into modules
+
+  forbidden_operations:
+    - changing layer semantics
+    - merging governance into runtime
+    - mixing cli with skills
+
+---
+
+execution_hint:
+
+  mode: "auto-refactor"
+  safe_mode: true
+  require_confirmation: trues

@@ -1,0 +1,26 @@
+version: 1
+
+name: workspace
+display_name: Workspace
+description: Initialize workspace execution context.
+
+workflow: workflows/workspace.md
+runtime: templates/runtime/runtime-workspace.md
+
+inputs:
+  required:
+    - workspace
+    - project
+
+  optional:
+    - specification
+
+outputs:
+  - workspace_context
+  - execution_plan
+
+next:
+  - develop
+
+stop_conditions:
+  - workspace_invalid

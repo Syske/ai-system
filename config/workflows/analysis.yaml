@@ -1,0 +1,6 @@
+version: 1
+
+name: analysis
+
+workflow: workflows/analysis.md
+runtime: templates/runtime/runtime-analysis.md

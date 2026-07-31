@@ -1,0 +1,311 @@
+version: 2
+
+goal:
+  - Establish Brain/Runtime separation architecture
+  - Knowledge belongs to ai-system; Execution belongs to ai-runtime
+  - All projects share one AI System; no duplicate skills
+  - Future-proof for 5+ years of Provider and project growth
+
+principles:
+  - "Brain (ai-system) = Knowledge: Skills, Workflows, Governance, Routing, Templates, RFC, Policies, CLI, Bootstrap"
+  - "Runtime (ai-runtime) = Execution: Provider-specific adapters, SDK, node_modules, config, cache, logs"
+  - "Skill always belongs to ai-system. Never in Runtime. Never in Projects."
+  - "Workflow always belongs to ai-system. Never in Runtime."
+  - "All projects share one ai-system and one ai-runtime."
+  - "One directory, one responsibility."
+
+---
+
+structure:
+
+  ai-system:
+    description: "Knowledge layer — long-term assets shared by ALL AI Providers"
+
+    children:
+
+      bootstrap:
+        description: "Immutable system definition layer"
+        must_contain:
+          - ai-bootstrap.yaml
+          - environment.yaml
+        rules:
+          - "Defines global structure mapping"
+          - "Must NOT depend on runtime or skills"
+          - "Must be stable across projects"
+
+      config:
+        description: "System-wide configuration"
+        rules:
+          - "Global parameters only"
+          - "No runtime-specific config"
+
+      cli:
+        description: "Single entry point for AI system"
+        must_contain:
+          - ai-run.js
+          - dispatcher.js
+        optional:
+          - commands/
+        rules:
+          - "Only responsibility: trigger dispatch"
+          - "Must NOT contain business logic"
+          - "Must NOT directly call skills"
+
+      governance:
+        description: "Policy & constraint layer (system law)"
+        must_contain:
+          - policies/
+          - repo-lint.md
+          - review-standard.md
+          - violation-rules.md
+        policies:
+          must_contain:
+            - skill-policy.md
+            - routing-policy.md
+            - security-policy.md
+            - quality-gates.md
+        rules:
+          - "Defines constraints for all other layers"
+          - "Must NOT execute code"
+          - "Must NOT depend on runtime"
+
+      logs:
+        description: "Knowledge-layer operation logs"
+        optional: true
+        structure:
+          - runs/
+          - errors/
+          - maintainer/
+
+      maintainers:
+        description: "System introspection & health monitoring layer"
+        must_contain:
+          - dependency-graph.md
+          - capability-matrix.md
+          - health-check.md
+          - duplication-report.md
+          - weekly-report.md
+        optional:
+          - DIRECTORY-RESPONSIBILITY-GUIDE.md
+        rules:
+          - "Reads system state only"
+          - "Produces reports only"
+          - "Must NOT modify runtime behavior"
+
+      metrics:
+        description: "Metrics definitions and collection config"
+        rules:
+          - "Define what to measure"
+          - "Not the storage of metric data"
+
+      reports:
+        description: "Architecture reports and analysis"
+        rules:
+          - "Snapshot-in-time analysis"
+          - "Migration plans"
+
+      rfc:
+        description: "Request For Comments — Architecture Decision Records"
+        rules:
+          - "Immutable once accepted"
+          - "Traceability for all major decisions"
+
+      routing:
+        description: "Decision & workflow routing layer"
+        must_contain:
+          - ai-routing.yaml
+          - pipeline-definitions.yaml
+          - fallback-routing.yaml
+        rules:
+          - "Maps command to skill to runtime"
+          - "Can be modified without changing structure"
+          - "Must NOT contain execution logic"
+
+      skills:
+        description: "ALL Skill authoritative source — shared by every Provider"
+        rules:
+          - "Each skill is a self-contained execution unit"
+          - "Must be stateless"
+          - "Must NOT decide next step"
+          - "Must NOT be duplicated in any Runtime or Project"
+
+        children:
+
+          # Core development skills
+          brainstorm: {}
+          implement: {}
+          bugfix: {}
+          task-splitter: {}
+          codegraph-helper: {}
+          explore-codebase: {}
+          grilling: {}
+          grill-with-docs: {}
+          debug-issue: {}
+          refactor-safely: {}
+          review-changes: {}
+          mock-test: {}
+          spec-updater: {}
+          skill-author: {}
+
+          # Language/framework skills
+          java-maven: {}
+
+          # Repository governance
+          repository-governor: {}
+          repository-maintainer: {}
+          contract-maintainer: {}
+
+          # OpenSpec ecosystem
+          openspec-propose: {}
+          openspec-explore: {}
+          openspec-apply-change: {}
+          openspec-archive-change: {}
+
+          # Guidelines
+          karpathy-guidelines: {}
+
+          # External skills (from syske-skills migration)
+          agent-browser: {}
+          agent-debug-diagnosis: {}
+          autowork: {}
+          index-project: {}
+          iterative-optimizer: {}
+          multi-model-dispatch: {}
+          oncall-weekly-report: {}
+          outcome-benchmark-generator: {}
+          routing-benchmark-generator: {}
+          skill-benchmark-generator: {}
+          tr5: {}
+          yapi-openapi: {}
+
+      templates:
+        description: "Prompt, skill, routing, spec, test templates"
+        must_contain:
+          - skill-template.md
+          - routing-template.md
+          - test-template.md
+          - spec-template.md
+        optional:
+          - runtime/
+
+      tools:
+        description: "Reusable utility layer"
+        rules:
+          - "Pure functions and scripts only"
+          - "No dependency on AI routing"
+
+      workflows:
+        description: "ALL Workflow authoritative source"
+        rules:
+          - "Must NOT be duplicated in any Runtime or Project"
+        children:
+          develop:
+            description: "Development workflow"
+            must_contain:
+              - workflow.md
+
+  ai-runtime:
+    description: "Execution layer — Provider-specific, no knowledge"
+
+    children:
+      opencode:
+        description: "OpenCode Runtime environment"
+        rules:
+          - "node_modules, plugins, cache"
+          - "No skills, no workflows, no governance"
+
+      claude:
+        description: "Claude Runtime environment"
+        must_contain:
+          - settings.json
+        rules:
+          - "Config only"
+          - "No knowledge files"
+
+      codex:
+        description: "Codex Runtime (reserved)"
+
+      gemini:
+        description: "Gemini Runtime (reserved)"
+
+      cursor:
+        description: "Cursor Runtime (reserved)"
+
+      sdk:
+        description: "Shared SDK across all Runtimes"
+        rules:
+          - "Type definitions, utilities"
+          - "No business logic"
+
+      scripts:
+        description: "Runtime ops scripts"
+        rules:
+          - "Deploy, monitor, backup"
+          - "No skill logic"
+
+  projects:
+    description: "Business project code"
+    rules:
+      - "Each project MUST NOT contain its own skills/"
+      - "Each project MUST NOT contain its own workflows/"
+      - "Skills are referenced from ai-system/skills/ via bootstrap"
+
+---
+
+constraints:
+
+  layering_rules:
+    - "ai-system → knowledge only"
+    - "ai-runtime → execution only"
+    - "projects → business only"
+    - "bootstrap → defines system"
+    - "routing → decides execution"
+    - "cli → triggers execution only"
+    - "skills → business logic only"
+    - "workflows → orchestration only"
+    - "governance → constraints only"
+    - "maintainers → observability only"
+    - "tools → utilities only"
+
+  forbidden:
+    - "skills inside ai-runtime/"
+    - "workflows inside ai-runtime/"
+    - "governance inside ai-runtime/"
+    - "skills inside projects/"
+    - "workflows inside projects/"
+    - "runtime adapters inside ai-system/"
+    - "skills calling routing"
+    - "runtime making decisions"
+    - "cli implementing business logic"
+    - "governance executing code"
+
+  future_proof:
+    - "Adding new Provider: add directory under ai-runtime/ only"
+    - "Adding new Project: add directory under projects/ only"
+    - "Adding new Skill: add directory under ai-system/skills/ only"
+    - "Adding new Workflow: add directory under ai-system/workflows/ only"
+    - "NO structural changes needed for any of the above"
+
+---
+
+migration_rules:
+
+  allowed_operations:
+    - move files
+    - rename folders
+    - split large skills into modules
+    - integrate external skills into ai-system/skills/
+
+  forbidden_operations:
+    - changing layer semantics
+    - merging governance into runtime
+    - mixing cli with skills
+    - creating duplicate skills in projects
+
+---
+
+execution_hint:
+
+  mode: "auto-refactor"
+  safe_mode: true
+  require_confirmation: true

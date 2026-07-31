@@ -1,0 +1,29 @@
+# Python / build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+*.log
+
+# Secrets / environment files
+.env
+**/.env
+.env.local
+
+# Virtualenvs / dependencies
+**/.venv/
+**/venv/
+node_modules/
+
+# Machine-specific environment config
+config/environments/local.yaml
+config/environments/context.yaml
+
+# Runtime state (wizard state, generated snapshots)
+workspaces/.aic-state.yaml
+logs/
+metrics/
+
+# OS
+.DS_Store

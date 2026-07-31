@@ -1,0 +1,222 @@
+# Runtime: Bootstrap
+
+Extends:
+
+- runtime-base.md
+
+---
+
+# Purpose
+
+Load environment configuration and derive all base paths.
+
+Bootstrap Runtime prepares the environment context that all downstream runtimes depend on.
+
+Bootstrap Runtime does not manage workspace state, resolve project configuration, or implement business logic.
+
+---
+
+## Governance
+
+This Runtime is bound by:
+
+- AI Operating Rules: governance/AI_OPERATING_RULES.md
+- Source of Truth: governance/SOURCE_OF_TRUTH.md
+- Context Loading: governance/CONTEXT_LOADING.md
+- Repository First: governance/REPOSITORY_FIRST.md
+- Reflection Rules: governance/REFLECTION_RULES.md
+
+Context is loaded according to governance/CONTEXT_LOADING.md.
+Standards are loaded according to loaders/standards-loader.md.
+
+---
+
+# Responsibilities
+
+The Bootstrap Runtime is responsible for:
+
+- Load Environment Configuration
+- Derive Workspace Root
+- Derive Repository Root
+- Derive Workspaces Root
+- Derive Methodologies Root
+- Initialize Workspace Directory
+- Build Environment Context
+- Persist Environment State
+
+---
+
+# Runtime Context
+
+## Provided by Runtime Base
+
+- Runtime Configuration
+- Operating Rules
+
+## Resolved by Bootstrap Runtime
+
+- Environment Name
+- Workspace Root
+- Repository Root
+- Workspaces Root
+- AI System Root
+- Methodologies Root
+- Workspace ID
+- Workspace Path
+- Project ID
+
+---
+
+# Phase 1 — Load Environment Configuration
+
+Locate:
+
+- ai-system/config/environments/{environment}.yaml
+
+Resolve:
+
+- workspace.repository_root
+
+If environment configuration cannot be loaded:
+
+STOP.
+
+Report missing environment configuration.
+
+---
+
+# Phase 2 — Derive Base Paths
+
+Derive all base paths from the environment configuration and bootstrap location.
+
+Derivation:
+
+```
+workspace_root    = {ai-system directory parent}
+repository_root   = {local.yaml → workspace.repository_root}
+repositories_root = {workspace_root}/repositories
+workspaces_root      = {workspace_root}/workspaces
+ai_system_root       = {workspace_root}/ai-system
+methodologies_root   = {workspace_root}/methodologies
+```
+
+Do not hardcode absolute paths.
+
+Paths are derived once and shared across all downstream runtimes.
+
+---
+
+---
+
+# Phase 3 — Build Environment Context
+
+Generate:
+
+```yaml
+environment:
+  name: local
+  workspace_root:
+  repository_root:
+  repositories_root:
+  workspaces_root:
+  ai_system_root:
+  methodologies_root:
+```
+
+---
+
+# Phase 4 — Persist
+
+Store:
+
+- environment_context
+
+Location:
+
+```
+ai-system/config/environments/context.yaml
+```
+
+Note: environments/context.yaml should be added to .gitignore.
+
+---
+
+# Phase 5 — Initialize Workspace
+
+Create workspace directory:
+
+```
+{workspaces_root}/{workspace_name}/
+```
+
+Workspace name is derived from the environment name or provided input.
+
+Initialize:
+
+- Workspace ID
+- Workspace Status (initialized)
+- Workspace Metadata
+
+The workspace metadata includes:
+
+```yaml
+workspace:
+  id: {workspace_name}
+  status: initialized
+  path: "{workspaces_root}/{workspace_name}"
+  environment: {environment_name}
+```
+
+Do not bind project context or resolve repositories here.
+
+Project binding and repository resolution belong to Dev Setup Runtime.
+
+---
+
+# Outputs
+
+Generate:
+
+- Environment Context
+- Workspace Metadata (initialized, no project binding)
+
+# Reflection
+
+Before declaring completion, execute Reflection according to governance/REFLECTION_RULES.md.
+
+Evaluate:
+1. Simpler implementation possible?
+2. Code duplication introduced?
+3. Standards violated?
+4. Over-engineering present?
+5. Anything incomplete?
+
+Record the Reflection Report in the Completion output.
+Do NOT modify code during Reflection.
+
+---
+
+# Completion
+
+Return:
+
+## Environment Context
+
+Contains:
+
+- Workspace Root
+- Repository Root
+- Methodologies Root
+- Workspaces Root
+- AI System Root
+- Workspace ID
+- Workspace Path
+- Workspace Status
+
+The Environment Context can be consumed by:
+
+- Dev Setup Runtime
+- All downstream runtimes
+
+
+
