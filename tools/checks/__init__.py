@@ -8,6 +8,7 @@ from .misc import (
     check_imports,
     check_path_audit,
     check_repo_lint,
+    check_tools_readme,
 )
 from .menu import check_menu, check_wizard_dry_run
 from .memory import check_memory
@@ -34,6 +35,7 @@ def run_all():
     check_wizard_dry_run(c, workflows, commands)
     check_repo_lint(c)
     check_path_audit(c)
+    check_tools_readme(c)
     check_memory(c)
 
     print(

@@ -157,3 +157,30 @@ def check_path_audit(c):
         c.error(
             f"path-audit: {broken} broken path reference(s)"
         )
+
+
+def check_tools_readme(c):
+    """Every tools/*.py must be registered in tools/README.md."""
+
+    readme = ROOT / "tools" / "README.md"
+
+    if not readme.exists():
+        c.warn("tools/README.md not found, skipped")
+        return
+
+    text = readme.read_text(encoding="utf-8")
+
+    listed = set(
+        re.findall(r"`([a-z-]+\.py)`", text)
+    )
+
+    actual = {
+        p.name
+        for p in (ROOT / "tools").glob("*.py")
+        if p.name not in ("__init__.py",)
+    }
+
+    for name in sorted(actual - listed):
+        c.error(
+            f"tools/{name} not registered in tools/README.md"
+        )
