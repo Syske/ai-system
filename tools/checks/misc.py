@@ -131,3 +131,29 @@ def check_repo_lint(c):
             f"repo-lint: {blockers} blocker(s), "
             f"{errors} error(s)"
         )
+
+
+def check_path_audit(c):
+    audit = ROOT / "tools" / "path-audit.py"
+
+    if not audit.exists():
+        c.warn("tools/path-audit.py not found, skipped")
+        return
+
+    result = subprocess.run(
+        [sys.executable, str(audit)],
+        capture_output=True,
+        text=True,
+        timeout=120
+    )
+
+    out = result.stdout + result.stderr
+
+    m = re.search(r"BROKEN \((\d+)\):", out)
+
+    broken = int(m.group(1)) if m else 1
+
+    if result.returncode != 0 or broken:
+        c.error(
+            f"path-audit: {broken} broken path reference(s)"
+        )

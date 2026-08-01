@@ -14,6 +14,7 @@ Validates:
 6. Wizard dry-run: the config-driven target menu builds without a TTY
 7. tools/repo-lint.py passes (BLOCKER/ERROR == 0)
 8. governance/memory structure, entry format, language, and index
+9. tools/path-audit.py reports no broken path references
 
 The check logic lives in `tools/checks/` submodules; this file keeps the
 documented command entrypoint stable.

@@ -6,6 +6,7 @@ from .misc import (
     check_commands,
     check_compile,
     check_imports,
+    check_path_audit,
     check_repo_lint,
 )
 from .menu import check_menu, check_wizard_dry_run
@@ -32,6 +33,7 @@ def run_all():
     check_build(c, workflows, commands)
     check_wizard_dry_run(c, workflows, commands)
     check_repo_lint(c)
+    check_path_audit(c)
     check_memory(c)
 
     print(
