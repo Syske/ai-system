@@ -2,35 +2,35 @@
 description: 评估外部三方 skill 来源 - 克隆仓库、列出 skills、按参考价值分类，产出评估报告供吸收决策
 ---
 
-评估一个外部三方 skill 来源（如 GitHub 上的 skill 仓库），将其中的 skills 按参考价值分类，产出结构化评估报告，供后续决定是否吸收为原生资产。
+Assess an external third-party skill source (e.g. a skill repository on GitHub), classify its skills by reference value, and produce a structured assessment report to inform absorption decisions.
 
-**输入**：
-- Skill Source URL：三方 skill 仓库的 URL（必填）
-- Report Name（可选，默认 `THIRD-PARTY-SKILL-ASSESSMENT-{date}`）
+**Inputs**:
+- Skill Source URL: the third-party skill repository URL (required)
+- Report Name (optional, default `THIRD-PARTY-SKILL-ASSESSMENT-{date}`)
 
-**步骤**
+**Steps**
 
-1. **克隆来源**：将仓库浅克隆到临时目录（`git clone --depth 1 <url>`），不进入工作区。
+1. **Clone the source**: shallow-clone the repository to a temp directory (`git clone --depth 1 <url>`), not into the workspace.
 
-2. **盘点 skills**：列出所有 skill 目录（含 `SKILL.md`/`skill.md` 的目录），记录每个 skill 的名称与 description。
+2. **Inventory skills**: list all skill directories (dirs containing `SKILL.md`/`skill.md`), recording each skill's name and description.
 
-3. **分类评估**：对每个 skill 按参考价值分三类（参考 `reports/THIRD-PARTY-SKILL-ASSESSMENT-2026-08-01.md` 的分类框架）：
-   - **高价值**：填补真实缺口，方法论可直接吸收
-   - **中价值**：方法论可借鉴，非直接复制
-   - **低/无价值**：平台特定 / 个人写作 / 已内化 / 依赖外部工具 / 已废弃
+3. **Classify**: classify each skill by reference value into three tiers (following the classification framework in `reports/THIRD-PARTY-SKILL-ASSESSMENT-2026-08-01.md`):
+   - **High value**: fills a real gap; methodology can be absorbed directly
+   - **Medium value**: methodology borrowable, not a direct copy
+   - **Low/no value**: platform-specific / personal writing / already internalized / depends on external tools / deprecated
 
-   对照当前 ai-system 已有资产（`skills/`、`governance/standards/`、`templates/runtime/`）判断重叠与缺口。
+   Compare against current ai-system assets (`skills/`, `governance/standards/`, `templates/runtime/`) to judge overlap and gaps.
 
-4. **生成报告**：写入 `reports/THIRD-PARTY-SKILL-ASSESSMENT-{date}.md`，含：
-   - 来源与日期
-   - 已吸收建议（高价值项 + 落点）
-   - 可借鉴建议（中价值项 + 借鉴点）
-   - 不吸收项及原因
-   - 后续触发条件（Evolution Principle：不预先引入）
+4. **Generate report**: write `reports/THIRD-PARTY-SKILL-ASSESSMENT-{date}.md`, containing:
+   - Source and date
+   - Absorption suggestions (high-value items + landing points)
+   - Borrowable suggestions (medium-value items + borrow point)
+   - Non-absorbed items and reasons
+   - Future trigger conditions (Evolution Principle: do not pre-emptively introduce)
 
-5. **清理**：删除临时克隆目录。
+5. **Clean up**: delete the temp clone directory.
 
-**输出**
+**Output**
 
 ## Skill Source Assessment Report
 
@@ -40,8 +40,8 @@ description: 评估外部三方 skill 来源 - 克隆仓库、列出 skills、�
 - 不吸收项及原因
 - 后续触发条件
 
-**护栏**
+**Guardrails**
 
-- 只评估与分类，**不实施吸收**。吸收决定经用户确认后走 skill-policy。
-- 以原生资产重写（skill-policy），不复制三方文件。
-- 遵循 Evolution Principle：仅推荐填补真实缺口的吸收，不因"更好"而引入。
+- Only assess and classify, **do not implement absorption**. Absorption decisions go through skill-policy after user confirmation.
+- Rewrite as native assets (skill-policy), never copy third-party files.
+- Follow the Evolution Principle: only recommend absorption that fills a real gap, never introduce because "it is better".

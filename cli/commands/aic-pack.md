@@ -2,33 +2,33 @@
 description: 打包 AI 系统 - 生成迁移包（tools/pack.py）
 ---
 
-打包当前 ai-system 目录以便迁移到新机器，产物包含完整的运行时引擎与迁移清单。
+Pack the current ai-system directory for migration to a new machine. The artifact contains the complete runtime engine and migration checklist.
 
-**输入**：可选 Output Directory（目标目录，默认 `../ai-system-pack`）；可选 Zip（`yes` = 生成 .zip 并删除临时目录）。
+**Inputs**: Optional Output Directory (target dir, default `../ai-system-pack`); optional Zip (`yes` = generate .zip and remove the temp dir).
 
-**步骤**
+**Steps**
 
-1. **确认位置**：当前目录必须是 ai-system 根目录（存在 `tools/pack.py`）。
+1. **Confirm location**: Current directory must be the ai-system root (contains `tools/pack.py`).
 
-2. **执行打包**
+2. **Run packaging**
 
    ```bash
    python tools/pack.py [--output "<output directory>"] [--zip]
    ```
 
-   - 未提供 Output Directory → 不加 `--output`（默认 `../ai-system-pack`）
-   - Zip 为 `yes` → 追加 `--zip`
-   - 按需追加 `--with-reports` / `--with-methodologies`，先确认再执行
+   - No Output Directory → omit `--output` (default `../ai-system-pack`)
+   - Zip = `yes` → append `--zip`
+   - Append `--with-reports` / `--with-methodologies` as needed, after confirmation
 
-3. **校验产物**
+3. **Verify artifacts**
 
-   - 目标目录生成 `ai-system/` 且含 `README_MIGRATION.md`
-   - `config/environments/local.yaml` 已保存为 `local.yaml.template`
-   - 无 `node_modules` / `__pycache__` / `*.pyc` 混入
+   - Target dir contains `ai-system/` with `README_MIGRATION.md`
+   - `config/environments/local.yaml` saved as `local.yaml.template`
+   - No `node_modules` / `__pycache__` / `*.pyc` mixed in
 
-4. **汇报**：迁移包路径、文件/目录统计、新机器落地步骤（填 `local.yaml.template` 绝对路径、重建 `projects/` junction、`pip install -e .`）。
+4. **Report**: migration package path, file/dir statistics, new-machine landing steps (fill absolute path of `local.yaml.template`, recreate `projects/` junction, `pip install -e .`).
 
-**输出**
+**Output**
 
 ## Pack Report
 
@@ -36,8 +36,8 @@ description: 打包 AI 系统 - 生成迁移包（tools/pack.py）
 - 校验结果（逐项通过/失败）
 - 新机器落地清单
 
-**护栏**
+**Guardrails**
 
-- 打包只复制，绝不删除源文件
-- 敏感/绝对路径内容（local.yaml）必须以 `.template` 保留，不得原样打包
-- 大目录（node_modules、archived/ai-runtime/opencode/node_modules）必须排除
+- Packing only copies, never deletes source files
+- Sensitive/absolute-path content (local.yaml) must be preserved as `.template`, never packed as-is
+- Large dirs (node_modules, archived/ai-runtime/opencode/node_modules) must be excluded

@@ -30,6 +30,7 @@ The following layers MUST use English:
 | Layer | Scope | Reason |
 |---|---|---|
 | Workflow definitions | Purpose, Preconditions, Inputs, Outputs, Exit Criteria, Next | Machine-consumed; must be deterministic |
+| Command definitions | Steps, decision rules, guardrails (cli/commands/aic-*.md) | Execution logic; must not have ambiguity |
 | Runtime templates | Phase names, step instructions, decision rules | Execution logic; must not have ambiguity |
 | Skills | Implementation instructions, validation rules, anti-patterns | Reusable across teams |
 | Governance | Rules, standards, policies | Authoritative; English is less ambiguous |

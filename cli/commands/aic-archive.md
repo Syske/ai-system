@@ -2,89 +2,89 @@
 description: 归档实验性工作流中已完成的变更
 ---
 
-归档实验性工作流中已完成的变更。
+Archive a completed change in the experimental workflow.
 
-**输入**：可选择在 `/aic-archive` 后指定变更名称（例如，`/aic-archive add-auth`）。如果省略，检查是否可以从对话上下文中推断出来。如果模糊或不明确，你必须提示可用的变更。
+**Inputs**: Optionally specify the change name after `/aic-archive` (e.g. `/aic-archive add-auth`). If omitted, check whether it can be inferred from conversation context. If ambiguous or unclear, you must prompt for the available changes.
 
-**步骤**
+**Steps**
 
-1. **如果没有提供变更名称，提示选择**
+1. **If no change name provided, prompt for selection**
 
-   运行 `openspec-cn list --json` 获取可用变更。使用 **AskUserQuestion tool** 让用户选择。
+   Run `openspec-cn list --json` to get available changes. Use the **AskUserQuestion tool** to let the user choose.
 
-   仅显示活动变更（未归档的）。
-   如果可用，包括每个变更使用的 Schema。
+   Show only active (unarchived) changes.
+   Include the schema used by each change, if available.
 
-   **重要提示**：不要猜测或自动选择变更。始终让用户选择。
+   **Important**: Do not guess or auto-select a change. Always let the user choose.
 
-2. **检查产出物完成状态**
+2. **Check artifact completion status**
 
-   运行 `openspec-cn status --change "<name>" --json` 检查产出物完成情况。
+   Run `openspec-cn status --change "<name>" --json` to check artifact completion.
 
-   解析 JSON 以了解：
-   - `schemaName`：正在使用的工作流 Schema
-   - `artifacts`：产出物列表及其状态（`done` 或其他状态值）
+   Parse JSON to understand:
+   - `schemaName`: the workflow schema in use
+   - `artifacts`: list of artifacts and their status (`done` or other values)
 
-   **如果有任何产出物不是 `done`：**
-   - 显示列出未完成产出物的警告
-   - 提示用户确认是否继续
-   - 如果用户确认，则继续
+   **If any artifact is not `done`:**
+   - Show a warning listing the incomplete artifacts
+   - Prompt the user to confirm whether to continue
+   - If the user confirms, continue
 
-3. **检查任务完成状态**
+3. **Check task completion status**
 
-   阅读任务文件（通常是 `tasks.md`）以检查未完成的任务。
+   Read the task file (usually `tasks.md`) to check for incomplete tasks.
 
-   统计标记为 `- [ ]`（未完成）与 `- [x]`（已完成）的任务。
+   Count tasks marked `- [ ]` (incomplete) vs `- [x]` (complete).
 
-   **如果发现未完成的任务：**
-   - 显示警告，显示未完成任务的数量
-   - 提示用户确认是否继续
-   - 如果用户确认，则继续
+   **If incomplete tasks are found:**
+   - Show a warning with the number of incomplete tasks
+   - Prompt the user to confirm whether to continue
+   - If the user confirms, continue
 
-   **如果没有任务文件存在：** 继续，无需任务相关警告。
+   **If no task file exists:** continue without a task-related warning.
 
-4. **评估增量规格说明同步状态**
+4. **Evaluate incremental spec sync status**
 
-   在 `openspec/changes/<name>/specs/` 检查增量规格说明。如果不存在，不提示同步直接继续。
+   Check for incremental specs in `openspec/changes/<name>/specs/`. If absent, continue without prompting for sync.
 
-   **如果存在增量规格说明：**
-   - 将每个增量规格说明与其在 `openspec/specs/<capability>/spec.md` 的相应主规格说明进行比较
-   - 确定将应用哪些更改（添加、修改、删除、重命名）
-   - 在提示前显示合并摘要
+   **If incremental specs exist:**
+   - Compare each incremental spec against its corresponding main spec in `openspec/specs/<capability>/spec.md`
+   - Determine which changes would apply (add, modify, delete, rename)
+   - Show a merge summary before prompting
 
-   **提示选项：**
-   - 如果需要更改："立即同步（推荐）"，"不同步直接归档"
-   - 如果已同步："立即归档"，"仍要同步"，"取消"
+   **Prompt options:**
+   - If changes needed: "Sync now (recommended)", "Archive without syncing"
+   - If already synced: "Archive now", "Sync anyway", "Cancel"
 
-   如果用户选择同步，执行 `/aic-sync` 逻辑。无论选择如何都继续归档。
+   If the user chooses to sync, execute the `/aic-sync` logic. Continue archiving regardless of choice.
 
-5. **执行归档**
+5. **Perform the archive**
 
-   如果归档目录不存在，则创建它：
+   Create the archive directory if it does not exist:
    ```bash
    mkdir -p openspec/changes/archive
    ```
 
-   使用当前日期生成目标名称：`YYYY-MM-DD-<change-name>`
+   Generate the target name using the current date: `YYYY-MM-DD-<change-name>`
 
-   **检查目标是否已存在：**
-   - 如果是：失败并报错，建议重命名现有归档或使用不同日期
-   - 如果否：将变更目录移动到归档
+   **Check whether the target already exists:**
+   - If yes: fail with an error, suggest renaming the existing archive or using a different date
+   - If no: move the change directory to the archive
 
    ```bash
    mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
    ```
 
-6. **显示摘要**
+6. **Show summary**
 
-   显示归档完成摘要，包括：
-   - 变更名称
-   - 使用的 Schema
-   - 归档位置
-   - 规格说明同步状态（已同步 / 跳过同步 / 无增量规格说明）
-   - 任何警告的注释（未完成的产出物/任务）
+   Show an archive completion summary, including:
+   - Change name
+   - Schema used
+   - Archive location
+   - Spec sync status (synced / skipped sync / no incremental specs)
+   - Notes on any warnings (incomplete artifacts/tasks)
 
-**成功时的输出**
+**Output on success**
 
 ```
 ## 归档完成
@@ -97,7 +97,7 @@ description: 归档实验性工作流中已完成的变更
 所有产出物已完成。所有任务已完成。
 ```
 
-**成功时的输出（无增量规范）**
+**Output on success (no incremental specs)**
 
 ```
 ## 归档完成
@@ -110,7 +110,7 @@ description: 归档实验性工作流中已完成的变更
 所有产出物已完成。所有任务已完成。
 ```
 
-**成功时的输出（带警告）**
+**Output on success (with warnings)**
 
 ```
 ## 归档完成（带警告）
@@ -128,7 +128,7 @@ description: 归档实验性工作流中已完成的变更
 如果这不是故意的，请检查归档。
 ```
 
-**错误时的输出（归档已存在）**
+**Output on error (archive exists)**
 
 ```
 ## 归档失败
@@ -144,11 +144,11 @@ description: 归档实验性工作流中已完成的变更
 3. 等待不同的日期再归档
 ```
 
-**防护措施**
-- 如果未提供变更，始终提示选择
-- 使用产出物图（openspec-cn status --json）进行完成度检查
-- 不要在警告时阻止归档 - 只需告知并确认
-- 移动到归档时保留 .openspec.yaml（它与目录一起移动）
-- 显示清晰的操作摘要
-- 如果请求同步，使用 Skill tool 调用 `openspec-sync-specs`（代理驱动）
-- 如果存在增量规格说明，请始终运行同步评估，并在提示前显示综合摘要
+**Guardrails**
+- Always prompt for selection if no change is provided
+- Use the artifact graph (`openspec-cn status --json`) for completion checks
+- Do not block archiving on warnings - just inform and confirm
+- Preserve `.openspec.yaml` when moving to archive (it moves with the directory)
+- Show a clear operation summary
+- If sync is requested, use the Skill tool to invoke `openspec-sync-specs` (agent-driven)
+- Always run the sync evaluation if incremental specs exist, and show a consolidated summary before prompting

@@ -2,13 +2,13 @@
 description: AI 系统维护 - repo-lint 校验 + repository-maintainer 巡检 + 治理一致性抽查
 ---
 
-对 ai-system 与工作流体系执行例行维护：工具校验、按模式巡检、契约一致性抽查，产出维护报告。
+Run routine maintenance on ai-system and the workflow system: tool checks, mode-based inspection, contract consistency spot checks, producing a maintenance report.
 
-**输入**：Mode（weekly / monthly / quarterly / on-demand，默认 weekly）；可选 Scope（on-demand 时限定范围，如 workflows / runtime / skills / governance / cli）。
+**Inputs**: Mode (weekly / monthly / quarterly / on-demand, default weekly); optional Scope (for on-demand, limits the range, e.g. workflows / runtime / skills / governance / cli).
 
-**步骤**
+**Steps**
 
-1. **工具校验**（在 ai-system 目录执行）
+1. **Tool checks** (run in the ai-system directory)
 
    ```bash
    python tools/repo-lint.py --repo-root .
@@ -16,28 +16,28 @@ description: AI 系统维护 - repo-lint 校验 + repository-maintainer 巡检 +
    python tools/path-audit.py
    ```
 
-   修复 BLOCKER / ERROR 前不得进入后续步骤（只报告，不擅自修）。
+   Do not proceed to later steps until BLOCKER / ERROR are fixed (report only, do not fix on your own).
 
-2. **按模式巡检**（依据 skills/repository-maintainer 与 OPERATIONS.md 第 9 节）
-   - weekly：重复度报告、依赖图、孤儿资产、健康分
-   - monthly：架构评审、能力矩阵、生命周期报告、演进建议
-   - quarterly：workflow 重设计评估、能力重组、Playbook 合并、知识清理
-   - on-demand：按 Scope 执行上述对应项
+2. **Mode-based inspection** (per skills/repository-maintainer and OPERATIONS.md section 9)
+   - weekly: duplication report, dependency graph, orphan assets, health score
+   - monthly: architecture review, capability matrix, lifecycle report, evolution suggestions
+   - quarterly: workflow redesign assessment, capability restructuring, Playbook consolidation, knowledge cleanup
+   - on-demand: run the corresponding items above per Scope
 
-3. **治理一致性抽查**（每次必做，防既往问题复发）
-   - workflows/*.md：八段齐全且顺序一致（Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next）；术语符合 README 术语表；Runtime 引用文件存在；Preconditions/Next 链路闭合
-   - config/workflows/*.yaml：保持注册表最小三字段（name/workflow/runtime），未重新膨胀出 inputs/outputs/next（防 A1 复发）
-   - 引用路径实存：governance/standards/、loaders/、templates/prompts/、cli/commands/ 中引用的文件全部存在（防 stangards / runtime-workspace 类断链复发）
-   - 链接健康：projects/ 等 junction/软连接的目标目录存在且可访问（`Get-Item -Force` 校验 LinkType 与 Target）
-   - 文档-现实一致：AGENTS.md 工作区结构图、AI_DEVELOPMENT_CONTRACT 架构图、OPERATIONS 入口章节与目录现实一致
-   - 状态卫生：workspaces/.aic-state.yaml 中的项目/变更引用仍然存在
+3. **Governance consistency spot check** (always, to prevent recurrence of past issues)
+   - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches README glossary; Runtime reference files exist; Preconditions/Next chain closes
+   - config/workflows/*.yaml: registry stays minimal (name/workflow/runtime), no re-bloating into inputs/outputs/next (prevent A1 recurrence)
+   - Referenced paths exist: files referenced in governance/standards/, loaders/, templates/prompts/, cli/commands/ all exist (prevent stangards / runtime-workspace style broken links)
+   - Link health: junction/symlink target dirs like projects/ exist and are accessible (`Get-Item -Force` to check LinkType and Target)
+   - Doc-vs-reality: AGENTS.md workspace structure diagram, AI_DEVELOPMENT_CONTRACT architecture diagram, OPERATIONS entry sections match the actual directory layout
+   - State hygiene: project/change references in workspaces/.aic-state.yaml still exist
 
-4. **报告落盘**
-   - 写入 ai-system/reports/MAINTENANCE-{date}.md：发现清单（按严重度）、修复建议、指标对比（与上次 snapshot）
-   - 轻微问题（拼写、断链、文档漂移）可在确认后就地修复并记录
-   - 结构性变更（目录调整、模块合并、契约修改）**只输出建议**，走 OPERATIONS 第 11 节变更管理流程（Analyze → Propose → Review → Approve）
+4. **Persist report**
+   - Write to ai-system/reports/MAINTENANCE-{date}.md: findings list (by severity), fix suggestions, metric comparison (vs previous snapshot)
+   - Minor issues (typos, broken links, doc drift) may be fixed in place after confirmation and recorded
+   - Structural changes (directory adjustments, module merges, contract modifications) **output suggestions only**, go through the OPERATIONS section 11 change management flow (Analyze → Propose → Review → Approve)
 
-**输出**
+**Output**
 
 ## Maintenance Report
 
@@ -46,8 +46,8 @@ description: AI 系统维护 - repo-lint 校验 + repository-maintainer 巡检 +
 - 一致性抽查结论（逐项通过/失败）
 - 修复动作与建议清单
 
-**护栏**
+**Guardrails**
 
-- 遵循 AI_DEVELOPMENT_CONTRACT：不重设计架构、不跨模块搬职责、结构性变更禁止直接实施
-- 每一批修复前确认（Change Control）
-- 巡检只读优先；修改仅限确认后的轻微修复
+- Follow AI_DEVELOPMENT_CONTRACT: no architecture redesign, no moving responsibilities across modules, structural changes prohibited from direct implementation
+- Confirm before each batch of fixes (Change Control)
+- Inspection is read-first; modifications limited to confirmed minor fixes
