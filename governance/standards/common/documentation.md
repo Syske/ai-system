@@ -23,6 +23,55 @@ Per `governance/LANGUAGE_CONVENTION.md`:
 
 ---
 
+## Commit Convention
+
+Commit messages follow Conventional Commits, adapted for Chinese teams.
+
+**Type** (English keyword, tooling-compatible):
+
+| Type | Meaning | Example |
+|---|---|---|
+| `feat` | new feature | 添加用户注册模块 |
+| `fix` | bug fix | 修复登录页白屏问题 |
+| `docs` | documentation | 更新 API 接口文档 |
+| `style` | formatting (no logic change) | 调整缩进、补充分号 |
+| `refactor` | refactor (not new, not fix) | 拆分过长的服务类 |
+| `perf` | performance | 优化首页列表查询速度 |
+| `test` | testing | 补充用户模块单元测试 |
+| `chore` | build/tooling/deps | 升级 webpack 到 v5 |
+| `ci` | CI config | 修改 GitHub Actions 流程 |
+| `revert` | revert | 回滚 v2.1.0 的登录重构 |
+
+**Template**:
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Rules**:
+- `type` required, from the table above
+- `scope` optional, Chinese module name (用户模块 / 订单 / 支付)
+- `subject` required, Chinese, ≤ 50 chars, verb-object phrase（「添加 xxx」「修复 xxx」），no trailing period, never vague（"修了一个 bug"）
+- `body` Chinese, explains motivation, solution, and impact
+- `footer` references issues (Closes #128)
+
+Example:
+
+```
+fix(订单): 修复并发下单导致库存超卖的问题
+
+在高并发场景下，原有的库存扣减逻辑存在竞态条件。
+改用 Redis 分布式锁 + 数据库乐观锁双重保障。
+
+Closes #256
+```
+
+---
+
 # Class
 
 All new business classes must:

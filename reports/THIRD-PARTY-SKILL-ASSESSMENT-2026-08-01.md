@@ -6,6 +6,7 @@
   - obra/superpowers (https://github.com/obra/superpowers) — 14 skills
   - affaan-m/ECC (https://github.com/affaan-m/ECC) — 281 skills
   - anthropics/skills (https://github.com/anthropics/skills) — 17 skills
+  - jnMetaCode/superpowers-zh (https://github.com/jnMetaCode/superpowers-zh) — 20 skills
 - 原则 / Principle: Evolution Principle（只基于真实缺口吸收，不预先引入推测性能力）
 
 ---
@@ -116,7 +117,29 @@ ECC 是**大规模集成平台**（含 hooks / commands / agents / rules 全体�
 
 ---
 
-## 五、anthropics/skills 评估（17 skills）
+## 五、jnMetaCode/superpowers-zh 评估（20 skills）
+
+obra/superpowers 的中文版（14 个 skill 已评估，见第三节）+ 6 个新增项。评估对象为新增项。
+
+### 已补充（2 项）
+
+| skill | 补充到 | 内容 | Commit |
+|---|---|---|---|
+| chinese-documentation | governance/standards/common/chinese-documentation.md | 补充缺失章节：数字排版、API 文档中英对照格式、金额表示约定、常见问题与避坑指南（机翻味/欧化句式/标点混用）、写作检查清单 | 待提交 |
+| chinese-commit-conventions | governance/standards/common/documentation.md | Conventional Commits 中文适配：类型表、模板、Subject/Body 规范、示例（补充原有一句 commit 约定） | 待提交 |
+
+### 未吸收（4 项）
+
+| skill | 原因 |
+|---|---|
+| chinese-code-review | 话术模板，非治理规范 |
+| chinese-git-workflow | 国内 Git 平台（Gitee/Coding）配置参考，技术栈特定 |
+| workflow-runner | 依赖平台（Claude/OpenClaw/Cursor）多角色编排 |
+| mcp-builder | 与 anthropics mcp-builder 重复，非 ai-system 治理资产 |
+
+---
+
+## 六、anthropics/skills 评估（17 skills）
 
 Anthropic 官方 skill 仓库，多为**平台生态**（文档/办公文件处理、设计、Claude API）与通用工程工具，独立于 ai-system 治理体系。
 
@@ -139,7 +162,7 @@ Anthropic 官方 skill 仓库，多为**平台生态**（文档/办公文件处�
 
 ---
 
-## 六、协同关系
+## 七、协同关系
 
 - **mattpocock**：方法论型（教"怎么做"）→ feedback loop、seam、deep module
 - **superpowers**：纪律型（约束"必须做什么"）→ Iron Law、evidence gate
@@ -147,12 +170,15 @@ Anthropic 官方 skill 仓库，多为**平台生态**（文档/办公文件处�
   agent-self-evaluation（5 轴自评）
 - **anthropics**：平台生态型（文档/设计/API 工具）→ 与 ai-system 治理无真实缺口，
   仅 skill-creator 的"描述触发率优化"方法论可借鉴（待平台支持）
+- **superpowers-zh**：中文本地化型（obra/superpowers 中文版 + 中文特有规范）→
+  补齐中文文档规范与 commit 约定的落地细节
 - 多层互补：方法论提供做法，纪律提供强制约束，评价提供质量量化与去重，
-  叠加在 ai-system 的 skill（方法）、governance（规则）、tooling（命令）三层
+  中文本地化提供落地细节，叠加在 ai-system 的 skill（方法）、
+  governance（规则）、tooling（命令）三层
 
 ---
 
-## 七、后续待办（不预先引入）
+## 八、后续待办（不预先引入）
 
 | 项 | 触发条件 |
 |---|---|
