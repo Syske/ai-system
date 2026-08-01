@@ -39,6 +39,8 @@ Produces Environment Context and initializes the workspace.
 
 ## 1.2 New Requirement (main chain)
 
+> 主链拓扑以 `workflows/README.md`（Entry & Main Chain）为唯一来源，此处仅为使用说明。
+
 ```text
 prepare → spec → dev-setup → develop (one task card per cycle) → review → verify → release
 ```
@@ -58,6 +60,8 @@ Rules:
 ---
 
 ## 1.3 Bug Fix (short chain)
+
+> 独立入口分支以 `workflows/README.md`（Independent entry）为唯一来源，此处仅为使用说明。
 
 ```text
 bugfix → review → verify

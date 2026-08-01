@@ -6,7 +6,7 @@ Diagnose and fix software defects.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-bugfix.md
+- templates/runtime/runtime-bugfix.md
 
 ## Preconditions
 

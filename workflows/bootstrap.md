@@ -6,7 +6,7 @@ Load environment configuration and prepare execution context for all downstream 
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-bootstrap.md
+- templates/runtime/runtime-bootstrap.md
 
 ## Preconditions
 
@@ -52,4 +52,6 @@ Stop:
 
 ## Next
 
-- prepare (new change), or any workflow that requires Environment Context
+- prepare — on new change
+
+Note: any workflow that requires Environment Context may follow bootstrap.

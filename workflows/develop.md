@@ -6,7 +6,7 @@ Implement exactly one task.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-develop.md
+- templates/runtime/runtime-develop.md
 
 ## Preconditions
 

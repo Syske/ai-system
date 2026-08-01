@@ -29,10 +29,18 @@ Execution lifecycle (phases, checkpoints, recovery, persistence) is owned by the
 
 ---
 
-## Main Chain
+## Entry & Main Chain
+
+Cold start (once per environment):
 
 ```text
-bootstrap → prepare → spec → dev-setup → develop → review → verify → release
+bootstrap
+```
+
+Change lifecycle main chain:
+
+```text
+prepare → spec → dev-setup → develop → review → verify → release
 ```
 
 Conditional transitions:
@@ -80,7 +88,7 @@ Execution modifiers:
 
 ## Workflow Template
 
-Every workflow file must contain exactly these sections, in this order:
+Every workflow file must contain these sections, in this order:
 
 1. Purpose — one responsibility, one sentence
 2. Runtime — runtime template path
@@ -90,6 +98,10 @@ Every workflow file must contain exactly these sections, in this order:
 6. Outputs — generated artifacts
 7. Exit Criteria — Success / Stop conditions
 8. Next — downstream workflow or None
+
+Optional sections (inserted after Purpose when needed, do not reorder required sections):
+
+- When to Use — distinguishes this workflow from related skills (e.g. review vs review-changes)
 
 Rules:
 

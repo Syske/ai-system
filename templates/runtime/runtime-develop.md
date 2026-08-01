@@ -161,6 +161,16 @@ Do NOT modify code during Reflection.
 
 ---
 
+# Outputs
+
+Generate:
+
+- Implementation changes (code and documentation)
+- Test results
+- Updated Task Card (Completion Definition + Code Quality Checks + Acceptance Criteria all [x])
+- Updated Workspace Context
+- Completion Report
+
 ## Phase 4 — Completion
 
 Verify:

@@ -6,7 +6,7 @@ Manage AI System knowledge assets.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-knowledge.md
+- templates/runtime/runtime-knowledge.md
 
 ## Preconditions
 

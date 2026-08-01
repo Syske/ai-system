@@ -6,7 +6,7 @@ Resolve project context and prepare development environment.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-dev-setup.md
+- templates/runtime/runtime-dev-setup.md
 
 ## Preconditions
 

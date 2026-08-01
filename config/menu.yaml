@@ -11,6 +11,7 @@ locale: zh
 # 目标选择菜单：分区与条目。
 # kind: workflow（注册于 workflow-registry.yaml）或 command（cli/commands/*.md）。
 # title 为 i18n key（解析见 config/i18n/{locale}.yaml）。
+# flow_main 的编号仅表达主链展示顺序；主链拓扑（谁接谁）以 workflows/README.md 为唯一来源。
 sections:
   - title: flow_main
     items:

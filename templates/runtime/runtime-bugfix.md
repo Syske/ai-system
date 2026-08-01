@@ -231,6 +231,17 @@ Do NOT modify code during Reflection.
 
 ---
 
+# Outputs
+
+Generate:
+
+- Root Cause Report
+- Fix implementation (smallest safe change)
+- Regression Report
+- BugFix Report
+
+---
+
 # Phase 7 — Completion
 
 Generate:
