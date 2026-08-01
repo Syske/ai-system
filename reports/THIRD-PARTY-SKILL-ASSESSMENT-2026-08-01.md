@@ -4,6 +4,7 @@
 - 来源 / Sources:
   - mattpocock/skills (https://github.com/mattpocock/skills) — 39 skills
   - obra/superpowers (https://github.com/obra/superpowers) — 14 skills
+  - affaan-m/ECC (https://github.com/affaan-m/ECC) — 281 skills
 - 原则 / Principle: Evolution Principle（只基于真实缺口吸收，不预先引入推测性能力）
 
 ---
@@ -82,16 +83,50 @@
 
 ---
 
-## 四、协同关系
+## 四、affaan-m/ECC 评估（281 skills）
 
-- **mattpocock**：方法论型（教"怎么做"）→ feedback loop、seam、deep module
-- **superpowers**：纪律型（约束"必须做什么"）→ Iron Law、evidence gate
-- 两层互补：方法论提供做法，纪律提供强制约束，二者叠加在 ai-system 的
-  skill（方法）与 governance（规则）两层
+ECC 是**大规模集成平台**（含 hooks / commands / agents / rules 全体系），其 skill 多为该平台生态组件，独立可移植性低于前两个仓库。绝大多数是语言/框架/领域特定 skill，与 ai-system（治理系统）无直接关系。
+
+### 已吸收（高价值 2 项）
+
+| skill | 吸收到 | 内容 | Commit |
+|---|---|---|---|
+| skill-scout | aic-skill-source 命令 | 创建前搜索本地/多方来源避免重复、外部匹配审查（读 frontmatter / 查危险 shell/网络/凭据 / 评估维护度）、吸收决策选项表（直接吸收/派生扩展/新建） | c601552 |
+| agent-self-evaluation | REFLECTION_RULES | 5 轴评分（accuracy/completeness/clarity/actionability/conciseness）1-5 分 + 证据规则（<5 分必须引用具体证据）——评分制补充现有 5 问检查制 | c601552 |
+
+### 未吸收（低/无价值，含原因）
+
+| 类别 | 示例 | 原因 |
+|---|---|---|
+| 语言/框架特定（~260） | python-patterns, django-*, springboot-*, kotlin-*, postgres-patterns, docker-patterns, kubernetes-patterns, react-* 等 | 技术栈特定，与 ai-system 治理无关 |
+| 领域业务特定 | healthcare-*, finance-*, logistics-*, energy-procurement, customs-trade-compliance, visa-doc-translate 等 | 特定业务领域 |
+| 平台生态组件 | configure-ecc, ecc-guide, hookify-rules, dynamic-workflow-mode, autonomous-loops, claude-devfleet 等 | 依赖 ECC 平台的 hooks/agents/rules 体系，不可独立移植 |
+| 个人/内容创作 | article-writing, brand-*, investor-materials, social-publisher, seo, manim-video, video-editing 等 | 非本领域 |
+| 与已有资产重叠 | coding-standards, architecture-decision-records, verification-loop, benchmark-methodology, intent-driven-development | 与 repo-lint / rfc-README ADR / check 门禁 / benchmark 类 skill 重叠 |
+
+### 中价值（未吸收，待真实需求评估）
+
+| skill | 借鉴点 | 未吸收原因 |
+|---|---|---|
+| delivery-gate | 机械质量门禁（完成前强制检查，检测 rationalization 模式） | 与 verification-before-completion 同源；我们已吸收证据先行 |
+| context-budget | 上下文窗口消费审计（识别 bloat） | 依赖 Claude Code 环境；可后续评估 |
+| continuous-learning-v2 | 会话经验→原子 instinct→skill 演化 | 与我们 memory/knowledge 工作流理念相关但机制不同 |
+| skill-stocktake / skill-comply | skill 质量审计、合规测量（压力场景验证 skill 是否被遵循） | 与 repo-lint / skill-author 重叠；机制较重（需运行 agent） |
 
 ---
 
-## 五、后续待办（不预先引入）
+## 五、协同关系
+
+- **mattpocock**：方法论型（教"怎么做"）→ feedback loop、seam、deep module
+- **superpowers**：纪律型（约束"必须做什么"）→ Iron Law、evidence gate
+- **ECC**：工程实践型（补充"评价与避免重复"）→ skill-scout（创建前搜索）、
+  agent-self-evaluation（5 轴自评）
+- 三层互补：方法论提供做法，纪律提供强制约束，评价提供质量量化与去重，
+  叠加在 ai-system 的 skill（方法）、governance（规则）、tooling（命令）三层
+
+---
+
+## 六、后续待办（不预先引入）
 
 | 项 | 触发条件 |
 |---|---|
@@ -99,3 +134,5 @@
 | subagent-driven / parallel-agents | 平台子代理能力可稳定使用且需并行开发 |
 | review 反馈纪律（requesting/receiving） | 若 review 反馈处理出现"盲从或盲目反对"问题 |
 | Iron Law 强化 tdd | 若出现"无测试即写生产代码"违规 |
+| ECC delivery-gate / context-budget | 若验证或上下文开销出现真实问题 |
+| ECC skill-stocktake / skill-comply | 若 skill 质量审计需自动化测量 |
