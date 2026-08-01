@@ -58,6 +58,29 @@ Never start coding immediately.
 
 ---
 
+# Goal-Driven Execution
+
+Transform each task into a verifiable goal, then loop until verified.
+
+Examples:
+
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan with verification per step:
+
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria allow independent looping. Weak criteria ("make it work")
+require constant clarification — avoid them.
+
+---
+
 # Source of Truth
 
 Implementation MUST follow:
