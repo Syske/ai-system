@@ -1,6 +1,6 @@
 # Skills Index
 
-## Workflow-Bound Skills (17)
+## Workflow-Bound Skills (18)
 
 These skills are directly invoked by at least one Workflow Runtime.
 
@@ -13,6 +13,7 @@ These skills are directly invoked by at least one Workflow Runtime.
 | mock-test | develop | Testing |
 | java-maven | develop, dev-setup | Language |
 | task-splitter | spec | Planning |
+| grilling | spec (Phase 2.5, optional) | Design |
 | architecture/architecture-base | spec, prepare | Architecture |
 | architecture/context-architect | dev-setup | Architecture |
 | architecture/design-review | review | Architecture |

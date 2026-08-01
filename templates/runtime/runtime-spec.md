@@ -158,6 +158,23 @@ Do not design implementation.
 
 ---
 
+# Phase 2.5 — Design Decision Pressure Test (Optional)
+
+Objective:
+
+Stress-test proposed design decisions before writing the Design artifact.
+
+When the user wants to pressure-test a design or plan, or asks to "grill" /
+"stress-test" the approach, invoke the `grilling` skill: walk the decision
+tree one branch at a time, one question at a time, with a recommended answer,
+and do not proceed until the user confirms a shared understanding.
+
+Look up facts in the environment; only decisions are put to the user.
+
+This step is optional and does not change the Specification contract.
+
+---
+
 # Phase 3 — Specification
 
 Objective:
