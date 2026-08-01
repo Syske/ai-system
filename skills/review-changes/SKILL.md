@@ -1,6 +1,6 @@
 ---
 name: review-changes
-description: Perform a structured code review using change detection and impact
+description: Perform a structured code review using change detection and impact analysis. Use when reviewing uncommitted or pending changes, assessing risk, and identifying issues across files before finalizing a review or spec.
 ---
 
 ## When to Use

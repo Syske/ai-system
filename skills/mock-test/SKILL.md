@@ -1,6 +1,6 @@
 ---
 name: mock-test
-description: Generate Mockito unit tests for Java classes
+description: Generate Mockito unit tests for Java classes. Use when writing or extending unit tests for services, mappers, or facades — creating mocks, stubbing dependencies, verifying interactions, and covering edge cases with idiomatic Mockito patterns.
 ---
 
 ## Scope

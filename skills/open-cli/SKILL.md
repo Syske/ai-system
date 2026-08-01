@@ -1,5 +1,5 @@
 ---
-name: opencli
+name: open-cli
 description: "Generate CLI adapter files (YAML/TypeScript) for the opencli framework. Use when the user wants to create CLI commands, build adapters for websites or APIs, or interact with the opencli tool. Covers browser-based API discovery, authentication strategy selection, and adapter generation workflows."
 ---
 

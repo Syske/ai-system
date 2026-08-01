@@ -1,6 +1,6 @@
 ---
 name: bugfix
-description: Bug fixing workflow — analyze, fix, and validate with tests
+description: Bug fixing workflow — analyze root cause, implement the smallest safe fix, and validate with regression tests. Use when a defect is reported, when behavior diverges from the expected spec, or when a failing test needs a verified repair.
 ---
 
 ## Bug Analysis

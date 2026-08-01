@@ -1,6 +1,6 @@
 ---
 name: outcome-benchmark-generator
-description: 当需要针对某个具体 skill 自动生成效果评测测试集时使用。负责从目标 skill 定义生成标准答案、关键观点和关键动作，不负责路由命中样本生成。
+description: 当需要针对某个具体 skill 自动生成效果评测测试集时使用。负责从目标 skill 定义中生成标准答案、关键观点和关键动作，用于验证 skill 输出质量；不负责路由命中样本生成，且不适用于评估模型通用能力。
 ---
 
 # Outcome Benchmark Generator

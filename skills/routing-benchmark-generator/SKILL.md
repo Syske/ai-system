@@ -1,6 +1,6 @@
 ---
 name: routing-benchmark-generator
-description: 当需要针对某个具体 skill 自动生成路由命中测试集时使用。负责从目标 skill 定义中生成应命中该 skill 的 query、语义意图和语义锚点，不负责结果质量评测。
+description: 当需要针对某个具体 skill 自动生成路由命中测试集时使用。负责从目标 skill 定义中生成应命中该 skill 的 query、语义意图和语义锚点，用于验证路由准确性；不负责结果质量评测，也不适用于无明确触发条件的通用查询。
 ---
 
 # Routing Benchmark Generator

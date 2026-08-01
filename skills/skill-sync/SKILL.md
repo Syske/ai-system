@@ -1,6 +1,6 @@
 ---
 name: skill-sync
-description: 当用户明确提出要将某个 skill 上传（Push）到 Insight 平台上，或者从平台上拉取（Pull）某个 skill 时调用的专用工具集合。
+description: 当用户明确提出要将某个 skill 上传（Push）到 Insight 平台上，或者从平台上拉取（Pull）某个 skill 时调用的专用工具集合。负责将本地 skill 目录同步到平台或反向拉取，并校验同步结果。
 ---
 
 # Skill Sync (Skill 同步组件)

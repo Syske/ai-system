@@ -1,6 +1,6 @@
 ---
 name: debug-issue
-description: Systematically debug issues using graph-powered code navigation
+description: Systematically debug issues using graph-powered code navigation. Use when investigating a bug, tracing a failing scenario, or understanding how code paths connect — navigating dependencies, callers, and callees to locate root cause with evidence.
 ---
 
 ## Debug Issue
