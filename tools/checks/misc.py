@@ -119,12 +119,24 @@ def check_repo_lint(c):
     out = result.stdout + result.stderr
 
     m = re.search(
-        r"BLOCKERS:\s*(\d+)\s*\|\s*ERRORS:\s*(\d+)",
+        r"Skills:\s*(\d+).*BLOCKERS:\s*(\d+)\s*\|\s*ERRORS:\s*(\d+)",
         out
     )
 
-    blockers = int(m.group(1)) if m else 1
-    errors = int(m.group(2)) if m else 1
+    if not m:
+        c.error(
+            "repo-lint: unrecognized output (tool may be broken)"
+        )
+        return
+
+    skills = int(m.group(1))
+    blockers = int(m.group(2))
+    errors = int(m.group(3))
+
+    if skills == 0:
+        c.error(
+            "repo-lint: detected 0 skills (check root resolution)"
+        )
 
     if blockers or errors:
         c.error(

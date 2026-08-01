@@ -21,11 +21,21 @@ from pathlib import Path
 from collections import defaultdict
 
 
-SKILLS_SUBDIR = "ai-system/skills"
-WORKFLOWS_SUBDIR = "ai-system/workflows"
+SKILLS_SUBDIR = "skills"
+WORKFLOWS_SUBDIR = "workflows"
+
+
+def resolve_root(root):
+    """Return the ai-system root regardless of whether repo-root points at
+    the workspace (containing ai-system/) or at ai-system/ itself.
+    """
+    if (root / "ai-system").is_dir():
+        return root / "ai-system"
+    return root
 
 
 def count_skills(root):
+    root = resolve_root(root)
     skills_dir = root / SKILLS_SUBDIR
     if not skills_dir.exists():
         return 0, []
@@ -34,10 +44,11 @@ def count_skills(root):
 
 
 def count_workflows(root):
+    root = resolve_root(root)
     wf_dir = root / WORKFLOWS_SUBDIR
     if not wf_dir.exists():
         return 0, []
-    wfs = sorted([d.name for d in wf_dir.iterdir() if d.is_dir()])
+    wfs = sorted([p.name for p in wf_dir.glob("*.md") if p.name != "README.md"])
     return len(wfs), wfs
 
 
@@ -45,6 +56,24 @@ def count_files_in_dir(directory):
     if not directory.exists():
         return 0
     return len(list(directory.rglob("*")))
+
+
+EXCLUDED_DIRS = {".venv", "node_modules", "__pycache__", "dist", "build", ".git"}
+
+
+def _walk(base, suffix=None):
+    """Yield files under base, skipping generated/vendor dirs."""
+    import os
+
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [
+            d for d in dirnames
+            if d not in EXCLUDED_DIRS and not d.startswith(".")
+        ]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if suffix is None or p.suffix in suffix:
+                yield p
 
 
 def count_md_files(root, subdir):
@@ -64,12 +93,11 @@ def average_skill_size(root):
         if not skill_dir.is_dir():
             continue
         skill_lines = 0
-        for f in skill_dir.rglob("*"):
-            if f.is_file() and f.suffix in (".md", ".py", ".sh"):
-                try:
-                    skill_lines += len(f.read_text(encoding="utf-8").splitlines())
-                except Exception:
-                    pass
+        for f in _walk(skill_dir, (".md", ".py", ".sh", ".yaml", ".yml")):
+            try:
+                skill_lines += len(f.read_text(encoding="utf-8").splitlines())
+            except Exception:
+                pass
         if skill_lines > 0:
             total_lines += skill_lines
             skill_count += 1
@@ -115,12 +143,11 @@ def get_skill_sizes(root):
         if not skill_dir.is_dir():
             continue
         total_lines = 0
-        for f in skill_dir.rglob("*"):
-            if f.is_file() and f.suffix in (".md", ".py", ".sh"):
-                try:
-                    total_lines += len(f.read_text(encoding="utf-8").splitlines())
-                except Exception:
-                    pass
+        for f in _walk(skill_dir, (".md", ".py", ".sh", ".yaml", ".yml")):
+            try:
+                total_lines += len(f.read_text(encoding="utf-8").splitlines())
+            except Exception:
+                pass
         if total_lines > 0:
             sizes[skill_dir.name] = total_lines
 
@@ -128,6 +155,7 @@ def get_skill_sizes(root):
 
 
 def collect_metrics(root):
+    root = resolve_root(root)
     n_skills, skill_names = count_skills(root)
     n_workflows, wf_names = count_workflows(root)
 
@@ -144,13 +172,13 @@ def collect_metrics(root):
             "names": wf_names,
         },
         "rfc": {
-            "count": count_md_files(root, "ai-system/rfc"),
+            "count": count_md_files(root, "rfc"),
         },
         "governance": {
-            "count": count_md_files(root, "ai-system/governance"),
+            "count": count_md_files(root, "governance"),
         },
         "templates": {
-            "count": count_md_files(root, "ai-system/templates"),
+            "count": count_md_files(root, "templates"),
         },
         "quality": {
             "frontmatter": get_frontmatter_quality(root),

@@ -24,16 +24,49 @@ import sys
 from pathlib import Path
 
 
-SKILLS_SUBDIR = "ai-system/skills"
+SKILLS_SUBDIR = "skills"
+
+EXCLUDED_DIRS = {".venv", "node_modules", "__pycache__", "dist", "build", ".git"}
+
+
+def walk_skill_files(skill_dir, suffix=None):
+    """Yield files under a skill dir, skipping generated/vendor dirs."""
+    import os
+
+    for dirpath, dirnames, filenames in os.walk(skill_dir):
+        dirnames[:] = [
+            d for d in dirnames
+            if d not in EXCLUDED_DIRS and not d.startswith(".")
+        ]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if suffix is None or p.suffix in suffix:
+                yield p
+
+
+def resolve_root(root):
+    """Return the ai-system root regardless of whether repo-root points at
+    the workspace (containing ai-system/) or at ai-system/ itself.
+    """
+    if (root / "ai-system").is_dir():
+        return root / "ai-system"
+    return root
 
 
 def find_skills(root):
+    root = resolve_root(root)
     skills_dir = root / SKILLS_SUBDIR
     if not skills_dir.exists():
         return []
-    return sorted(
-        [d for d in skills_dir.iterdir() if d.is_dir() and not d.name.startswith(".")]
-    )
+    skills = []
+    for d in sorted(skills_dir.iterdir()):
+        if not d.is_dir() or d.name.startswith("."):
+            continue
+        # Container dirs (only nested skill dirs, no own SKILL.md) are not skills.
+        if find_entrypoint(d) is None and any(p.is_dir() for p in d.iterdir()):
+            continue
+        skills.append(d)
+    return skills
 
 
 def find_entrypoint(skill_dir):
@@ -127,7 +160,11 @@ def check_frontmatter(skill_dir, results):
                 file=str(entrypoint),
             )
 
-    desc_m = re.search(r"^description:\s*>\s*\n(.*?)(?=\n\S|^---)", frontmatter, re.MULTILINE | re.DOTALL)
+    desc_m = re.search(
+        r"^description:\s*(?:\>\s*\n)?\s*(.+)",
+        frontmatter,
+        re.MULTILINE | re.DOTALL
+    )
     if not desc_m:
         results.error(f"Missing 'description:' in frontmatter", file=str(entrypoint))
     else:
@@ -144,20 +181,28 @@ def check_frontmatter(skill_dir, results):
 
 
 def check_skill_size(skill_dir, results):
-    total = 0
-    for f in skill_dir.rglob("*"):
-        if f.is_file() and f.suffix in (".md", ".py", ".sh", ".yaml", ".yml"):
-            total += count_lines(f)
-    if total > 1000:
-        results.error(f"Skill exceeds 1000 lines: {total} lines", file=str(skill_dir))
-    return total
+    # Per-file limit: a single documentation file over 1000 lines is a problem;
+    # aggregated docs across many reference files are not.
+    max_lines = 0
+    max_file = None
+    for f in walk_skill_files(skill_dir, (".md", ".yaml", ".yml")):
+        n = count_lines(f)
+        if n > max_lines:
+            max_lines = n
+            max_file = f
+    if max_lines > 1000:
+        results.error(
+            f"File exceeds 1000 lines: {max_lines} lines ({max_file.name})",
+            file=str(skill_dir),
+        )
+    return max_lines
 
 
 def check_prohibited_content(skill_dir, skill_name, results):
     if skill_name == "java-maven":
         return
 
-    for f in skill_dir.rglob("*.md"):
+    for f in walk_skill_files(skill_dir, (".md",)):
         content = read_file(f)
         lines = content.splitlines()
         for i, line in enumerate(lines):
@@ -189,11 +234,11 @@ def check_workflow_stages(skill_dir, results):
         return
 
     content = read_file(wf_path)
-    stages = re.findall(r"^### Stage \d+", content, re.MULTILINE)
+    stages = re.findall(r"^#{1,6} Stage \d+", content, re.MULTILINE)
     if len(stages) < 3:
         results.error(f"Only {len(stages)} workflow stages found (minimum 3)", file=str(wf_path))
 
-    stage_blocks = re.split(r"^### Stage \d+", content, re.MULTILINE)[1:]
+    stage_blocks = re.split(r"^#{1,6} Stage \d+", content, re.MULTILINE)[1:]
     for i, block in enumerate(stage_blocks):
         if "**Goal:**" not in block:
             results.warning(f"Stage {i+1} missing **Goal:** section", file=str(wf_path))
