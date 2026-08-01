@@ -1,3 +1,5 @@
+import subprocess
+from datetime import datetime
 from pathlib import Path
 
 from cli.utils.file import read_text
@@ -6,6 +8,7 @@ from cli.utils.menu import (
     Section,
     ask_text,
     choose,
+    choose_many,
     icons_enabled,
     is_tty,
     screen_enter,
@@ -19,14 +22,48 @@ FIELD_NOTES = {
     "Workspace ID": "from workspaces/",
     "Change ID": "from openspec/changes/",
     "Task ID": "from openspec/changes/*/tasks/cards/",
-    "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain"
+    "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain",
+    "Operation": "search=梳理检索 diff=逻辑对比 chain=逻辑链路 impact=影响范围 manual=手动自定义",
+    "Workspace": "选择 workspaces/ 下工作区；skip=不在workspace中搜索",
+    "Projects": "选择 projects/ 下代码仓库（多选，空格切换）；skip=在所有项目中梳理",
+    "Branch": "选择代码分支（支持输入过滤）；不选默认 master",
+    "Code Reference": "关键词（逗号分隔）/代码块；manual 时填自由分析指令",
+    "Compare With": "仅 diff：第二段待对比代码",
+    "Keep Results": "yes=结果保留到 scans/ 目录；no=仅会话内输出"
 }
 
 FIELD_ICONS = {
     "Project ID": "🏠 ",
     "Workspace ID": "🖥️ ",
     "Change ID": "🔀 ",
-    "Task ID": "🎯 "
+    "Task ID": "🎯 ",
+    "Operation": "🧭 ",
+    "Workspace": "🏠 ",
+    "Projects": "📦 ",
+    "Branch": "🌿 ",
+    "Code Reference": "📎 ",
+    "Compare With": "⚖️ ",
+    "Keep Results": "💾 "
+}
+
+OPERATION_LABELS = {
+    "search": "梳理检索",
+    "diff": "逻辑对比",
+    "chain": "逻辑链路",
+    "impact": "影响范围",
+    "manual": "手动自定义"
+}
+
+OPTION_DESCRIPTIONS = {
+    "Operation": OPERATION_LABELS,
+    "Keep Results": {
+        "yes": "保留到 scans/ 目录",
+        "no": "仅会话内输出，不写文件"
+    }
+}
+
+MULTI_SELECT_FIELDS = {
+    "Projects"
 }
 
 AUTO_FIELDS = (
@@ -57,6 +94,15 @@ COMMAND_FIELDS = {
     ],
     "setup": [
         ("Workspace Root", False)
+    ],
+    "scan": [
+        ("Operation", False),
+        ("Workspace", False),
+        ("Projects", False),
+        ("Branch", False),
+        ("Code Reference", False),
+        ("Compare With", False),
+        ("Keep Results", False)
     ]
 }
 
@@ -106,6 +152,11 @@ class Wizard:
         self.workspaces = (
             root.parent
             / "workspaces"
+        )
+
+        self.projects_root = (
+            root.parent
+            / "projects"
         )
 
         self.state_file = (
@@ -255,6 +306,38 @@ class Wizard:
 
             if index == len(fields):
 
+                if (
+                    target[0] == "scan"
+                    and self._scan_scope_empty(
+                        values,
+                        self.projects_root
+                    )
+                ):
+
+                    print()
+                    print(
+                        "⚠ 无可搜索范围：未选 Workspace，"
+                        "且 projects/ 下没有可用项目。"
+                    )
+                    print(
+                        "请选择 Workspace 或先运行 setup "
+                        "把代码仓库链接到 projects/。"
+                    )
+
+                    step = 2
+
+                    continue
+
+                if target[0] == "scan":
+
+                    scan_dir = self._scan_result_dir(
+                        values,
+                        self.workspaces
+                    )
+
+                    if scan_dir:
+                        values["Scan Directory"] = scan_dir
+
                 result = self._select_output(
                     self._header(
                         project,
@@ -403,7 +486,7 @@ class Wizard:
         )
 
         commands = sorted(
-            p.stem.replace("opsx-", "")
+            p.stem.replace("aic-", "")
             for p in (
                 self.root
                 / "cli"
@@ -685,7 +768,7 @@ class Wizard:
             self.root
             / "cli"
             / "commands"
-            / f"opsx-{name}.md"
+            / f"aic-{name}.md"
         )
 
         if not path.exists():
@@ -833,19 +916,47 @@ class Wizard:
 
         note = FIELD_NOTES.get(field)
 
-        if note and choices:
-            title += f" — {note}"
-
         if choices:
 
             icon = _e(
                 FIELD_ICONS.get(field, "")
             )
 
-            options = [
-                f"{icon}{c}"
-                for c in choices
-            ]
+            labels = OPTION_DESCRIPTIONS.get(field)
+
+            options = []
+
+            for c in choices:
+
+                display = c
+
+                if labels and c in labels:
+                    display = f"{c} — {labels[c]}"
+
+                options.append(f"{icon}{display}")
+
+            if field in MULTI_SELECT_FIELDS:
+
+                picked = choose_many(
+                    title,
+                    options,
+                    header=header,
+                    note=note
+                )
+
+                if picked is BACK:
+                    return BACK
+
+                if picked is None:
+                    return None
+
+                value = ", ".join(
+                    choices[i] for i in picked
+                )
+
+                self.history[field] = value
+
+                return value
 
             options.append(
                 f"{_e('⌨️ ')}type manually"
@@ -877,7 +988,8 @@ class Wizard:
                 options,
                 default,
                 allow_skip=not required,
-                header=header
+                header=header,
+                note=note
             )
 
             if idx is BACK:
@@ -991,6 +1103,27 @@ class Wizard:
         if field == "Zip":
             return ["yes", "no"]
 
+        if field == "Operation":
+            return list(OPERATION_LABELS.keys())
+
+        if field == "Workspace":
+            return self._dirs(
+                self.workspaces,
+                exclude={"archived"}
+            )
+
+        if field == "Projects":
+            return self._dirs(
+                self.projects_root,
+                exclude={"archived"}
+            )
+
+        if field == "Branch":
+            return self._scan_branches(values)
+
+        if field == "Keep Results":
+            return ["yes", "no"]
+
         project = (
             values.get("Project ID")
             or values.get("Workspace ID")
@@ -1040,6 +1173,114 @@ class Wizard:
             and not p.name.startswith(".")
             and p.name not in exclude
         )
+
+    def _scan_branches(
+        self,
+        values
+    ):
+
+        projects = values.get("Projects")
+
+        if not projects:
+            return []
+
+        branches = set()
+
+        for name in projects.split(","):
+
+            name = name.strip()
+
+            if not name:
+                continue
+
+            repo = self.projects_root / name
+
+            if not repo.is_dir():
+                continue
+
+            try:
+
+                result = subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(repo),
+                        "-c",
+                        "safe.directory=*",
+                        "branch",
+                        "--format=%(refname:short)"
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+
+                if result.returncode != 0:
+                    continue
+
+                for line in result.stdout.splitlines():
+
+                    line = line.strip()
+
+                    if line:
+                        branches.add(line)
+
+            except Exception:
+
+                continue
+
+        return sorted(branches)
+
+    @staticmethod
+    def _scan_scope_empty(
+        values,
+        projects_root
+    ):
+
+        operation = values.get("Operation") or "search"
+
+        if operation in ("diff", "manual"):
+            return False
+
+        if values.get("Workspace"):
+            return False
+
+        if values.get("Projects"):
+            return False
+
+        if not projects_root.is_dir():
+            return True
+
+        if any(
+            p.is_dir()
+            for p in projects_root.iterdir()
+            if not p.name.startswith(".")
+        ):
+            return False
+
+        return True
+
+    @staticmethod
+    def _scan_result_dir(
+        values,
+        workspaces_root
+    ):
+
+        if values.get("Keep Results") != "yes":
+            return None
+
+        workspace = values.get("Workspace") or "system"
+
+        scan_dir = (
+            workspaces_root
+            / workspace
+            / "scans"
+            / f"scan-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        )
+
+        scan_dir.mkdir(parents=True, exist_ok=True)
+
+        return str(scan_dir)
 
     def _select_output(
         self,

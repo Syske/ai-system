@@ -125,7 +125,8 @@ def choose(
     options,
     default=0,
     allow_skip=False,
-    header=None
+    header=None,
+    note=None
 ):
 
     if not options:
@@ -137,7 +138,8 @@ def choose(
             title,
             options,
             default,
-            allow_skip
+            allow_skip,
+            note
         )
 
     return _interactive(
@@ -145,7 +147,34 @@ def choose(
         options,
         default,
         allow_skip,
-        header or []
+        header or [],
+        note
+    )
+
+
+def choose_many(
+    title,
+    options,
+    header=None,
+    note=None
+):
+
+    if not options:
+        return None
+
+    if not is_tty():
+
+        return _fallback_many(
+            title,
+            options,
+            note
+        )
+
+    return _interactive_many(
+        title,
+        options,
+        header or [],
+        note
     )
 
 
@@ -207,8 +236,8 @@ def ask_text(
     _frame(
         header or [],
         [
-            "Enter submit, Alt+Enter newline, "
-            "Backspace on empty = back, Esc/Ctrl+C quit",
+            "Enter 提交，Alt+Enter 换行，"
+            "空行退格返回，Esc/Ctrl+C 退出",
             ""
         ]
     )
@@ -430,7 +459,8 @@ def _interactive(
     options,
     default,
     allow_skip,
-    header
+    header,
+    note=None
 ):
 
     idx = default
@@ -447,9 +477,76 @@ def _interactive(
     if idx not in selectable:
         idx = selectable[0]
 
+    filter_buf = ""
+
     while True:
 
+        if filter_buf:
+
+            visible = [
+                i
+                for i in selectable
+                if filter_buf.lower()
+                in str(options[i]).lower()
+            ]
+
+        else:
+
+            visible = list(selectable)
+
+        if not visible:
+
+            body = [
+                f"{title}:",
+                "",
+            ]
+
+            if note:
+                body.append(
+                    f"\x1b[1;2m{note}\x1b[0m"
+                )
+                body.append("")
+
+            body.append(
+                "  (无匹配 — 退格清空过滤)"
+            )
+            body.append("")
+            body.append(
+                f"filter: {filter_buf}"
+            )
+
+            _frame(header, body)
+
+            key = _normalize(
+                _read_key()
+            )
+
+            if key in ("\x08", "\x7f"):
+
+                filter_buf = filter_buf[:-1]
+
+            elif key in ("\x1b", "\x03"):
+
+                filter_buf = ""
+
+            elif key in ("back",):
+
+                return BACK
+
+            continue
+
+        if idx not in visible:
+            idx = visible[0]
+
         body = [f"{title}:", ""]
+
+        if note:
+
+            body.append(
+                f"\x1b[1;2m{note}\x1b[0m"
+            )
+
+            body.append("")
 
         for i, opt in enumerate(options):
 
@@ -458,6 +555,10 @@ def _interactive(
                 body.append(
                     f"\x1b[1;2m{opt.text}\x1b[0m"
                 )
+
+            elif i not in visible:
+
+                continue
 
             elif i == idx:
 
@@ -469,10 +570,23 @@ def _interactive(
 
         body.append("")
 
-        body.append(
-            "Up/Down move, digits jump, Enter select, "
-            "Left/Backspace back, Esc quit"
-        )
+        if filter_buf:
+
+            body.append(
+                f"filter: {filter_buf}  "
+                f"({len(visible)}/{len(selectable)})"
+            )
+
+            body.append(
+                "输入过滤，退格清除，Enter 选中，Esc 清空"
+            )
+
+        else:
+
+            body.append(
+                "↑/↓ 选择，输入过滤，Enter 选中，"
+                "退格返回，Esc 退出"
+            )
 
         _frame(header, body)
 
@@ -482,51 +596,68 @@ def _interactive(
 
         if key == "up":
 
-            pos = selectable.index(idx)
+            pos = visible.index(idx)
 
-            idx = selectable[
-                (pos - 1) % len(selectable)
+            idx = visible[
+                (pos - 1) % len(visible)
             ]
 
         elif key == "down":
 
-            pos = selectable.index(idx)
+            pos = visible.index(idx)
 
-            idx = selectable[
-                (pos + 1) % len(selectable)
+            idx = visible[
+                (pos + 1) % len(visible)
             ]
 
         elif key in ("back",):
             return BACK
 
         elif key == "home":
-            idx = selectable[0]
+            idx = visible[0]
 
         elif key == "end":
-            idx = selectable[-1]
+            idx = visible[-1]
 
         elif key in ("\r", "\n"):
             return idx
 
         elif key in ("\x08", "\x7f"):
-            return BACK
+
+            if filter_buf:
+                filter_buf = filter_buf[:-1]
+
+            else:
+                return BACK
 
         elif key in ("\x1b", "\x03"):
-            raise KeyboardInterrupt
 
-        elif key.isdigit():
+            if filter_buf:
+                filter_buf = ""
 
-            n = int(key)
+            else:
+                raise KeyboardInterrupt
 
-            if 1 <= n <= len(selectable):
-                idx = selectable[n - 1]
+        elif len(key) == 1 and key.isprintable():
+
+            if not filter_buf and key.isdigit():
+
+                n = int(key)
+
+                if 1 <= n <= len(visible):
+                    idx = visible[n - 1]
+
+            else:
+
+                filter_buf += key
 
 
 def _fallback(
     title,
     options,
     default,
-    allow_skip
+    allow_skip,
+    note=None
 ):
 
     selectable = [
@@ -544,6 +675,10 @@ def _fallback(
     print()
     print(f"{title}:")
 
+    if note:
+        print(f"  {note}")
+        print()
+
     for i, opt in enumerate(options):
 
         if isinstance(opt, Section):
@@ -557,11 +692,11 @@ def _fallback(
             )
 
     hint = (
-        "Number [Enter=skip, b=back]"
+        "输入编号 [Enter=跳过, b=返回]"
         if allow_skip
         else (
-            "Number "
-            f"[{selectable.index(default) + 1}, b=back]"
+            "输入编号 "
+            f"[默认 {selectable.index(default) + 1}, b=返回]"
         )
     )
 
@@ -586,4 +721,245 @@ def _fallback(
 
             return selectable[int(raw) - 1]
 
-        print("Invalid choice, try again.")
+        print("无效输入，请重试。")
+
+
+def _interactive_many(
+    title,
+    options,
+    header,
+    note=None
+):
+
+    selectable = list(range(len(options)))
+
+    selected = set()
+
+    idx = 0
+
+    filter_buf = ""
+
+    while True:
+
+        if filter_buf:
+
+            visible = [
+                i
+                for i in selectable
+                if filter_buf.lower()
+                in str(options[i]).lower()
+            ]
+
+        else:
+
+            visible = list(selectable)
+
+        if not visible:
+
+            body = [
+                f"{title}:",
+                "",
+            ]
+
+            if note:
+                body.append(
+                    f"\x1b[1;2m{note}\x1b[0m"
+                )
+                body.append("")
+
+            body.append(
+                "  (无匹配 — 退格清空过滤)"
+            )
+            body.append("")
+            body.append(
+                f"filter: {filter_buf}"
+            )
+
+            _frame(header, body)
+
+            key = _normalize(
+                _read_key()
+            )
+
+            if key in ("\x08", "\x7f"):
+
+                filter_buf = filter_buf[:-1]
+
+            elif key in ("\x1b", "\x03"):
+
+                filter_buf = ""
+
+            elif key in ("back",):
+
+                return BACK
+
+            continue
+
+        if idx not in visible:
+            idx = visible[0]
+
+        body = [f"{title}:", ""]
+
+        if note:
+
+            body.append(
+                f"\x1b[1;2m{note}\x1b[0m"
+            )
+
+            body.append("")
+
+        for i in visible:
+
+            mark = "[x]" if i in selected else "[ ]"
+
+            if i == idx:
+
+                body.append(
+                    f"\x1b[7m> {mark} {options[i]}\x1b[0m"
+                )
+
+            else:
+
+                body.append(f"  {mark} {options[i]}")
+
+        body.append("")
+
+        if filter_buf:
+
+            body.append(
+                f"filter: {filter_buf}  "
+                f"({len(visible)}/{len(selectable)})"
+            )
+
+        body.append(
+            f"空格选中/取消，Enter 确认（已选 {len(selected)}），"
+            "退格清除，Esc 清空"
+        )
+
+        _frame(header, body)
+
+        key = _normalize(
+            _read_key()
+        )
+
+        if key == "up":
+
+            pos = visible.index(idx)
+
+            idx = visible[
+                (pos - 1) % len(visible)
+            ]
+
+        elif key == "down":
+
+            pos = visible.index(idx)
+
+            idx = visible[
+                (pos + 1) % len(visible)
+            ]
+
+        elif key in ("back",):
+
+            if filter_buf:
+                filter_buf = filter_buf[:-1]
+
+            else:
+                return BACK
+
+        elif key == "home":
+            idx = visible[0]
+
+        elif key == "end":
+            idx = visible[-1]
+
+        elif key == " ":
+
+            if idx in selected:
+                selected.discard(idx)
+
+            else:
+                selected.add(idx)
+
+        elif key in ("\r", "\n"):
+
+            if selected:
+                return sorted(selected)
+
+            return None
+
+        elif key in ("\x08", "\x7f"):
+
+            if filter_buf:
+                filter_buf = filter_buf[:-1]
+
+            else:
+                return BACK
+
+        elif key in ("\x1b", "\x03"):
+
+            if filter_buf:
+                filter_buf = ""
+
+            else:
+                raise KeyboardInterrupt
+
+        elif (
+            len(key) == 1
+            and key.isprintable()
+            and key != " "
+        ):
+
+            filter_buf += key
+
+
+def _fallback_many(
+    title,
+    options,
+    note=None
+):
+
+    print()
+    print(f"{title}:")
+
+    if note:
+        print(f"  {note}")
+        print()
+
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {opt}")
+
+    print("输入编号（逗号分隔多个），空=跳过全部，b=返回")
+
+    while True:
+
+        raw = input("选择 (如 1,3): ").strip()
+
+        if raw.lower() == "b":
+            return BACK
+
+        if raw == "":
+            return None
+
+        picks = []
+
+        ok = True
+
+        for part in raw.split(","):
+
+            part = part.strip()
+
+            if (
+                not part.isdigit()
+                or not 1 <= int(part) <= len(options)
+            ):
+
+                ok = False
+
+                break
+
+            picks.append(int(part) - 1)
+
+        if ok and picks:
+            return picks
+
+        print("无效输入，请重试。")

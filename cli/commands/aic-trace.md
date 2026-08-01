@@ -46,7 +46,7 @@ description: 分支差异对账 - 对比需求分支与 master 的代码差异�
    - `TASK_STALE` / `SPEC_STALE` 且属于在途变更 → **优化既有工件**（OPERATIONS.md 1.6 补账）：
      就地更新 `changes/{change_id}/` 的 specs delta、任务卡（补验收依据、校正勾选）、契约条目
    - `UNTRACKED` 且改动是被认可的 → **生成新变更集**：
-     推导 kebab-case 变更名 → `openspec-cn new change "<name>"`（/opsx-propose 流程）补齐 proposal / specs / tasks，任务卡直接附实现证据
+     推导 kebab-case 变更名 → `openspec-cn new change "<name>"`（/aic-propose 流程）补齐 proposal / specs / tasks，任务卡直接附实现证据
    - 改动属于未经认可的漂移 → 列入**回退建议**（develop 按 spec 修正），本命令不动代码
 
 6. **下一步动作（完成后必问）**

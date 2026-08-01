@@ -50,7 +50,7 @@ class PromptBuilder:
             self.root
             / "cli"
             / "commands"
-            / f"opsx-{workflow}.md"
+            / f"aic-{workflow}.md"
         )
 
         if not command_path.exists():
@@ -161,7 +161,12 @@ class PromptBuilder:
             "request": "Change Request",
             "code": "Code Reference",
             "base": "Base Branch",
-            "mode": "Mode"
+            "mode": "Mode",
+            "operation": "Operation",
+            "projects": "Projects",
+            "compare": "Compare With",
+            "keep_results": "Keep Results",
+            "scan_directory": "Scan Directory"
         }
 
         lines = []

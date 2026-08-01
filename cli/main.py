@@ -92,6 +92,34 @@ def main():
     )
 
     parser.add_argument(
+        "--operation",
+        choices=[
+            "search",
+            "diff",
+            "chain",
+            "impact",
+            "manual"
+        ],
+        help="Scan operation type: search/diff/chain/impact/manual"
+    )
+
+    parser.add_argument(
+        "--projects",
+        help="Scan Projects (comma separated); empty = all projects"
+    )
+
+    parser.add_argument(
+        "--compare",
+        help="Scan Compare With: second code block for diff"
+    )
+
+    parser.add_argument(
+        "--keep-results",
+        action="store_true",
+        help="Scan: keep results to scans/ directory"
+    )
+
+    parser.add_argument(
         "--copy",
         action="store_true"
     )

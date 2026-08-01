@@ -4,7 +4,7 @@ description: 实现 OpenSpec 变更中的任务（实验性）
 
 实现 OpenSpec 变更中的任务。
 
-**输入**：可选择指定变更名称（例如，`/opsx-apply add-auth`）。如果省略，检查是否可以从对话上下文中推断出来。如果模糊或不明确，你必须提示可用的变更。
+**输入**：可选择指定变更名称（例如，`/aic-apply add-auth`）。如果省略，检查是否可以从对话上下文中推断出来。如果模糊或不明确，你必须提示可用的变更。
 
 **步骤**
 
@@ -15,7 +15,7 @@ description: 实现 OpenSpec 变更中的任务（实验性）
    - 如果只存在一个活动变更，自动选择
    - 如果不明确，运行 `openspec-cn list --json` 获取可用变更，并使用 **AskUserQuestion tool** 让用户选择
 
-   始终宣布："正在使用变更：<name>"以及如何覆盖（例如，`/opsx-apply <other>`）。
+   始终宣布："正在使用变更：<name>"以及如何覆盖（例如，`/aic-apply <other>`）。
 
 2. **检查状态以了解 Schema**
    ```bash
@@ -38,7 +38,7 @@ description: 实现 OpenSpec 变更中的任务（实验性）
    - 基于当前状态的动态指令
 
    **处理状态：**
-   - 如果 `state: "blocked"`（缺少产出物）：显示消息，建议使用 `/opsx-continue`
+   - 如果 `state: "blocked"`（缺少产出物）：显示消息，建议使用 `/aic-continue`
    - 如果 `state: "all_done"`：祝贺，建议归档
    - 否则：继续实现
 
@@ -108,7 +108,7 @@ description: 实现 OpenSpec 变更中的任务（实验性）
 - [x] 任务 2
 ...
 
-所有任务已完成！您可以使用 `/opsx-archive` 归档此变更。
+所有任务已完成！您可以使用 `/aic-archive` 归档此变更。
 ```
 
 **暂停时的输出（遇到问题）**
