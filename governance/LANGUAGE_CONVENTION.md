@@ -33,6 +33,7 @@ The following layers MUST use English:
 | Runtime templates | Phase names, step instructions, decision rules | Execution logic; must not have ambiguity |
 | Skills | Implementation instructions, validation rules, anti-patterns | Reusable across teams |
 | Governance | Rules, standards, policies | Authoritative; English is less ambiguous |
+| Coding Memory | Lesson entries, memory indexes (governance/memory/) | Loaded by agents at execution time; must be deterministic |
 | Config files | YAML keys, routing rules | Machine-parsed |
 
 ---
@@ -48,7 +49,10 @@ The following outputs SHOULD use Chinese:
 | Release reports | Release checklist, risk report, branch review | Read by release manager and team |
 | Verification reports | Spec/contract/scenario verification results | Read by QA and developers |
 | Task Cards | Task descriptions, acceptance criteria | Read by implementing developers |
+| **Interactive prompts** | Questions and choices presented to the user during a Runtime (confirmation requests, clarification questions, branch selection, next-action choices) | Read by the user at the moment of interaction |
 | **Code comments & Javadoc** | Business logic explanations, algorithm notes, field descriptions | Read by Chinese-speaking maintainers |
+
+Rule: interactive prompts follow the system-specified language (`config/menu.yaml → locale`).
 
 Code comment convention (per `governance/standards/common/documentation.md`):
 - Comments, Javadoc, field descriptions → Chinese

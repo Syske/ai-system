@@ -102,7 +102,7 @@ Output:
 - Risks
 - Test Strategy
 
-Wait for confirmation.
+Wait for confirmation. Present the confirmation request in the system language (config/menu.yaml → locale).
 
 After approval, persist the plan to:
 

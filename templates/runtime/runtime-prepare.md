@@ -102,6 +102,8 @@ When requirements are ambiguous, apply collaborative discovery:
 3. **Multi-approach**: When multiple interpretation paths exist, propose 2-3 with trade-offs and a recommendation.
 4. **Gate**: Do NOT proceed to Phase 2 until requirements are unambiguous.
 
+Present every question and choice to the user in the system language (config/menu.yaml → locale).
+
 ---
 
 ## Phase 2 — Repository Analysis

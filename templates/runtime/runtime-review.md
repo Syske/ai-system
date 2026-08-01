@@ -77,8 +77,8 @@ Resolved by Review Runtime:
 
 Collect:
 
-- Task Card（完成定义 + 代码质量检查 + 验收标准）
-- Implementation Plan（tasks/plans/{task_id}-plan.md，如存在）
+- Task Card (Completion Definition + Code Quality Checks + Acceptance Criteria)
+- Implementation Plan (tasks/plans/{task_id}-plan.md, if present)
 - Specification
 - Design
 - Implementation
@@ -111,6 +111,8 @@ For each design decision discovered in the implementation, walk the design tree:
 
 The goal is reaching a shared understanding of every design trade-off, not just passing checklists.
 
+Present every question and choice to the user in the system language (config/menu.yaml → locale).
+
 Generate:
 
 Design Review Report
@@ -136,7 +138,7 @@ Cross-reference against the quality checklist:
 
 False completion detected (marked [x] but not actually satisfied):
 
-标注为 Critical，Task Card 回退为 Changes Required。
+Mark as Critical and revert the Task Card to Changes Required.
 
 Generate:
 
@@ -196,9 +198,9 @@ Review Report
 
 Verify against Task Card:
 
-- 完成定义 → all satisfied
-- 代码质量检查 → all actually passed (not just marked)
-- 验收标准 → all covered
+- Completion Definition → all satisfied
+- Code Quality Checks → all actually passed (not just marked)
+- Acceptance Criteria → all covered
 
 Generate:
 
@@ -283,15 +285,15 @@ Task Card → Review Approved
 
 ---
 
-Review Result synced to the Task Card. Ask the user to choose the next action based on findings:
+Review Result synced to the Task Card. Present the next-action choices to the user in the system language:
 
-| Finding Type | Action |
+| 发现类型 / Finding Type | 操作 / Action |
 |---|---|
-| Approved, no action items | → **verify** (continue the standard gate) |
-| Minor observations that don't block approval | → **verify** + optionally create an **issue** to track follow-up |
-| Implementation issues (logic errors, wrong behaviour) | → **develop** (fix in place on the task branch; re-review) |
-| The root cause is a genuine defect tracked separately | → **bugfix** (the review opened an unexpected bug; file a bugfix card, then verify the task independently) |
-| Behaviour diverges from expected spec in a way that looks like a requirement gap | → **spec re-entry** (L3: specification / contract may need updating before the implementation is correct) |
-| Code surface-level quality problems (lint, naming, style) | → **develop** (fix and re-review) |
+| 审查通过，无待办事项 | → **verify**（继续标准闸门） |
+| 有轻微问题但不阻塞通过 | → **verify**，可另行创建 **issue** 跟踪后续 |
+| 实现问题（逻辑错误、行为错误） | → **develop**（在任务分支上修复；重新审查） |
+| 根因是独立跟踪的真实缺陷 | → **bugfix**（审查发现意外缺陷；登记 bugfix 卡后独立验证任务） |
+| 行为与预期规格不符，疑似需求缺口 | → **spec 重新进入**（L3：实现正确前可能需要更新规格/契约） |
+| 代码表层质量问题（lint、命名、风格） | → **develop**（修复后重新审查） |
 
 Fallback: Status = Changes Required defaults to return to develop.

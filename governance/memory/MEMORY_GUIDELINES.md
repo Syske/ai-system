@@ -21,6 +21,14 @@ It is not a rule repository.
 
 ---
 
+# Language
+
+Memory entries MUST be written in English (AI-internal layer), per `governance/LANGUAGE_CONVENTION.md`.
+
+User-facing reports are produced in Chinese; memory is loaded by agents at execution time, so it stays English.
+
+---
+
 # Responsibility Boundary
 
 Coding Memory must keep clear boundaries with other AI system components.

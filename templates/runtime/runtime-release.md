@@ -139,8 +139,8 @@ output aggregated summary at the end for one-time confirmation.
 
 | Mode | Trigger | Behavior |
 |---|---|---|
-| 逐 Task 确认（默认） | 无额外参数 | 每 Task → 报告 → ⏸️ → 下一个 |
-| 批量跳过确认 | `--skip-confirm` | 全部 Task → 汇总报告 → 一次性确认 |
+| Per-Task Confirm (default) | no extra argument | each Task → report → ⏸️ → next |
+| Batch Skip-Confirm | `--skip-confirm` | all Tasks → aggregated report → one-time confirmation |
 
 #### Per-Task Review
 
@@ -156,7 +156,7 @@ For each completed Task Card:
   - Commented-out code blocks (≥3 consecutive commented lines)
   - `TODO` / `FIXME` / `HACK` markers
   - Debug-level logging left at INFO or above in production paths
-- Standards: `governance/standards/common/task-quality-checklist.md`（无遗留）+ `governance/standards/common/clean-code.md`
+- Standards: `governance/standards/common/task-quality-checklist.md` (no residue) + `governance/standards/common/clean-code.md`
 
 **3. Registration check**
 - If this task introduces new MQ / RPC / Apollo config:
@@ -172,7 +172,7 @@ For each completed Task Card:
   - Missing Javadoc on new public classes/methods
   - Silent exception swallowing (empty catch blocks)
   - Log statements containing potential PII or secrets
-- Standard: `governance/standards/common/task-quality-checklist.md`（基线检查）
+- Standard: `governance/standards/common/task-quality-checklist.md` (baseline check)
 
 **5. Cross-project check**
 - Only if this task touches shared definitions:
@@ -251,20 +251,20 @@ Per `governance/policies/quality-gates.md`:
 
 #### Confirmation Flow
 
-**逐 Task 模式（默认）：**
+**Per-Task Mode (default):**
 
 ```
-T-001 → 报告 → ⏸️ "T-001 review complete (0B 2W 1I). Continue to T-002? [Y/n/skip-all]"
+T-001 → report → ⏸️ "T-001 审查完成（0B 2W 1I）。继续审查 T-002？[Y/n/skip-all]"
     Y → next task
     n → stop, return to develop
     skip-all → enter skip-confirm mode
 ```
 
-**Skip-confirm 模式：**
+**Skip-confirm Mode:**
 
 ```
-T-001 → T-002 → T-003 → ... → 汇总 → ⏸️
-    "All N tasks reviewed. 1 BLOCKER, 3 WARNING. Review details? [Y/n]"
+T-001 → T-002 → T-003 → ... → aggregate → ⏸️
+    "全部 N 个 Task 已审查。BLOCKER 1 个，WARNING 3 个。是否查看详情？[Y/n]"
 ```
 
 #### Aggregated Output

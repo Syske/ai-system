@@ -120,6 +120,8 @@ When requirements are ambiguous or incomplete, apply collaborative discovery:
 3. **Multi-approach proposal**: When multiple design options exist, propose 2-3 approaches with trade-offs and a recommendation.
 4. **Gate**: Do NOT proceed to Phase 2 until requirements are unambiguous.
 
+Present every question and choice to the user in the system language (config/menu.yaml → locale).
+
 ---
 
 # Phase 2 — Architecture Analysis
@@ -251,30 +253,30 @@ Each Task must:
 Generation uses the template from:
 methodologies/providers/openspec-cn/templates/tasks-template.md
 
-### 6.X — 代码质量检查项推导
+### 6.X — Code Quality Check Derivation
 
-每张 Task Card 生成时，根据上下文补充代码质量检查：
+When each Task Card is generated, supplement code quality checks based on context:
 
-基线（通用/安全/语言）:
-  不逐项展开，仅生成一条基线引用行 →
+Baseline (General / Security / Language):
+  Do not expand item by item; emit a single baseline reference line →
   governance/standards/common/task-quality-checklist.md
 
-从 repositories/{service_id}.yaml → technology:
-  protocol → 协议条件检查（MQ/RPC）
+From repositories/{service_id}.yaml → technology:
+  protocol → protocol condition checks (MQ/RPC)
 
-从 Task 内容:
-  REST 接口 → REST 调用方校验 + 参数校验
-  涉及数据库/RPC/HTTP/MQ → 性能检查项
-  新增 → 新增功能检查项
-  修改 → 修改已有代码检查项
-  删除 → 删除检查项
-  涉及 MQ → 消费者幂等 + 生产者消息体
-  涉及 RPC → Facade 版本 + 接口签名
+From Task content:
+  REST API → REST caller validation + parameter validation
+  touches DB/RPC/HTTP/MQ → performance check items
+  new feature → new feature check items
+  modification → modify existing code check items
+  deletion → deletion check items
+  touches MQ → consumer idempotency + producer message body
+  touches RPC → Facade version + interface signature
 
-生成规则:
-  基线检查 → 每张卡一条引用行，规则本体只在标准文件维护（Single Source of Truth）
-  条件检查 → 只在匹配条件时逐项展开进卡
-  不适用项 → 直接省略，不塞入卡中
+Generation rules:
+  baseline checks → one reference line per card; rule bodies maintained only in the standards file (Single Source of Truth)
+  conditional checks → expand item by item only when the condition matches
+  non-applicable items → omit directly; do not stuff them into the card
 
 ### 6.Y — Task Granularity Quality Rules
 
@@ -428,4 +430,4 @@ Development Runtime
 
 Otherwise:
 
-Wait for clarification.
+Wait for clarification. Present the clarification questions in the system language (config/menu.yaml → locale).

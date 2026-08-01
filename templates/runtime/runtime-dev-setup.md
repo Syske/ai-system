@@ -127,6 +127,8 @@ STOP.
 
 Show all missing services with their default branches in a single prompt.
 
+Present the prompt in the system language (config/menu.yaml → locale).
+
 User confirms or specifies branch for each.
 
 Update project-context.yaml branches section.

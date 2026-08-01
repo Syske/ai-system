@@ -27,3 +27,16 @@ governance/memory/python/
 Location:
 
 governance/memory/integration/
+
+
+## AI System
+
+Location:
+
+governance/memory/ai-system/
+
+
+Contains:
+
+- Workflow / runtime governance lessons
+- Prompt language boundary experience

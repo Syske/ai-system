@@ -16,4 +16,4 @@ Workflow:
 
 ai-system/workflows/develop.md
 
-严格按照所定义的工作流程执行，从 Phase 1 开始执行
+Execute strictly according to the defined workflow, starting from Phase 1.

@@ -119,7 +119,7 @@ If reproduction fails:
 
 Record assumptions.
 
-Continue only with explicit confirmation.
+Continue only with explicit confirmation. Present the confirmation request in the system language (config/menu.yaml → locale).
 
 ---
 
