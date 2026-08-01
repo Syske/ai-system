@@ -39,6 +39,8 @@ Never load content outside the analysis scope.
 - consistency-report.md
 - recommendations.md
 
+Reports are written to `reports/analysis-{date}-{target}-{scope}/` under the AI System root.
+
 ## Exit Criteria
 
 Success:
@@ -51,4 +53,5 @@ Stop:
 
 ## Next
 
-- None. Recommendations feed future changes through prepare and spec.
+- Collect reusable findings into knowledge (governance/memory/) via the Knowledge workflow
+- Recommendations feed future changes through prepare and spec

@@ -189,6 +189,16 @@ Do NOT modify code during Reflection.
 
 ---
 
+## Knowledge Feedback
+
+Before declaring completion, identify reusable findings from the analysis
+(patterns, decisions, pitfalls, standards gaps) and guide their collection
+into the knowledge base (`governance/memory/`) via the Knowledge workflow
+(`collect` operation). This closes the loop: knowledge → analysis →
+updated knowledge → future prepare/spec.
+
+---
+
 ## Completion
 
 Return:

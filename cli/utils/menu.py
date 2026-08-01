@@ -128,6 +128,16 @@ def choose(
     header=None,
     note=None
 ):
+    """Single-select menu.
+
+    Base capabilities (available to every menu built on this):
+    - Type-to-filter: typing narrows options (case-insensitive substring);
+      Backspace/Esc clear the filter, Enter selects.
+    - Sections (Section items) are non-selectable headers.
+    - `note` renders a dim hint line under the title.
+
+    Returns the selected raw index, `None` when skipped, or BACK.
+    """
 
     if not options:
         return None
@@ -158,6 +168,13 @@ def choose_many(
     header=None,
     note=None
 ):
+    """Multi-select menu (checkbox).
+
+    Same base capabilities as choose (type-to-filter, note, sections);
+    Space toggles the highlighted item, Enter confirms.
+
+    Returns a list of selected raw indices, `None` when skipped, or BACK.
+    """
 
     if not options:
         return None
@@ -218,7 +235,8 @@ def _text_bindings():
 
 def ask_text(
     prompt,
-    header=None
+    header=None,
+    note=None
 ):
 
     if (
@@ -233,13 +251,24 @@ def ask_text(
 
         return raw.strip()
 
+    body = [
+        "Enter 提交，Alt+Enter 换行，"
+        "空行退格返回，Esc/Ctrl+C 退出",
+        ""
+    ]
+
+    if note:
+
+        body.insert(
+            0,
+            f"\x1b[1;2m{note}\x1b[0m"
+        )
+
+        body.insert(1, "")
+
     _frame(
         header or [],
-        [
-            "Enter 提交，Alt+Enter 换行，"
-            "空行退格返回，Esc/Ctrl+C 退出",
-            ""
-        ]
+        body
     )
 
     session = _TEXT_SESSIONS.get(prompt)
@@ -454,6 +483,128 @@ def _frame(
     sys.stdout.flush()
 
 
+def _paint(
+    opt,
+    selected
+):
+
+    if " — " not in opt:
+
+        if selected:
+            return f"\x1b[7m> {opt}\x1b[0m"
+
+        return f"  {opt}"
+
+    name, _, desc = opt.partition(" — ")
+
+    if selected:
+
+        return (
+            f"\x1b[7m> \x1b[1;36m{name}\x1b[0m"
+            f"\x1b[7m \x1b[2;90m— {desc}\x1b[0m"
+        )
+
+    return (
+        f"  \x1b[1;36m{name}\x1b[0m"
+        f" \x1b[2;90m— {desc}\x1b[0m"
+    )
+
+
+def _visible_indices(
+    options,
+    selectable,
+    filter_buf
+):
+    """Base capability — type-to-filter.
+
+    Return option indices (from `selectable`) whose text contains the filter
+    (case-insensitive substring). Any menu built on choose/choose_many gets
+    incremental filtering for free.
+    """
+
+    if not filter_buf:
+        return list(selectable)
+
+    lowered = filter_buf.lower()
+
+    return [
+        i
+        for i in selectable
+        if lowered in str(options[i]).lower()
+    ]
+
+
+def _handle_filter_key(
+    key,
+    filter_buf
+):
+    """Base capability — filter editing keys.
+
+    Backspace clears one char (or signals back when empty); Esc clears the
+    filter (or signals quit when empty). Returns (action, new_filter_buf)
+    where action is one of 'none', 'clear', 'back', 'quit'.
+    """
+
+    if key in ("back", "\x08", "\x7f"):
+
+        if filter_buf:
+            return "clear", filter_buf[:-1]
+
+        return "back", filter_buf
+
+    if key in ("\x1b", "\x03"):
+
+        if filter_buf:
+            return "clear", ""
+
+        return "quit", filter_buf
+
+    return "none", filter_buf
+
+
+def _handle_no_match(
+    title,
+    note,
+    filter_buf,
+    header
+):
+    """Base capability — render the no-match frame and process filter keys.
+
+    Returns (action, new_filter_buf); action 'back' means the caller should
+    return BACK.
+    """
+
+    body = [
+        f"{title}:",
+        "",
+    ]
+
+    if note:
+
+        body.append(
+            f"\x1b[1;2m{note}\x1b[0m"
+        )
+
+        body.append("")
+
+    body.append(
+        "  (无匹配 — 退格清空过滤)"
+    )
+    body.append("")
+    body.append(
+        f"filter: {filter_buf}"
+    )
+
+    _frame(header, body)
+
+    return _handle_filter_key(
+        _normalize(
+            _read_key()
+        ),
+        filter_buf
+    )
+
+
 def _interactive(
     title,
     options,
@@ -481,56 +632,22 @@ def _interactive(
 
     while True:
 
-        if filter_buf:
-
-            visible = [
-                i
-                for i in selectable
-                if filter_buf.lower()
-                in str(options[i]).lower()
-            ]
-
-        else:
-
-            visible = list(selectable)
+        visible = _visible_indices(
+            options,
+            selectable,
+            filter_buf
+        )
 
         if not visible:
 
-            body = [
-                f"{title}:",
-                "",
-            ]
-
-            if note:
-                body.append(
-                    f"\x1b[1;2m{note}\x1b[0m"
-                )
-                body.append("")
-
-            body.append(
-                "  (无匹配 — 退格清空过滤)"
-            )
-            body.append("")
-            body.append(
-                f"filter: {filter_buf}"
+            action, filter_buf = _handle_no_match(
+                title,
+                note,
+                filter_buf,
+                header
             )
 
-            _frame(header, body)
-
-            key = _normalize(
-                _read_key()
-            )
-
-            if key in ("\x08", "\x7f"):
-
-                filter_buf = filter_buf[:-1]
-
-            elif key in ("\x1b", "\x03"):
-
-                filter_buf = ""
-
-            elif key in ("back",):
-
+            if action == "back":
                 return BACK
 
             continue
@@ -562,11 +679,11 @@ def _interactive(
 
             elif i == idx:
 
-                body.append(f"\x1b[7m> {opt}\x1b[0m")
+                body.append(_paint(opt, True))
 
             else:
 
-                body.append(f"  {opt}")
+                body.append(_paint(opt, False))
 
         body.append("")
 
@@ -610,8 +727,18 @@ def _interactive(
                 (pos + 1) % len(visible)
             ]
 
-        elif key in ("back",):
-            return BACK
+        elif key in ("back", "\x08", "\x7f", "\x1b", "\x03"):
+
+            action, filter_buf = _handle_filter_key(
+                key,
+                filter_buf
+            )
+
+            if action == "back":
+                return BACK
+
+            if action == "quit":
+                raise KeyboardInterrupt
 
         elif key == "home":
             idx = visible[0]
@@ -621,22 +748,6 @@ def _interactive(
 
         elif key in ("\r", "\n"):
             return idx
-
-        elif key in ("\x08", "\x7f"):
-
-            if filter_buf:
-                filter_buf = filter_buf[:-1]
-
-            else:
-                return BACK
-
-        elif key in ("\x1b", "\x03"):
-
-            if filter_buf:
-                filter_buf = ""
-
-            else:
-                raise KeyboardInterrupt
 
         elif len(key) == 1 and key.isprintable():
 
@@ -724,6 +835,36 @@ def _fallback(
         print("无效输入，请重试。")
 
 
+def _paint_many(
+    opt,
+    selected,
+    marked
+):
+
+    marker = "[x]" if marked else "[ ]"
+
+    if " — " not in opt:
+
+        if selected:
+            return f"\x1b[7m> {marker} {opt}\x1b[0m"
+
+        return f"  {marker} {opt}"
+
+    name, _, desc = opt.partition(" — ")
+
+    if selected:
+
+        return (
+            f"\x1b[7m> {marker} \x1b[1;36m{name}\x1b[0m"
+            f"\x1b[7m \x1b[2;90m— {desc}\x1b[0m"
+        )
+
+    return (
+        f"  {marker} \x1b[1;36m{name}\x1b[0m"
+        f" \x1b[2;90m— {desc}\x1b[0m"
+    )
+
+
 def _interactive_many(
     title,
     options,
@@ -741,56 +882,22 @@ def _interactive_many(
 
     while True:
 
-        if filter_buf:
-
-            visible = [
-                i
-                for i in selectable
-                if filter_buf.lower()
-                in str(options[i]).lower()
-            ]
-
-        else:
-
-            visible = list(selectable)
+        visible = _visible_indices(
+            options,
+            selectable,
+            filter_buf
+        )
 
         if not visible:
 
-            body = [
-                f"{title}:",
-                "",
-            ]
-
-            if note:
-                body.append(
-                    f"\x1b[1;2m{note}\x1b[0m"
-                )
-                body.append("")
-
-            body.append(
-                "  (无匹配 — 退格清空过滤)"
-            )
-            body.append("")
-            body.append(
-                f"filter: {filter_buf}"
+            action, filter_buf = _handle_no_match(
+                title,
+                note,
+                filter_buf,
+                header
             )
 
-            _frame(header, body)
-
-            key = _normalize(
-                _read_key()
-            )
-
-            if key in ("\x08", "\x7f"):
-
-                filter_buf = filter_buf[:-1]
-
-            elif key in ("\x1b", "\x03"):
-
-                filter_buf = ""
-
-            elif key in ("back",):
-
+            if action == "back":
                 return BACK
 
             continue
@@ -810,17 +917,13 @@ def _interactive_many(
 
         for i in visible:
 
-            mark = "[x]" if i in selected else "[ ]"
-
-            if i == idx:
-
-                body.append(
-                    f"\x1b[7m> {mark} {options[i]}\x1b[0m"
+            body.append(
+                _paint_many(
+                    options[i],
+                    i == idx,
+                    i in selected
                 )
-
-            else:
-
-                body.append(f"  {mark} {options[i]}")
+            )
 
         body.append("")
 
@@ -858,13 +961,18 @@ def _interactive_many(
                 (pos + 1) % len(visible)
             ]
 
-        elif key in ("back",):
+        elif key in ("back", "\x08", "\x7f", "\x1b", "\x03"):
 
-            if filter_buf:
-                filter_buf = filter_buf[:-1]
+            action, filter_buf = _handle_filter_key(
+                key,
+                filter_buf
+            )
 
-            else:
+            if action == "back":
                 return BACK
+
+            if action == "quit":
+                raise KeyboardInterrupt
 
         elif key == "home":
             idx = visible[0]
@@ -886,22 +994,6 @@ def _interactive_many(
                 return sorted(selected)
 
             return None
-
-        elif key in ("\x08", "\x7f"):
-
-            if filter_buf:
-                filter_buf = filter_buf[:-1]
-
-            else:
-                return BACK
-
-        elif key in ("\x1b", "\x03"):
-
-            if filter_buf:
-                filter_buf = ""
-
-            else:
-                raise KeyboardInterrupt
 
         elif (
             len(key) == 1

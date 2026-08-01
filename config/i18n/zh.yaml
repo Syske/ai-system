@@ -1,0 +1,97 @@
+version: 1
+
+# 用户可见文案（按 key 引用，config/menu.yaml 存 key）。
+# 国际化：复制本文件为 <lang>.yaml（如 en.yaml），并在 config/menu.yaml 的 locale 指定语言。
+sections:
+  flow_main: "开发主链"
+  flow_fix: "修复流程"
+  flow_capability: "系统能力"
+  commands_changes: "变更管理"
+  commands_analysis: "代码分析"
+  commands_maintenance: "系统维护"
+  flow_other: "其他流程"
+  commands_other: "其他命令"
+
+field_notes:
+  "Project ID": "from workspaces/"
+  "Workspace ID": "from workspaces/"
+  "Change ID": "from openspec/changes/"
+  "Task ID": "from openspec/changes/*/tasks/cards/"
+  "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain"
+  "Operation": "search=梳理检索 diff=逻辑对比 chain=逻辑链路 impact=影响范围 manual=手动自定义"
+  "Workspace": "选择 workspaces/ 下工作区；skip=不在workspace中搜索"
+  "Projects": "选择 projects/ 下代码仓库（多选，空格切换）；skip=在所有项目中梳理"
+  "Branch": "选择代码分支（支持输入过滤）；不选默认 master"
+  "Code Reference": "关键词（逗号分隔）/代码块；manual 时填自由分析指令"
+  "Compare With": "仅 diff：第二段待对比代码"
+  "Keep Results": "yes=结果保留到 scans/ 目录；no=仅会话内输出"
+  "Knowledge Operation": "collect=收集沉淀 update=更新 search=检索 review=审核去重 archive=归档过时"
+  "Knowledge Scope": "知识分类范围（AI System / Engineering / Project）"
+  "Analysis Target": "分析 ai-system 自身；与 maintain（例行巡检）、scan（代码梳理）区分"
+  "Analysis Scope": "限定分析范围；留空=全量"
+  "Base Branch": "基线分支；默认 master"
+  "Bug Description": "bug 现象与复现描述"
+  "Change Request": "变更需求描述或变更点"
+  "Environment": "环境名称（默认 local）"
+  "Environment (default: local)": "环境名称（默认 local）"
+  "Existing Design": "已有设计文档"
+  "Existing Reports": "已有分析报告"
+  "Existing Specifications": "已有规格"
+  "Issue ID": "问题单号"
+  "Logs": "日志文件或片段"
+  "Output Directory": "输出目录（默认 ../ai-system-pack）"
+  "Related Issue": "关联问题"
+  "Related Issues": "关联问题列表"
+  "Release Version": "发布版本号"
+  "Requirement Documents": "需求文档"
+  "Scope": "限定范围"
+  "Source": "知识来源"
+  "Specification Reference": "规格引用"
+  "Stack Trace": "异常堆栈"
+  "Zip": "是否压缩为 .zip"
+
+option_descriptions:
+  Operation:
+    search: 梳理检索
+    diff: 逻辑对比
+    chain: 逻辑链路
+    impact: 影响范围
+    manual: 手动自定义
+  Keep Results:
+    "yes": 保留到 scans/ 目录
+    "no": 仅会话内输出，不写文件
+  Mode:
+    weekly: 每周巡检
+    monthly: 每月巡检
+    quarterly: 每季巡检
+    on-demand: 按需巡检
+    re-entry: L3 变更重入（prepare/spec）
+  Zip:
+    "yes": 生成 .zip 并删除临时目录
+    "no": 仅保留目录
+  Base Branch:
+    master: 默认基线分支
+    main: 主分支
+  Knowledge Operation:
+    collect: 收集沉淀
+    update: 更新已有
+    search: 检索
+    review: 审核去重
+    archive: 归档过时
+  Analysis Target:
+    structure: 结构分析
+    dependency: 依赖分析
+    consistency: 一致性校验
+    quality: 质量评估
+    full: 全量分析
+  Analysis Scope:
+    ai-system: 系统整体
+    workflows: 工作流
+    skills: 技能
+    governance: 治理
+    templates: 模板
+    cli: CLI 层
+
+field_actions:
+  manual: "type manually"
+  skip: "skip"

@@ -170,6 +170,64 @@ Used for:
 * Change control: L1 apply and record / L2 stop and confirm / L3 stop and route to spec.
 * Every completion reports Deviations ("None" if empty).
 
+## 1.10 Menu & Command Maintenance
+
+The wizard menu is **configuration-driven** (`config/menu.yaml`) — no code changes are needed to add, regroup, or restyle menu entries.
+
+* **Add a command**: write `cli/commands/aic-<name>.md` (discovered automatically), then register in `config/menu.yaml` under a `sections` entry (`kind: command`) and optionally add its fields under `command_fields`.
+* **Add a workflow**: register it in `config/workflow-registry.yaml` first, then add a `sections` entry (`kind: workflow`, optional `number` for the main chain).
+* **Group / order**: adjust the `sections` list order and `title`. Entries that are discovered but not registered in any section fall into the "… — Other" fallback sections automatically.
+* **Emoji**: each item has its own `icon`. Icons are suppressed by default on non-emoji terminals and can be forced with `AIC_ICONS=emoji` (or disabled with `AIC_ICONS=off`).
+* **Field forms** (`command_fields`, `default_command_fields`): which fields a command prompts for.
+* **Field presentation** (`field_icons`, `field_choices`, `menu_options`): icons, static choice lists, fixed-option menu icons.
+* **Behavioral flags** (`auto_fields`, `multi_select_fields`, `command_next`): auto-filled fields, multi-select fields, and recommended-next-workflow mapping.
+
+### 1.10.0 Copy / Internationalization
+
+User-facing copy (section titles, field hint notes, per-option descriptions)
+is **not** in `config/menu.yaml`. Structure uses stable keys; the display text
+lives in a locale file selected by `config/menu.yaml → locale`:
+
+* `config/i18n/zh.yaml` — default locale (Chinese)
+* Section titles in `sections[].title` are keys resolved via `i18n.sections.*`;
+  field notes via `i18n.field_notes.*`; option descriptions via `i18n.option_descriptions.*`.
+
+To change copy: edit the locale file. To add a language: copy it to
+`config/i18n/<lang>.yaml` and set `locale: <lang>` in `config/menu.yaml`.
+`tools/check.py` fails when a section key has no locale entry.
+
+Dynamic choices (workspace/project/branch directories, git branches) are still resolved by code at runtime.
+
+### 1.10.1 Naming Strategy
+
+* **Workflow**: `kebab-case`, one word preferred (`prepare`, `develop`, `release`). Entry points: `workflows/<name>.md` + `config/workflows/<name>.yaml` + `templates/runtime/runtime-<name>.md`. Full table in `workflows/README.md`.
+* **Command**: `aic-<kebab-name>.md` under `cli/commands/`. The `aic-` prefix is the ai-system command namespace (replaces openspec's `opsx-`); the wizard strips it for display. Name describes the operation (`scan`, `trace`, `pack`).
+* **Field name**: PascalCase identity-style (`Project ID`, `Code Reference`, `Keep Results`) — consistent with `governance/repo-lint.md` conventions.
+
+### 1.10.2 Grouping Strategy
+
+Grouping is defined by the `sections` order in `config/menu.yaml`. Section
+titles are user-facing (Chinese); the item `kind` (workflow/command) is internal.
+
+* **Workflows**
+  * `开发主链`: the numbered chain `prepare → spec → dev-setup → develop → review → verify → release` (1-7).
+  * `修复流程`: parallel entry `bugfix`.
+  * `系统能力`: standalone `bootstrap`, `analysis`, `knowledge`.
+  * `其他流程`: discovered but ungrouped workflows (automatic).
+* **Commands**
+  * `变更管理`: OpenSpec change lifecycle — `propose`, `apply`, `archive`, `explore`.
+  * `代码分析`: `scan`, `trace`.
+  * `系统维护`: `maintain`, `pack`.
+  * `其他命令`: discovered but ungrouped commands (automatic).
+
+Boundary note (user-facing): `系统能力` builds system capabilities (environment,
+analysis, knowledge — outputs feed later work); `系统维护` keeps the system
+healthy and portable (routine checks, packaging).
+
+A workflow belongs in the Main chain when it is a mandatory step of the change
+lifecycle; in Branch when it is an alternative path into the chain; in Support
+when it is standalone tooling. A command is grouped by its primary purpose.
+
 ---
 
 # 2. Skill Usage Rules
@@ -403,9 +461,33 @@ Checks:
 * naming violations
 * duplication signals
 
+# 11. System Integrity Check (check.py)
+
+After any ai-system modification, run the integrity gate:
+
+```text
+python tools/check.py
+```
+
+It must exit `0` before committing/merging. It verifies the system still
+runs and the configuration is consistent:
+
+* All Python sources compile and CLI modules import
+* `config/menu.yaml` structure and referential integrity (sections, icons,
+  command fields, field notes/choices, multi-select/auto fields, command_next)
+* `config/workflow-registry.yaml` chain (config → workflow → runtime paths)
+* Command files: `aic-` prefix, kebab-case, no `opsx-` remnants, no duplicates
+* Prompt build smoke: every registered workflow and command builds a prompt
+* Wizard dry-run: the config-driven target menu builds and fields resolve
+  without a TTY (catches menu/config errors that would block `aic`)
+* `tools/repo-lint.py` runs with zero BLOCKER/ERROR
+
+Failure (exit `1`) means the system may be unrunnable after the change —
+fix before proceeding.
+
 ---
 
-# 11. Change Management Process
+# 12. Change Management Process
 
 All structural changes MUST follow:
 
@@ -421,7 +503,7 @@ No direct structural changes allowed without review.
 
 ---
 
-# 12. Governance Priority Rule
+# 13. Governance Priority Rule
 
 If conflict exists:
 
@@ -437,7 +519,7 @@ Governance always overrides implementation.
 
 ---
 
-# 13. Design Philosophy
+# 14. Design Philosophy
 
 This repository evolves under these principles:
 
@@ -451,7 +533,7 @@ Every change must reduce long-term maintenance cost.
 
 ---
 
-# 14. Golden Rule
+# 15. Golden Rule
 
 Before adding anything new, always ask:
 
@@ -461,7 +543,7 @@ If not clearly classified → STOP and analyze via repository-maintainer.
 
 ---
 
-# 15. Final Statement
+# 16. Final Statement
 
 This repository is not a collection of prompts.
 

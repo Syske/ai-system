@@ -17,121 +17,6 @@ from cli.utils.menu import (
 from cli.utils.yaml import load_yaml, save_yaml
 
 
-FIELD_NOTES = {
-    "Project ID": "from workspaces/",
-    "Workspace ID": "from workspaces/",
-    "Change ID": "from openspec/changes/",
-    "Task ID": "from openspec/changes/*/tasks/cards/",
-    "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain",
-    "Operation": "search=梳理检索 diff=逻辑对比 chain=逻辑链路 impact=影响范围 manual=手动自定义",
-    "Workspace": "选择 workspaces/ 下工作区；skip=不在workspace中搜索",
-    "Projects": "选择 projects/ 下代码仓库（多选，空格切换）；skip=在所有项目中梳理",
-    "Branch": "选择代码分支（支持输入过滤）；不选默认 master",
-    "Code Reference": "关键词（逗号分隔）/代码块；manual 时填自由分析指令",
-    "Compare With": "仅 diff：第二段待对比代码",
-    "Keep Results": "yes=结果保留到 scans/ 目录；no=仅会话内输出"
-}
-
-FIELD_ICONS = {
-    "Project ID": "🏠 ",
-    "Workspace ID": "🖥️ ",
-    "Change ID": "🔀 ",
-    "Task ID": "🎯 ",
-    "Operation": "🧭 ",
-    "Workspace": "🏠 ",
-    "Projects": "📦 ",
-    "Branch": "🌿 ",
-    "Code Reference": "📎 ",
-    "Compare With": "⚖️ ",
-    "Keep Results": "💾 "
-}
-
-OPERATION_LABELS = {
-    "search": "梳理检索",
-    "diff": "逻辑对比",
-    "chain": "逻辑链路",
-    "impact": "影响范围",
-    "manual": "手动自定义"
-}
-
-OPTION_DESCRIPTIONS = {
-    "Operation": OPERATION_LABELS,
-    "Keep Results": {
-        "yes": "保留到 scans/ 目录",
-        "no": "仅会话内输出，不写文件"
-    }
-}
-
-MULTI_SELECT_FIELDS = {
-    "Projects"
-}
-
-AUTO_FIELDS = (
-    "Project ID",
-    "Workspace ID"
-)
-
-DEFAULT_COMMAND_FIELDS = [
-    ("Project ID", False),
-    ("Change ID", False),
-    ("Change Request", False)
-]
-
-COMMAND_FIELDS = {
-    "trace": [
-        ("Project ID", False),
-        ("Code Reference", False),
-        ("Change ID", False),
-        ("Base Branch", False)
-    ],
-    "maintain": [
-        ("Mode", False),
-        ("Scope", False)
-    ],
-    "pack": [
-        ("Output Directory", False),
-        ("Zip", False)
-    ],
-    "setup": [
-        ("Workspace Root", False)
-    ],
-    "scan": [
-        ("Operation", False),
-        ("Workspace", False),
-        ("Projects", False),
-        ("Branch", False),
-        ("Code Reference", False),
-        ("Compare With", False),
-        ("Keep Results", False)
-    ]
-}
-
-COMMAND_NEXT = {
-    "trace": "verify",
-    "propose": "spec"
-}
-
-MAIN_FLOW = [
-    "prepare",
-    "spec",
-    "dev-setup",
-    "develop",
-    "review",
-    "verify",
-    "release"
-]
-
-BRANCH_FLOW = [
-    "bugfix"
-]
-
-SUPPORT_FLOW = [
-    "bootstrap",
-    "analysis",
-    "knowledge"
-]
-
-
 def _e(icon):
 
     if is_tty() and icons_enabled():
@@ -166,11 +51,153 @@ class Wizard:
 
         self.state = self._load_state()
 
+        self.menu = self._load_menu()
+
+        self.i18n = self._load_i18n()
+
         self.history = {}
 
         self.project = None
 
         self.target_name = None
+
+    def _load_i18n(self):
+
+        locale = self.menu.get("locale", "zh")
+
+        try:
+
+            return load_yaml(
+                self.root
+                / "config"
+                / "i18n"
+                / f"{locale}.yaml"
+            ) or {}
+
+        except Exception:
+
+            return {}
+
+    def _t(self, path, default=None):
+
+        node = self.i18n
+
+        parts = path.split(".")
+
+        def _get(data, keys):
+
+            if not keys:
+                return data
+
+            if not isinstance(data, dict):
+                return None
+
+            return _get(
+                data.get(keys[0]),
+                keys[1:]
+            )
+
+        result = _get(node, parts)
+
+        if result is None:
+            return default
+
+        return result
+
+    def _load_menu(self):
+
+        try:
+
+            return load_yaml(
+                self.root
+                / "config"
+                / "menu.yaml"
+            ) or {}
+
+        except Exception:
+
+            return {}
+
+    def _menu(self, key, default=None):
+
+        return self.menu.get(key, default or {})
+
+    def _command_fields(self, name):
+
+        fields = self._menu(
+            "command_fields"
+        ).get(name)
+
+        if fields:
+            return [
+                (f[0], bool(f[1]))
+                for f in fields
+            ]
+
+        default = self._menu(
+            "default_command_fields"
+        )
+
+        if default:
+            return [
+                (f[0], bool(f[1]))
+                for f in default
+            ]
+
+        return []
+
+    def _field_icon(self, field):
+
+        return (
+            self._menu("field_icons")
+            .get(field, "")
+        )
+
+    def _field_note(self, field):
+
+        return self._t(
+            f"field_notes.{field}"
+        )
+
+    def _field_choices(self, field):
+
+        return (
+            self._menu("field_choices")
+            .get(field, [])
+        )
+
+    def _option_descriptions(self, field):
+
+        return self._t(
+            f"option_descriptions.{field}"
+        )
+
+    def _command_next(self, name):
+
+        return (
+            self._menu("command_next")
+            .get(name)
+        )
+
+    def _auto_fields(self):
+
+        return set(
+            self._menu("auto_fields")
+        )
+
+    def _multi_select_fields(self):
+
+        return set(
+            self._menu("multi_select_fields")
+        )
+
+    def _menu_option(self, menu, key):
+
+        return (
+            self._menu("menu_options")
+            .get(menu, {})
+            .get(key, "")
+        )
 
     def _load_state(self):
 
@@ -258,13 +285,13 @@ class Wizard:
 
                     for field, _ in fields:
 
-                        if field in AUTO_FIELDS:
+                        if field in self._auto_fields():
                             values[field] = project
 
                     fields = [
                         (f, r)
                         for f, r in fields
-                        if f not in AUTO_FIELDS
+                        if f not in self._auto_fields()
                     ]
 
                 step = 2
@@ -403,7 +430,8 @@ class Wizard:
             if shown:
 
                 lines.append(
-                    f"{_e('🏠 ')}project: {shown}"
+                    f"{_e(self._menu_option('project', 'item'))}"
+                    f"project: {shown}"
                 )
 
         if target:
@@ -435,12 +463,13 @@ class Wizard:
         )
 
         options = [
-            f"{_e('🏠 ')}{p}"
+            f"{_e(self._menu_option('project', 'item'))}{p}"
             for p in projects
         ]
 
         options.append(
-            f"{_e('💻 ')}system (no project)"
+            f"{_e(self._menu_option('project', 'system'))}"
+            "system (no project)"
         )
 
         default = 0
@@ -451,7 +480,8 @@ class Wizard:
             default = projects.index(last)
 
         options[default] = (
-            f"{_e('⭐ ')}{options[default]}"
+            f"{_e(self._menu_option('project', 'default_mark'))}"
+            f"{options[default]}"
         )
 
         idx = choose(
@@ -500,6 +530,7 @@ class Wizard:
         def add(
             name,
             kind,
+            icon,
             number=None
         ):
 
@@ -507,23 +538,19 @@ class Wizard:
 
             if kind == "workflow":
 
-                icon = _e("🚀 ")
-
                 desc = self._workflow_purpose(name)
 
             else:
-
-                icon = _e("⚡ ")
 
                 desc = self._command_description(name)
 
             if number is not None and is_tty():
 
-                label = f"{icon}{number}. {name}"
+                label = f"{_e(icon)}{number}. {name}"
 
             else:
 
-                label = f"{icon}{name}"
+                label = f"{_e(icon)}{name}"
 
             if kind == "command":
                 label += " (command)"
@@ -539,48 +566,86 @@ class Wizard:
 
             labels.append(Section(text))
 
-        section("Main Flow")
+        configured = {
+            "workflow": set(),
+            "command": set()
+        }
 
-        for number, name in enumerate(MAIN_FLOW, 1):
+        for sec in self._menu("sections"):
 
-            if name in workflows:
-                add(name, "workflow", number)
+            present = []
 
-        section("Branch")
+            for item in sec.get("items") or []:
 
-        for name in BRANCH_FLOW:
+                name = item.get("name")
+                kind = item.get("kind", "workflow")
 
-            if name in workflows:
-                add(name, "workflow")
+                if (
+                    kind == "workflow"
+                    and name in workflows
+                ) or (
+                    kind == "command"
+                    and name in commands
+                ):
 
-        section("Support")
+                    present.append(item)
 
-        for name in SUPPORT_FLOW:
+                    configured[kind].add(name)
 
-            if name in workflows:
-                add(name, "workflow")
+            if not present:
+                continue
+
+            section(
+                self._t(
+                    f"sections.{sec['title']}",
+                    sec["title"]
+                )
+            )
+
+            for item in present:
+
+                add(
+                    item["name"],
+                    item["kind"],
+                    item.get("icon", ""),
+                    item.get("number")
+                )
 
         remaining = [
             w
             for w in workflows
-            if (
-                w not in MAIN_FLOW
-                and w not in BRANCH_FLOW
-                and w not in SUPPORT_FLOW
-            )
+            if w not in configured["workflow"]
         ]
 
         if remaining:
 
-            section("Other")
+            section(
+                self._t(
+                    "sections.flow_other",
+                    "其他流程"
+                )
+            )
 
             for name in remaining:
-                add(name, "workflow")
+                add(name, "workflow", "🚀 ")
 
-        section("Commands")
+        remaining_commands = [
+            c
+            for c in commands
+            if c not in configured["command"]
+        ]
 
-        for c in commands:
-            add(c, "command")
+        if remaining_commands:
+
+            section(
+                self._t(
+                    "sections.commands_other",
+                    "其他命令"
+                )
+            )
+
+            for c in remaining_commands:
+                add(c, "command", "⚡ ")
 
         default = 0
 
@@ -638,7 +703,7 @@ class Wizard:
 
             if last_action.get("kind") == "command":
 
-                recommended = COMMAND_NEXT.get(
+                recommended = self._command_next(
                     last_action.get("name")
                 )
 
@@ -823,12 +888,7 @@ class Wizard:
 
         if kind == "command":
 
-            return list(
-                COMMAND_FIELDS.get(
-                    name,
-                    DEFAULT_COMMAND_FIELDS
-                )
-            )
+            return self._command_fields(name)
 
         required, optional = self._parse_inputs(
             read_text(
@@ -914,15 +974,15 @@ class Wizard:
 
         title = f"{field} ({suffix}) [{position}/{total}]"
 
-        note = FIELD_NOTES.get(field)
+        note = self._field_note(field)
+
+        icon = _e(
+            self._field_icon(field)
+        )
 
         if choices:
 
-            icon = _e(
-                FIELD_ICONS.get(field, "")
-            )
-
-            labels = OPTION_DESCRIPTIONS.get(field)
+            labels = self._option_descriptions(field)
 
             options = []
 
@@ -935,7 +995,7 @@ class Wizard:
 
                 options.append(f"{icon}{display}")
 
-            if field in MULTI_SELECT_FIELDS:
+            if field in self._multi_select_fields():
 
                 picked = choose_many(
                     title,
@@ -959,7 +1019,8 @@ class Wizard:
                 return value
 
             options.append(
-                f"{_e('⌨️ ')}type manually"
+                f"{_e(self._menu_option('field_actions', 'manual'))}"
+                f"{self._t('field_actions.manual', 'type manually')}"
             )
 
             manual_index = len(choices)
@@ -969,7 +1030,8 @@ class Wizard:
             if not required:
 
                 options.append(
-                    f"{_e('⏭️ ')}skip"
+                    f"{_e(self._menu_option('field_actions', 'skip'))}"
+                    f"{self._t('field_actions.skip', 'skip')}"
                 )
 
                 skip_index = manual_index + 1
@@ -1007,8 +1069,9 @@ class Wizard:
             if idx == manual_index:
 
                 value = ask_text(
-                    f"{field}: ",
-                    header
+                    f"{icon}{field}: ",
+                    header,
+                    note=note
                 )
 
                 if value is BACK:
@@ -1026,14 +1089,15 @@ class Wizard:
             return value
 
         prompt = (
-            f"{field} ({suffix}): "
+            f"{icon}{field} ({suffix}): "
             if required
-            else f"{field} ({suffix}, Enter to skip): "
+            else f"{icon}{field} ({suffix}, Enter to skip): "
         )
 
         value = ask_text(
             prompt,
-            header
+            header,
+            note=note
         )
 
         if value is BACK:
@@ -1079,7 +1143,7 @@ class Wizard:
         field
     ):
 
-        if field in AUTO_FIELDS:
+        if field in self._auto_fields():
             return self._dirs(
                 self.workspaces,
                 exclude={"archived"}
@@ -1098,13 +1162,13 @@ class Wizard:
             return ["re-entry"]
 
         if field == "Base Branch":
-            return ["master", "main"]
+            return self._field_choices(field)
 
         if field == "Zip":
-            return ["yes", "no"]
+            return self._field_choices(field)
 
         if field == "Operation":
-            return list(OPERATION_LABELS.keys())
+            return self._field_choices(field)
 
         if field == "Workspace":
             return self._dirs(
@@ -1122,7 +1186,15 @@ class Wizard:
             return self._scan_branches(values)
 
         if field == "Keep Results":
-            return ["yes", "no"]
+            return self._field_choices(field)
+
+        if field in (
+            "Knowledge Operation",
+            "Analysis Target",
+            "Analysis Scope"
+        ):
+
+            return self._field_choices(field)
 
         project = (
             values.get("Project ID")
@@ -1288,9 +1360,12 @@ class Wizard:
     ):
 
         options = [
-            f"{_e('📥 ')}copy to clipboard",
-            f"{_e('🖨️ ')}print",
-            f"{_e('📦 ')}save to .ai-system/generated/"
+            f"{_e(self._menu_option('output', 'copy'))}"
+            "copy to clipboard",
+            f"{_e(self._menu_option('output', 'print'))}"
+            "print",
+            f"{_e(self._menu_option('output', 'save'))}"
+            "save to .ai-system/generated/"
         ]
 
         idx = choose(
@@ -1310,9 +1385,12 @@ class Wizard:
     ):
 
         options = [
-            f"{_e('🏁 ')}finish (no launch)",
-            f"{_e('🤖 ')}open opencode in ai-workspace",
-            f"{_e('🌀 ')}open pi in ai-workspace"
+            f"{_e(self._menu_option('launch', 'finish'))}"
+            "finish (no launch)",
+            f"{_e(self._menu_option('launch', 'opencode'))}"
+            "open opencode in ai-workspace",
+            f"{_e(self._menu_option('launch', 'pi'))}"
+            "open pi in ai-workspace"
         ]
 
         idx = choose(

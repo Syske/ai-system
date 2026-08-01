@@ -10,6 +10,7 @@ This document defines naming conventions for all components in the repository.
 |---|---|---|
 | Skill | `kebab-case`, one or two words | `bugfix`, `java-maven`, `mock-test` |
 | Workflow | `kebab-case`, one word preferred | `develop`, `bugfix`, `release` |
+| Command | `kebab-case` after `aic-` | `aic-scan`, `aic-trace` |
 | Playbook | `kebab-case` | `spring-boot-test`, `reflection-test-utils` |
 | Knowledge | `kebab-case` | `domain-terms`, `coding-conventions` |
 | Template | `kebab-case` | `implementation-report`, `bug-report` |
@@ -23,6 +24,7 @@ This document defines naming conventions for all components in the repository.
 |---|---|---|
 | Skill entrypoint | `skill.md` | Lowercase only |
 | Workflow entrypoint | `workflow.md` | Lowercase only |
+| Command entrypoint | `aic-<name>.md` in `cli/commands/` | Lowercase, kebab-case |
 | Playbook | `<topic>.md` | Lowercase only |
 | Knowledge | `<topic>.md` | Lowercase only |
 | Template | `<purpose>(-report)?.md` | Lowercase only |
@@ -38,6 +40,7 @@ This document defines naming conventions for all components in the repository.
 |---|---|---|---|
 | Skill name | Describe what it does | `bugfix`, `java-maven`, `mock-test` | `my-skill`, `utils`, `helper` |
 | Workflow name | Describe the process | `develop`, `bugfix`, `release` | `dev-workflow`, `process` |
+| Command name | Describe the operation | `scan`, `trace`, `pack` | `cmd`, `tool`, `do-stuff` |
 | Playbook name | Describe the topic | `mockito`, `maven`, `spring-boot-test` | `testing-tips`, `random` |
 | RFC title | Describe the specification | `repository-architecture`, `skill-specification` | `new-idea`, `stuff` |
 

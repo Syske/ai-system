@@ -1,0 +1,243 @@
+version: 1
+locale: zh
+
+# 向导菜单配置（配置驱动，维护说明见 OPERATIONS.md §1.10）。
+# - 本文件只存结构 + key；用户可见文案（分区标题/字段备注/选项描述）在 config/i18n/{locale}.yaml。
+# - 新增命令：写 cli/commands/aic-<name>.md，再在本文件 sections 加条目、command_fields 加字段。
+# - 新增工作流：先在 config/workflow-registry.yaml 注册，再在 sections 加条目。
+# - 分组/顺序/emoji：调整 sections；已发现但未注册的条目自动落入 "其他流程/其他命令"。
+# - 国际化：复制 config/i18n/zh.yaml 为 <lang>.yaml，并把 locale 改为 <lang>。
+
+# 目标选择菜单：分区与条目。
+# kind: workflow（注册于 workflow-registry.yaml）或 command（cli/commands/*.md）。
+# title 为 i18n key（解析见 config/i18n/{locale}.yaml）。
+sections:
+  - title: flow_main
+    items:
+      - name: prepare
+        kind: workflow
+        icon: "🧰 "
+        number: 1
+      - name: spec
+        kind: workflow
+        icon: "📐 "
+        number: 2
+      - name: dev-setup
+        kind: workflow
+        icon: "🛠️ "
+        number: 3
+      - name: develop
+        kind: workflow
+        icon: "🔨 "
+        number: 4
+      - name: review
+        kind: workflow
+        icon: "🔍 "
+        number: 5
+      - name: verify
+        kind: workflow
+        icon: "🧪 "
+        number: 6
+      - name: release
+        kind: workflow
+        icon: "🚀 "
+        number: 7
+  - title: flow_fix
+    items:
+      - name: bugfix
+        kind: workflow
+        icon: "🐛 "
+  - title: flow_capability
+    items:
+      - name: bootstrap
+        kind: workflow
+        icon: "🌱 "
+      - name: analysis
+        kind: workflow
+        icon: "📊 "
+      - name: knowledge
+        kind: workflow
+        icon: "📚 "
+  - title: commands_changes
+    items:
+      - name: propose
+        kind: command
+        icon: "💡 "
+      - name: apply
+        kind: command
+        icon: "🏗️ "
+      - name: archive
+        kind: command
+        icon: "🗄️ "
+      - name: explore
+        kind: command
+        icon: "🔭 "
+  - title: commands_analysis
+    items:
+      - name: scan
+        kind: command
+        icon: "🔎 "
+      - name: trace
+        kind: command
+        icon: "🧵 "
+  - title: commands_maintenance
+    items:
+      - name: maintain
+        kind: command
+        icon: "🧹 "
+      - name: pack
+        kind: command
+        icon: "📦 "
+
+# 各命令的字段定义（[[字段名, 是否必填], ...]）；未注册的命令用 default。
+command_fields:
+  trace:
+    - - "Project ID"
+      - false
+    - - "Code Reference"
+      - false
+    - - "Change ID"
+      - false
+    - - "Base Branch"
+      - false
+  maintain:
+    - - "Mode"
+      - false
+    - - "Scope"
+      - false
+  pack:
+    - - "Output Directory"
+      - false
+    - - "Zip"
+      - false
+  scan:
+    - - "Operation"
+      - false
+    - - "Workspace"
+      - false
+    - - "Projects"
+      - false
+    - - "Branch"
+      - false
+    - - "Code Reference"
+      - false
+    - - "Compare With"
+      - false
+    - - "Keep Results"
+      - false
+
+default_command_fields:
+  - - "Project ID"
+    - false
+  - - "Change ID"
+    - false
+  - - "Change Request"
+    - false
+
+# 命令 → 推荐的下一个工作流（向导推荐逻辑用）
+command_next:
+  trace: verify
+  propose: spec
+
+# 从选中项目自动填充的字段
+auto_fields:
+  - "Project ID"
+  - "Workspace ID"
+
+# 多选字段（空格切换）
+multi_select_fields:
+  - Projects
+
+# 字段图标（可选）
+field_icons:
+  "Project ID": "🏠 "
+  "Workspace ID": "🖥️ "
+  "Change ID": "🔀 "
+  "Task ID": "🎯 "
+  "Operation": "🧭 "
+  "Workspace": "🏠 "
+  "Projects": "📦 "
+  "Branch": "🌿 "
+  "Code Reference": "📎 "
+  "Compare With": "⚖️ "
+  "Keep Results": "💾 "
+  "Base Branch": "🌿 "
+  "Bug Description": "🐛 "
+  "Change Request": "📝 "
+  "Environment": "🌍 "
+  "Environment (default: local)": "🌍 "
+  "Existing Design": "📐 "
+  "Existing Reports": "📄 "
+  "Existing Specifications": "📘 "
+  "Issue ID": "🆔 "
+  "Knowledge Operation": "📚 "
+  "Knowledge Scope": "📚 "
+  "Logs": "📜 "
+  "Mode": "⚙️ "
+  "Output Directory": "📁 "
+  "Related Issue": "🔗 "
+  "Related Issues": "🔗 "
+  "Release Version": "🏷️ "
+  "Requirement Documents": "📋 "
+  "Scope": "🎯 "
+  "Source": "📥 "
+  "Specification Reference": "📑 "
+  "Stack Trace": "🧾 "
+  "Analysis Target": "🎯 "
+  "Analysis Scope": "📏 "
+  "Zip": "🗜️ "
+
+# 静态字段候选（动态候选如 Workspace/Projects/Branch 由代码按目录/git 生成）
+field_choices:
+  "Base Branch":
+    - master
+    - main
+  "Zip":
+    - "yes"
+    - "no"
+  "Operation":
+    - search
+    - diff
+    - chain
+    - impact
+    - manual
+  "Keep Results":
+    - "yes"
+    - "no"
+  "Knowledge Operation":
+    - collect
+    - update
+    - search
+    - review
+    - archive
+  "Analysis Target":
+    - structure
+    - dependency
+    - consistency
+    - quality
+    - full
+  "Analysis Scope":
+    - ai-system
+    - workflows
+    - skills
+    - governance
+    - templates
+    - cli
+
+# 固定选项菜单的图标
+menu_options:
+  project:
+    item: "🏠 "
+    system: "💻 "
+    default_mark: "⭐ "
+  output:
+    copy: "📋 "
+    print: "🖨️ "
+    save: "💾 "
+  launch:
+    finish: "🏁 "
+    opencode: "🤖 "
+    pi: "🌀 "
+  field_actions:
+    manual: "⌨️ "
+    skip: "⏭️ "
