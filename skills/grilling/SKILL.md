@@ -30,6 +30,14 @@ Map the plan as a **decision tree**: every plan branches into decisions, and dec
 
 Resolve dependencies between decisions one by one. Do not skip. An early answer can unblock or reshape later branches.
 
+### 2.5 Challenge domain terminology
+
+When the user uses a term that conflicts with existing language in specs, contracts,
+or knowledge, call it out immediately and propose a precise canonical term. Stress-test
+domain relationships with concrete scenarios that probe edge cases. If the code,
+spec, or contract contradicts what the user says, surface the contradiction — decide
+which side is the truth rather than silently assuming.
+
 ### 3. Ask one question at a time
 
 Ask a single question, provide your **recommended answer**, and wait for feedback before the next. Asking multiple questions at once is bewildering and loses the tree structure.

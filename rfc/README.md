@@ -28,6 +28,18 @@ Each ADR references the RFC it implements.
 | ADR-0006 | Workflow-First Design | Accepted |
 | ADR-0007 | Governance Independence | Accepted |
 
+### When to Create an ADR
+
+Create an ADR only when **all three** conditions hold:
+
+1. **Hard to reverse** — the cost of changing your mind later is meaningful.
+2. **Surprising without context** — a future reader will wonder why it was done this way.
+3. **The result of a real trade-off** — there were genuine alternatives, and one was chosen for specific reasons.
+
+If any condition is missing, skip the ADR — record the decision inline in the
+relevant spec or commit instead. Creating ADRs sparingly keeps the index a
+high-signal record of consequential decisions, not a log of routine choices.
+
 ## Reading Order
 
 New to the project: `README.md` → `OPERATIONS.md` → `RFC-0001` → `ADR-0004` (governance) → rest as needed.
