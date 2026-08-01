@@ -148,7 +148,8 @@ class PromptBuilder:
             "workflow",
             "copy",
             "save",
-            "output"
+            "output",
+            "environment"
         }
 
         labels = PromptBuilder._labels()

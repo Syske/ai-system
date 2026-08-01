@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 
+from cli.services import environment as env
 from cli.services import providers
 from cli.services import workflow_reader
 from cli.services.command_hooks import get_hooks
@@ -33,20 +34,41 @@ class Wizard:
 
     def __init__(
         self,
-        root: Path
+        root: Path,
+        environment: str = None
     ):
 
         self.root = root
 
-        self.workspaces = (
-            root.parent
-            / "workspaces"
+        self.environment_name = (
+            environment
+            or env.DEFAULT_ENV
         )
 
-        self.projects_root = (
-            root.parent
-            / "projects"
+        self.environment_explicit = (
+            environment is not None
         )
+
+        self.environment_missing = (
+            self.environment_explicit
+            and not env.has_environment(
+                root,
+                self.environment_name
+            )
+        )
+
+        env_paths = env.paths(
+            root,
+            self.environment_name
+        )
+
+        self.workspaces = env_paths[
+            "workspaces_root"
+        ]
+
+        self.projects_root = env_paths[
+            "repository_root"
+        ]
 
         self.config = MenuConfig(root)
 
@@ -58,6 +80,8 @@ class Wizard:
         self.state = self.store.data
 
         self.history = {}
+
+        self._field_defaults = {}
 
         self.project = None
 
@@ -229,6 +253,11 @@ class Wizard:
 
             if index == len(fields):
 
+                self._apply_field_defaults(
+                    fields,
+                    values
+                )
+
                 hooks = get_hooks(target[0])
 
                 if hooks is not None:
@@ -308,6 +337,17 @@ class Wizard:
         lines = [
                 f"{_e('🚀 ')}AI Prompt Generator"
         ]
+
+        lines.append(
+            f"{_e('🌍 ')}environment: {self.environment_name}"
+        )
+
+        if self.environment_missing:
+
+            lines.append(
+                f"{_e('⚠️ ')}config/environments/{self.environment_name}.yaml "
+                "missing — bootstrap will run tools/setup.py to provision it"
+            )
 
         if self.project is not None or project:
 
@@ -731,13 +771,23 @@ class Wizard:
 
         if kind == "command":
 
+            self._field_defaults = {}
+
             return self._command_fields(name)
 
+        text = read_text(
+            self.root
+            / "workflows"
+            / f"{name}.md"
+        )
+
         required, optional = self._parse_inputs(
-            read_text(
-                self.root
-                / "workflows"
-                / f"{name}.md"
+            text
+        )
+
+        self._field_defaults = (
+            workflow_reader.field_defaults(
+                text
             )
         )
 
@@ -758,6 +808,32 @@ class Wizard:
 
         return workflow_reader.parse_inputs(text)
 
+    def _apply_field_defaults(
+        self,
+        fields,
+        values
+    ):
+        """Fill skipped fields that carry an inline default like
+        "Environment (default: local)" so the prompt never ships an
+        empty # User Inputs for a field that has a documented default.
+
+        Defaults are parsed once in workflow_reader.field_defaults at
+        field-collection time, not re-derived here.
+        """
+
+        for field, _ in fields:
+
+            if field in values:
+                continue
+
+            default = self._field_defaults.get(
+                field
+            )
+
+            if default is not None:
+
+                values[field] = default
+
     def _ask_field(
         self,
         header,
@@ -767,6 +843,13 @@ class Wizard:
         position,
         total
     ):
+
+        if (
+            self.environment_explicit
+            and field.startswith("Environment")
+        ):
+
+            return self.environment_name
 
         choices = self._choices_for(
             values,
@@ -1052,25 +1135,43 @@ class Wizard:
         header
     ):
 
+        providers = self.config.enabled_providers()
+
         options = [
             f"{_e(self._menu_option('launch', 'finish'))}"
-            "finish (no launch)",
-            f"{_e(self._menu_option('launch', 'opencode'))}"
-            "open opencode in ai-workspace",
-            f"{_e(self._menu_option('launch', 'pi'))}"
-            "open pi in ai-workspace"
+            "finish (no launch)"
         ]
+
+        for name in providers:
+
+            options.append(
+                f"{_e(self._menu_option('launch', name))}"
+                f"open {name} in ai-workspace"
+            )
+
+        default = self.config.default_provider()
+
+        try:
+
+            default_idx = providers.index(
+                default
+            ) + 1
+
+        except ValueError:
+
+            default_idx = 0
 
         idx = choose(
             "Launch — open an agent at the workspace root",
             options,
+            default=default_idx,
             header=header
         )
 
         if idx is BACK:
             return BACK
 
-        return (None, "opencode", "pi")[idx]
+        return (None, *providers)[idx]
 
     def _save_state(
         self,

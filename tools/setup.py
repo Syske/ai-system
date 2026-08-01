@@ -25,6 +25,18 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 
+sys.path.insert(0, str(ROOT))
+
+try:
+
+    from cli.utils.menu import BACK, ask_path
+
+    _PATH_INPUT = True
+
+except Exception:
+
+    _PATH_INPUT = False
+
 SYSTEM_DIRS = {
     "ai-system",
     "workspaces",
@@ -98,6 +110,25 @@ def _ask(label, default=None):
     return raw
 
 
+def _ask_path(label, default="", only_directories=True):
+
+    if _PATH_INPUT:
+
+        value = ask_path(
+            f"{label} (default: {default}): "
+            if default
+            else f"{label}: ",
+            only_directories=only_directories
+        )
+
+        if value is BACK:
+            return default
+
+        return value or default
+
+    return _ask(label, default)
+
+
 def _ensure_dir(path):
 
     if path.is_dir():
@@ -133,11 +164,20 @@ def generate_env(
 
     if interactive:
 
-        java_home = _ask("Java home (build.java_home)", "")
-        maven_home = _ask("Maven home (build.maven_home)", "")
-        maven_settings = _ask(
+        java_home = _ask_path(
+            "Java home (build.java_home)",
+            "",
+            only_directories=True
+        )
+        maven_home = _ask_path(
+            "Maven home (build.maven_home)",
+            "",
+            only_directories=True
+        )
+        maven_settings = _ask_path(
             "Maven settings path (build.maven_settings)",
-            ""
+            "",
+            only_directories=False
         )
 
     data = {

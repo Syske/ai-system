@@ -44,6 +44,11 @@ def main():
     )
 
     parser.add_argument(
+        "--environment",
+        help="Environment name; resolves config/environments/{environment}.yaml (default: local). Pre-fills the wizard Environment field when given"
+    )
+
+    parser.add_argument(
         "--workspace"
     )
 
@@ -143,7 +148,10 @@ def main():
         try:
 
             name, context, output, launch = (
-                Wizard(builder.root).run()
+                Wizard(
+                    builder.root,
+                    args.environment
+                ).run()
             )
 
         except (EOFError, KeyboardInterrupt):

@@ -1,6 +1,0 @@
-version: 1
-system: ai-system-mvp
-layers:
-  - ../cli
-  - ../skills
-  - ../workflows

@@ -123,6 +123,7 @@ menu:
   hint_no_match: "(无匹配 — 退格清空过滤)"
   hint_multi: "空格选中/取消，Enter 确认（已选 {n}），退格清除，Esc 清空"
   hint_text: "Enter 提交，Alt+Enter 换行，空行退格返回，Esc/Ctrl+C 退出"
+  hint_path: "输入路径，Tab 补齐，Enter 提交，退格返回，Esc/Ctrl+C 退出"
   filter_prefix: "filter"
   fallback_hint_skip: "输入编号 [Enter=跳过, b=返回]"
   fallback_hint_default: "输入编号 [默认 {n}, b=返回]"

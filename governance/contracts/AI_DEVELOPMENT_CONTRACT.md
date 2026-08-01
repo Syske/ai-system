@@ -67,8 +67,8 @@ ai-system/
 │
 ├── config/
 │   Runtime configuration
-│   ├── ai-bootstrap.yaml
 │   ├── workflow-registry.yaml
+│   ├── providers.yaml
 │   ├── workflows/      Registry entries only (name / workflow / runtime); semantics live in workflows/*.md
 │   └── environments/
 │

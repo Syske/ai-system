@@ -1,6 +1,13 @@
 providers:
 
+  # enabled: true 的 provider 出现在向导启动菜单（Launch）。
+  # 每个 provider 即一个可执行工具名（_launch 用 shell 调用）。
+
   opencode:
+
+    enabled: true
+
+  pi:
 
     enabled: true
 

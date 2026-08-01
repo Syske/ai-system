@@ -15,7 +15,7 @@
 | `templates/` | Template library | runtime/, prompts/ | Runtime cache |
 | `loaders/` | On-demand loading strategies | standards-loader | — |
 | `skills/` | **All Skills (authoritative source)** | SKILL.md, scripts, references | Runtime adapters |
-| `config/` | System configuration | ai-bootstrap.yaml, workflow-registry.yaml, workflows/, environments/ | Runtime-specific config |
+| `config/` | System configuration | workflow-registry.yaml, providers.yaml, menu.yaml, workflows/, environments/, i18n/ | Runtime-specific config |
 | `governance/` | Rules, contracts, policies, standards, memory | AI_OPERATING_RULES, SOURCE_OF_TRUTH, standards/, policies/, memory/ | CI/CD pipeline config |
 | `rfc/` | Architecture decisions | RFCs, ADRs | Code implementation |
 | `tools/` | Helper utilities | check.py, repo-lint.py, path-audit.py, setup.py | — |

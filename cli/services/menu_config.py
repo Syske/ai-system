@@ -19,6 +19,10 @@ class MenuConfig:
 
         self.i18n = self._load_i18n()
 
+        self.provider_config = self._load(
+            "providers.yaml"
+        )
+
     def _load(self, name):
 
         try:
@@ -146,6 +150,30 @@ class MenuConfig:
             self.get("menu_options")
             .get(menu, {})
             .get(key, "")
+        )
+
+    def enabled_providers(self):
+
+        providers = (
+            self.provider_config
+            .get("providers", {})
+        )
+
+        if not isinstance(providers, dict):
+            return []
+
+        return [
+            name
+            for name, cfg in providers.items()
+            if cfg.get("enabled", True)
+        ]
+
+    def default_provider(self):
+
+        return (
+            self.provider_config
+            .get("default", {})
+            .get("provider")
         )
 
     def sections(self):

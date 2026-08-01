@@ -355,6 +355,95 @@ def ask_text(
     return raw.strip()
 
 
+def ask_path(
+    prompt,
+    header=None,
+    note=None,
+    only_directories=False
+):
+    """Path input with tab completion (prompt_toolkit PathCompleter).
+
+    Completes existing directories (and files when only_directories is
+    False) as you type. Falls back to a plain input() line when not a TTY
+    or when prompt_toolkit is unavailable.
+    """
+
+    if (
+        not is_tty()
+        or PromptSession is None
+    ):
+
+        raw = input(prompt)
+
+        if raw.strip() == "<":
+            return BACK
+
+        return raw.strip()
+
+    try:
+
+        from prompt_toolkit.completion import PathCompleter
+
+    except ImportError:
+
+        PathCompleter = None
+
+    body = [
+        _t('menu.hint_path', '输入路径，Tab 补齐，Enter 提交，退格返回，Esc/Ctrl+C 退出'),
+        ""
+    ]
+
+    if note:
+
+        body.insert(
+            0,
+            f"\x1b[1;2m{note}\x1b[0m"
+        )
+
+        body.insert(1, "")
+
+    _frame(
+        header or [],
+        body
+    )
+
+    session = _TEXT_SESSIONS.get(prompt)
+
+    if session is None:
+
+        session = PromptSession(
+            history=InMemoryHistory(),
+            completer=(
+                PathCompleter(
+                    only_directories=only_directories,
+                    expanduser=True
+                )
+                if PathCompleter is not None
+                else None
+            ),
+            complete_while_typing=True
+        )
+
+        _TEXT_SESSIONS[prompt] = session
+
+    try:
+
+        raw = session.prompt(
+            prompt,
+            key_bindings=_text_bindings()
+        )
+
+    finally:
+
+        sys.stdout.write("\x1b[?25l")
+        sys.stdout.flush()
+
+    if raw is BACK:
+        return BACK
+
+    return raw.strip()
+
+
 def _read_key():
 
     if msvcrt is not None:

@@ -1,5 +1,7 @@
 """Read workflow / command markdown metadata (purpose, description, inputs)."""
 
+import re
+
 from cli.utils.file import read_text
 
 
@@ -120,3 +122,47 @@ def parse_inputs(text):
                 bucket.append(item)
 
     return required, optional
+
+
+def field_defaults(text):
+    """Extract inline "(default: X)" from the Inputs field names.
+
+    Returns {field_name: default}. The md Inputs section is the single
+    semantic source for input metadata (name, required, default).
+    """
+
+    defaults = {}
+
+    section = None
+
+    for line in text.splitlines():
+
+        stripped = line.strip()
+
+        if stripped.startswith("## "):
+            section = stripped[3:]
+            continue
+
+        if section != "Inputs":
+            continue
+
+        if not stripped.startswith("- "):
+            continue
+
+        item = stripped[2:].strip()
+
+        if not item or item == "None":
+            continue
+
+        match = re.search(
+            r"\(default:\s*([^)]+)\)",
+            item
+        )
+
+        if match:
+
+            defaults[item] = (
+                match.group(1).strip()
+            )
+
+    return defaults
