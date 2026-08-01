@@ -21,6 +21,10 @@ FALSE_POSITIVES = {
     "../ai-system-pack",
     "config/environments/local.yaml",
     "ai-system/config/environments/context.yaml",
+    # Deliberate counter-examples in governance/DIRECTORY-RESPONSIBILITY.md
+    "ai-system/skills/foo/report.md",
+    "config/governance/",
+    "reports/foo-skill/",
 }
 
 # Runtime data roots: workspace-level directories that hold project/workspace

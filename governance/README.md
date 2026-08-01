@@ -21,6 +21,7 @@ Quality gates, policies, naming conventions, and review standards for the AI rep
 | `review-standard.md` | Skill review workflow and checklists |
 | `violation-rules.md` | Violation severity classification |
 | `karpathy-guidelines.md` | Coding guidelines to reduce LLM mistakes |
+| `DIRECTORY-RESPONSIBILITY.md` | Per-directory responsibilities, new-asset decision tree, violation handling |
 
 ## Policies
 

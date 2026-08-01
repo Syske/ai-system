@@ -75,9 +75,6 @@ ai-system/
 ├── governance/
 │   Rules, contracts, policies, standards, memory
 │
-├── maintainers/
-│   Maintainer assets
-│
 ├── rfc/
 │   Architecture RFCs
 │
@@ -97,6 +94,9 @@ ai-system/
     Retired assets (reference only, including the former ai-runtime/ platform adapter sketch)
 
 Every implementation must respect these responsibilities.
+
+Per-directory responsibilities, new-asset decision tree, and violation handling:
+see `governance/DIRECTORY-RESPONSIBILITY.md`.
 
 ---
 

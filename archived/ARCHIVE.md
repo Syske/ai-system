@@ -64,3 +64,37 @@ bootstrap → prepare → spec → dev-setup → develop → review → verify �
 - `governance/contracts/AI_DEVELOPMENT_CONTRACT.md`: architecture diagram no longer lists `routing/` or `frameworks/`
 - `tools/setup.py`: `SYSTEM_DIRS` dropped `routing`, `frameworks`
 - `governance/policies/routing-policy.md`: no longer claims `routing/ai-routing.yaml` is authoritative; documents wizard-driven routing
+
+---
+
+## 2026-08-01 — Maintainers Archival
+
+**Reason:** `maintainers/` held five 0-byte placeholder docs (capability-matrix, dependency-graph, duplication-report, health-check, weekly-report) plus a placeholder README; their outputs are actually produced in `reports/` (MAINTENANCE-{date}.md) and `metrics/` (maintain-{date}.json). `DIRECTORY-RESPONSIBILITY-GUIDE.md` described the retired `ai-runtime/` architecture and referenced the deleted `routing/` directory.
+
+### Value Preserved
+
+| Content | Destination |
+|---|---|
+| Directory responsibility table | `governance/DIRECTORY-RESPONSIBILITY.md` (rewritten for current architecture) |
+| Golden rule | `governance/DIRECTORY-RESPONSIBILITY.md` |
+| New-asset decision tree (updated) | `governance/DIRECTORY-RESPONSIBILITY.md` |
+| Violation handling table (updated) | `governance/DIRECTORY-RESPONSIBILITY.md` |
+
+### Moved Files
+
+| Original Path | Reason |
+|---|---|
+| `maintainers/README.md` | Placeholder |
+| `maintainers/capability-matrix.md` | Placeholder |
+| `maintainers/dependency-graph.md` | Placeholder |
+| `maintainers/duplication-report.md` | Placeholder |
+| `maintainers/health-check.md` | Placeholder |
+| `maintainers/weekly-report.md` | Placeholder |
+| `maintainers/DIRECTORY-RESPONSIBILITY-GUIDE.md` | Outdated (retired ai-runtime); value absorbed into new guide |
+
+### Consequential Updates
+
+- `governance/DIRECTORY-RESPONSIBILITY.md`: new v3 guide (current architecture)
+- `governance/contracts/AI_DEVELOPMENT_CONTRACT.md`: architecture diagram no longer lists `maintainers/`; references the new guide
+- `tools/setup.py`: `SYSTEM_DIRS` dropped `maintainers`
+- `config/ai-bootstrap.yaml`: dropped `../routing` layer (directory deleted)

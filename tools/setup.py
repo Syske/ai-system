@@ -39,7 +39,6 @@ SYSTEM_DIRS = {
     "governance",
     "templates",
     "loaders",
-    "maintainers",
     "rfc",
     "cli",
     "config",
