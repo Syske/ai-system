@@ -9,6 +9,19 @@ project roots) and the collected field values.
 import subprocess
 
 
+def mode_choices(wizard, values):
+
+    if wizard.target_name == "maintain":
+        return [
+            "weekly",
+            "monthly",
+            "quarterly",
+            "on-demand"
+        ]
+
+    return ["re-entry"]
+
+
 def workspace_dirs(wizard):
 
     return wizard._dirs(

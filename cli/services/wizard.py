@@ -2,7 +2,10 @@ import re
 from pathlib import Path
 
 from cli.services import providers
+from cli.services import workflow_reader
 from cli.services.command_hooks import get_hooks
+from cli.services.menu_config import MenuConfig
+from cli.services.state_store import StateStore
 from cli.utils.file import read_text
 from cli.utils.menu import (
     BACK,
@@ -15,7 +18,7 @@ from cli.utils.menu import (
     screen_enter,
     screen_exit
 )
-from cli.utils.yaml import load_yaml, save_yaml
+from cli.utils.yaml import load_yaml
 
 
 def _e(icon):
@@ -45,16 +48,14 @@ class Wizard:
             / "projects"
         )
 
-        self.state_file = (
+        self.config = MenuConfig(root)
+
+        self.store = StateStore(
             self.workspaces
             / ".aic-state.yaml"
         )
 
-        self.state = self._load_state()
-
-        self.menu = self._load_menu()
-
-        self.i18n = self._load_i18n()
+        self.state = self.store.data
 
         self.history = {}
 
@@ -62,155 +63,49 @@ class Wizard:
 
         self.target_name = None
 
-    def _load_i18n(self):
-
-        locale = self.menu.get("locale", "zh")
-
-        try:
-
-            return load_yaml(
-                self.root
-                / "config"
-                / "i18n"
-                / f"{locale}.yaml"
-            ) or {}
-
-        except Exception:
-
-            return {}
-
     def _t(self, path, default=None):
 
-        node = self.i18n
-
-        parts = path.split(".")
-
-        def _get(data, keys):
-
-            if not keys:
-                return data
-
-            if not isinstance(data, dict):
-                return None
-
-            return _get(
-                data.get(keys[0]),
-                keys[1:]
-            )
-
-        result = _get(node, parts)
-
-        if result is None:
-            return default
-
-        return result
-
-    def _load_menu(self):
-
-        try:
-
-            return load_yaml(
-                self.root
-                / "config"
-                / "menu.yaml"
-            ) or {}
-
-        except Exception:
-
-            return {}
+        return self.config.t(path, default)
 
     def _menu(self, key, default=None):
 
-        return self.menu.get(key, default or {})
+        return self.config.get(key, default)
 
     def _command_fields(self, name):
 
-        fields = self._menu(
-            "command_fields"
-        ).get(name)
-
-        if fields:
-            return [
-                (f[0], bool(f[1]))
-                for f in fields
-            ]
-
-        default = self._menu(
-            "default_command_fields"
-        )
-
-        if default:
-            return [
-                (f[0], bool(f[1]))
-                for f in default
-            ]
-
-        return []
+        return self.config.command_fields(name)
 
     def _field_icon(self, field):
 
-        return (
-            self._menu("field_icons")
-            .get(field, "")
-        )
+        return self.config.field_icon(field)
 
     def _field_note(self, field):
 
-        return self._t(
-            f"field_notes.{field}"
-        )
+        return self.config.field_note(field)
 
     def _field_choices(self, field):
 
-        return (
-            self._menu("field_choices")
-            .get(field, [])
-        )
+        return self.config.field_choices(field)
 
     def _option_descriptions(self, field):
 
-        return self._t(
-            f"option_descriptions.{field}"
-        )
+        return self.config.option_descriptions(field)
 
     def _command_next(self, name):
 
-        return (
-            self._menu("command_next")
-            .get(name)
-        )
+        return self.config.command_next(name)
 
     def _auto_fields(self):
 
-        return set(
-            self._menu("auto_fields")
-        )
+        return self.config.auto_fields()
 
     def _multi_select_fields(self):
 
-        return set(
-            self._menu("multi_select_fields")
-        )
+        return self.config.multi_select_fields()
 
     def _menu_option(self, menu, key):
 
-        return (
-            self._menu("menu_options")
-            .get(menu, {})
-            .get(key, "")
-        )
-
-    def _load_state(self):
-
-        try:
-
-            return load_yaml(
-                self.state_file
-            ) or {}
-
-        except Exception:
-
-            return {}
+        return self.config.menu_option(menu, key)
 
     def run(self):
 
@@ -799,74 +694,20 @@ class Wizard:
         name
     ):
 
-        try:
-
-            text = read_text(
-                self.root
-                / "workflows"
-                / f"{name}.md"
-            )
-
-        except OSError:
-
-            return ""
-
-        section = None
-
-        for line in text.splitlines():
-
-            stripped = line.strip()
-
-            if stripped.startswith("## "):
-                section = stripped[3:]
-                continue
-
-            if section == "Purpose" and stripped:
-                return stripped
-
-        return ""
+        return workflow_reader.purpose(
+            self.root,
+            name
+        )
 
     def _command_description(
         self,
         name
     ):
 
-        path = (
-            self.root
-            / "cli"
-            / "commands"
-            / f"aic-{name}.md"
+        return workflow_reader.command_description(
+            self.root,
+            name
         )
-
-        if not path.exists():
-
-            path = (
-                self.root
-                / "cli"
-                / "commands"
-                / f"{name}.md"
-            )
-
-        try:
-
-            text = read_text(path)
-
-        except OSError:
-
-            return ""
-
-        for line in text.splitlines():
-
-            stripped = line.strip()
-
-            if stripped.startswith("description:"):
-
-                return stripped.split(
-                    ":",
-                    1
-                )[1].strip()
-
-        return ""
 
     @staticmethod
     def _short(
@@ -874,10 +715,10 @@ class Wizard:
         limit=58
     ):
 
-        if len(text) <= limit:
-            return text
-
-        return text[: limit - 1] + "…"
+        return workflow_reader.short(
+            text,
+            limit
+        )
 
     def _fields_for(
         self,
@@ -915,43 +756,7 @@ class Wizard:
         text
     ):
 
-        required = []
-        optional = []
-
-        section = None
-        bucket = None
-
-        for line in text.splitlines():
-
-            stripped = line.strip()
-
-            if stripped.startswith("## "):
-                section = stripped[3:]
-                bucket = None
-                continue
-
-            if section != "Inputs":
-                continue
-
-            if stripped == "Required:":
-                bucket = required
-                continue
-
-            if stripped == "Optional:":
-                bucket = optional
-                continue
-
-            if (
-                stripped.startswith("- ")
-                and bucket is not None
-            ):
-
-                item = stripped[2:].strip()
-
-                if item and item != "None":
-                    bucket.append(item)
-
-        return required, optional
+        return workflow_reader.parse_inputs(text)
 
     def _ask_field(
         self,
@@ -1150,15 +955,10 @@ class Wizard:
 
         if field == "Mode":
 
-            if self.target_name == "maintain":
-                return [
-                    "weekly",
-                    "monthly",
-                    "quarterly",
-                    "on-demand"
-                ]
-
-            return ["re-entry"]
+            return providers.mode_choices(
+                self,
+                values
+            )
 
         if field in (
             "Base Branch",
@@ -1309,13 +1109,4 @@ class Wizard:
         if "Change ID" in values:
             pstate["last_change"] = values["Change ID"]
 
-        try:
-
-            save_yaml(
-                self.state_file,
-                self.state
-            )
-
-        except OSError:
-
-            pass
+        self.store.save()
