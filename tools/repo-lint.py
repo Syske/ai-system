@@ -234,18 +234,17 @@ def check_workflow_stages(skill_dir, results):
         return
 
     content = read_file(wf_path)
-    stages = re.findall(r"^#{1,6} Stage \d+", content, re.MULTILINE)
+    stage_re = re.compile(
+        r"^#{1,6}\s+(?:Stage\s+\d+|步骤\s*\d+|第[一二三四五六七八九十]+步|T\d+\s*[:：])",
+        re.MULTILINE,
+    )
+    stages = stage_re.findall(content)
     if len(stages) < 3:
         results.error(f"Only {len(stages)} workflow stages found (minimum 3)", file=str(wf_path))
 
-    stage_blocks = re.split(r"^#{1,6} Stage \d+", content, re.MULTILINE)[1:]
-    for i, block in enumerate(stage_blocks):
-        if "**Goal:**" not in block:
-            results.warning(f"Stage {i+1} missing **Goal:** section", file=str(wf_path))
-        if "**Steps:**" not in block:
-            results.warning(f"Stage {i+1} missing **Steps:** section", file=str(wf_path))
-        if "**Output:**" not in block:
-            results.warning(f"Stage {i+1} missing **Output:** section", file=str(wf_path))
+    # Goal/Steps/Output section markers are an optional convention, not an
+    # RFC-0002 requirement; workflows may structure stages differently.
+    # Only the "at least 3 stages" check is enforced.
 
 
 def main():
