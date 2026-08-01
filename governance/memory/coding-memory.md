@@ -40,3 +40,4 @@ Contains:
 
 - Workflow / runtime governance lessons
 - Prompt language boundary experience
+- Governance rename / archive reference discipline
