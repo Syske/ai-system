@@ -70,6 +70,7 @@ def collect_files():
         AIS / "cli" / "commands",
         AIS / "config",
         AIS / "governance",
+        AIS / "rfc",
     ]:
         scan += [
             p for p in d.rglob("*")

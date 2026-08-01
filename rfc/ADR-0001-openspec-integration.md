@@ -37,7 +37,7 @@ completeness.
 ## Related
 
 - `RFC-0001` — Repository Architecture
-- `cli/commands/opsx-explore.md`
-- `cli/commands/opsx-propose.md`
-- `cli/commands/opsx-apply.md`
-- `cli/commands/opsx-archive.md`
+- `cli/commands/aic-explore.md`
+- `cli/commands/aic-propose.md`
+- `cli/commands/aic-apply.md`
+- `cli/commands/aic-archive.md`

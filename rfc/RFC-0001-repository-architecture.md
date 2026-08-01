@@ -67,7 +67,7 @@ practices, diagnostic patterns, and decision guidance.
 - Does NOT contain project-specific information
 - Is referenced by Skills, never invoked directly
 
-**Location:** `ai-system/governance/standards/`, `ai-system/governance/memory/`, `ai-system/frameworks/`
+**Location:** `ai-system/governance/standards/`, `ai-system/governance/memory/`
 
 ### 1.4 Knowledge
 
