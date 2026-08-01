@@ -36,3 +36,31 @@ bootstrap → prepare → spec → dev-setup → develop → review → verify �
 | `templates/spec-template.md` | Placeholder; spec generation by external methodology provider |
 | `templates/test-template.md` | Placeholder; test structure per testing standard |
 | `templates/routing-template.md` | Placeholder; routing per ai-routing.yaml + routing-policy |
+
+---
+
+## 2026-08-01 — Routing & Frameworks Archival
+
+**Reason:** `routing/` and `frameworks/` had no runtime consumer. The CLI wizard derives workflow recommendations by parsing each workflow's `## Next` section (`cli/services/wizard.py`), not from a route table; `routing/ai-routing.yaml` duplicated `config/workflow-registry.yaml`. `frameworks/` contained two 0-byte placeholder subdirs (serena/context7) and a facade contract that belongs in standards.
+
+### Value Preserved
+
+| Content | Destination |
+|---|---|
+| `frameworks/rpc/facade-standard.md` (BaseRequest/BaseResult contract) | Merged into `governance/standards/cool/rpc-conventions.md` §6 |
+| `routing/ai-routing.yaml` execution rules | Rewritten into `governance/policies/routing-policy.md` (now describes wizard-driven routing) |
+
+### Moved Files
+
+| Original Path | Reason |
+|---|---|
+| `routing/ai-routing.yaml` | No consumer; duplicated workflow-registry |
+| `frameworks/rpc/facade-standard.md` | Contract moved into standards |
+| `frameworks/analysis/serena/{README.md,version.yaml}` | 0-byte placeholder |
+| `frameworks/context/context7/{README.md,version.yaml}` | 0-byte placeholder |
+
+### Consequential Updates
+
+- `governance/contracts/AI_DEVELOPMENT_CONTRACT.md`: architecture diagram no longer lists `routing/` or `frameworks/`
+- `tools/setup.py`: `SYSTEM_DIRS` dropped `routing`, `frameworks`
+- `governance/policies/routing-policy.md`: no longer claims `routing/ai-routing.yaml` is authoritative; documents wizard-driven routing

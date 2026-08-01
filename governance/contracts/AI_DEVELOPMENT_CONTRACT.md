@@ -51,9 +51,6 @@ ai-system/
 ├── cli/
 │   CLI entrypoints (thin, Python)
 │
-├── routing/
-│   Workflow routing
-│
 ├── workflows/
 │   Workflow entry contracts (single semantic source)
 │
@@ -67,9 +64,6 @@ ai-system/
 │
 ├── skills/
 │   Reusable AI capabilities
-│
-├── frameworks/
-│   External framework adapters
 │
 ├── config/
 │   Runtime configuration

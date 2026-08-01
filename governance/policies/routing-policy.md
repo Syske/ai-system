@@ -2,68 +2,50 @@
 
 This document defines how user intents are routed to workflows and skills.
 
-The authoritative routing configuration lives in `routing/ai-routing.yaml`.
-
-This policy describes the routing model and its execution rules.
+The AI System does not maintain a separate runtime route table. Routing is
+derived from the workflow contracts themselves.
 
 ---
 
 ## Purpose
 
-Route lookup is the only entry point for workflow dispatch.
-
-When a user intent arrives, the router maps it to exactly one workflow or skill via the route table, then dispatches.
-
----
-
-## Route Types
-
-| Type | Meaning | Example |
-|---|---|---|
-| `workflow` | Direct dispatch to a registered workflow | `prepare: workflow: prepare` |
-| `skill` | Direct dispatch to a standalone skill shortcut | `explore: skill: explore-codebase` |
-| `alias` | Re-route to another workflow name | `implement: alias: develop` |
+A user intent resolves to exactly one workflow. The resolver is the CLI
+wizard (`cli/services/wizard.py`): after the user selects a target, it
+recommends the next workflow by parsing each workflow's `## Next` section
+(`_parse_next`) and pre-selecting it in the menu.
 
 ---
 
-## Route Table
+## How Routing Works
 
-All registered workflows are routable by name:
-
-```text
-prepare, spec, bootstrap, dev-setup, develop, bugfix,
-review, verify, release, analysis, knowledge
-```
-
-Standalone skill shortcuts:
-
-```text
-explore → explore-codebase
-browse  → agent-browser
-```
-
-Aliases:
-
-| Alias | Resolves to |
-|---|---|
-| implement | develop |
-| openspec | spec |
-| debug | bugfix |
+1. **Target selection.** The user picks a workflow or command from the
+   config-driven menu (`config/menu.yaml`).
+2. **Next recommendation.** The wizard reads the selected workflow's
+   `## Next` section from `workflows/<name>.md` and recommends the downstream
+   workflow.
+3. **Dispatch.** The chosen workflow runs its own runtime template
+   (`config/workflows/<name>.yaml` → `templates/runtime/runtime-<name>.md`).
 
 ---
 
-## Execution Rules
+## Rules
 
-1. **Route lookup is the only entry point for workflow dispatch.** Do not bypass the route table.
-2. **Fallback to the default route for unknown intents.** Unmatched intents resolve to the default route (`explore-codebase`).
-3. **Workflows define their own execution chain** (Preconditions, Next); never hardcode pipelines in the routing configuration.
-4. **Skills are invoked by runtimes, not directly by route**, unless listed as a standalone skill shortcut.
-5. **Aliases resolve before dispatch.** An aliased name dispatches to its target workflow, not a new route.
+1. **Workflow contracts own the chain.** The `## Next` section in each
+   workflow defines its downstream transitions (see `workflows/README.md`,
+   Workflow Template). Never hardcode a pipeline in code.
+2. **Next must be machine-readable.** Each `## Next` bullet starts with the
+   downstream workflow name (kebab-case), `None`, or a known external target
+   (`deployment`). Enforced by `tools/checks/workflow.py` (check_next_sections).
+3. **Workflow registry is the single source of workflow identity.**
+   `config/workflow-registry.yaml` lists every workflow; the menu and wizard
+   resolve against it.
+4. **Skills are invoked by runtimes**, not by a top-level router.
 
 ---
 
 ## Configuration Reference
 
-- Routing configuration: `routing/ai-routing.yaml`
-- Registered workflows: `config/workflow-registry.yaml`
-- Workflow contracts: `workflows/README.md`
+- Workflow contracts: `workflows/README.md` + `workflows/<name>.md`
+- Workflow registry: `config/workflow-registry.yaml`
+- Menu: `config/menu.yaml`
+- Wizard: `cli/services/wizard.py`

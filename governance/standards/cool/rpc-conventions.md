@@ -90,3 +90,35 @@ If the RPC change is **breaking** (renamed/removed fields, changed signatures), 
 - [ ] RPC dependency matrix completed (who depends on which facade)
 - [ ] Breaking changes identified and consumer deployment verified
 - [ ] Deployment order documented in dependency-checklist.md
+
+---
+
+## 6. Facade Request/Result Contract
+
+All facade request objects MUST extend:
+
+```text
+net.coolcollege.platform.util.model.BaseRequest
+```
+
+All facade result objects MUST extend:
+
+```text
+net.coolcollege.platform.util.model.BaseResult
+```
+
+Facade interfaces MUST use:
+
+- `BaseRequest` subclasses as parameters.
+- `BaseResult` subclasses as return types.
+
+### Never
+
+Do not use as request/result:
+
+- POJO
+- Map
+- Object
+- List directly
+
+unless explicitly approved by architecture.
