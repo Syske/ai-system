@@ -63,10 +63,10 @@ Success:
 
 Stop:
 
-- Release Readiness = BLOCKED → report missing items
+- Release Readiness = BLOCKED → report missing items; resolve them, then re-run this workflow (loop exits on READY)
+- Branch Diff Review BLOCKER → fix findings, then re-run verify + release
 
 ## Next
 
 - deployment — on READY (outside this workflow set)
 - develop — on BLOCKED (Branch Diff Review BLOCKER: fix findings then re-run verify + release)
-- release — on BLOCKED (missing release items: resolve and re-run)

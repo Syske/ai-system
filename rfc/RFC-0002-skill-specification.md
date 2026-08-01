@@ -223,7 +223,7 @@ N.2 <actionable command or decision>
 
 | Prohibition | Reason | Linter check |
 |---|---|---|
-| Must not exceed 1000 lines total across all files | Maintainability | Check total lines |
+| Must not have any single file exceeding 1000 lines | Maintainability | Check per-file line count |
 | Must not duplicate content from a shared checklist | Duplication | Compare checklist headings |
 | Must not duplicate content from `ai-system/governance/standards/` | Duplication | Compare governance headings |
 | Must not embed report templates | Belongs in `ai-system/templates/` | Check for template patterns |
@@ -252,7 +252,7 @@ Every Skill must pass these gates before being accepted:
 | No prohibited content | No Maven commands, no project paths |
 | No duplication | No shared checklist/playbook duplication |
 | Dependency acyclic | Dependency graph has no cycles |
-| Total lines ≤ 1000 | Sum of all files in the skill directory |
+| No single file exceeds 1000 lines (aggregated reference files are exempt) | Per-file line count (see §5.1) |
 | Workflow has stages | At least 3 stages with Goal/Steps/Output |
 | Stopping conditions defined | At least one normal stop + one failure stop |
 | Delegation documented | At least "delegates to: none" if standalone |

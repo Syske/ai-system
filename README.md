@@ -32,7 +32,7 @@ ai-system/            ← Governance, specifications, workflows, skills, tools
 | Rule | Source |
 |---|---|
 | Every Skill needs a `skill.md` with valid YAML frontmatter | RFC-0002 |
-| Skills must not exceed 1000 total lines | RFC-0002 |
+| Skills must not have a single file exceeding 1000 lines | RFC-0002 |
 | Skills must delegate Maven execution to `java-maven` | ADR-0003 |
 | Skills must not duplicate shared checklists or playbook content | RFC-0002 |
 | Workflows orchestrate; they do not implement | RFC-0003 |

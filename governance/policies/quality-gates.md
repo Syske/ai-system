@@ -21,7 +21,7 @@ and by the repository-governor Skill.
 
 | Check | Scope | Failure |
 |---|---|---|
-| Lines ≤ 1000 total | Per Skill | Skill exceeds limit |
+| No single file exceeds 1000 lines (aggregated reference files exempt) | Per Skill | Skill exceeds limit |
 | No Maven commands (`mvn ` strings) | Non-java-maven skills | Prohibited command |
 | No absolute paths (`C:\`, `/home/`, `/usr/`) | All files | Hardcoded path |
 | No hardcoded project names | All files | Non-generic content |

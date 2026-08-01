@@ -18,7 +18,7 @@ Stages 6-7 of the workflow.
 | 7 | Knowledge duplication | HIGH | No content that belongs in a Playbook |
 | 8 | Checklist duplication | MEDIUM | No checklists that duplicate `.opencode/checklists/` |
 | 9 | Playbook references | MEDIUM | References Playbooks when referencing engineering knowledge |
-| 10 | Total size | MEDIUM | ≤ 1000 lines across all files |
+| 10 | Total size | MEDIUM | No single file exceeds 1000 lines (aggregated reference files exempt) |
 | 11 | Dependency complexity | MEDIUM | ≤ 3 direct dependencies |
 | 12 | Frontmatter quality | HIGH | YAML frontmatter with name + description |
 | 13 | Naming convention | MEDIUM | Directory name matches `name:` field |

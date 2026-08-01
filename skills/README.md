@@ -52,12 +52,6 @@ These skills are for internal AI system optimization. They are NOT part of the d
 | outcome-benchmark-generator | Generate outcome-based benchmarks |
 | routing-benchmark-generator | Generate routing evaluation benchmarks |
 
-## Experimental / Deprecated (1)
-
-| Skill | Status | Replacement |
-|---|---|---|
-| refactor-safely | Deprecated | Use `review` workflow Phase 2 (Design Review) |
-
 ## Skill Creation (1)
 
 | Skill | Purpose |

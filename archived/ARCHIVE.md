@@ -98,3 +98,20 @@ bootstrap → prepare → spec → dev-setup → develop → review → verify �
 - `governance/contracts/AI_DEVELOPMENT_CONTRACT.md`: architecture diagram no longer lists `maintainers/`; references the new guide
 - `tools/setup.py`: `SYSTEM_DIRS` dropped `maintainers`
 - `config/ai-bootstrap.yaml`: dropped `../routing` layer (directory deleted)
+
+---
+
+## 2026-08-01 — refactor-safely Skill Archival
+
+**Reason:** `refactor-safely` was deprecated (status: deprecated in frontmatter) and had no references from workflows, CLI commands, config, or menu.yaml. Superseded by the `review` workflow (Phase 2 Design Review) and the `review-changes` skill.
+
+### Moved Files
+
+| Original Path | Reason |
+|---|---|
+| `skills/refactor-safely/` | Deprecated + unreferenced; replacement documented in frontmatter |
+
+### Consequential Updates
+
+- `skills/README.md`: removed the "Experimental / Deprecated" section row
+

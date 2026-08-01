@@ -44,7 +44,7 @@ Before recommending any change, verify:
 - [ ] No Maven commands (unless java-maven)
 - [ ] No project-specific paths
 - [ ] No duplicated checklist content
-- [ ] Total lines ≤ 1000
+- [ ] No single file exceeds 1000 lines (aggregated reference files exempt)
 - [ ] Frontmatter has name + description
 - [ ] name: matches directory name
 

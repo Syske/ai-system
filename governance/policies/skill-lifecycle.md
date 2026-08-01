@@ -136,7 +136,7 @@ no longer needed.
 | Decision | Criteria | Authority |
 |---|---|---|
 | **Create** | New capability, no overlap > 60% | RFC approval |
-| **Split** | Skill exceeds 1000 lines, or has multiple responsibilities | Linter flag + review |
+| **Split** | A single file exceeds 1000 lines, or has multiple responsibilities | Linter flag + review |
 | **Merge** | Two Skills overlap > 60% | Overlap detection + review |
 | **Deprecate** | Replacement exists or capability obsolete | ADR + review |
 | **Archive** | Deprecation grace period ended | Automated (linter check) |
@@ -148,7 +148,7 @@ A Skill should be split when:
 
 | Indicator | Threshold |
 |---|---|
-| Total lines | > 1000 lines |
+| Single file lines | > 1000 lines |
 | Workflow stages | > 10 stages |
 | Responsibilities | Fails one-sentence test |
 | Dependencies | Depends on 5+ other Skills |

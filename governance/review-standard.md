@@ -28,7 +28,7 @@ other repository components.
 - [ ] Description includes trigger phrases and anti-triggers
 - [ ] Description is 100-1024 characters
 - [ ] Single responsibility confirmed (one-sentence test)
-- [ ] Total lines ≤ 1000
+- [ ] No single file exceeds 1000 lines (aggregated reference files exempt)
 - [ ] No Maven commands (unless the Skill is java-maven)
 - [ ] No project-specific paths or names
 - [ ] No duplicated checklists (check against `ai-system/skills/*/checklists.md`)

@@ -26,7 +26,7 @@ Use during Stage 4 of the workflow.
 | Anti-triggers present | Keyword scan for "does not" or "not responsible" | Missing anti-triggers |
 | Stopping conditions defined | Check for stop/failure conditions | Missing stopping conditions |
 | Delegation documented | Check for "delegates to" or "invoke" | Missing delegation |
-| Total lines ≤ 1000 | Line count sum | Exceeds limit |
+| No single file exceeds 1000 lines (aggregated reference files exempt) | Per-file line count | Exceeds limit |
 | No Maven commands (unless java-maven) | Grep for mvn patterns | Prohibited commands |
 | Workflow ≥ 3 stages (if workflow.md exists) | Stage count | Insufficient stages |
 | No shared checklist duplication | Compare checklist headings with `.opencode/checklists/` | Duplicate checklist |

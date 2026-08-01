@@ -189,7 +189,7 @@ items for quality gates.
 
 | Pattern | Why |
 |---|---|
-| Skill exceeding 1000 lines total | Violates single responsibility; becomes unmaintainable |
+| Skill with a single file exceeding 1000 lines | Violates single responsibility; becomes unmaintainable |
 | Skill containing Maven commands directly | Must delegate to java-maven |
 | Skill containing ReflectionTestUtils patterns | Must reference playbooks/reflection-test-utils.md |
 | Skill duplicating a checklist | Checklist must be shared via the Skill's own checklists.md |

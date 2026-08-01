@@ -8,10 +8,11 @@ Analyzes Skill-to-Skill references and generates:
   - DOT format graph (for Graphviz visualization)
 
 Usage:
-    python ai-system/tools/dependency-graph.py --repo-root .
-    python ai-system/tools/dependency-graph.py --repo-root . --format dot
-    python ai-system/tools/dependency-graph.py --repo-root . --format json
-    python ai-system/tools/dependency-graph.py --repo-root . --format text (default)
+    python tools/dependency-graph.py --repo-root .               # inside ai-system/
+    python ai-system/tools/dependency-graph.py --repo-root .     # from workspace root
+    python tools/dependency-graph.py --repo-root . --format dot
+    python tools/dependency-graph.py --repo-root . --format json
+    python tools/dependency-graph.py --repo-root . --format text (default)
 """
 
 import argparse
@@ -22,10 +23,20 @@ from pathlib import Path
 from collections import defaultdict
 
 
-SKILLS_SUBDIR = "ai-system/skills"
+SKILLS_SUBDIR = "skills"
+
+
+def resolve_root(root):
+    """Return the ai-system root regardless of whether repo-root points at
+    the workspace (containing ai-system/) or at ai-system/ itself.
+    """
+    if (root / "ai-system").is_dir():
+        return root / "ai-system"
+    return root
 
 
 def find_skills(root):
+    root = resolve_root(root)
     skills_dir = root / SKILLS_SUBDIR
     if not skills_dir.exists():
         return {}
@@ -45,6 +56,7 @@ def find_skills(root):
 
 
 def extract_references(skill_name, root):
+    root = resolve_root(root)
     skill_dir = root / SKILLS_SUBDIR / skill_name
     if not skill_dir.exists():
         return set()
@@ -76,6 +88,7 @@ def extract_references(skill_name, root):
 
 
 def get_skill_layers(root):
+    root = resolve_root(root)
     skills = find_skills(root)
     layers = defaultdict(list)
 
@@ -117,14 +130,12 @@ def detect_cycles(skills, edges):
 
         for target, _ in edges[node]:
             if target not in visited:
-                if dfs(target, path + [target]):
-                    return True
+                dfs(target, path + [target])
             elif target in recursion_stack:
                 cycle_path = path[path.index(target):]
                 cycles.append(" → ".join(cycle_path + [target]))
-                return True
+
         recursion_stack.remove(node)
-        return False
 
     for skill in skills:
         if skill not in visited:
