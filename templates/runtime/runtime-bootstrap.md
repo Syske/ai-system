@@ -187,7 +187,7 @@ Project binding and repository resolution belong to Dev Setup Runtime.
 
 Generate:
 
-- Environment Context
+- Environment Context (workspace_root, repository_root, workspaces_root, ai_system_root, methodologies_root)
 - Workspace Metadata (initialized, no project binding)
 
 # Reflection

@@ -1,6 +1,7 @@
 import ctypes
 import os
 import sys
+from pathlib import Path
 
 try:
 
@@ -35,6 +36,61 @@ except ImportError:
 
 
 BACK = object()
+
+
+_I18N = None
+
+
+def _load_i18n():
+
+    global _I18N
+
+    if _I18N is not None:
+        return _I18N
+
+    try:
+
+        import yaml
+
+        root = Path(__file__).resolve().parents[2]
+
+        menu = yaml.safe_load(
+            (root / "config" / "menu.yaml")
+            .read_text(encoding="utf-8")
+        ) or {}
+
+        locale = menu.get("locale", "zh")
+
+        _I18N = yaml.safe_load(
+            (root / "config" / "i18n" / f"{locale}.yaml")
+            .read_text(encoding="utf-8")
+        ) or {}
+
+    except Exception:
+
+        _I18N = {}
+
+    return _I18N
+
+
+def _t(key, default=None):
+
+    node = _load_i18n()
+
+    for part in key.split("."):
+
+        if not isinstance(node, dict):
+            break
+
+        node = node.get(part)
+
+        if node is None:
+            break
+
+    if node is None:
+        return default
+
+    return node
 
 
 class Section:
@@ -252,8 +308,7 @@ def ask_text(
         return raw.strip()
 
     body = [
-        "Enter 提交，Alt+Enter 换行，"
-        "空行退格返回，Esc/Ctrl+C 退出",
+        _t('menu.hint_text', 'Enter 提交，Alt+Enter 换行，空行退格返回，Esc/Ctrl+C 退出'),
         ""
     ]
 
@@ -588,11 +643,11 @@ def _handle_no_match(
         body.append("")
 
     body.append(
-        "  (无匹配 — 退格清空过滤)"
+        f"  {_t('menu.hint_no_match', '(无匹配 — 退格清空过滤)')}"
     )
     body.append("")
     body.append(
-        f"filter: {filter_buf}"
+        f"{_t('menu.filter_prefix', 'filter')}: {filter_buf}"
     )
 
     _frame(header, body)
@@ -690,19 +745,22 @@ def _interactive(
         if filter_buf:
 
             body.append(
-                f"filter: {filter_buf}  "
+                f"{_t('menu.filter_prefix', 'filter')}: {filter_buf}  "
                 f"({len(visible)}/{len(selectable)})"
             )
 
             body.append(
-                "输入过滤，退格清除，Enter 选中，Esc 清空"
+                _t('menu.hint_filter', '输入过滤，退格清除，Enter 选中，Esc 清空')
             )
 
         else:
 
             body.append(
-                "↑/↓ 选择，输入过滤，Enter 选中，"
-                "退格返回，Esc 退出"
+                _t(
+                    'menu.hint_select',
+                    '↑/↓ 选择，输入过滤，Enter 选中，'
+                    '退格返回，Esc 退出'
+                )
             )
 
         _frame(header, body)
@@ -803,11 +861,11 @@ def _fallback(
             )
 
     hint = (
-        "输入编号 [Enter=跳过, b=返回]"
+        _t('menu.fallback_hint_skip', '输入编号 [Enter=跳过, b=返回]')
         if allow_skip
         else (
-            "输入编号 "
-            f"[默认 {selectable.index(default) + 1}, b=返回]"
+            _t('menu.fallback_hint_default', '输入编号 [默认 {n}, b=返回]')
+            .format(n=selectable.index(default) + 1)
         )
     )
 
@@ -832,7 +890,7 @@ def _fallback(
 
             return selectable[int(raw) - 1]
 
-        print("无效输入，请重试。")
+        print(_t('menu.invalid', '无效输入，请重试。'))
 
 
 def _paint_many(
@@ -930,7 +988,7 @@ def _interactive_many(
         if filter_buf:
 
             body.append(
-                f"filter: {filter_buf}  "
+                f"{_t('menu.filter_prefix', 'filter')}: {filter_buf}  "
                 f"({len(visible)}/{len(selectable)})"
             )
 
@@ -1020,11 +1078,11 @@ def _fallback_many(
     for i, opt in enumerate(options, 1):
         print(f"  {i}. {opt}")
 
-    print("输入编号（逗号分隔多个），空=跳过全部，b=返回")
+    print(_t('menu.fallback_many', '输入编号（逗号分隔多个），空=跳过全部，b=返回'))
 
     while True:
 
-        raw = input("选择 (如 1,3): ").strip()
+        raw = input(_t('menu.fallback_many_prompt', '选择 (如 1,3): ')).strip()
 
         if raw.lower() == "b":
             return BACK
@@ -1054,4 +1112,4 @@ def _fallback_many(
         if ok and picks:
             return picks
 
-        print("无效输入，请重试。")
+        print(_t('menu.invalid', '无效输入，请重试。'))

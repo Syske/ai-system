@@ -6,7 +6,7 @@ Prepare complete implementation context before specification.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-prepare.md
+- templates/runtime/runtime-prepare.md
 
 ## Preconditions
 
@@ -42,6 +42,7 @@ Never load the entire repository tree into context.
 ## Outputs
 
 - Requirement Summary
+- Repository Summary
 - Architecture Summary
 - Dependency Report
 - Impact Report
@@ -60,4 +61,4 @@ Stop:
 
 ## Next
 
-- On Ready: spec
+- spec — on ready

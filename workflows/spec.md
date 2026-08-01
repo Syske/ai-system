@@ -6,7 +6,7 @@ Create specification artifacts for the next task.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-spec.md
+- templates/runtime/runtime-spec.md
 
 ## Preconditions
 
@@ -58,4 +58,4 @@ Stop:
 
 ## Next
 
-- On Ready: dev-setup
+- dev-setup — on ready

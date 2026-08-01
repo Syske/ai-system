@@ -6,7 +6,7 @@ Analyze AI System structure, quality and consistency.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-analysis.md
+- templates/runtime/runtime-analysis.md
 
 ## Preconditions
 
@@ -53,5 +53,5 @@ Stop:
 
 ## Next
 
-- Collect reusable findings into knowledge (governance/memory/) via the Knowledge workflow
-- Recommendations feed future changes through prepare and spec
+- knowledge — collect reusable findings (governance/memory/)
+- prepare — recommendations feed future changes through prepare and spec

@@ -13,12 +13,12 @@ Use `review` when:
 
 Use `review-changes` (skill) instead when:
 - Assessing risk/impact of uncommitted local changes
-- Quick knowledge-graph-driven analysis（not a full gate review）
+- Quick knowledge-graph-driven analysis (not a full gate review)
 - Exploring codebase impact of an idea before writing a spec
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-review.md
+- templates/runtime/runtime-review.md
 
 ## Preconditions
 
@@ -61,5 +61,5 @@ Stop:
 
 ## Next
 
-- On Approved: verify（see runtime-review Completion routing table: approved→verify / bug found→bugfix / spec gap→spec re-entry）
-- On Changes Required: develop
+- verify — on approved (routing: approved→verify / bug found→bugfix / spec gap→spec re-entry)
+- develop — on changes required

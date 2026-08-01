@@ -6,7 +6,7 @@ Verify implementation correctness against specification and contract.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-verify.md
+- templates/runtime/runtime-verify.md
 
 ## Preconditions
 
@@ -49,5 +49,5 @@ Stop:
 
 ## Next
 
-- On PASS: release
-- On FAIL: develop
+- release — on PASS
+- develop — on FAIL

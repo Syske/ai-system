@@ -151,23 +151,7 @@ class PromptBuilder:
             "output"
         }
 
-        labels = {
-            "workspace": "Workspace ID",
-            "project": "Project ID",
-            "task": "Task ID",
-            "change": "Change ID",
-            "issue": "Issue ID",
-            "version": "Release Version",
-            "request": "Change Request",
-            "code": "Code Reference",
-            "base": "Base Branch",
-            "mode": "Mode",
-            "operation": "Operation",
-            "projects": "Projects",
-            "compare": "Compare With",
-            "keep_results": "Keep Results",
-            "scan_directory": "Scan Directory"
-        }
+        labels = PromptBuilder._labels()
 
         lines = []
 
@@ -184,6 +168,37 @@ class PromptBuilder:
             )
 
         return "\n".join(lines)
+
+    @staticmethod
+    def _labels():
+
+        try:
+
+            import yaml
+
+            root = (
+                Path(__file__)
+                .resolve()
+                .parents[2]
+            )
+
+            menu = yaml.safe_load(
+                (root / "config" / "menu.yaml")
+                .read_text(encoding="utf-8")
+            ) or {}
+
+            locale = menu.get("locale", "zh")
+
+            i18n = yaml.safe_load(
+                (root / "config" / "i18n" / f"{locale}.yaml")
+                .read_text(encoding="utf-8")
+            ) or {}
+
+            return i18n.get("input_labels", {}) or {}
+
+        except Exception:
+
+            return {}
 
     @staticmethod
     def _render(

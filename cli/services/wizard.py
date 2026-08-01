@@ -1,7 +1,8 @@
-import subprocess
-from datetime import datetime
+import re
 from pathlib import Path
 
+from cli.services import providers
+from cli.services.command_hooks import get_hooks
 from cli.utils.file import read_text
 from cli.utils.menu import (
     BACK,
@@ -333,37 +334,27 @@ class Wizard:
 
             if index == len(fields):
 
-                if (
-                    target[0] == "scan"
-                    and self._scan_scope_empty(
-                        values,
-                        self.projects_root
-                    )
-                ):
+                hooks = get_hooks(target[0])
 
-                    print()
-                    print(
-                        "⚠ 无可搜索范围：未选 Workspace，"
-                        "且 projects/ 下没有可用项目。"
-                    )
-                    print(
-                        "请选择 Workspace 或先运行 setup "
-                        "把代码仓库链接到 projects/。"
+                if hooks is not None:
+
+                    ok, message = hooks.validate(
+                        self,
+                        values
                     )
 
-                    step = 2
+                    if not ok:
 
-                    continue
+                        print(message)
 
-                if target[0] == "scan":
+                        step = 2
 
-                    scan_dir = self._scan_result_dir(
-                        values,
-                        self.workspaces
+                        continue
+
+                    hooks.prepare(
+                        self,
+                        values
                     )
-
-                    if scan_dir:
-                        values["Scan Directory"] = scan_dir
 
                 result = self._select_output(
                     self._header(
@@ -785,10 +776,21 @@ class Wizard:
 
             lowered = stripped.lower()
 
-            for w in workflows:
+            tokens = re.findall(
+                r"[a-z][a-z0-9-]*",
+                lowered
+            )
 
-                if w != name and w in lowered:
-                    return w
+            if not tokens:
+                continue
+
+            first = tokens[0]
+
+            if (
+                first in workflows
+                and first != name
+            ):
+                return first
 
         return None
 
@@ -1144,10 +1146,7 @@ class Wizard:
     ):
 
         if field in self._auto_fields():
-            return self._dirs(
-                self.workspaces,
-                exclude={"archived"}
-            )
+            return providers.workspace_dirs(self)
 
         if field == "Mode":
 
@@ -1161,40 +1160,26 @@ class Wizard:
 
             return ["re-entry"]
 
-        if field == "Base Branch":
-            return self._field_choices(field)
-
-        if field == "Zip":
-            return self._field_choices(field)
-
-        if field == "Operation":
-            return self._field_choices(field)
-
-        if field == "Workspace":
-            return self._dirs(
-                self.workspaces,
-                exclude={"archived"}
-            )
-
-        if field == "Projects":
-            return self._dirs(
-                self.projects_root,
-                exclude={"archived"}
-            )
-
-        if field == "Branch":
-            return self._scan_branches(values)
-
-        if field == "Keep Results":
-            return self._field_choices(field)
-
         if field in (
+            "Base Branch",
+            "Zip",
+            "Operation",
+            "Keep Results",
             "Knowledge Operation",
             "Analysis Target",
             "Analysis Scope"
         ):
 
             return self._field_choices(field)
+
+        if field == "Workspace":
+            return providers.workspace_dirs(self)
+
+        if field == "Projects":
+            return providers.projects_dirs(self)
+
+        if field == "Branch":
+            return providers.git_branches(self, values)
 
         project = (
             values.get("Project ID")
@@ -1203,26 +1188,17 @@ class Wizard:
         )
 
         if field == "Change ID" and project:
-
-            return self._dirs(
-                self.workspaces
-                / project
-                / "openspec"
-                / "changes",
-                exclude={"archive"}
+            return providers.change_dirs(
+                self,
+                values,
+                project
             )
 
         if field == "Task ID" and project:
-
-            cards = (
-                self.workspaces
-                / project
-                / "openspec"
-                / "changes"
-            ).glob("*/tasks/cards/*.md")
-
-            return sorted(
-                {c.stem for c in cards}
+            return providers.task_ids(
+                self,
+                values,
+                project
             )
 
         return []
@@ -1245,114 +1221,6 @@ class Wizard:
             and not p.name.startswith(".")
             and p.name not in exclude
         )
-
-    def _scan_branches(
-        self,
-        values
-    ):
-
-        projects = values.get("Projects")
-
-        if not projects:
-            return []
-
-        branches = set()
-
-        for name in projects.split(","):
-
-            name = name.strip()
-
-            if not name:
-                continue
-
-            repo = self.projects_root / name
-
-            if not repo.is_dir():
-                continue
-
-            try:
-
-                result = subprocess.run(
-                    [
-                        "git",
-                        "-C",
-                        str(repo),
-                        "-c",
-                        "safe.directory=*",
-                        "branch",
-                        "--format=%(refname:short)"
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=10
-                )
-
-                if result.returncode != 0:
-                    continue
-
-                for line in result.stdout.splitlines():
-
-                    line = line.strip()
-
-                    if line:
-                        branches.add(line)
-
-            except Exception:
-
-                continue
-
-        return sorted(branches)
-
-    @staticmethod
-    def _scan_scope_empty(
-        values,
-        projects_root
-    ):
-
-        operation = values.get("Operation") or "search"
-
-        if operation in ("diff", "manual"):
-            return False
-
-        if values.get("Workspace"):
-            return False
-
-        if values.get("Projects"):
-            return False
-
-        if not projects_root.is_dir():
-            return True
-
-        if any(
-            p.is_dir()
-            for p in projects_root.iterdir()
-            if not p.name.startswith(".")
-        ):
-            return False
-
-        return True
-
-    @staticmethod
-    def _scan_result_dir(
-        values,
-        workspaces_root
-    ):
-
-        if values.get("Keep Results") != "yes":
-            return None
-
-        workspace = values.get("Workspace") or "system"
-
-        scan_dir = (
-            workspaces_root
-            / workspace
-            / "scans"
-            / f"scan-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
-        )
-
-        scan_dir.mkdir(parents=True, exist_ok=True)
-
-        return str(scan_dir)
 
     def _select_output(
         self,

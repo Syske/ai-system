@@ -8,7 +8,7 @@ This workflow does not execute deployment.
 
 ## Runtime
 
-- ai-system/templates/runtime/runtime-release.md
+- templates/runtime/runtime-release.md
 
 ## Preconditions
 
@@ -42,6 +42,8 @@ For multi-project releases, the Runtime must iterate over each project/service i
 
 - release-checklist.md             # Overall release readiness per service
 - release-change-report.md          # Per-project branch diff summary with change classification
+- release-branch-review.md          # Aggregated branch diff quality review
+- review-{task-id}.md               # Per-task branch diff review (one per Task Card)
 - sql-checklist.md                  # DDL/DML/Scripts with order, rollback, risk
 - sql/                              # Executable SQL files organized by execution order
   - {service}-{type}.sql
@@ -65,6 +67,6 @@ Stop:
 
 ## Next
 
-- On READY: deployment (outside this workflow set)
-- On BLOCKED (Branch Diff Review BLOCKER): → develop（fix findings then re-run verify + release）
-- On BLOCKED (missing release items: SQL/config/dependency): resolve missing items and re-run release
+- deployment — on READY (outside this workflow set)
+- develop — on BLOCKED (Branch Diff Review BLOCKER: fix findings then re-run verify + release)
+- release — on BLOCKED (missing release items: resolve and re-run)
