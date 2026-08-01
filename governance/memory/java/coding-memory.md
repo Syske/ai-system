@@ -1,40 +1,6 @@
 # Java Coding Memory
 
-
-## [MQ] Typed Message VO Required
-
-Context:
-
-RocketMQ event communication.
-
-
-Problem:
-
-JSONObject was used as message body.
-
-Field changes caused compatibility issues.
-
-
-Lesson:
-
-MQ messages are contracts.
-
-Always create typed XxxMqVO.
-
-
-Scope:
-
-- RocketMQ
-- Internal event messages
-
-
-Related:
-
-- Standard:
-  testing.md
-
-- Skill:
-  implement
+Java 通用编码经验。
 
 
 ## [Java] Strategy Pattern Over BizType Branching
@@ -98,29 +64,10 @@ Scope:
 - Any pattern where record data is needed by strategy logic
 
 
-## [Integration] WeCom Status 4 Cancel Course Flow
+## Category Files
 
-Date: 2026-07-06
+按主题拆分的独立文件：
 
-Priority: P2
-
-Context:
-
-Knowledge-api MQ consumer handling WeCom live status changes. status=4 means the WeCom live was cancelled.
-
-Problem:
-
-The status=4 handling was a TODO stub. The operation log used generic DELETE_COURSE type and hardcoded "system" as the operator instead of the course creator.
-
-Solution:
-
-Extract the status=4 logic into a dedicated handleWxLiveCancelled() method. Use a new DELETE_LIVE_COURSE audit type for differentiated i18n. Read course.createUser/createUserName from BizCourse entity for accurate operator attribution. Add i18n entries for the new audit type.
-
-Lesson:
-
-MQ consumers have no UserHolder context. For audit operations, read the resource creator from the entity itself. Each meaningful audit scenario (e.g., live course deletion) deserves its own AuditTypeEnum value for proper i18n and filtering.
-
-Scope:
-
-- MQ consumer audit operations
-- WeCom live course lifecycle management
+- `java/mq.md` — MQ 相关经验
+- `java/integration.md` — 集成（WeCom 等）相关经验
+- `java/spring.md` — Spring 相关经验
