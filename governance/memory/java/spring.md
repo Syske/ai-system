@@ -1,5 +1,8 @@
 ## [Spring] Bean Loading Issue
 
+Date: 2026-07-06
+
+Priority: P1
 
 Context:
 
@@ -28,3 +31,9 @@ Verify:
 Lesson:
 
 Adding a Spring component requires checking startup scanning.
+
+
+Scope:
+
+- Spring Boot multi-module projects
+- New package / new component registration

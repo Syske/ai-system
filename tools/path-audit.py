@@ -6,17 +6,16 @@ AIS = Path(__file__).resolve().parents[1]
 WS = AIS.parent
 
 KNOWN_PLACEHOLDER_DEBT = {
-    "governance/standards/api/rest.md",
-    "governance/standards/database/sql.md",
-    "governance/standards/go/go-style.md",
-    "governance/standards/java/mybatis.md",
-    "governance/standards/java/spring.md",
-    "governance/standards/mq/rocketmq.md",
-    "governance/standards/python/pep8.md",
+    # Reserved directory references in the memory index (targets not yet created)
     "governance/memory/integration/",
-    "governance/memory/integration/wecom.md",
-    "governance/memory/java/mq.md",
     "governance/memory/python/",
+    # Historical references inside memory entries (describe pre-archive state)
+    "governance/standards/common/code-quality.md",
+    "ai-system/archive-discipline.md",
+    "ai-system/file-contract.md",
+    "ai-system/language-boundary.md",
+    "ai-system/workflow-chain.md",
+    "ai-system/config/environments/context.yaml",
 }
 
 FALSE_POSITIVES = {

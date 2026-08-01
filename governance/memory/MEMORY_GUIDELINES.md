@@ -741,8 +741,30 @@ governance/memory/java/mq.md
 Third-party API integration:
 
 ```
-governance/memory/integration/wecom.md
+governance/memory/java/integration.md
 ```
+
+---
+
+# Lifecycle Triggers
+
+Coding Memory is maintained through the `knowledge` workflow operations.
+The following triggers define when each operation runs (see OPERATIONS.md 1.7):
+
+| Operation | Trigger | Actions |
+|---|---|---|
+| collect | After each release or retrospective | Add verified lessons, update index |
+| update | When a verified solution changes | Clarify scope, add examples, fix explanation |
+| search | On demand during a task | Load only relevant category files |
+| review | Monthly | De-duplicate, check contradictions, flag stale entries |
+| archive | Quarterly | Move outdated entries to archive, update index |
+
+Rules:
+
+- `review` must run before `archive`; never archive un-reviewed entries.
+- An entry is stale when its lesson no longer applies or a newer standard replaces it.
+- Archiving removes the entry from the active index; the archived file keeps the historical record.
+- `tools/check.py` validates memory structure (entry format, index integrity, language) on every run.
 
 ---
 

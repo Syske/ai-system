@@ -132,7 +132,17 @@ analysis     periodic AI System health check
 knowledge    collect / update / search / review / archive knowledge assets
 ```
 
-Run knowledge collect after each release or retrospective.
+Knowledge lifecycle triggers (matching `knowledge` workflow operations):
+
+```text
+collect   — after each release or retrospective
+review    — monthly: de-duplicate, check contradiction, check stale entries
+archive   — quarterly: archive outdated entries, update the index
+```
+
+Run `knowledge collect` after each release or retrospective.
+
+`governance/memory/` is validated by `tools/check.py` (entry format, index integrity, language).
 
 ---
 
