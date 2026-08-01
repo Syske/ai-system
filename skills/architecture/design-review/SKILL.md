@@ -127,6 +127,16 @@ Unnecessary layers
 
 Always recommend removing complexity first.
 
+Assess module shape using the deep-module vocabulary (`vocabulary.md`):
+
+- Is each module **deep** (lots of behaviour behind a small interface), or
+  **shallow** (interface nearly as complex as the implementation)?
+- Apply the **deletion test** — would complexity vanish (pass-through) or
+  reappear across callers (earning its keep)?
+- Is the interface the **test surface** — do tests cross the same seam as callers?
+- Are there **seams** where behaviour can vary, and are they justified (one
+  adapter = hypothetical, two = real)?
+
 ---
 
 ## Phase 5 — Evolution Review

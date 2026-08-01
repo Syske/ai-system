@@ -169,6 +169,22 @@ description: >
 | `description:` must contain "Does NOT" or "not responsible for" | Linter checks for anti-trigger |
 | No additional keys unless documented in an RFC | Linter rejects unknown keys |
 
+### Invocation Design
+
+Choose how a Skill is invoked based on context-load vs cognitive-load trade-off:
+
+| Invocation | Mechanics | Cost | When |
+|---|---|---|---|
+| **Model-invoked** | Keep a model-facing `description` (rich triggers); the agent fires it autonomously | Context load: description sits in the window every turn | The agent must reach it on its own, or another Skill must reference it |
+| **User-invoked** | Set `disable-model-invocation: true`; description becomes a human-facing one-liner, triggers stripped | Cognitive load: the user must remember it exists | It only ever fires by hand; keep context lean |
+
+Rules:
+
+- Pick **model-invocation** only when the agent must reach the Skill on its own or another Skill must. Otherwise make it user-invoked and pay no context load.
+- **Description does two jobs**: state what the Skill is, and list the branches that trigger it. Every word adds context load, so prune harder than the body.
+- **One trigger per branch.** Synonyms that rename a single branch are duplication — collapse them; keep only genuinely distinct branches.
+- When user-invoked Skills multiply past what a user can remember, add a **router** Skill that names the others and when to reach for each.
+
 ---
 
 ## 4. Workflow Stage Specification

@@ -148,6 +148,19 @@ A good `description:` follows this template:
 - Slightly over-trigger rather than under-trigger
 - Include anti-trigger patterns to prevent false activation
 
+### Invocation design
+
+Choose model-invoked vs user-invoked based on the load trade-off
+(see RFC-0002, Frontmatter → Invocation Design):
+
+| Choice | When | Cost |
+|---|---|---|
+| Model-invoked (keep description) | Agent must reach the Skill on its own, or another Skill references it | Context load each turn |
+| User-invoked (`disable-model-invocation: true`) | Only fires by hand; description becomes a human one-liner | Cognitive load on the user |
+
+- **One trigger per branch.** Synonyms renaming a single branch are duplication — collapse them.
+- When user-invoked Skills multiply, add a **router** Skill that names the others and when to reach for each.
+
 ## Validation Rules
 
 ### Always validate
