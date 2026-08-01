@@ -9,20 +9,30 @@ KNOWN_PLACEHOLDER_DEBT = {
     # Reserved directory references in the memory index (targets not yet created)
     "governance/memory/integration/",
     "governance/memory/python/",
-    # Historical references inside memory entries (describe pre-archive state)
+    # Historical reference inside a memory entry (describes pre-archive state)
     "governance/standards/common/code-quality.md",
-    "ai-system/archive-discipline.md",
-    "ai-system/file-contract.md",
-    "ai-system/language-boundary.md",
-    "ai-system/workflow-chain.md",
-    "ai-system/config/environments/context.yaml",
 }
 
 FALSE_POSITIVES = {
     "../AuditTypeEnum.java",
     "../ai-runtime/",
     "metrics/baseline-",
+    # Generated artifacts referenced by command/runtime docs (produced at run time)
+    "../ai-system-pack",
+    "config/environments/local.yaml",
+    "ai-system/config/environments/context.yaml",
 }
+
+# Runtime data roots: workspace-level directories that hold project/workspace
+# content created at run time. References into these are not source-code
+# dependencies, so the audit skips them (unless the target also exists inside
+# the AI System repo).
+RUNTIME_ROOTS = (
+    "methodologies/",
+    "workspaces/",
+    "projects/",
+    "repositories/",
+)
 
 PATH_RE = re.compile(
     r"(?:[A-Za-z]:[\\/][^\s`'\")\]，。；;|]+"
@@ -31,6 +41,17 @@ PATH_RE = re.compile(
     r"metrics|reports|methodologies|workspaces|projects|repositories)"
     r"/[\w{}$./*\-]+)"
 )
+
+
+def is_runtime_reference(tok):
+    """True if tok points into a runtime data root outside the repo.
+
+    Runtime roots (methodologies/workspaces/projects/repositories) hold
+    content created at run time under the workspace root. They are not
+    source-code dependencies, so references into them are not audited.
+    """
+
+    return tok.startswith(RUNTIME_ROOTS)
 
 
 def collect_files():
@@ -82,7 +103,13 @@ def main():
 
             tok = m.group(0).rstrip(".,;:)`'\"*")
 
-            if "{" in tok or "*" in tok or "$" in tok:
+            after = text[m.end():m.end() + 1]
+
+            if "<" in after or after == "{":
+                placeholders += 1
+                continue
+
+            if "{" in tok or "*" in tok or "$" in tok or "<" in tok:
                 placeholders += 1
                 continue
 
@@ -116,6 +143,8 @@ def main():
                 candidates = [WS / tok]
 
             if not any(c.exists() for c in candidates):
+                if is_runtime_reference(tok):
+                    continue
                 missing.setdefault(tok, set()).add(rel)
 
     debt = {t: s for t, s in missing.items() if t in KNOWN_PLACEHOLDER_DEBT}
