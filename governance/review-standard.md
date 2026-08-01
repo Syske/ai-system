@@ -54,7 +54,7 @@ other repository components.
 ```
 Submit change
   ↓
-Run linter: scripts/repo-lint.py
+Run linter: tools/repo-lint.py
   ↓
   ├─ BLOCKER or ERROR → Fix, resubmit
   │

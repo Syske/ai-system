@@ -64,8 +64,6 @@ Purpose
 
 ### For runtime-develop
 
-* governance/standards/common/code-quality.md
-
 * governance/standards/common/clean-code.md
 
 * governance/standards/common/task-quality-checklist.md
@@ -183,8 +181,6 @@ Loaded Standards
 * REFLECTION_RULES.md
 
 * ai-coding-rules.md
-
-* code-quality.md
 
 * clean-code.md
 

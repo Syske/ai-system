@@ -68,7 +68,6 @@ python -m cli.main
 |---|---|
 | `governance/standards/common/task-quality-checklist.md` | Per-task quality verification baseline |
 | `governance/standards/common/ai-coding-rules.md` | AI coding rules |
-| `governance/standards/common/code-quality.md` | Code quality standards |
 | `governance/standards/common/clean-code.md` | Clean code conventions |
 | `governance/review-standard.md` | Skill review workflow and checklists |
 | `governance/repo-lint.md` | Naming rules for all components |
@@ -77,7 +76,8 @@ python -m cli.main
 | `governance/AI_OPERATING_RULES.md` | Core operating rules (all workflows) |
 | `governance/policies/quality-gates.md` | BLOCKER/ERROR/WARNING/INFO quality definitions |
 | `governance/policies/skill-policy.md` | Skill creation and maintenance policy |
-| `governance/policies/routing-policy.md` | Routing configuration policy |
+| `governance/policies/skill-lifecycle.md` | Skill lifecycle stages |
+| `governance/policies/routing-policy.md` | Intent → workflow/skill routing policy |
 | `governance/policies/security-policy.md` | Security guidelines |
 | `rfc/RFC-0001-repository-architecture.md` | Component definitions and layer model |
 | `rfc/RFC-0002-skill-specification.md` | Mandatory components and quality gates |

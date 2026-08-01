@@ -1,76 +1,68 @@
-# Repository Governance
+# Violation Rules
 
-> This document is the entrypoint for the AI Engineering Repository governance
-> system. It describes what governance is, why it exists, and how the pieces
-> fit together.
+This document defines how violations are classified and handled.
+
+Violations are deviations from governance, standards, policies, or contracts.
 
 ---
 
-## What Is Repository Governance?
+## Severity Levels
 
-Repository Governance is the set of rules, processes, and automated checks
-that ensure this repository remains maintainable, consistent, and composable
-as it grows.
-
-Without governance, repositories naturally degrade: Skills duplicate content,
-naming becomes inconsistent, dead references accumulate, and no one knows
-what is safe to change.
-
-## Governance Layers
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                  1. RFCs (Specifications)               │
-│  Define what each component is and how it must behave   │
-│  Location: rfc/                                       │
-├─────────────────────────────────────────────────────────┤
-│                  2. Governance Docs (Policies)          │
-│  Define processes, gates, lifecycle, conventions        │
-│  Location: governance/                                │
-├─────────────────────────────────────────────────────────┤
-│                  3. ADRs (Decisions)                    │
-│  Record why architectural decisions were made           │
-│  Location: rfc/ (co-located with RFCs)               │
-├─────────────────────────────────────────────────────────┤
-│                  4. Automated Tools (Enforcement)       │
-│  Linter, metrics, dependency graph — run on CI          │
-│  Location: tools/                                        │
-├─────────────────────────────────────────────────────────┤
-│                  5. Metrics (Tracking)                  │
-│  Snapshot repository health over time                   │
-│  Location: metrics/                                   │
-└─────────────────────────────────────────────────────────┘
-```
-
-## Governance Documents
-
-| Document | Purpose |
-|---|---|
-| `governance/policies/quality-gates.md` | BLOCKER/ERROR/WARNING/INFO quality checks |
-| `OPERATIONS.md` (section 7, Repository Lifecycle Rules) | Draft → Proposed → Active → Deprecated → Archived |
-| `governance/review-standard.md` | When and how to review Skill changes |
-| `governance/policies/skill-policy.md` | How to add new Skills or modify existing ones |
-| `governance/repo-lint.md` | Naming rules for all components |
-
-## Tooling
-
-| Tool | Purpose | Run with |
+| Severity | Meaning | Action |
 |---|---|---|
-| `tools/repo-lint.py` | Structural linting against RFCs | `python tools/repo-lint.py --repo-root .` |
-| `tools/repo-metrics.py` | Health metrics collection | `python tools/repo-metrics.py --repo-root .` |
-| `tools/dependency-graph.py` | Skill dependency visualization | `python tools/dependency-graph.py --repo-root .` |
+| **BLOCKER** | Breaks the system, security, data integrity, or a contract | Must fix before any merge/release. Blocks the workflow. |
+| **ERROR** | Violates a standard or policy but is locally recoverable | Must fix before merge. Reported as a failed check. |
+| **WARNING** | Deviates from recommended practice; acceptable with justification | Should fix; may defer with a documented reason. |
+| **INFO** | Suggestion for improvement | Advisory only; no action required. |
 
-## How to Use This System
+---
 
-**Everyday development:** Run `python tools/repo-lint.py --repo-root .` before
-committing changes to ensure no BLOCKER or ERROR exists.
+## Violation Categories
 
-**Adding a new Skill:** Read `governance/policies/skill-policy.md` first.
-Follow the RFC-0002 specification. Run the linter. Submit for review.
+| Category | Examples | Typical Severity |
+|---|---|---|
+| **Contract violation** | Interface signature mismatch, breaking change without version bump | BLOCKER |
+| **Security violation** | Secrets in code, missing auth, unsafe deserialization | BLOCKER |
+| **Data integrity** | SQL without rollback, missing data migration | BLOCKER |
+| **Specification deviation** | Implementation differs from approved spec/scenario | ERROR |
+| **Standard violation** | Naming, documentation, testing standard not followed | ERROR |
+| **Naming violation** | `repo-lint.md` conventions not followed | ERROR |
+| **Context loading violation** | Loading the entire repository tree | ERROR |
+| **Change control violation** | Unclassified change applied (L2/L3 bypassed) | ERROR |
+| **Style / minor quality** | Dead code, missing doc, formatting | WARNING |
+| **Optimization suggestion** | Better abstraction, readability improvement | INFO |
 
-**Quarterly health check:** Run `python tools/repo-metrics.py --repo-root .`
-and save the snapshot to `metrics/`. Compare with the previous snapshot to
-track trends.
+---
 
-**Architecture review:** When a significant change is proposed, create an RFC
-in `rfc/` and an ADR in `rfc/`. Record the review in `reports/`.
+## Handling
+
+1. **Detect.** Violations are detected by automated tools (`tools/repo-lint.py`, `tools/check.py`) or by review.
+2. **Classify.** Assign a severity from the table above.
+3. **Fix or justify.**
+   - BLOCKER / ERROR: fix before proceeding. Never merge with an open BLOCKER.
+   - WARNING: fix or record a documented justification.
+   - INFO: record as a suggestion; may be deferred.
+4. **Record.** Deviations are reported in the Completion Report (per `AI_OPERATING_RULES.md`).
+
+---
+
+## Change Control Reference
+
+Violations during an active workflow are classified by Change Control
+(see `governance/AI_OPERATING_RULES.md`):
+
+| Level | Meaning | Handling |
+|---|---|---|
+| L1 | In-task adjustment | Apply directly, record in Deviations |
+| L2 | Approach change | Stop, report, continue after confirmation |
+| L3 | Contract-level change | Stop, route to prepare/spec, resume only with updated Task Card |
+
+Unclassified changes are treated as L3 by default.
+
+---
+
+## Enforcement
+
+- Automated: `tools/repo-lint.py` (BLOCKER/ERROR), `tools/check.py` (integrity gate)
+- Manual: `governance/review-standard.md` (skill review)
+- Quality definitions: `governance/policies/quality-gates.md`

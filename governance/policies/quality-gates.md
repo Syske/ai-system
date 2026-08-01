@@ -1,7 +1,7 @@
 # Quality Gates
 
 This document defines the quality gates that every component in the
-repository must pass. These gates are enforced by `scripts/repo-lint.py`
+repository must pass. These gates are enforced by `tools/repo-lint.py`
 and by the repository-governor Skill.
 
 ---

@@ -19,14 +19,14 @@ Contains:
 
 Location:
 
-governance/memory/python/
+governance/memory/python/ (reserved — create when a Python memory entry exists)
 
 
 ## Integration
 
 Location:
 
-governance/memory/integration/
+governance/memory/integration/ (reserved — create when an integration memory entry exists)
 
 
 ## AI System
