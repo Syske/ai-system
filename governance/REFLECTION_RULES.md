@@ -66,6 +66,31 @@ Reflection generates a structured report:
 
 ---
 
+## Self-Evaluation (Optional Quality Score)
+
+For non-trivial work, supplement the checklist with a 5-axis self-rating.
+This is a deliberate reflection step that catches omissions and flags
+overconfidence before the user has to.
+
+| Axis | Question | What it catches |
+|---|---|---|
+| **Accuracy** | Are the facts, claims, and outputs correct? | Hallucinations, wrong names, incorrect syntax, false statements |
+| **Completeness** | Did it cover everything the user asked for? | Missed edge cases, unhandled errors, forgotten requirements |
+| **Clarity** | Is the explanation understandable and well-structured? | Confusing explanations, jargon, missing context |
+| **Actionability** | Can the user act on the output immediately? | Vague suggestions, missing steps, no verification path |
+| **Conciseness** | Did it use the minimum words/tokens needed? | Redundancy, over-explanation, filler |
+
+Scale: 5 = exceptional, 4 = good, 3 = adequate, 2 = weak, 1 = poor.
+
+**Evidence rule:** every score below 5 MUST cite specific evidence — show the
+gap, don't just name it. A score of 3 cannot say "could be better"; it must say
+exactly what is missing or wrong.
+
+Self-evaluation is optional and does not replace the mandatory Reflection
+checklist above.
+
+---
+
 ## Rules
 
 - Reflection outputs **recommendations only**

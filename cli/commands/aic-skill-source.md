@@ -10,6 +10,11 @@ Assess an external third-party skill source (e.g. a skill repository on GitHub),
 
 **Steps**
 
+0. **Search before creating (avoid duplication)**: before cloning or classifying, search existing local and remote skill sources for the target capability:
+   - Local: `find skills -maxdepth 2 -name "SKILL.md"` and grep frontmatter descriptions in the local skills tree
+   - Remote: GitHub search for the capability (`gh search repos "<keyword> skill"`), plus at most three targeted web queries
+   - If a close match already exists locally, prefer it over absorbing a new source. Only proceed when no close match exists.
+
 1. **Clone the source**: shallow-clone the repository to a temp directory (`git clone --depth 1 <url>`), not into the workspace.
 
 2. **Inventory skills**: list all skill directories (dirs containing `SKILL.md`/`skill.md`), recording each skill's name and description.
@@ -21,14 +26,28 @@ Assess an external third-party skill source (e.g. a skill repository on GitHub),
 
    Compare against current ai-system assets (`skills/`, `governance/standards/`, `templates/runtime/`) to judge overlap and gaps.
 
-4. **Generate report**: write `reports/THIRD-PARTY-SKILL-ASSESSMENT-{date}.md`, containing:
+4. **Vet high-value candidates**: for each high-value candidate recommended for absorption, before finalizing the report:
+   - Read the `SKILL.md` frontmatter and instructions
+   - Look for unexpected shell commands, file writes, network calls, credential handling, or package installs
+   - Check whether the repository appears maintained
+   - Rank candidates by: exact name match > description match > maintained source > web-only mention; cap at 10
+
+5. **Generate report**: write `reports/THIRD-PARTY-SKILL-ASSESSMENT-{date}.md`, containing:
    - Source and date
-   - Absorption suggestions (high-value items + landing points)
+   - Absorption suggestions (high-value items + landing points), presented as decision options
    - Borrowable suggestions (medium-value items + borrow point)
    - Non-absorbed items and reasons
    - Future trigger conditions (Evolution Principle: do not pre-emptively introduce)
 
-5. **Clean up**: delete the temp clone directory.
+6. **Present decision options to the user** (in the system language):
+
+   | Option | Meaning |
+   |---|---|
+   | 直接吸收 | Adopt a matching skill as-is (rewritten as native asset) |
+   | 派生扩展 | Copy the closest skill and modify it |
+   | 新建 | Build fresh after confirming no close match exists |
+
+7. **Clean up**: delete the temp clone directory.
 
 **Output**
 
@@ -39,6 +58,7 @@ Assess an external third-party skill source (e.g. a skill repository on GitHub),
 - 已吸收建议（高/中价值）
 - 不吸收项及原因
 - 后续触发条件
+- 吸收决策选项（直接吸收 / 派生扩展 / 新建）
 
 **Guardrails**
 
