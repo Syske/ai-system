@@ -5,6 +5,7 @@
   - mattpocock/skills (https://github.com/mattpocock/skills) — 39 skills
   - obra/superpowers (https://github.com/obra/superpowers) — 14 skills
   - affaan-m/ECC (https://github.com/affaan-m/ECC) — 281 skills
+  - anthropics/skills (https://github.com/anthropics/skills) — 17 skills
 - 原则 / Principle: Evolution Principle（只基于真实缺口吸收，不预先引入推测性能力）
 
 ---
@@ -115,18 +116,43 @@ ECC 是**大规模集成平台**（含 hooks / commands / agents / rules 全体�
 
 ---
 
-## 五、协同关系
+## 五、anthropics/skills 评估（17 skills）
+
+Anthropic 官方 skill 仓库，多为**平台生态**（文档/办公文件处理、设计、Claude API）与通用工程工具，独立于 ai-system 治理体系。
+
+### 未吸收（无真实缺口）
+
+| 类别 | skill | 原因 |
+|---|---|---|
+| 文档/办公文件 | docx, pdf, pptx, xlsx, doc-coauthoring | 文件格式处理（docx-js/openpyxl/pypdf），技术栈特定 |
+| 设计类 | frontend-design, canvas-design, theme-factory, algorithmic-art, brand-guidelines | UI/视觉设计，非治理领域 |
+| Claude 平台 | claude-api | Anthropic SDK 参考，平台绑定 |
+| MCP 集成 | mcp-builder | MCP 服务构建，非 ai-system 治理资产 |
+| 工程工具 | webapp-testing, internal-comms, slack-gif-creator, web-artifacts-builder, claude-api | 通用工具，与治理无关 |
+| skill 生态 | skill-creator | eval 循环与我们的 skill-optimizer / skill-author / benchmark 系列重叠，且依赖 Claude 平台（run_eval/aggregate_benchmark 用 `claude -p`） |
+
+### 可借鉴点（记录待评估，不吸收）
+
+| skill | 借鉴点 | 未吸收原因 |
+|---|---|---|
+| skill-creator | **描述触发率测量→优化**（improve_description.py：基于 eval 结果迭代优化描述以提高触发准确性） | 依赖 Claude Code 平台（`claude -p` 子进程）；我们的 skill-author 有触发词规则但无量化的触发率测量机制 |
+
+---
+
+## 六、协同关系
 
 - **mattpocock**：方法论型（教"怎么做"）→ feedback loop、seam、deep module
 - **superpowers**：纪律型（约束"必须做什么"）→ Iron Law、evidence gate
 - **ECC**：工程实践型（补充"评价与避免重复"）→ skill-scout（创建前搜索）、
   agent-self-evaluation（5 轴自评）
-- 三层互补：方法论提供做法，纪律提供强制约束，评价提供质量量化与去重，
+- **anthropics**：平台生态型（文档/设计/API 工具）→ 与 ai-system 治理无真实缺口，
+  仅 skill-creator 的"描述触发率优化"方法论可借鉴（待平台支持）
+- 多层互补：方法论提供做法，纪律提供强制约束，评价提供质量量化与去重，
   叠加在 ai-system 的 skill（方法）、governance（规则）、tooling（命令）三层
 
 ---
 
-## 六、后续待办（不预先引入）
+## 七、后续待办（不预先引入）
 
 | 项 | 触发条件 |
 |---|---|
@@ -136,3 +162,4 @@ ECC 是**大规模集成平台**（含 hooks / commands / agents / rules 全体�
 | Iron Law 强化 tdd | 若出现"无测试即写生产代码"违规 |
 | ECC delivery-gate / context-budget | 若验证或上下文开销出现真实问题 |
 | ECC skill-stocktake / skill-comply | 若 skill 质量审计需自动化测量 |
+| anthropics 描述触发率优化 | 若需量化测量 skill 描述触发率（需平台支持） |
