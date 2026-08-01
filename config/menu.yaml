@@ -81,6 +81,9 @@ sections:
       - name: trace
         kind: command
         icon: "🧵 "
+      - name: skill-source
+        kind: command
+        icon: "🌐 "
   - title: commands_maintenance
     items:
       - name: maintain
@@ -126,6 +129,11 @@ command_fields:
       - false
     - - "Keep Results"
       - false
+  skill-source:
+    - - "Skill Source URL"
+      - true
+    - - "Report Name"
+      - false
 
 default_command_fields:
   - - "Project ID"
@@ -165,6 +173,7 @@ field_icons:
   "Base Branch": "🌿 "
   "Bug Description": "🐛 "
   "Change Request": "📝 "
+  "Skill Source URL": "🌐 "
   "Environment": "🌍 "
   "Environment (default: local)": "🌍 "
   "Existing Design": "📐 "

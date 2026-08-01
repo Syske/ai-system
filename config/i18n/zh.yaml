@@ -49,6 +49,8 @@ field_notes:
   "Specification Reference": "规格引用"
   "Stack Trace": "异常堆栈"
   "Zip": "是否压缩为 .zip"
+  "Skill Source URL": "三方 skill 仓库 URL（如 GitHub 仓库地址）"
+  "Report Name": "评估报告名（默认 THIRD-PARTY-SKILL-ASSESSMENT-{date}）"
 
 option_descriptions:
   Operation:
