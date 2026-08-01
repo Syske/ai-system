@@ -136,6 +136,12 @@ Cross-reference against the quality checklist:
 - Baseline items (General / Security / Language) → verify each item against governance/standards/common/task-quality-checklist.md to confirm actual compliance
 - Conditional items (REST / MQ / RPC / Performance / Task Type) → verify each item against the Task Card inline checklist
 
+Also scan for code smells using the smell baseline (skills/review/smell-baseline.md):
+Mysterious Name, Duplicated Code, Feature Envy, Data Clumps, Primitive Obsession,
+Repeated Switches, Shotgun Surgery, Divergent Change, Speculative Generality,
+Message Chains, Middle Man, Refused Bequest. Each is a judgement call; a
+documented repo standard overrides the baseline.
+
 False completion detected (marked [x] but not actually satisfied):
 
 Mark as Critical and revert the Task Card to Changes Required.

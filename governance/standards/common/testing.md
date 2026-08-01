@@ -22,6 +22,24 @@ Invalid parameters
 
 ---
 
+# Seams
+
+Tests verify behavior through **public interfaces**, not implementation details.
+
+A **seam** is the public boundary at which you test — the interface where you observe
+behavior without reaching inside. Tests live at seams, never against internals.
+
+**Test only at pre-agreed seams.** Before writing tests, state the seams under
+test and confirm them with the user. No test is written at an unconfirmed seam.
+Agreeing seams up front directs testing effort at critical paths and complex
+logic instead of every edge case.
+
+A good test reads like a specification — "user can checkout with valid cart"
+tells you exactly what capability exists — and survives refactors because it
+does not care about internal structure.
+
+---
+
 # Naming
 
 Recommended:
@@ -99,6 +117,25 @@ Exceptions
 Avoid:
 
 Over-mocking.
+
+---
+
+# Test Anti-Patterns
+
+Avoid:
+
+**Implementation-coupled** — mocks internal collaborators, tests private methods,
+or verifies through a side channel. The tell: the test breaks on refactor but
+behavior is unchanged.
+
+**Tautological** — the assertion recomputes the expected value the way the code
+does, so it passes by construction and can never disagree with the code.
+Expected values must come from an independent source of truth (a known-good
+literal, a worked example, the spec).
+
+**Horizontal slicing** — writing all tests first, then all implementation. This
+tests imagined behavior and the shape of things rather than user-facing behavior.
+Work in vertical slices instead: one test → one implementation → repeat.
 
 ---
 
