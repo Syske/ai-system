@@ -31,3 +31,22 @@ Quality gates, policies, naming conventions, and review standards for the AI rep
 | `policies/skill-lifecycle.md` | Skill lifecycle stages (Draft → Proposed → Active → Deprecated → Archived) |
 | `policies/routing-policy.md` | Intent → workflow/skill routing rules |
 | `policies/security-policy.md` | Security practices and review gates |
+
+## Adding Governance Documents
+
+New governance documents (policies, standards, rules) follow this structure:
+
+```markdown
+# <Topic> <Type>            # e.g. Cache Policy / SQL Standard
+## Purpose                  # one sentence: what this document enforces
+## Scope                    # which runtimes, workflows, or components it applies to
+## <Rules>                  # numbered rules or tables (the binding content)
+## Enforcement              # automated checks, tools, or review that enforce it
+## Violations               # severity + handling (referencing violation-rules.md)
+```
+
+Rules:
+- File name is kebab-case and reflects the content (`repo-lint.md`).
+- Written in English (AI-internal governance layer, per `LANGUAGE_CONVENTION.md`).
+- Register the file in this index (`governance/README.md`).
+- Active standards only; obsolete standards move to `governance/archive/`.
