@@ -135,7 +135,6 @@ python tools/pack.py [--zip]
 | `governance/policies/quality-gates.md` | BLOCKER/ERROR/WARNING/INFO 质量定义 |
 | `governance/policies/skill-policy.md` | Skill 创建与维护策略 |
 | `governance/policies/skill-lifecycle.md` | Skill 生命周期阶段 |
-| `governance/policies/routing-policy.md` | 意图 → 工作流/skill 路由策略 |
 | `governance/policies/security-policy.md` | 安全指南 |
 | `rfc/RFC-0001-repository-architecture.md` | 组件定义与分层模型 |
 | `rfc/RFC-0002-skill-specification.md` | 强制组件与质量门禁 |

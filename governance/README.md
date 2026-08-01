@@ -30,7 +30,6 @@ Quality gates, policies, naming conventions, and review standards for the AI rep
 | `policies/quality-gates.md` | BLOCKER/ERROR/WARNING/INFO quality definitions |
 | `policies/skill-policy.md` | Skill creation and contribution guide |
 | `policies/skill-lifecycle.md` | Skill lifecycle stages (Draft → Proposed → Active → Deprecated → Archived) |
-| `policies/routing-policy.md` | Intent → workflow/skill routing rules |
 | `policies/security-policy.md` | Security practices and review gates |
 
 ## Adding Governance Documents
