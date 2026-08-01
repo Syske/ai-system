@@ -153,6 +153,27 @@ Validation includes:
 
 Never claim success without validation.
 
+Evidence before claims, always. Before claiming any status or expressing
+satisfaction, run the **gate function**:
+
+```
+1. IDENTIFY: What command proves this claim?
+2. RUN: Execute the FULL command fresh, in this run
+3. READ: Full output, check exit code, count failures
+4. VERIFY: Does the output confirm the claim? If no, state actual status
+   with evidence. If yes, state the claim WITH evidence.
+5. ONLY THEN: Make the claim.
+```
+
+Skipping any step is claiming without verifying. In particular:
+
+- "Tests pass" requires the test command's fresh output (0 failures), not a
+  previous run or "should pass".
+- "Bug fixed" requires re-running the original symptom and seeing it pass.
+- "Agent completed" requires a diff showing changes, not the agent's report.
+- Language like "should", "probably", "seems to" signals verification has not
+  been run — stop and run it.
+
 ---
 
 # Failure Handling

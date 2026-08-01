@@ -3,6 +3,17 @@
 Hard-bug diagnosis discipline. Skip phases only when explicitly justified.
 Derived from the diagnosing-bugs methodology; adapted to this skill's pipeline.
 
+## The Iron Law
+
+```
+NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+```
+
+Symptom fixes are failure. If Phase 1 (feedback loop) has not been completed,
+a fix cannot be proposed. This applies to every bug — simple bugs have root
+causes too, and under time pressure guessing is most tempting and most likely
+to cause rework.
+
 ## Phase 1 — Build a feedback loop (highest priority)
 
 **This is the core.** If you have a **tight pass/fail signal** for the bug — one

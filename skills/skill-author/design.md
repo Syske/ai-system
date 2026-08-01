@@ -161,6 +161,35 @@ Choose model-invoked vs user-invoked based on the load trade-off
 - **One trigger per branch.** Synonyms renaming a single branch are duplication — collapse them.
 - When user-invoked Skills multiply, add a **router** Skill that names the others and when to reach for each.
 
+## TDD-Driven Skill Authoring
+
+Skill writing is TDD applied to process documentation: you write pressure
+scenarios (test cases), watch them fail against an agent without the skill
+(baseline), write the skill, then verify the agent complies.
+
+| TDD Concept | Skill Creation |
+|---|---|
+| Test case | Pressure scenario with a subagent |
+| Production code | The skill document |
+| Test fails (RED) | Agent violates the rule without the skill |
+| Test passes (GREEN) | Agent complies with the skill present |
+| Refactor | Close loopholes while keeping compliance |
+
+**Core principle:** If you did not watch an agent fail without the skill, you
+do not know whether the skill teaches the right thing.
+
+Process:
+
+1. **Run the baseline scenario BEFORE writing the skill.** Document the exact
+   rationalizations the agent uses to violate the intended rule.
+2. **Write the minimal skill** addressing those specific violations — not
+   general advice.
+3. **Verify the agent now complies** with the skill present.
+4. **Refactor:** find new rationalizations → plug → re-verify.
+
+A skill is a **reference guide** for a proven technique, not a narrative about
+how a problem was solved once.
+
 ## Validation Rules
 
 ### Always validate
