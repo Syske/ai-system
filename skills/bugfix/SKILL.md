@@ -6,8 +6,10 @@ description: Bug fixing workflow — analyze root cause, implement the smallest 
 ## Bug Analysis
 
 1. Understand the bug from the user report or test failure
-2. Locate the relevant source files
-3. Identify root cause
+2. For hard bugs / non-obvious root cause: build a tight feedback loop first
+   (see `feedback-loop.md`) — a red-capable repro before hypothesising
+3. Locate the relevant source files
+4. Identify root cause
 
 ## Fix & Validate
 
