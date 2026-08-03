@@ -65,6 +65,8 @@ bootstrap → prepare → spec → dev-setup → develop → review → verify �
 - `tools/setup.py`: `SYSTEM_DIRS` dropped `routing`, `frameworks`
 - `governance/policies/routing-policy.md`: no longer claims `routing/ai-routing.yaml` is authoritative; documents wizard-driven routing
 
+> Note: `governance/policies/routing-policy.md` was subsequently deleted in commit 54d36e5 (2026-08-01) as redundant — routing is wizard-driven, with no separate policy document.
+
 ---
 
 ## 2026-08-01 — Maintainers Archival
