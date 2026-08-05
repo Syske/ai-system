@@ -17,7 +17,6 @@ providers:
     enabled: true
     label: pi
     description: Pi agent
-    command: npx pi
 
   claude:
 
