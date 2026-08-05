@@ -254,6 +254,16 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 - **空 extensions 降级**：`skill_scan._skills_in` 对缺失/空目录安全返回空（`is_dir()` 检查），scan 自动降级到 global 技能；launcher 在 extensions 空时仅显示 global/local 技能，不报错。
 - 验证：extensions 缺失时 setup 创建成功（`created: ...extensions`）；空目录扫描返回 `[]`；正常扫描仍返回 6 extensions 技能。门禁全绿 ✅。
 
+**S4 补充 2 — agent 选择独立化 + skill 展示增强**：
+
+- `config/providers.yaml` — 每 provider 增加可选 `label` / `description`（用户可见显示名 + 一句话描述）。
+- `cli/services/agent_picker.py` — 新增全局可复用的 agent 选择服务：从 providers.yaml 读 enabled providers，渲染带 label/description 的选择菜单（默认项高亮）。供 skill-launch 及未来所有需选 agent 的流程复用。
+- `cli/services/menu_config.py` — 新增 `provider_meta()`（name → {label, description}）。
+- `cli/services/skill_launcher.py` — 改用 `agent_picker`（替换 `wizard._select_launch`，去掉不适用的 "finish (no launch)" 项）；skill 列表显示来源标记（`[ext]`/`[g]`/`[proj]`）+ 全部技能展示 + 关键词输入过滤。
+- `cli/commands/aic-skill-launch.md` — 步骤与 guardrails 同步。
+
+**验证**：agent_picker 菜单正确（默认 opencode，可选 pi/claude）；skill 列表 11 项带来源标记全显示；keyword filter 由 menu 通用能力提供。门禁全绿 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |

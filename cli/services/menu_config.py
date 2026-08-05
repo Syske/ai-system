@@ -204,6 +204,31 @@ class MenuConfig:
             if cfg.get("enabled", True)
         ]
 
+    def provider_meta(self):
+        """Return {name: {label, description}} for all configured providers."""
+
+        providers = (
+            self.provider_config
+            .get("providers", {})
+        )
+
+        if not isinstance(providers, dict):
+            return {}
+
+        meta = {}
+
+        for name, cfg in providers.items():
+
+            if not isinstance(cfg, dict):
+                continue
+
+            meta[name] = {
+                "label": cfg.get("label") or name,
+                "description": cfg.get("description") or "",
+            }
+
+        return meta
+
     def default_provider(self):
 
         return (

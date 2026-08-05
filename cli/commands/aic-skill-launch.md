@@ -8,9 +8,9 @@ Launch a skill with a chosen agent: pick a skill (from the config-driven extensi
 
 **Steps**
 
-1. **Select the skill**: the launcher lists skills from (in priority order) the extensions root (`layers.skills` in `config/environments/{env}.yaml`, default `{workspace_root}/extensions`), the global root (`~/.agents/skills`, shared by opencode and pi), and project-local roots (`.opencode/skills`, `.claude/skills`, `.agents/skills` up to the git root). Pick one with the filter menu.
+1. **Select the skill**: the launcher lists ALL skills from (in priority order) the extensions root (`layers.skills` in `config/environments/{env}.yaml`, default `{workspace_root}/extensions`), the global root (`~/.agents/skills`, shared by opencode and pi), and project-local roots (`.opencode/skills`, `.claude/skills`, `.agents/skills` up to the git root). Each entry shows its source (`[ext]` extensions / `[g]` global / `[proj]` project). Type to filter by keyword; pick one.
 
-2. **Select the agent**: choose opencode / pi / claude (from `config/providers.yaml` enabled providers).
+2. **Select the agent**: choose opencode / pi / claude from enabled providers (`config/providers.yaml`; label + description from provider config; default highlighted). This is a reusable agent picker shared by all agent-selecting flows.
 
 3. **Enter the task**: describe what the agent should do with the skill (optional; empty = load the skill and report readiness).
 
@@ -31,5 +31,6 @@ Launch a skill with a chosen agent: pick a skill (from the config-driven extensi
 
 - The generated prompt must reference the skill by name + location only, never embed the full SKILL.md (context-bloat prevention).
 - Company skills live in the config-driven `extensions/` dir and are loaded explicitly by this launcher — they are deliberately NOT auto-discovered by agents.
-- Agent names come from `config/providers.yaml`; an unknown agent must not be launched.
+- Agent names come from `config/providers.yaml` (label/description configurable); an unknown agent must not be launched.
+- Skill list shows ALL sources (extensions/global/project) with keyword type-to-filter; no skill is hidden by default.
 - Non-TTY mode degrades to numbered-input fallbacks (existing menu behavior).

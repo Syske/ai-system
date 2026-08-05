@@ -14,7 +14,7 @@ full SKILL.md, keeping context cost ~0 until the agent loads it on demand.
 
 from pathlib import Path
 
-from cli.services import skill_scan
+from cli.services import agent_picker, skill_scan
 from cli.services.wizard import Wizard
 from cli.utils.menu import BACK, ask_text, choose
 from cli.utils.file import read_text
@@ -24,11 +24,21 @@ _PROMPT_TEMPLATE = Path("templates") / "prompts" / "skill-launch.md"
 
 def _skill_options(skills):
 
+    source_mark = {
+        "extensions": "ext",
+        "global": "g",
+        "local": "proj",
+    }
+
     options = []
 
     for s in skills:
 
         label = s["name"]
+
+        mark = source_mark.get(s["source"], s["source"])
+
+        label += f" [{mark}]"
 
         if s["description"]:
             label += f" — {s['description']}"
@@ -59,9 +69,13 @@ def _pick_skill(wizard, skills):
     return skills[idx]
 
 
-def _pick_agent(wizard):
+def _pick_agent(wizard, default=None):
 
-    return wizard._select_launch([])
+    return agent_picker.pick_agent(
+        wizard.config,
+        title="Select an agent",
+        default=default
+    )
 
 
 def _render_prompt(wizard, skill, task, agent):
@@ -113,7 +127,10 @@ def run(wizard, agent=None):
 
     if agent is None:
 
-        agent = _pick_agent(wizard)
+        agent = _pick_agent(
+            wizard,
+            default=wizard.config.default_provider()
+        )
 
         if agent is None:
             return None

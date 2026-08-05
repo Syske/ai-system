@@ -1,23 +1,32 @@
 providers:
 
-  # enabled: true 的 provider 出现在向导启动菜单（Launch）。
+  # enabled: true 的 provider 出现在向导启动菜单（Launch）与 agent 选择。
   # 每个 provider 即一个可执行工具名（_launch 用 shell 调用）。
+  # label: 用户可见显示名（可选，缺省用 name）；description: 一句话描述（可选）。
 
   opencode:
 
     enabled: true
+    label: opencode
+    description: OpenCode agent
 
   pi:
 
     enabled: true
+    label: pi
+    description: Pi agent
 
   claude:
 
     enabled: true
+    label: claude
+    description: Claude Code agent
 
   codex:
 
     enabled: false
+    label: codex
+    description: Codex agent
 
 default:
 
