@@ -10,24 +10,28 @@ providers:
 
     enabled: true
     label: opencode
+    icon: "🤖 "
     description: OpenCode agent
 
   pi:
 
     enabled: true
     label: pi
+    icon: "🌀 "
     description: Pi agent
 
   claude:
 
     enabled: true
     label: claude
+    icon: "⚡ "
     description: Claude Code agent
 
   codex:
 
     enabled: false
     label: codex
+    icon: "💠 "
     description: Codex agent
 
 default:

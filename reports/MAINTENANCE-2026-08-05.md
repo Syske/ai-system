@@ -322,6 +322,22 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **Esc 语义**：skill-launch 内 Esc → 回到向导；向导再 Esc → 退出程序（逐级退出，与 wizard 一致）。**验证**：Esc 模拟 → 捕获 → 重新进入向导（第 2 次选 prepare 正常）✅；门禁全绿 ✅。
 
+**S4 补充 8 — 交互小优化（task 前置 + 空选回车 + emoji）**：
+
+| # | 优化 | 说明 |
+|---|------|------|
+| I-1 | task 选择前置 | steps 顺序改为 [skills → task → agent → confirm]（task 在 agent 前，符合"先定做什么再做"的心智） |
+| I-2 | 空选回车选中当前 | `choose_many` 新增 `enter_selects_current` 参数（默认 False）：交互模式空选 Enter 返回当前高亮项，fallback 空输入返回第一项；skill-launch 传 True |
+| I-3 | task/agent emoji | task 步 `📝`/`✏️`；agent 标题 `🤖` + `providers.yaml` 每 provider 新增 `icon`（🤖/🌀/⚡/💠），agent_picker 选项带图标 |
+
+- `cli/utils/menu.py`：`choose_many`/`_interactive_many`/`_fallback_many` 支持 `enter_selects_current`
+- `config/providers.yaml`：每 provider 加 `icon`
+- `cli/services/menu_config.py`：`provider_meta` 含 icon
+- `cli/services/agent_picker.py`：选项渲染带 icon
+- `cli/services/skill_launcher.py`：steps 顺序调整 + 空选回车
+
+**验证**：steps 顺序 [skills→task→agent→confirm] ✅；空选回车返回当前项（单测 [idx]）✅；agent 选项 `🤖 opencode`/`🌀 pi`/`⚡ claude` ✅；门禁全绿 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |

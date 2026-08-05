@@ -228,6 +228,7 @@ class MenuConfig:
 
             meta[name] = {
                 "label": cfg.get("label") or name,
+                "icon": cfg.get("icon") or "",
                 "description": cfg.get("description") or "",
             }
 

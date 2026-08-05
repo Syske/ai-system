@@ -234,12 +234,17 @@ def choose_many(
     title,
     options,
     header=None,
-    note=None
+    note=None,
+    enter_selects_current=False
 ):
     """Multi-select menu (checkbox).
 
     Same base capabilities as choose (type-to-filter, note, sections);
     Space toggles the highlighted item, Enter confirms.
+
+    When `enter_selects_current` is True and nothing is marked, pressing
+    Enter selects the currently highlighted item (instead of returning
+    None / skip). This lets a launcher treat Enter as "pick this one".
 
     Returns a list of selected raw indices, `None` when skipped, or BACK.
     """
@@ -252,14 +257,16 @@ def choose_many(
         return _fallback_many(
             title,
             options,
-            note
+            note,
+            enter_selects_current
         )
 
     return _interactive_many(
         title,
         options,
         header or [],
-        note
+        note,
+        enter_selects_current
     )
 
 
@@ -1028,7 +1035,8 @@ def _interactive_many(
     title,
     options,
     header,
-    note=None
+    note=None,
+    enter_selects_current=False
 ):
 
     selectable = [
@@ -1168,6 +1176,9 @@ def _interactive_many(
             if selected:
                 return sorted(selected)
 
+            if enter_selects_current and idx in selectable:
+                return [idx]
+
             return None
 
         elif (
@@ -1182,7 +1193,8 @@ def _interactive_many(
 def _fallback_many(
     title,
     options,
-    note=None
+    note=None,
+    enter_selects_current=False
 ):
 
     print()
@@ -1220,6 +1232,10 @@ def _fallback_many(
             return BACK
 
         if raw == "":
+
+            if enter_selects_current and selectable:
+                return [selectable[0]]
+
             return None
 
         picks = []

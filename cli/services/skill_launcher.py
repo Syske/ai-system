@@ -211,8 +211,9 @@ class SkillLauncher(InteractiveCommand):
         )
 
         picked = choose_many(
-            f"{e('🧩 ')}Select skills (Space toggles, Enter confirms)",
-            options
+            f"{e('🧩 ')}Select skills (Space toggles, Enter confirms, empty Enter = current)",
+            options,
+            enter_selects_current=True
         )
 
         if picked is BACK:
@@ -346,8 +347,8 @@ class SkillLauncher(InteractiveCommand):
 
     steps = [
         _step_pick_skills,
-        _step_pick_agent,
         _step_pick_task,
+        _step_pick_agent,
         _step_confirm,
     ]
 
