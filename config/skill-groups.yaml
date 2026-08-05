@@ -1,0 +1,28 @@
+version: 1
+locale: zh
+
+# skill 分组/组合配置（配置驱动，模式对齐 config/menu.yaml）。
+# - 本文件只存结构 + key；用户可见分组标题在 config/i18n/{locale}.yaml 的
+#   skill_groups.*。
+# - groups 顺序即菜单展示顺序。组合组（type: list）置于前，可快速全选常用组合；
+#   已在前组出现的 skill 在后续组去重（不重复显示）。
+# - 分组类型：
+#   - source: 按 skill 来源分组（extensions / global / local）
+#   - list:   显式技能清单组合（如常用热修复组合）
+# - 未命中任何分组的 skill 自动落入"其他"组（fallback，类似菜单 other）。
+
+groups:
+  - title: skill_group_hotfix
+    type: list
+    skills:
+      - codeup-submit-mr
+      - hotfix-test-doc
+  - title: skill_group_company
+    type: source
+    value: extensions
+  - title: skill_group_global
+    type: source
+    value: global
+  - title: skill_group_project
+    type: source
+    value: local

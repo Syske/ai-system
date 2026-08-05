@@ -16,41 +16,127 @@ from pathlib import Path
 
 from cli.services import agent_picker, skill_scan
 from cli.services.wizard import Wizard
-from cli.utils.menu import BACK, ask_text, choose, e
+from cli.utils.menu import BACK, Section, ask_text, choose_many, e
 from cli.utils.file import read_text
 
 _PROMPT_TEMPLATE = Path("templates") / "prompts" / "skill-launch.md"
 
 
-def _skill_options(skills):
+def _source_mark(source):
 
-    source_mark = {
+    marks = {
         "extensions": f"{e('🧩 ')}ext",
         "global": f"{e('🌍 ')}g",
         "local": f"{e('📁 ')}proj",
     }
 
+    return marks.get(source, source)
+
+
+def _skill_label(skill):
+
+    label = skill["name"]
+
+    label += f" [{_source_mark(skill['source'])}]"
+
+    if skill["description"]:
+        label += f" — {skill['description']}"
+
+    return label
+
+
+def _group_skills(config, skills):
+    """Group skills per config/skill-groups.yaml.
+
+    Returns (options, skills_by_index):
+    - options: list of Section headers + skill labels (for choose_many)
+    - skills_by_index: mapping option index -> skill dict (selectable only)
+    """
+
+    groups = config.skill_groups()
+
+    skills_by_index = {}
+
     options = []
 
-    for s in skills:
+    assigned = set()
 
-        label = s["name"]
+    for group in groups:
 
-        mark = source_mark.get(s["source"], s["source"])
+        gtype = group.get("type")
+        value = group.get("value")
 
-        label += f" [{mark}]"
+        members = []
 
-        if s["description"]:
-            label += f" — {s['description']}"
+        if gtype == "source":
 
-        options.append(label)
+            for s in skills:
 
-    return options
+                if (
+                    s["source"] == value
+                    and s["name"] not in assigned
+                ):
+                    members.append(s)
+
+        elif gtype == "list":
+
+            names = set(group.get("skills") or [])
+
+            for s in skills:
+
+                if (
+                    s["name"] in names
+                    and s["name"] not in assigned
+                ):
+                    members.append(s)
+
+        if not members:
+            continue
+
+        title = config.skill_group_title(group.get("title", ""))
+
+        options.append(Section(title))
+
+        for s in members:
+
+            idx = len(options)
+
+            options.append(_skill_label(s))
+
+            skills_by_index[idx] = s
+
+            assigned.add(s["name"])
+
+    remaining = [
+        s
+        for s in skills
+        if s["name"] not in assigned
+    ]
+
+    if remaining:
+
+        title = config.skill_group_title("skill_group_other")
+
+        options.append(Section(title))
+
+        for s in remaining:
+
+            idx = len(options)
+
+            options.append(_skill_label(s))
+
+            skills_by_index[idx] = s
+
+    return options, skills_by_index
 
 
-def _pick_skill(wizard, skills):
+def _pick_skills(wizard, skills):
+    """Multi-select skills (grouped). Returns a list of skill dicts."""
 
-    options = _skill_options(skills)
+    options, skills_by_index = _group_skills(
+        wizard.config,
+        skills
+    )
 
     if not options:
 
@@ -58,15 +144,18 @@ def _pick_skill(wizard, skills):
 
         return None
 
-    idx = choose(
-        f"{e('🧩 ')}Select a skill",
+    picked = choose_many(
+        f"{e('🧩 ')}Select skills (Space toggles, Enter confirms)",
         options
     )
 
-    if idx is BACK:
+    if picked is BACK:
         return None
 
-    return skills[idx]
+    if not picked:
+        return []
+
+    return [skills_by_index[i] for i in picked]
 
 
 def _pick_agent(wizard, default=None):
@@ -78,16 +167,26 @@ def _pick_agent(wizard, default=None):
     )
 
 
-def _render_prompt(wizard, skill, task, agent):
+def _skill_block(skill):
+
+    return (
+        f"- {skill['name']} ({skill['path']}) [{skill['source']}]"
+    )
+
+
+def _render_prompt(wizard, skills, task, agent):
 
     template = read_text(
         wizard.root / _PROMPT_TEMPLATE
     )
 
+    skills_md = "\n".join(
+        _skill_block(s)
+        for s in skills
+    )
+
     values = {
-        "skill_name": skill["name"],
-        "skill_path": skill["path"],
-        "skill_source": skill["source"],
+        "skill_list": skills_md,
         "task": task,
         "agent": agent or "opencode",
     }
@@ -103,7 +202,7 @@ def _render_prompt(wizard, skill, task, agent):
 def run(wizard, agent=None):
     """Run the interactive skill launcher.
 
-    Returns (prompt, agent) when a skill and agent were chosen, else None.
+    Returns (prompt, agent) when skills and an agent were chosen, else None.
     """
 
     skills = skill_scan.scan(
@@ -117,12 +216,18 @@ def run(wizard, agent=None):
 
         return None
 
-    skill = _pick_skill(
+    picked = _pick_skills(
         wizard,
         skills
     )
 
-    if skill is None:
+    if picked is None:
+        return None
+
+    if not picked:
+
+        print("No skill selected.")
+
         return None
 
     if agent is None:
@@ -136,7 +241,7 @@ def run(wizard, agent=None):
             return None
 
     task = ask_text(
-        f"{e('📝 ')}Task — what should the agent do with this skill? (empty = skip): "
+        f"{e('📝 ')}Task — what should the agent do with the selected skills? (empty = skip): "
     )
 
     if task is BACK:
@@ -147,7 +252,7 @@ def run(wizard, agent=None):
 
     prompt = _render_prompt(
         wizard,
-        skill,
+        picked,
         task,
         agent
     )

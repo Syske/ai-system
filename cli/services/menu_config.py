@@ -25,6 +25,10 @@ class MenuConfig:
             "providers.yaml"
         )
 
+        self.skill_groups_config = self._load(
+            "skill-groups.yaml"
+        )
+
     def _load(self, name):
 
         try:
@@ -248,6 +252,27 @@ class MenuConfig:
             return name
 
         return cfg.get("command") or name
+
+    def skill_groups(self):
+        """Return the configured skill group definitions (ordered)."""
+
+        groups = (
+            self.skill_groups_config
+            .get("groups", [])
+        )
+
+        if not isinstance(groups, list):
+            return []
+
+        return groups
+
+    def skill_group_title(self, key):
+        """Resolve a skill-group title key via i18n."""
+
+        return self.t(
+            f"sections.{key}",
+            key
+        )
 
     def default_provider(self):
 

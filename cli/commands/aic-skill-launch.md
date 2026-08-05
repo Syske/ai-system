@@ -8,13 +8,13 @@ Launch a skill with a chosen agent: pick a skill (from the config-driven extensi
 
 **Steps**
 
-1. **Select the skill**: the launcher lists ALL skills from (in priority order) the extensions root (`layers.skills` in `config/environments/{env}.yaml`, default `{workspace_root}/extensions`), the global root (`~/.agents/skills`, shared by opencode and pi), and project-local roots (`.opencode/skills`, `.claude/skills`, `.agents/skills` up to the git root). Each entry shows its source (`[ext]` extensions / `[g]` global / `[proj]` project). Type to filter by keyword; pick one.
+1. **Select skills (multi-select, grouped)**: the launcher lists ALL skills grouped per `config/skill-groups.yaml` (config-driven, aligned with menu.yaml): source groups (extensions/global/local) and custom combo groups (type `list`). Group titles come from `config/i18n/{locale}.yaml`. Each entry shows its source (`[ext]`/`[g]`/`[proj]`). Type to filter by keyword; Space toggles selection, Enter confirms (one or more skills).
 
 2. **Select the agent**: choose opencode / pi / claude from enabled providers (`config/providers.yaml`; label + description from provider config; default highlighted). This is a reusable agent picker shared by all agent-selecting flows.
 
-3. **Enter the task**: describe what the agent should do with the skill (optional; empty = load the skill and report readiness).
+3. **Enter the task**: describe what the agent should do with the selected skills (optional; empty = load the skills and report readiness).
 
-4. **Generate the prompt**: the launcher renders a thin-trigger prompt that references the skill by name + SKILL.md location and instructs the agent to load it via the platform skill tool — it does NOT embed the full SKILL.md (keeps context ~0 until loaded on demand).
+4. **Generate the prompt**: the launcher renders a thin-trigger prompt that lists the selected skills by name + SKILL.md location and instructs the agent to load each via the platform skill tool — it does NOT embed the full SKILL.md (keeps context ~0 until loaded on demand).
 
 5. **Copy + launch**: the prompt is copied to the clipboard and the chosen agent is launched at the workspace root.
 
@@ -29,8 +29,9 @@ Launch a skill with a chosen agent: pick a skill (from the config-driven extensi
 
 **Guardrails**
 
-- The generated prompt must reference the skill by name + location only, never embed the full SKILL.md (context-bloat prevention).
+- The generated prompt must reference the skills by name + location only, never embed the full SKILL.md (context-bloat prevention).
 - Company skills live in the config-driven `extensions/` dir and are loaded explicitly by this launcher — they are deliberately NOT auto-discovered by agents.
 - Agent names come from `config/providers.yaml` (label/description configurable; optional `command` field for the actual launch command, e.g. `npx pi`); an unknown agent must not be launched.
+- Skill grouping/combos are config-driven via `config/skill-groups.yaml` (not hardcoded); skills already placed in an earlier group are deduplicated from later groups.
 - Skill list shows ALL sources (extensions/global/project) with keyword type-to-filter; no skill is hidden by default.
 - Non-TTY mode degrades to numbered-input fallbacks (existing menu behavior).

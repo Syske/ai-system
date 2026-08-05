@@ -272,6 +272,17 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：`AIC_ICONS=emoji` 下来源标记带 emoji；`AIC_ICONS=off` 自动隐藏。门禁全绿 ✅。
 
+**S4 补充 4 — skill 分组 + 多选（配置化）**：
+
+- `config/skill-groups.yaml` — 新增配置（对齐 menu.yaml 模式）：`version`/`locale`/`groups`；分组类型 `source`（按来源）与 `list`（自定义组合，显式技能清单）；组标题走 i18n `skill_groups.*`；未命中分组技能自动落入"其他"组。
+- `config/i18n/zh.yaml` — 新增分组标题：公司技能/全局技能/常用组合/项目技能/其他技能。
+- `cli/services/menu_config.py` — 新增 `skill_groups()` / `skill_group_title(key)` 访问器 + 加载 `skill-groups.yaml`。
+- `cli/services/skill_launcher.py` — `_pick_skills` 改多选（`choose_many`，空格切换/Enter 确认）；`_group_skills` 按配置生成分组（Section 标题 + 去重，早组优先，晚组跳过已分配技能）；prompt 渲染多技能清单。
+- `cli/utils/menu.py` — `_interactive_many` / `_fallback_many` 支持 Section 分组（selectable 排除 Section，标题渲染，fallback 编号跳过 Section）。
+- `templates/prompts/skill-launch.md` — 改为 `{{skill_list}}` 多技能清单（名称+路径+来源），移除单数占位符。
+
+**验证**：分组正确（常用组合前置 → 公司技能去重 → 全局 → 其他 fallback），11 技能无重复；多选渲染 OK（多技能清单）；非 TTY fallback 多选编号正确。门禁全绿 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |

@@ -11,6 +11,11 @@ sections:
   commands_maintenance: "系统维护"
   flow_other: "其他流程"
   commands_other: "其他命令"
+  skill_group_company: "公司技能"
+  skill_group_global: "全局技能"
+  skill_group_hotfix: "常用组合"
+  skill_group_project: "项目技能"
+  skill_group_other: "其他技能"
 
 field_notes:
   "Project ID": "from workspaces/"

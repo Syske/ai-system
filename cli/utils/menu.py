@@ -1031,7 +1031,11 @@ def _interactive_many(
     note=None
 ):
 
-    selectable = list(range(len(options)))
+    selectable = [
+        i
+        for i, opt in enumerate(options)
+        if not isinstance(opt, Section)
+    ]
 
     selected = set()
 
@@ -1074,15 +1078,27 @@ def _interactive_many(
 
             body.append("")
 
-        for i in visible:
+        for i, opt in enumerate(options):
 
-            body.append(
-                _paint_many(
-                    options[i],
-                    i == idx,
-                    i in selected
+            if isinstance(opt, Section):
+
+                body.append(
+                    f"\x1b[1;2m{opt.text}\x1b[0m"
                 )
-            )
+
+            elif i not in visible:
+
+                continue
+
+            else:
+
+                body.append(
+                    _paint_many(
+                        opt,
+                        i == idx,
+                        i in selected
+                    )
+                )
 
         body.append("")
 
@@ -1176,8 +1192,23 @@ def _fallback_many(
         print(f"  {note}")
         print()
 
-    for i, opt in enumerate(options, 1):
-        print(f"  {i}. {opt}")
+    selectable = [
+        i
+        for i, opt in enumerate(options)
+        if not isinstance(opt, Section)
+    ]
+
+    for i, opt in enumerate(options):
+
+        if isinstance(opt, Section):
+
+            print(f"\n  {opt.text}:")
+
+        else:
+
+            num = selectable.index(i) + 1
+
+            print(f"  {num}. {opt}")
 
     print(_t('menu.fallback_many', '输入编号（逗号分隔多个），空=跳过全部，b=返回'))
 
@@ -1201,14 +1232,14 @@ def _fallback_many(
 
             if (
                 not part.isdigit()
-                or not 1 <= int(part) <= len(options)
+                or not 1 <= int(part) <= len(selectable)
             ):
 
                 ok = False
 
                 break
 
-            picks.append(int(part) - 1)
+            picks.append(selectable[int(part) - 1])
 
         if ok and picks:
             return picks
