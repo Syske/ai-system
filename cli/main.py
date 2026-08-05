@@ -210,10 +210,33 @@ def main():
 
             return
 
-        prompt = builder.build(
-            name,
-            context
-        )
+        if name == "skill-launch":
+
+            from cli.services import skill_launcher
+
+            wizard = Wizard(
+                builder.root,
+                args.environment
+            )
+
+            result = skill_launcher.run(
+                wizard,
+                args.agent
+            )
+
+            if result is None:
+                return
+
+            prompt, agent = result
+
+            launch = agent
+
+        else:
+
+            prompt = builder.build(
+                name,
+                context
+            )
 
         if output == "copy":
 

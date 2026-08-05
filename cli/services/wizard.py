@@ -773,6 +773,9 @@ class Wizard:
 
             self._field_defaults = {}
 
+            if name == "skill-launch":
+                return []
+
             return self._command_fields(name)
 
         text = read_text(
