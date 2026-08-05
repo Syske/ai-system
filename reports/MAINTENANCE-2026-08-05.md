@@ -338,6 +338,23 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：steps 顺序 [skills→task→agent→confirm] ✅；空选回车返回当前项（单测 [idx]）✅；agent 选项 `🤖 opencode`/`🌀 pi`/`⚡ claude` ✅；门禁全绿 ✅。
 
+**S4 补充 9 — `aic-skill-optimize` 薄命令（接现有 skill-optimizer 能力）**：
+
+用户问题：当前系统是否需要 skill 优化评估命令。调研结论：`skill-optimizer` 已具备完整优化评估能力（static 静态合规+LLM 五维评估 / dynamic / trace / feedback + 快照/diff/报告），但**无 CLI 入口**，只能靠对话触发。按 Repository First + 最小改动，新增**薄命令**接现有能力（不重复造评估逻辑）。
+
+| # | 产物 | 说明 |
+|---|------|------|
+| O-1 | `cli/services/skill_optimize.py` | `SkillOptimizeLauncher(InteractiveCommand)`：steps = [选技能 → 选模式 → 选agent → 确认]；复用 skill_scan 分组/多选 + agent_picker + 统一 BACK 状态机 |
+| O-2 | `templates/prompts/skill-optimize.md` | 薄触发模板：引用 skill-optimizer 位置 + 技能清单 + 模式，指示 agent 按 workflow 执行（不嵌正文） |
+| O-3 | `cli/commands/aic-skill-optimize.md` | 命令定义 |
+| O-4 | `cli/main.py` | 新增 `_INTERACTIVE_COMMANDS` 映射（skill-launch/skill-optimize）+ `_run_interactive` 统一分发（直接 CLI + 向导分支均走） |
+| O-5 | `cli/services/wizard.py` | skill-optimize 纳入零字段 + 直接返回 |
+| O-6 | `config/menu.yaml` + `i18n/zh.yaml` | 注册命令（🔧 图标）+ Mode 字段备注 |
+
+**模式**：static（默认，无需额外数据）/ dynamic（Insight 平台）/ trace（trace 数据）/ feedback（用户反馈）。
+
+**验证**：直接 `aic skill-optimize --agent pi` → COPY + LAUNCH ✅；向导选 skill-optimize → 进入启动器 ✅；prompt 渲染（技能+模式 static）✅；check.py 0 warning（13 commands）、lint 0/0/9、audit 0 broken ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |

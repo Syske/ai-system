@@ -68,6 +68,7 @@ field_notes:
   "Description": "命令功能的一句话描述"
   "Skill": "所选技能（extensions / global / local 来源）"
   "Task": "让 agent 用该 skill 执行的任务（留空=仅加载并报告就绪）"
+  "Mode": "优化模式：static=静态合规+LLM评估 dynamic=运行日志 trace=运行时数据 feedback=用户反馈"
 
 option_descriptions:
   Operation:

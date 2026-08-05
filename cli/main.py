@@ -30,6 +30,41 @@ def _launch(
         )
 
 
+_INTERACTIVE_COMMANDS = {
+    "skill-launch": "skill_launcher",
+    "skill-optimize": "skill_optimize",
+}
+
+
+def _run_interactive(builder, args, name):
+    """Run an interactive command (skill-launch / skill-optimize).
+
+    Returns (prompt, agent) or None (cancelled/quit).
+    """
+
+    import importlib
+
+    module = importlib.import_module(
+        f"cli.services.{_INTERACTIVE_COMMANDS[name]}"
+    )
+
+    wizard = Wizard(
+        builder.root,
+        args.environment
+    )
+
+    try:
+
+        return module.run(
+            wizard,
+            args.agent
+        )
+
+    except (EOFError, KeyboardInterrupt):
+
+        return None
+
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -148,28 +183,13 @@ def main():
 
     builder = PromptBuilder()
 
-    if args.workflow == "skill-launch":
+    if args.workflow in _INTERACTIVE_COMMANDS:
 
-        try:
-
-            from cli.services import skill_launcher
-
-            wizard = Wizard(
-                builder.root,
-                args.environment
-            )
-
-            result = skill_launcher.run(
-                wizard,
-                args.agent
-            )
-
-        except (EOFError, KeyboardInterrupt):
-
-            print()
-            print("Cancelled.")
-
-            return
+        result = _run_interactive(
+            builder,
+            args,
+            args.workflow
+        )
 
         if result is None:
             return
@@ -179,7 +199,7 @@ def main():
         copy(prompt)
 
         print()
-        print("✓ Skill prompt copied.")
+        print("✓ Prompt copied.")
 
         wizard = Wizard(
             builder.root,
@@ -217,28 +237,13 @@ def main():
 
                 return
 
-            if name == "skill-launch":
+            if name in _INTERACTIVE_COMMANDS:
 
-                from cli.services import skill_launcher
-
-                try:
-
-                    wizard = Wizard(
-                        builder.root,
-                        args.environment
-                    )
-
-                    result = skill_launcher.run(
-                        wizard,
-                        args.agent
-                    )
-
-                except (EOFError, KeyboardInterrupt):
-
-                    print()
-                    print("Cancelled — back to the wizard.")
-
-                    continue
+                result = _run_interactive(
+                    builder,
+                    args,
+                    name
+                )
 
                 if result is None:
 
@@ -248,6 +253,11 @@ def main():
                     continue
 
                 prompt, agent = result
+
+                wizard = Wizard(
+                    builder.root,
+                    args.environment
+                )
 
                 launch = wizard.config.provider_command(agent)
 

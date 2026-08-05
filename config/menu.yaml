@@ -107,6 +107,9 @@ sections:
       - name: skill-launch
         kind: command
         icon: "🚀 "
+      - name: skill-optimize
+        kind: command
+        icon: "🔧 "
       - name: pack
         kind: command
         icon: "📦 "
@@ -170,6 +173,13 @@ command_fields:
     - - "Skill"
       - false
     - - "Task"
+      - false
+  skill-optimize:
+    - - "Agent"
+      - false
+    - - "Skill"
+      - false
+    - - "Mode"
       - false
 
 default_command_fields:
