@@ -153,7 +153,6 @@ def main():
         try:
 
             from cli.services import skill_launcher
-            from cli.services.wizard import Wizard
 
             wizard = Wizard(
                 builder.root,
