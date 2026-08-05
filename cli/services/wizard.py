@@ -258,7 +258,19 @@ class Wizard:
                     values
                 )
 
-                hooks = get_hooks(target[0])
+                target_name = target[0]
+
+                if target_name == "skill-launch":
+
+                    self._save_state(
+                        project,
+                        target,
+                        values
+                    )
+
+                    return target_name, values, "copy", None
+
+                hooks = get_hooks(target_name)
 
                 if hooks is not None:
 
