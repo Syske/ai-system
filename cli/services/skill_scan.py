@@ -38,10 +38,10 @@ def _realpath(path):
 
 
 def _read_frontmatter(skill_path):
-    """Return (name, description) from a SKILL.md frontmatter.
+    """Parse a SKILL.md frontmatter.
 
-    Falls back to the directory name and empty description when the
-    frontmatter is missing or unparsable.
+    Returns a dict with at least name/description; includes usage and
+    trigger lines when present (for detail preview).
     """
 
     try:
@@ -50,7 +50,12 @@ def _read_frontmatter(skill_path):
 
     except OSError:
 
-        return skill_path.parent.name, ""
+        return {
+            "name": skill_path.parent.name,
+            "description": "",
+            "usage": "",
+            "trigger": "",
+        }
 
     name = None
 
@@ -67,14 +72,40 @@ def _read_frontmatter(skill_path):
         desc = m.group(1).strip().strip("'\"")
         desc = re.sub(r"\s+", " ", desc)
 
-    return (
-        name or skill_path.parent.name,
-        desc,
+    usage = ""
+
+    um = re.search(
+        r"^usage:\s*(.+)$",
+        text,
+        re.MULTILINE | re.IGNORECASE
     )
+
+    if um:
+        usage = um.group(1).strip().strip("'\"")
+        usage = re.sub(r"\s+", " ", usage)
+
+    trigger = ""
+
+    tm = re.search(
+        r"^trigger[s]?:\s*(.+)$",
+        text,
+        re.MULTILINE | re.IGNORECASE
+    )
+
+    if tm:
+        trigger = tm.group(1).strip().strip("'\"")
+        trigger = re.sub(r"\s+", " ", trigger)
+
+    return {
+        "name": name or skill_path.parent.name,
+        "description": desc,
+        "usage": usage,
+        "trigger": trigger,
+    }
 
 
 def _skills_in(root):
-    """Yield (name, description, path) for skills directly under root."""
+    """Yield skill metadata dicts for skills directly under root."""
 
     root = _realpath(root)
 
@@ -93,14 +124,16 @@ def _skills_in(root):
         if not skill_md.exists():
             continue
 
-        name, desc = _read_frontmatter(skill_md)
+        meta = _read_frontmatter(skill_md)
+
+        name = meta["name"]
 
         if name in seen_names:
             continue
 
         seen_names.add(name)
 
-        yield name, desc, str(skill_md)
+        yield meta["name"], meta, str(skill_md)
 
 
 def _git_root(start):
@@ -129,7 +162,8 @@ def _git_root(start):
 def scan(root, environment=None, include_local=True):
     """Scan all skill sources.
 
-    Returns a list of dicts: {name, description, path, source}.
+    Returns a list of dicts:
+    {name, description, usage, trigger, path, source}.
     source is one of "extensions" | "global" | "local".
     """
 
@@ -144,9 +178,9 @@ def scan(root, environment=None, include_local=True):
 
     results = []
 
-    def add(name, description, path, source):
+    def add(meta, path, source):
 
-        key = (name, _realpath(path))
+        key = (meta["name"], _realpath(path))
 
         if key in seen:
             return
@@ -154,21 +188,23 @@ def scan(root, environment=None, include_local=True):
         seen.add(key)
 
         results.append({
-            "name": name,
-            "description": description,
+            "name": meta["name"],
+            "description": meta["description"],
+            "usage": meta.get("usage", ""),
+            "trigger": meta.get("trigger", ""),
             "path": path,
             "source": source,
         })
 
-    for name, desc, path in _skills_in(skills_root):
-        add(name, desc, path, "extensions")
+    for name, meta, path in _skills_in(skills_root):
+        add(meta, path, "extensions")
 
     home = Path.home()
 
     global_root = home / ".agents" / "skills"
 
-    for name, desc, path in _skills_in(global_root):
-        add(name, desc, path, "global")
+    for name, meta, path in _skills_in(global_root):
+        add(meta, path, "global")
 
     if include_local:
 
@@ -186,8 +222,8 @@ def scan(root, environment=None, include_local=True):
 
             for rel in LOCAL_SUBDIRS:
 
-                for name, desc, path in _skills_in(walker / rel):
-                    add(name, desc, path, "local")
+                for name, meta, path in _skills_in(walker / rel):
+                    add(meta, path, "local")
 
             if walker.parent == walker:
                 break

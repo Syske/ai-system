@@ -283,6 +283,21 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：分组正确（常用组合前置 → 公司技能去重 → 全局 → 其他 fallback），11 技能无重复；多选渲染 OK（多技能清单）；非 TTY fallback 多选编号正确。门禁全绿 ✅。
 
+**S4 补充 5 — skill-launch 交互优化（任务模板/详情预览/结果回显）**：
+
+| # | 优化 | 说明 |
+|---|------|------|
+| P0-1 | 任务模板/预设 | `skill-groups.yaml` 组合组支持 `task` 默认任务字段（选热修复组合自动带出"转测文档"模板）；新增 `tasks` 预设清单（常用任务菜单：转测文档/MR/Confluence/周报）；`_pick_task` 提供预设选择 + 自定义入口 |
+| P0-2 | skill 详情预览 | `skill_scan` 读取完整 frontmatter（usage/trigger）；选技能后 `_preview_skills` 展示用法/触发词确认选择 |
+| P2-1 | 结果回显 | 生成 prompt 后 `_echo` 显示摘要（skills/agent/task），确认后才复制+启动 agent |
+
+- `config/skill-groups.yaml`：组合组加 `task` 字段 + 顶层 `tasks` 预设
+- `cli/services/menu_config.py`：`skill_tasks()` / `combo_task()` 访问器
+- `cli/services/skill_scan.py`：frontmatter 解析扩展（usage/trigger）
+- `cli/services/skill_launcher.py`：preview / task-preset / echo / confirm 流程
+
+**验证**：热修复组合选中后默认任务自动带出（"根据提交内容编写转测文档…"）；preview 显示 skill 详情；echo 摘要 + 确认后启动。门禁全绿 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |

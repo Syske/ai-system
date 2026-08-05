@@ -10,13 +10,15 @@ Launch a skill with a chosen agent: pick a skill (from the config-driven extensi
 
 1. **Select skills (multi-select, grouped)**: the launcher lists ALL skills grouped per `config/skill-groups.yaml` (config-driven, aligned with menu.yaml): source groups (extensions/global/local) and custom combo groups (type `list`). Group titles come from `config/i18n/{locale}.yaml`. Each entry shows its source (`[ext]`/`[g]`/`[proj]`). Type to filter by keyword; Space toggles selection, Enter confirms (one or more skills).
 
-2. **Select the agent**: choose opencode / pi / claude from enabled providers (`config/providers.yaml`; label + description from provider config; default highlighted). This is a reusable agent picker shared by all agent-selecting flows.
+2. **Preview details**: the selected skills' frontmatter (usage / trigger, when present) is shown so you can confirm the choice before proceeding.
 
-3. **Enter the task**: describe what the agent should do with the selected skills (optional; empty = load the skills and report readiness).
+3. **Select the agent**: choose opencode / pi / claude from enabled providers (`config/providers.yaml`; label + description from provider config; default highlighted). This is a reusable agent picker shared by all agent-selecting flows.
 
-4. **Generate the prompt**: the launcher renders a thin-trigger prompt that lists the selected skills by name + SKILL.md location and instructs the agent to load each via the platform skill tool — it does NOT embed the full SKILL.md (keeps context ~0 until loaded on demand).
+4. **Enter the task**: pick from task presets (`config/skill-groups.yaml → tasks`) or type custom text. A list-combo group with a `task` field pre-fills its default task (e.g. hotfix combo → 转测文档 template).
 
-5. **Copy + launch**: the prompt is copied to the clipboard and the chosen agent is launched at the workspace root.
+5. **Generate the prompt**: the launcher renders a thin-trigger prompt that lists the selected skills by name + SKILL.md location and instructs the agent to load each via the platform skill tool — it does NOT embed the full SKILL.md (keeps context ~0 until loaded on demand).
+
+6. **Echo + confirm**: a summary (skills / agent / task) is shown; confirm to copy the prompt and launch the chosen agent.
 
 **Output**
 

@@ -274,6 +274,42 @@ class MenuConfig:
             key
         )
 
+    def skill_tasks(self):
+        """Return the task-preset config: [{title, items: [...]}].
+
+        Falls back to an empty list when unset.
+        """
+
+        tasks = (
+            self.skill_groups_config
+            .get("tasks", [])
+        )
+
+        if not isinstance(tasks, list):
+            return []
+
+        return tasks
+
+    def combo_task(self, skill_names):
+        """Return the default task template for a list-combo group whose
+        skills all appear in skill_names (or the first matching group).
+
+        Returns "" when no list group matches.
+        """
+
+        for group in self.skill_groups():
+
+            if group.get("type") != "list":
+                continue
+
+            names = set(group.get("skills") or [])
+
+            if names and names.issubset(skill_names):
+
+                return group.get("task") or ""
+
+        return ""
+
     def default_provider(self):
 
         return (

@@ -8,12 +8,15 @@ locale: zh
 #   已在前组出现的 skill 在后续组去重（不重复显示）。
 # - 分组类型：
 #   - source: 按 skill 来源分组（extensions / global / local）
-#   - list:   显式技能清单组合（如常用热修复组合）
+#   - list:   显式技能清单组合（如常用热修复组合）；可选 task 字段作为该组合的
+#     默认任务模板（选该组合后自动带出）。
+# - tasks: 任务预设清单，task 输入前可选（title 为 i18n key 或直接文案）。
 # - 未命中任何分组的 skill 自动落入"其他"组（fallback，类似菜单 other）。
 
 groups:
   - title: skill_group_hotfix
     type: list
+    task: "根据提交内容编写转测文档（背景 + 问题原因 + 解决）"
     skills:
       - codeup-submit-mr
       - hotfix-test-doc
@@ -26,3 +29,11 @@ groups:
   - title: skill_group_project
     type: source
     value: local
+
+tasks:
+  - title: task_combos
+    items:
+      - "根据提交内容编写转测文档（背景 + 问题原因 + 解决）"
+      - "提交 Codeup MR 并关联变更"
+      - "发布 Markdown 到 Confluence"
+      - "生成 on-call 周报"

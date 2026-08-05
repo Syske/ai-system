@@ -16,6 +16,7 @@ sections:
   skill_group_hotfix: "常用组合"
   skill_group_project: "项目技能"
   skill_group_other: "其他技能"
+  task_combos: "常用任务"
 
 field_notes:
   "Project ID": "from workspaces/"
