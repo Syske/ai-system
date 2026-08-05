@@ -229,6 +229,26 @@ class MenuConfig:
 
         return meta
 
+    def provider_command(self, name):
+        """Return the launch command for a provider.
+
+        Falls back to the provider name itself (assumed to be on PATH).
+        Supports a `command` field (e.g. `npx pi`) for providers whose
+        executable is not directly on PATH.
+        """
+
+        providers = (
+            self.provider_config
+            .get("providers", {})
+        )
+
+        cfg = providers.get(name)
+
+        if not isinstance(cfg, dict):
+            return name
+
+        return cfg.get("command") or name
+
     def default_provider(self):
 
         return (

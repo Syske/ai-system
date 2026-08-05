@@ -3,6 +3,8 @@ providers:
   # enabled: true 的 provider 出现在向导启动菜单（Launch）与 agent 选择。
   # 每个 provider 即一个可执行工具名（_launch 用 shell 调用）。
   # label: 用户可见显示名（可选，缺省用 name）；description: 一句话描述（可选）。
+  # command: 实际启动命令（可选，缺省用 name 本身）。当可执行文件不在
+  #   PATH 时配置（如 `npx pi`）；_launch 使用该命令启动。
 
   opencode:
 
@@ -15,6 +17,7 @@ providers:
     enabled: true
     label: pi
     description: Pi agent
+    command: npx pi
 
   claude:
 

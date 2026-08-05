@@ -31,6 +31,6 @@ Launch a skill with a chosen agent: pick a skill (from the config-driven extensi
 
 - The generated prompt must reference the skill by name + location only, never embed the full SKILL.md (context-bloat prevention).
 - Company skills live in the config-driven `extensions/` dir and are loaded explicitly by this launcher — they are deliberately NOT auto-discovered by agents.
-- Agent names come from `config/providers.yaml` (label/description configurable); an unknown agent must not be launched.
+- Agent names come from `config/providers.yaml` (label/description configurable; optional `command` field for the actual launch command, e.g. `npx pi`); an unknown agent must not be launched.
 - Skill list shows ALL sources (extensions/global/project) with keyword type-to-filter; no skill is hidden by default.
 - Non-TTY mode degrades to numbered-input fallbacks (existing menu behavior).

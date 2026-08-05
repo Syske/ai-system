@@ -181,8 +181,13 @@ def main():
         print()
         print("✓ Skill prompt copied.")
 
+        wizard = Wizard(
+            builder.root,
+            args.environment
+        )
+
         _launch(
-            agent,
+            wizard.config.provider_command(agent),
             builder.root.parent
         )
 
@@ -229,7 +234,7 @@ def main():
 
             prompt, agent = result
 
-            launch = agent
+            launch = wizard.config.provider_command(agent)
 
         else:
 
