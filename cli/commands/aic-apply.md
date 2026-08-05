@@ -80,7 +80,9 @@ Implement tasks in an OpenSpec change.
    - If all done: suggest archiving
    - If paused: explain why and wait for guidance
 
-**Output during implementation**
+**Output**
+
+During implementation:
 
 ```
 ## 正在实现：<change-name>（Schema：<schema-name>）
@@ -94,7 +96,7 @@ Implement tasks in an OpenSpec change.
 ✓ 任务完成
 ```
 
-**Output on completion**
+On completion:
 
 ```
 ## 实现完成
@@ -111,7 +113,7 @@ Implement tasks in an OpenSpec change.
 所有任务已完成！您可以使用 `/aic-archive` 归档此变更。
 ```
 
-**Output when paused (hit a problem)**
+When paused (hit a problem):
 
 ```
 ## 实现暂停

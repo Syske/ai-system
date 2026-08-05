@@ -84,7 +84,9 @@ Archive a completed change in the experimental workflow.
    - Spec sync status (synced / skipped sync / no incremental specs)
    - Notes on any warnings (incomplete artifacts/tasks)
 
-**Output on success**
+**Output**
+
+On success:
 
 ```
 ## 归档完成
@@ -97,7 +99,7 @@ Archive a completed change in the experimental workflow.
 所有产出物已完成。所有任务已完成。
 ```
 
-**Output on success (no incremental specs)**
+On success (no incremental specs):
 
 ```
 ## 归档完成
@@ -110,7 +112,7 @@ Archive a completed change in the experimental workflow.
 所有产出物已完成。所有任务已完成。
 ```
 
-**Output on success (with warnings)**
+On success (with warnings):
 
 ```
 ## 归档完成（带警告）
@@ -128,7 +130,7 @@ Archive a completed change in the experimental workflow.
 如果这不是故意的，请检查归档。
 ```
 
-**Output on error (archive exists)**
+On error (archive exists):
 
 ```
 ## 归档失败
