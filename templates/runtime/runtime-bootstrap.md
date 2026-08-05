@@ -82,8 +82,10 @@ If environment configuration is missing:
 
 1. Guide the user to run `python tools/setup.py [--environment {environment}]`:
    - Generates `config/environments/{environment}.yaml` interactively
-   - Scaffolds workspace base directories (workspaces/ projects/ repositories/ methodologies/)
+   - Scaffolds workspace base directories (workspaces/ projects/ repositories/ methodologies/ extensions/)
+   - Ensures ai-system runtime dirs (metrics/ logs/)
    - Links detected code repositories into projects/
+   - Records the metrics baseline snapshot (metrics/baseline-{date}.json, if missing)
    - Runs `tools/path-audit.py` to verify paths
 2. Re-load the environment configuration.
 

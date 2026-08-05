@@ -1,0 +1,6 @@
+version: 1
+
+name: proposal
+
+workflow: workflows/proposal.md
+runtime: templates/runtime/runtime-proposal.md

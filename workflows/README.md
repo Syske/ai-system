@@ -25,6 +25,9 @@ Execution lifecycle (phases, checkpoints, recovery, persistence) is owned by the
 | Diagnose and fix a defect | bugfix.md |
 | Analyze AI System health | analysis.md |
 | Manage knowledge assets | knowledge.md |
+| Review arbitrary code and produce a review result | code-review.md |
+| Analyze impact, risks, and modification plan for a code target | change-impact.md |
+| Discuss an optimization and produce a solution document | proposal.md |
 | Requirement change on an in-flight change | prepare.md → spec.md (scoped re-entry) |
 
 ---
@@ -58,6 +61,9 @@ Standalone:
 
 - analysis
 - knowledge
+- code-review
+- change-impact
+- proposal
 
 ---
 

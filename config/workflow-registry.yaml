@@ -14,3 +14,6 @@ workflows:
   release: config/workflows/release.yaml
   analysis: config/workflows/analysis.yaml
   knowledge: config/workflows/knowledge.yaml
+  code-review: config/workflows/code-review.yaml
+  proposal: config/workflows/proposal.yaml
+  change-impact: config/workflows/change-impact.yaml

@@ -17,3 +17,6 @@ layers:
   methodologies:
     path: D:/workspace/ai-workspace/methodologies
     description: governance standards, openspec, specs, contracts
+  skills:
+    path: D:/workspace/ai-workspace/extensions
+    description: company/platform skill extensions (not auto-scanned by agents)

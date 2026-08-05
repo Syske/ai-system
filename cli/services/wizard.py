@@ -1033,6 +1033,12 @@ class Wizard:
         field
     ):
 
+        field = re.sub(
+            r"\s*\(default:[^)]*\)\s*$",
+            "",
+            field
+        )
+
         if field in self._auto_fields():
             return providers.workspace_dirs(self)
 

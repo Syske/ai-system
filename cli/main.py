@@ -40,6 +40,11 @@ def main():
     )
 
     parser.add_argument(
+        "--agent",
+        help="Agent to launch for skill-launch (opencode / pi / claude; defaults to interactive pick)"
+    )
+
+    parser.add_argument(
         "--project"
     )
 
@@ -142,6 +147,51 @@ def main():
     args = parser.parse_args()
 
     builder = PromptBuilder()
+
+    if args.workflow == "skill-launch":
+
+        try:
+
+            from cli.services import skill_launcher
+            from cli.services.wizard import Wizard
+
+            wizard = Wizard(
+                builder.root,
+                args.environment
+            )
+
+            result = skill_launcher.run(
+                wizard,
+                args.agent
+            )
+
+        except (EOFError, KeyboardInterrupt):
+
+            print()
+            print("Cancelled.")
+
+            return
+
+        if result is None:
+            return
+
+        prompt, agent = result
+
+        copy(prompt)
+
+        print()
+        print("✓ Skill prompt copied.")
+
+        _launch(
+            agent,
+            builder.root.parent
+        )
+
+        print(
+            f"✓ {agent} launched — paste with Ctrl+V."
+        )
+
+        return
 
     if not args.workflow:
 

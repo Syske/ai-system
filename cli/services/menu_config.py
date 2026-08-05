@@ -4,6 +4,8 @@ Centralizes loading of config/menu.yaml and config/i18n/{locale}.yaml and the
 lookup helpers used by the wizard, so the wizard stays an orchestrator.
 """
 
+import re
+
 from cli.utils.yaml import load_yaml
 
 
@@ -101,28 +103,62 @@ class MenuConfig:
 
     def field_icon(self, field):
 
-        return (
+        value = (
             self.get("field_icons")
             .get(field, "")
         )
 
+        if not value:
+            value = (
+                self.get("field_icons")
+                .get(self._base(field), "")
+            )
+
+        return value
+
     def field_note(self, field):
 
-        return self.t(
+        note = self.t(
             f"field_notes.{field}"
         )
+
+        if not note:
+            note = self.t(
+                f"field_notes.{self._base(field)}"
+            )
+
+        return note
 
     def field_choices(self, field):
 
         return (
             self.get("field_choices")
-            .get(field, [])
+            .get(field)
+            or self.get("field_choices")
+            .get(self._base(field), [])
         )
 
     def option_descriptions(self, field):
 
-        return self.t(
+        desc = self.t(
             f"option_descriptions.{field}"
+        )
+
+        if not desc:
+            desc = self.t(
+                f"option_descriptions.{self._base(field)}"
+            )
+
+        return desc
+
+    @staticmethod
+    def _base(field):
+        """Strip a '(default: X)' suffix so lookups also match the base name."""
+
+        return re.sub(
+            r"\s*\(default:[^)]*\)\s*$",
+            "",
+            field
         )
 
     def command_next(self, name):

@@ -59,6 +59,15 @@ sections:
       - name: knowledge
         kind: workflow
         icon: "📚 "
+      - name: code-review
+        kind: workflow
+        icon: "🔎 "
+      - name: change-impact
+        kind: workflow
+        icon: "🧨 "
+      - name: proposal
+        kind: workflow
+        icon: "💡 "
   - title: commands_changes
     items:
       - name: propose
@@ -89,6 +98,15 @@ sections:
       - name: maintain
         kind: command
         icon: "🧹 "
+      - name: workflow
+        kind: command
+        icon: "🧩 "
+      - name: command
+        kind: command
+        icon: "📝 "
+      - name: skill-launch
+        kind: command
+        icon: "🚀 "
       - name: pack
         kind: command
         icon: "📦 "
@@ -134,6 +152,25 @@ command_fields:
       - true
     - - "Report Name"
       - false
+  workflow:
+    - - "Workflow Name"
+      - true
+    - - "Purpose"
+      - false
+    - - "Next Workflow"
+      - false
+  command:
+    - - "Command Name"
+      - true
+    - - "Description"
+      - false
+  skill-launch:
+    - - "Agent"
+      - false
+    - - "Skill"
+      - false
+    - - "Task"
+      - false
 
 default_command_fields:
   - - "Project ID"
@@ -176,6 +213,13 @@ field_icons:
   "Skill Source URL": "🌐 "
   "Environment": "🌍 "
   "Environment (default: local)": "🌍 "
+  "Workflow Name": "🧩 "
+  "Purpose": "🎯 "
+  "Next Workflow": "➡️ "
+  "Command Name": "📝 "
+  "Description": "📄 "
+  "Skill": "🧩 "
+  "Task": "📝 "
   "Existing Design": "📐 "
   "Existing Reports": "📄 "
   "Existing Specifications": "📘 "
@@ -195,6 +239,10 @@ field_icons:
   "Stack Trace": "🧾 "
   "Analysis Target": "🎯 "
   "Analysis Scope": "📏 "
+  "Branch Mapping": "🌿 "
+  "Review Focus": "🔍 "
+  "Topic": "🎯 "
+  "Related Materials": "📎 "
   "Zip": "🗜️ "
 
 # 静态字段候选（动态候选如 Workspace/Projects/Branch 由代码按目录/git 生成）

@@ -11,9 +11,11 @@ Never deletes or overwrites existing config, directories, or links.
 
 Steps:
 1. Generate config/environments/{environment}.yaml from template structure (if missing)
-2. Scaffold workspace base directories (workspaces/ projects/ repositories/ methodologies/)
-3. Auto-detect code repositories at the workspace root and link them into projects/
-4. Run tools/path-audit.py to verify all referenced paths resolve
+2. Scaffold workspace base directories (workspaces/ projects/ repositories/ methodologies/ extensions/)
+3. Ensure ai-system runtime dirs exist (metrics/ logs/)
+4. Auto-detect code repositories at the workspace root and link them into projects/
+5. Record a metrics baseline snapshot (metrics/baseline-{date}.json, if missing)
+6. Run tools/path-audit.py to verify all referenced paths resolve
 """
 
 import os
@@ -74,6 +76,7 @@ BASE_DIRS = (
     "projects",
     "repositories",
     "methodologies",
+    "extensions",
 )
 
 
@@ -203,6 +206,10 @@ def generate_env(
                 "path": str(workspace_root / "methodologies"),
                 "description": "governance standards, openspec, specs, contracts",
             },
+            "skills": {
+                "path": str(workspace_root / "extensions"),
+                "description": "company/platform skill extensions (not auto-scanned by agents)",
+            },
         },
     }
 
@@ -233,6 +240,66 @@ def scaffold(workspace_root):
             created += 1
 
     return created
+
+
+def ensure_runtime_dirs():
+
+    """Create ai-system runtime dirs (metrics/, logs/) that the contract
+    declares and generated artifacts depend on.
+
+    Non-destructive: existing dirs are skipped.
+    """
+
+    created = 0
+
+    for name in ("metrics", "logs"):
+
+        if _ensure_dir(ROOT / name):
+            print(f"created: {ROOT / name}")
+            created += 1
+
+    return created
+
+
+def record_baseline():
+
+    """Record the first metrics snapshot as the health baseline.
+
+    Snapshot path follows governance/policies/skill-policy.md section 6
+    (metrics/baseline-{date}.json). Skipped when a baseline already exists
+    so re-runs stay non-destructive.
+    """
+
+    import datetime
+
+    metrics_dir = ROOT / "metrics"
+
+    if not metrics_dir.is_dir():
+        return False
+
+    existing = sorted(metrics_dir.glob("baseline-*.json"))
+
+    if existing:
+        return False
+
+    metrics = ROOT / "tools" / "repo-metrics.py"
+
+    if not metrics.exists():
+        return False
+
+    stamp = datetime.date.today().isoformat()
+
+    snapshot = metrics_dir / f"baseline-{stamp}.json"
+
+    print()
+    print("recording metrics baseline snapshot")
+
+    subprocess.run(
+        [sys.executable, str(metrics), "--repo-root", str(ROOT), "--snapshot", str(snapshot)],
+        cwd=str(ROOT)
+    )
+
+    return True
 
 
 def detect_repos(workspace_root):
@@ -379,10 +446,14 @@ def main():
 
     scaffold(workspace_root)
 
+    ensure_runtime_dirs()
+
     link_repos(
         workspace_root,
         interactive
     )
+
+    record_baseline()
 
     print()
     print("Next:")

@@ -1,0 +1,6 @@
+version: 1
+
+name: code-review
+
+workflow: workflows/code-review.md
+runtime: templates/runtime/runtime-code-review.md

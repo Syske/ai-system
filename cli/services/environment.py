@@ -108,6 +108,10 @@ def paths(
         layers.get("methodologies") or {}
     )
 
+    skills = (
+        layers.get("skills") or {}
+    )
+
     return {
         "environment": name,
         "workspace_root": workspace_root,
@@ -120,6 +124,10 @@ def paths(
         "methodologies_root": (
             _path(methodologies.get("path"))
             or workspace_root / "methodologies"
+        ),
+        "skills_root": (
+            _path(skills.get("path"))
+            or workspace_root / "extensions"
         ),
     }
 
@@ -144,3 +152,14 @@ def projects_root(
         root,
         name
     )["repository_root"]
+
+
+def skills_root(
+    root,
+    name=DEFAULT_ENV
+):
+
+    return paths(
+        root,
+        name
+    )["skills_root"]

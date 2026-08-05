@@ -10,6 +10,8 @@ Automated governance tooling for the AI repository.
 | `dependency-graph.py` | Skill dependency visualizer |
 | `path-audit.py` | Path reference integrity audit (skips runtime/placeholder/generated refs) |
 | `setup.py` | Environment configuration provision (generates config/environments/*.yaml) |
+| `workflow-scaffold.py` | New-workflow scaffold (generates 8-section md + config yaml + runtime skeleton, appends registry) |
+| `command-scaffold.py` | New-command scaffold (generates aic-<name>.md + registration checklist) |
 | `pack.py` | AI System packaging (output dir, zip) |
 
 Run order after a change:

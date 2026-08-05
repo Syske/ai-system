@@ -29,6 +29,10 @@ field_notes:
   "Knowledge Scope": "知识分类范围（AI System / Engineering / Project）"
   "Analysis Target": "分析 ai-system 自身；与 maintain（例行巡检）、scan（代码梳理）区分"
   "Analysis Scope": "限定分析范围；留空=全量"
+  "Branch Mapping": "项目→分支映射，格式 project-a:branch-x, project-b:branch-y；未指定的项目默认用 Base Branch"
+  "Review Focus": "审查关注点（如性能、安全、特定模块）；留空=全面审查"
+  "Topic": "优化主题或待讨论的临时想法"
+  "Related Materials": "关联材料（文档、链接、背景信息）"
   "Base Branch": "基线分支；默认 master"
   "Bug Description": "bug 现象与复现描述"
   "Change Request": "变更需求描述或变更点"
@@ -51,6 +55,13 @@ field_notes:
   "Zip": "是否压缩为 .zip"
   "Skill Source URL": "三方 skill 仓库 URL（如 GitHub 仓库地址）"
   "Report Name": "评估报告名（默认 THIRD-PARTY-SKILL-ASSESSMENT-{date}）"
+  "Workflow Name": "新工作流名（kebab-case，如 my-process）"
+  "Purpose": "工作流目的一句话描述"
+  "Next Workflow": "下游工作流名（或留空 = None）"
+  "Command Name": "新命令名（kebab-case，如 my-command）"
+  "Description": "命令功能的一句话描述"
+  "Skill": "所选技能（extensions / global / local 来源）"
+  "Task": "让 agent 用该 skill 执行的任务（留空=仅加载并报告就绪）"
 
 option_descriptions:
   Operation:

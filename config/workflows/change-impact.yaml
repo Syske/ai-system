@@ -1,0 +1,6 @@
+version: 1
+
+name: change-impact
+
+workflow: workflows/change-impact.md
+runtime: templates/runtime/runtime-change-impact.md
