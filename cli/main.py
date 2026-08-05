@@ -199,49 +199,57 @@ def main():
 
     if not args.workflow:
 
-        try:
+        while True:
 
-            name, context, output, launch = (
-                Wizard(
-                    builder.root,
-                    args.environment
-                ).run()
-            )
+            try:
 
-        except (EOFError, KeyboardInterrupt):
+                name, context, output, launch = (
+                    Wizard(
+                        builder.root,
+                        args.environment
+                    ).run()
+                )
 
-            print()
-            print("Cancelled.")
+            except (EOFError, KeyboardInterrupt):
 
-            return
+                print()
+                print("Cancelled.")
 
-        if name == "skill-launch":
-
-            from cli.services import skill_launcher
-
-            wizard = Wizard(
-                builder.root,
-                args.environment
-            )
-
-            result = skill_launcher.run(
-                wizard,
-                args.agent
-            )
-
-            if result is None:
                 return
 
-            prompt, agent = result
+            if name == "skill-launch":
 
-            launch = wizard.config.provider_command(agent)
+                from cli.services import skill_launcher
 
-        else:
+                wizard = Wizard(
+                    builder.root,
+                    args.environment
+                )
 
-            prompt = builder.build(
-                name,
-                context
-            )
+                result = skill_launcher.run(
+                    wizard,
+                    args.agent
+                )
+
+                if result is None:
+
+                    print()
+                    print("Cancelled — back to the wizard.")
+
+                    continue
+
+                prompt, agent = result
+
+                launch = wizard.config.provider_command(agent)
+
+            else:
+
+                prompt = builder.build(
+                    name,
+                    context
+                )
+
+            break
 
         if output == "copy":
 

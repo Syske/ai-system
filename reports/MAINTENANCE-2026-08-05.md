@@ -298,6 +298,22 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：热修复组合选中后默认任务自动带出（"根据提交内容编写转测文档…"）；preview 显示 skill 详情；echo 摘要 + 确认后启动。门禁全绿 ✅。
 
+**S4 补充 6 — 可拔插统一交互（修复退格断层 + 统一状态机）**：
+
+问题：skill-launch 内退格直接退出（run 返回 None → main 硬 return），交互断层。
+
+方案：新增 `cli/services/interactive.py` 统一状态机抽象。
+
+| # | 产物 | 说明 |
+|---|------|------|
+| I-1 | `cli/services/interactive.py` | `InteractiveCommand` 基类：声明 `steps` 步骤序列，统一驱动（NEXT/BACK/QUIT/done），每步 BACK 回退上一步，第 1 步 BACK → QUIT（由调用方决定重选，不硬退出） |
+| I-2 | `skill_launcher` | 重构为 `SkillLauncher(InteractiveCommand)`：steps = [选技能 → 选agent → 选task → 确认]；agent/task/confirm 步 BACK 逐级回退，skill 步（第1步）BACK → QUIT |
+| I-3 | `cli/main.py` | wizard 分支改循环：skill-launch 退出（None）→ 打印"back to the wizard" → 重新进入向导重选，而非硬退出 |
+
+**BACK 行为**：skill 步 BACK → 回向导（可重选/退出）；agent/task/confirm 步 BACK → 回退上一步。**可拔插**：未来其他交互命令继承 InteractiveCommand 声明 steps 即可获得统一 BACK/回退契约。
+
+**验证**：agent 步 BACK 回退到 skill 步（重新预览）→ 重选 agent → 完成 ✅；launcher 退出后 main 循环回到向导（第 2 次选 prepare 正常）✅；门禁全绿 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |

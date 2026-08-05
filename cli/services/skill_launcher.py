@@ -1,13 +1,14 @@
-"""Interactive skill launcher.
+"""Interactive skill launcher (as an InteractiveCommand).
 
-Flow:
+Flow (uniform step state machine):
 1. Pick skills (grouped multi-select, config-driven via skill-groups.yaml).
 2. Preview the selected skills' details (frontmatter usage/trigger).
 3. Pick an agent (opencode / pi / claude, per providers.yaml).
 4. Enter the task (from presets or free text; combo default task pre-filled).
-5. Render the thin-trigger prompt (instructs the agent to load the selected
-   skills via the platform skill tool, then execute the task).
-6. Echo a summary, copy to clipboard, and launch the chosen agent.
+5. Render the thin-trigger prompt and echo a summary, then confirm.
+
+Every step honors BACK (rolls back one step; first step → quit, so the
+caller — e.g. the wizard — can re-select instead of hard-exiting).
 
 The prompt references skills by name/location only — it does NOT embed the
 full SKILL.md, keeping context cost ~0 until the agent loads them on demand.
@@ -16,6 +17,7 @@ full SKILL.md, keeping context cost ~0 until the agent loads them on demand.
 from pathlib import Path
 
 from cli.services import agent_picker, skill_scan
+from cli.services.interactive import BACK_, InteractiveCommand, NEXT, QUIT
 from cli.services.wizard import Wizard
 from cli.utils.menu import BACK, Section, ask_text, choose, choose_many, e
 from cli.utils.file import read_text
@@ -131,34 +133,6 @@ def _group_skills(config, skills):
     return options, skills_by_index
 
 
-def _pick_skills(wizard, skills):
-    """Multi-select skills (grouped). Returns a list of skill dicts."""
-
-    options, skills_by_index = _group_skills(
-        wizard.config,
-        skills
-    )
-
-    if not options:
-
-        print("No skills found in extensions/, global, or project-local roots.")
-
-        return None
-
-    picked = choose_many(
-        f"{e('🧩 ')}Select skills (Space toggles, Enter confirms)",
-        options
-    )
-
-    if picked is BACK:
-        return None
-
-    if not picked:
-        return []
-
-    return [skills_by_index[i] for i in picked]
-
-
 def _preview_skills(skills):
     """Print the selected skills' details (name, source, usage, trigger)."""
 
@@ -176,86 +150,6 @@ def _preview_skills(skills):
             print(f"    trigger: {s['trigger']}")
 
     print()
-
-
-def _pick_agent(wizard, default=None):
-
-    return agent_picker.pick_agent(
-        wizard.config,
-        title=f"{e('🤖 ')}Select an agent",
-        default=default
-    )
-
-
-def _task_options(config, default_task):
-    """Build task-preset options + custom entry.
-
-    Returns a list of option labels; the first is "use default (if any)".
-    """
-
-    presets = []
-
-    if default_task:
-        presets.append(default_task)
-
-    for group in config.skill_tasks():
-
-        items = group.get("items") or []
-
-        for item in items:
-            presets.append(item)
-
-    options = []
-
-    for p in presets:
-        options.append(p)
-
-    return options
-
-
-def _pick_task(wizard, default_task):
-    """Choose a task from presets or free text. Returns the task string."""
-
-    options = _task_options(
-        wizard.config,
-        default_task
-    )
-
-    if options:
-
-        options = list(dict.fromkeys(options))
-
-        options.append("✏️  custom...")
-
-        idx = choose(
-            f"{e('📝 ')}Select a task",
-            options,
-            default=0
-        )
-
-        if idx is BACK:
-            return None
-
-        if idx < len(options) - 1:
-            return options[idx]
-
-        task = ask_text(
-            f"{e('📝 ')}Task — describe the task: "
-        )
-
-        if task is BACK:
-            return None
-
-        return task.strip()
-
-    task = ask_text(
-        f"{e('📝 ')}Task — what should the agent do with the selected skills? (empty = skip): "
-    )
-
-    if task is BACK:
-        return None
-
-    return task.strip()
 
 
 def _skill_block(skill):
@@ -290,94 +184,183 @@ def _render_prompt(wizard, skills, task, agent):
     return result
 
 
-def _echo(prompt, skills, agent, task):
-    """Print a summary of what will be launched before confirming."""
+class SkillLauncher(InteractiveCommand):
 
-    print()
-    print(f"{e('📋 ')}Prompt summary:")
-    print(f"  skills: {', '.join(s['name'] for s in skills)}")
-    print(f"  agent:  {agent}")
-    print(f"  task:   {task or '(none)'}")
-    print()
+    def __init__(self, wizard, agent=None):
 
+        super().__init__(wizard)
 
-def run(wizard, agent=None):
-    """Run the interactive skill launcher.
+        self.forced_agent = agent
 
-    Returns (prompt, agent) when skills and an agent were chosen, else None.
-    """
+    def _step_pick_skills(self):
 
-    skills = skill_scan.scan(
-        wizard.root,
-        wizard.environment_name
-    )
+        skills = skill_scan.scan(
+            self.wizard.root,
+            self.wizard.environment_name
+        )
 
-    if not skills:
+        if not skills:
 
-        print("No skills found.")
+            print("No skills found.")
 
-        return None
+            return QUIT
 
-    picked = _pick_skills(
-        wizard,
-        skills
-    )
+        options, skills_by_index = _group_skills(
+            self.wizard.config,
+            skills
+        )
 
-    if picked is None:
-        return None
+        picked = choose_many(
+            f"{e('🧩 ')}Select skills (Space toggles, Enter confirms)",
+            options
+        )
 
-    if not picked:
+        if picked is BACK:
+            return QUIT
 
-        print("No skill selected.")
+        if not picked:
+            return BACK_
 
-        return None
+        self.state["skills"] = [
+            skills_by_index[i]
+            for i in picked
+        ]
 
-    _preview_skills(picked)
+        _preview_skills(self.state["skills"])
 
-    default_task = wizard.config.combo_task(
-        {s["name"] for s in picked}
-    )
+        return NEXT
 
-    if agent is None:
+    def _step_pick_agent(self):
 
-        agent = _pick_agent(
-            wizard,
-            default=wizard.config.default_provider()
+        if self.forced_agent:
+
+            self.state["agent"] = self.forced_agent
+
+            return NEXT
+
+        agent = agent_picker.pick_agent(
+            self.wizard.config,
+            title=f"{e('🤖 ')}Select an agent",
+            default=self.wizard.config.default_provider()
         )
 
         if agent is None:
-            return None
+            return BACK_
 
-    task = _pick_task(
+        self.state["agent"] = agent
+
+        return NEXT
+
+    def _step_pick_task(self):
+
+        picked = self.state.get("skills", [])
+
+        default_task = self.wizard.config.combo_task(
+            {s["name"] for s in picked}
+        )
+
+        presets = []
+
+        if default_task:
+            presets.append(default_task)
+
+        for group in self.wizard.config.skill_tasks():
+
+            for item in group.get("items") or []:
+                presets.append(item)
+
+        if presets:
+
+            options = list(dict.fromkeys(presets))
+
+            options.append(f"{e('✏️ ')}custom...")
+
+            idx = choose(
+                f"{e('📝 ')}Select a task",
+                options,
+                default=0
+            )
+
+            if idx is BACK:
+                return BACK_
+
+            if idx < len(options) - 1:
+
+                self.state["task"] = options[idx]
+
+                return NEXT
+
+            task = ask_text(
+                f"{e('📝 ')}Task — describe the task: "
+            )
+
+            if task is BACK:
+                return BACK_
+
+            self.state["task"] = task.strip()
+
+            return NEXT
+
+        task = ask_text(
+            f"{e('📝 ')}Task — what should the agent do with the selected skills? (empty = skip): "
+        )
+
+        if task is BACK:
+            return BACK_
+
+        self.state["task"] = task.strip()
+
+        return NEXT
+
+    def _step_confirm(self):
+
+        skills = self.state.get("skills", [])
+        agent = self.state.get("agent", "")
+        task = self.state.get("task", "")
+
+        prompt = _render_prompt(
+            self.wizard,
+            skills,
+            task,
+            agent
+        )
+
+        print()
+        print(f"{e('📋 ')}Prompt summary:")
+        print(f"  skills: {', '.join(s['name'] for s in skills)}")
+        print(f"  agent:  {agent}")
+        print(f"  task:   {task or '(none)'}")
+        print()
+
+        confirm = ask_text(
+            f"{e('🚀 ')}Launch {agent} with these skills? (Enter to confirm, or type no): "
+        )
+
+        if confirm is BACK:
+            return BACK_
+
+        if confirm and confirm.strip().lower() in ("no", "n", "cancel", "取消"):
+            return BACK_
+
+        return ("done", prompt, agent)
+
+    steps = [
+        _step_pick_skills,
+        _step_pick_agent,
+        _step_pick_task,
+        _step_confirm,
+    ]
+
+
+def run(wizard, agent=None):
+    """Convenience wrapper: run SkillLauncher, return (prompt, agent) or None."""
+
+    result = SkillLauncher(
         wizard,
-        default_task
-    )
+        agent=agent
+    ).run()
 
-    if task is None:
+    if result is None:
         return None
 
-    prompt = _render_prompt(
-        wizard,
-        picked,
-        task,
-        agent
-    )
-
-    _echo(
-        prompt,
-        picked,
-        agent,
-        task
-    )
-
-    confirm = ask_text(
-        f"{e('🚀 ')}Launch {agent} with these skills? (Enter to confirm, or type no): "
-    )
-
-    if confirm is BACK:
-        return None
-
-    if confirm and confirm.strip().lower() in ("no", "n", "cancel", "取消"):
-        return None
-
-    return prompt, agent
+    return result
