@@ -13,6 +13,15 @@ locale: zh
 # - tasks: 任务预设清单，task 输入前可选（title 为 i18n key 或直接文案）。
 # - 未命中任何分组的 skill 自动落入"其他"组（fallback，类似菜单 other）。
 
+# OPTIMIZATION_LOG 约定（extensions 技能统一优化日志）：
+# 每个 extension skill 目录内保留 <skill>/OPTIMIZATION_LOG.md，每次实战优化
+# 后追加一条记录（顶部为最新），字段：触发场景 / 问题清单与根因 / 改动内容 /
+# 验证结果 / 影响评估 / 复现与回归建议。参考示例：
+#   extensions/hotfix-test-doc/OPTIMIZATION_LOG.md
+# 该日志与 skill 同生命周期随行；与 skill-optimizer 的 opt.sh 快照
+# （~/.agent-insight/skill-history/）定位不同：前者记录实战优化，后者为
+# 自动化工具产物，两者可并存。
+
 groups:
   - title: skill_group_hotfix
     type: list

@@ -355,6 +355,17 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：直接 `aic skill-optimize --agent pi` → COPY + LAUNCH ✅；向导选 skill-optimize → 进入启动器 ✅；prompt 渲染（技能+模式 static）✅；check.py 0 warning（13 commands）、lint 0/0/9、audit 0 broken ✅。
 
+**S4 补充 10 — OPTIMIZATION_LOG 保留 + 统一约定**：
+
+用户问 `hotfix-test-doc/OPTIMIZATION_LOG.md`（实战优化日志）是否保留。结论：**保留在 skill 目录内 + 统一约定**。
+
+- 保留 `<skill>/OPTIMIZATION_LOG.md`（与技能同生命周期随行），内容为实战优化记录（触发场景/根因/改动/验证/影响/回归）。
+- `config/skill-groups.yaml` 顶部新增 OPTIMIZATION_LOG 约定（extensions 技能统一字段：触发场景 / 问题清单与根因 / 改动内容 / 验证结果 / 影响评估 / 复现与回归建议；参考 hotfix-test-doc 示例）。
+- `extensions/README.md` 新建：目录定位（不被自动扫描/显式加载/配置驱动）+ OPTIMIZATION_LOG 约定表。
+- 定位澄清：与 `skill-optimizer` 的 opt.sh 快照（`~/.agent-insight/skill-history/`）并存——前者实战优化，后者自动化产物。
+
+**验证**：skill-groups.yaml YAML 有效；check.py 0 warning、lint 0/0/9、audit 0 broken ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |
