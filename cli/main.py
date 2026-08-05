@@ -221,15 +221,24 @@ def main():
 
                 from cli.services import skill_launcher
 
-                wizard = Wizard(
-                    builder.root,
-                    args.environment
-                )
+                try:
 
-                result = skill_launcher.run(
-                    wizard,
-                    args.agent
-                )
+                    wizard = Wizard(
+                        builder.root,
+                        args.environment
+                    )
+
+                    result = skill_launcher.run(
+                        wizard,
+                        args.agent
+                    )
+
+                except (EOFError, KeyboardInterrupt):
+
+                    print()
+                    print("Cancelled — back to the wizard.")
+
+                    continue
 
                 if result is None:
 

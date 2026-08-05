@@ -314,6 +314,14 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：agent 步 BACK 回退到 skill 步（重新预览）→ 重选 agent → 完成 ✅；launcher 退出后 main 循环回到向导（第 2 次选 prepare 正常）✅；门禁全绿 ✅。
 
+**S4 补充 7 — 修复 Esc 崩溃**：
+
+问题：技能多选时按 Esc，`_interactive_many` 抛 `KeyboardInterrupt`（既定取消语义），但 `skill_launcher.run()` 在 main 的 try 块之外，异常穿透崩溃。
+
+修复：`cli/main.py` 将 skill_launcher.run 纳入 try，捕获 `EOFError`/`KeyboardInterrupt` → 打印"back to the wizard" → `continue` 回向导。
+
+**Esc 语义**：skill-launch 内 Esc → 回到向导；向导再 Esc → 退出程序（逐级退出，与 wizard 一致）。**验证**：Esc 模拟 → 捕获 → 重新进入向导（第 2 次选 prepare 正常）✅；门禁全绿 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |
