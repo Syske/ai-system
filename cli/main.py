@@ -192,7 +192,7 @@ def main():
         )
 
         print(
-            f"✓ {agent} launched — paste with Ctrl+V."
+            f"🚀 {agent} launched — paste with Ctrl+V."
         )
 
         return

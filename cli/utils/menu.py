@@ -150,6 +150,18 @@ def icons_enabled():
     )
 
 
+def e(icon):
+    """Return an emoji icon when the terminal supports it, else empty.
+
+    Public helper for menus and launchers; respects AIC_ICONS=off/emoji.
+    """
+
+    if is_tty() and icons_enabled():
+        return icon
+
+    return ""
+
+
 def screen_enter():
 
     if not is_tty():

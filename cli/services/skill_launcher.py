@@ -16,7 +16,7 @@ from pathlib import Path
 
 from cli.services import agent_picker, skill_scan
 from cli.services.wizard import Wizard
-from cli.utils.menu import BACK, ask_text, choose
+from cli.utils.menu import BACK, ask_text, choose, e
 from cli.utils.file import read_text
 
 _PROMPT_TEMPLATE = Path("templates") / "prompts" / "skill-launch.md"
@@ -25,9 +25,9 @@ _PROMPT_TEMPLATE = Path("templates") / "prompts" / "skill-launch.md"
 def _skill_options(skills):
 
     source_mark = {
-        "extensions": "ext",
-        "global": "g",
-        "local": "proj",
+        "extensions": f"{e('🧩 ')}ext",
+        "global": f"{e('🌍 ')}g",
+        "local": f"{e('📁 ')}proj",
     }
 
     options = []
@@ -59,7 +59,7 @@ def _pick_skill(wizard, skills):
         return None
 
     idx = choose(
-        "Select a skill",
+        f"{e('🧩 ')}Select a skill",
         options
     )
 
@@ -73,7 +73,7 @@ def _pick_agent(wizard, default=None):
 
     return agent_picker.pick_agent(
         wizard.config,
-        title="Select an agent",
+        title=f"{e('🤖 ')}Select an agent",
         default=default
     )
 
@@ -136,7 +136,7 @@ def run(wizard, agent=None):
             return None
 
     task = ask_text(
-        "Task — what should the agent do with this skill? (empty = skip): "
+        f"{e('📝 ')}Task — what should the agent do with this skill? (empty = skip): "
     )
 
     if task is BACK:

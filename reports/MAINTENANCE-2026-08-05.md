@@ -264,6 +264,14 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：agent_picker 菜单正确（默认 opencode，可选 pi/claude）；skill 列表 11 项带来源标记全显示；keyword filter 由 menu 通用能力提供。门禁全绿 ✅。
 
+**S4 补充 3 — skill-launch emoji 集成**：
+
+- `cli/utils/menu.py` — 新增公开 `e(icon)` 辅助（复用 wizard `_e` 逻辑：TTY + `AIC_ICONS` 控制，`AIC_ICONS=off` 自动隐藏）。
+- `cli/services/skill_launcher.py` — skill 菜单标题 `🧩 Select a skill`、来源标记 `[🧩 ext]`/`[🌍 g]`/`[📁 proj]`、task 提示 `📝 Task`、agent 菜单标题传入 `🤖 Select an agent`。
+- `cli/main.py` — 启动成功消息 `🚀 {agent} launched`。
+
+**验证**：`AIC_ICONS=emoji` 下来源标记带 emoji；`AIC_ICONS=off` 自动隐藏。门禁全绿 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |
