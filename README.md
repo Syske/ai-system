@@ -18,7 +18,8 @@
   含 `bugfix` 并行分支与 `bootstrap` / `analysis` / `knowledge` 支撑工作流；主链拓扑唯一
   来源是 `workflows/README.md`。
 - **命令体系**：`cli/commands/aic-*.md` 即插即用（`propose` / `apply` / `archive` /
-  `explore` / `scan` / `trace` / `maintain` / `pack` / `skill-source`），支持命令生命周期
+  `explore` / `scan` / `trace` / `maintain` / `pack` / `skill-source` /
+  `command` / `workflow` / `skill-launch` / `skill-optimize`，共 13 个），支持命令生命周期
   钩子（`command_hooks`）与动态字段候选（`providers`）。
 - **治理优先**：`governance/` 定义质量门禁、命名规范、变更管理（`OPERATIONS.md`）；
   工作流 / 命令 / 技能均受 `repo-lint` 校验。
@@ -68,7 +69,10 @@ ai-system/
 ├── templates/    Runtime / prompt / asset 模板
 ├── tools/        repo-lint、check、path-audit、pack、setup 等维护脚本
 ├── workflows/    工作流入口契约（README 含选择表）
-└── reports/      生成的分析与维护报告
+├── reports/      生成的分析与维护报告
+├── metrics/      健康指标快照（repo-metrics 输出）
+├── logs/         运行日志
+└── archived/     已归档资产（workflows/skills/templates 等）
 ```
 
 ## 常用命令

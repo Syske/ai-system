@@ -42,6 +42,10 @@ Do NOT redesign it.
 
 Do NOT introduce new top-level directories.
 
+Exception: `.github/` (CI/CD pipeline config) is allowed as a top-level
+directory — `governance/DIRECTORY-RESPONSIBILITY.md` explicitly excludes
+CI/CD pipeline config from governance. It is tooling, not an architecture layer.
+
 Do NOT move responsibilities across modules.
 
 Current architecture:
@@ -186,6 +190,12 @@ A Skill must never:
 - know routing implementation
 
 Skills are independent modules.
+
+Exception: a Skill MAY reference `governance/` rules and `tools/` checkers
+**read-only** for compliance self-checks (e.g. a skill invoking
+`repo-lint` or citing a standard). Such references are read-only
+consumption, not content imports, and do not invert the dependency
+direction.
 
 ---
 

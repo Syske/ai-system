@@ -14,8 +14,8 @@ It is an **AI Execution System** composed of:
 
 * Skills (behavior units)
 * Workflows (orchestration)
-* Playbooks (engineering knowledge)
-* Knowledge (project context)
+* Playbooks (engineering knowledge) — *planned: no `playbooks/` directory yet (see RFC-0001 / ADR-0002 status notes)*
+* Knowledge (project context) — *planned: only `governance/memory/` placeholders exist*
 * Templates (output formats)
 * Checklists (validation rules)
 
