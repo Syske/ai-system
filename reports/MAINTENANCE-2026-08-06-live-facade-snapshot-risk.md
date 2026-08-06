@@ -41,4 +41,4 @@
 ## 4. 状态 / Status
 
 - [x] 决策:发灰度时统一改为 RELEASE 版本(2026-08-06 确认,不在当前迭代处理)
-- [x] 跨服务 SNAPSHOT 治理纪律 —— **defer**（2026-08-06 巡检评估：短期已闭环，治理增补走变更流程，下月重新评估；见 MAINTENANCE-2026-08-06.md §4）
+- [x] 跨服务 SNAPSHOT 治理纪律 —— **已实施（P14）**（2026-08-06：dependency-version.md 新增 SNAPSHOT Lifecycle 章节，rpc-conventions §2.1 交叉引用；见 P14-SNAPSHOT-GOVERNANCE.md）

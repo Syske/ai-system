@@ -31,6 +31,8 @@ The facade module MUST stay in the same repository as the service, published as 
 
 - **Production releases MUST NOT depend on SNAPSHOT versions**
 - Every SNAPSHOT dependency in the dependency tree MUST be resolved to a RELEASE version before deployment
+- Same-iteration integration discipline (usage boundary, timestamp pinning, exit
+  conditions) follows `governance/standards/dependency-version.md` → SNAPSHOT Lifecycle
 
 ### 2.2 Facade Version Bump
 

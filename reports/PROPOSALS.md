@@ -21,6 +21,7 @@
 | Implemented | skill-optimizer 网络思想吸收（held-out 门控/demo-augment/description 调优） | 2026-08-06 | `P11-SKILL-OPTIMIZER-ABSORPTION.md` |
 | Implemented | 移除 langchain 依赖（openai SDK 直调） | 2026-08-06 | `P12-LANGCHAIN-REMOVAL.md` |
 | Implemented | 破除 3 个 Skill 依赖环（检测器语义分层） | 2026-08-06 | `P13-DEPENDENCY-CYCLE-CLEANUP.md` |
+| Implemented | 跨服务 SNAPSHOT 治理纪律（S4） | 2026-08-06 | `P14-SNAPSHOT-GOVERNANCE.md` |
 
 ## 当前遗留（未关闭）
 
