@@ -22,6 +22,7 @@
 | Implemented | 移除 langchain 依赖（openai SDK 直调） | 2026-08-06 | `P12-LANGCHAIN-REMOVAL.md` |
 | Implemented | 破除 3 个 Skill 依赖环（检测器语义分层） | 2026-08-06 | `P13-DEPENDENCY-CYCLE-CLEANUP.md` |
 | Implemented | 跨服务 SNAPSHOT 治理纪律（S4） | 2026-08-06 | `P14-SNAPSHOT-GOVERNANCE.md` |
+| Implemented | 多-SKILL.md 输入防护（E3 缺陷修复） | 2026-08-06 | `P15-MULTISKILL-GUARD.md` |
 
 ## 当前遗留（未关闭）
 

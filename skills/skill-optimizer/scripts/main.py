@@ -173,6 +173,23 @@ def run_optimizer(
     input_path = Path(input_path).resolve()
     input_dir = input_path.parent if input_path.is_file() else input_path
 
+    # E3/P15 guard: one run = one skill. Count SKILL.md under the source dir
+    # (excluding snapshots/.opt) BEFORE creating any workspace, so a
+    # multi-skill directory is refused without side effects.
+    source_skill_count = len([
+        f for f in input_dir.rglob("SKILL.md")
+        if f.exists()
+        and "snapshots" not in f.parts
+        and ".opt" not in f.parts
+    ]) if input_dir.is_dir() else 1
+    if source_skill_count > 1:
+        logger.error(
+            f"Found {source_skill_count} SKILL.md files under {input_dir}; "
+            f"run_optimizer supports exactly one skill per run. "
+            f"Optimize each skill separately (pass its own directory/file)."
+        )
+        return []
+
     # Determine the skill name from the input directory
     # For iteration on existing workspaces, try to find the inner skill dir first
     skill_name = input_dir.name
@@ -233,6 +250,17 @@ def run_optimizer(
 
     if not skill_files:
         logger.error(f"No SKILL.md found in {inner_skill_dir}")
+        return []
+
+    # E3 guard (P15): one workspace = one skill. Multiple SKILL.md files would
+    # share a single inner_skill_dir and overwrite each other via revert_to.
+    # Refuse rather than silently corrupt the workspace.
+    if len(skill_files) > 1:
+        logger.error(
+            f"Found {len(skill_files)} SKILL.md files under {inner_skill_dir}; "
+            f"run_optimizer supports exactly one skill per run. "
+            f"Optimize each skill separately (pass its own directory/file)."
+        )
         return []
 
     logger.info(f"Found {len(skill_files)} skill(s) to process in workspace {workspace_dir}.")
