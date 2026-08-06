@@ -118,7 +118,7 @@
 
 | 来源 | 遗留项 | 处置 |
 |------|--------|------|
-| `MAINTENANCE-2026-08-06-live-facade-snapshot-risk.md:44` | 跨服务 SNAPSHOT 治理纪律（建议纳入治理文档，待确认） | **defer（暂缓）**：短期决策已闭环（发灰度统一 RELEASE，2026-08-06 已确认）；治理文档增补属 governance 修改，走 §11/§12 变更流程，建议下月重新评估 |
+| `MAINTENANCE-2026-08-06-live-facade-snapshot-risk.md:44` | 跨服务 SNAPSHOT 治理纪律（建议纳入治理文档，待确认） | **已实施（P14）**：dependency-version.md 新增 SNAPSHOT Lifecycle，rpc-conventions 交叉引用（2026-08-06） |
 | `MAINTENANCE-2026-08-06-method-comment-convention.md:73` | P1/P2/P3：方法行数标准统一（≤80）、私有方法注释要求、bugfix 流程挂接 | **propose（待审）**：P1/P2/P3 均修改 governance 标准与 bugfix 流程（L3 契约级），需按 OPERATIONS §12 变更流程评审批准后实施；期间 80 行实践已落地 |
 
 ---
@@ -137,6 +137,8 @@
 | S2 | RFC-0001 / ADR-0002 中 `playbooks/` 引用标注"规划中"（forward reference） | ✅ 已标注 |
 
 > 结构性建议 S1（拆分超大技能）、S3（破依赖环）、S4（SNAPSHOT 治理）保持建议状态，走 OPERATIONS §11/§12 变更流程，未直接实施。
+>
+> **S1–S4 全部闭环（2026-08-06）**：S1 → P10（拆分）；S3 → P13（破环）；S4 → P14（SNAPSHOT 治理）。详见各提案。
 >
 > **S1 进展（2026-08-06）**：已完成 Analyze → 撰写并登记提案 `P10-SKILL-OPTIMIZER-SPLIT.md`（Status: Proposed，已入 PROPOSALS.md 索引）。分析结论：现行 RFC-0002 单文件门禁下，仅 skill-optimizer 的 3 个脚本文件超限（main.py 1240 / main_parallel.py 1125 / diff_viewer.py 1164），且 main.py 与 main_parallel.py 为近重复双入口；其余 6 个技能无单文件超限（md 聚合合规）。提案含拆分 + 去重方案（Option A）与 repo-lint 扩展名盲区修复（.py/.cjs/.sh 纳入检查）。**待 Review → Approve 后实施**。
 
@@ -157,6 +159,8 @@
 | S3 | 确认并破除 3 个依赖环 | 依赖图清洁 |
 | S4 | 跨服务 SNAPSHOT 治理纪律纳入 governance（下月评估） | 供应链纪律 |
 
+> 注：S1/S3/S4 已于 2026-08-06 实施（P10/P13/P14），见上方进展说明。
+
 ---
 
 ## 6. 结论
@@ -171,4 +175,4 @@
 **Validation**: repo-lint 0/0/9、path-audit 0 broken、check.py exit 0、proposal-audit 0 gate errors
 **Deviations**: 无
 **Risks**: `.aic-state.yaml` 若长期不更新，后续 maintain/develop 可能复用陈旧项目上下文
-**Next Recommendation**: 确认 A1–A5 修复批次；下月评估 S4（SNAPSHOT 治理）与季度拆分计划 S1
+**Next Recommendation**: 本周期 A1–A5 修复批次与 S1–S4 建议全部闭环（P10/P13/P14）；下季度按 RFC-0002 评估超大技能拆分跟进与季度维护。
