@@ -91,3 +91,22 @@ Applied per approval (OPERATIONS §12 → Implement → Validate):
 
 - OPERATIONS §12（Change Management）
 - AI_OPERATING_RULES（Evolution Principle / Minimal Change）
+
+---
+
+## 6. 报告登记纪律（Reports Index Discipline）
+
+`reports/README.md` 是全量报告分类索引（提案/维护/评估/规范/迁移/分析）。
+所有新报告必须登记，防止待办失联：
+
+| 报告类型 | 登记位置 | 强制程度 |
+|----------|----------|----------|
+| 提案 P 系列 | `PROPOSALS.md`（门禁自动校验）+ README 索引 | 强制（proposal-audit ERROR/WARN） |
+| MAINTENANCE / 评估 / 季度 / 规范 / 迁移 / analysis | `README.md` 对应分类表 | 强制（proposal-audit WARN） |
+
+**规则**：
+
+1. 新报告写入后**即登记**对应分类表（日期/主题/文件/遗留待办）。
+2. 遗留待办有值的报告，闭环后在索引中更新该列。
+3. 索引文件本身（`reports/README.md`、`PROPOSALS.md`）不登记。
+4. `tools/proposal-audit.py` 校验：reports/ 下存在但未被 README 索引引用的 `.md` 文件 → WARN。

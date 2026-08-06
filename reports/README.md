@@ -14,16 +14,16 @@
 
 | 提案 | 主题 | 日期 |
 |------|------|------|
-| P6 | Skill Size Reconciliation | 2026-08-01 |
-| P7 | `aic-workflow` Authoring Command | 2026-08-05 |
-| P8 | `aic-command` Authoring Command | 2026-08-05 |
-| P9 | `aic-skill-launch` Skill Launcher | 2026-08-05 |
-| P10 | skill-optimizer 脚本拆分（超限文件 + 双入口去重） | 2026-08-06 |
-| P11 | skill-optimizer 网络思想吸收（held-out 门控/demo-augment/description 调优） | 2026-08-06 |
-| P12 | 移除 langchain 依赖（openai SDK 直调） | 2026-08-06 |
-| P13 | 破除 3 个 Skill 依赖环（检测器语义分层） | 2026-08-06 |
-| P14 | 跨服务 SNAPSHOT 治理纪律（S4） | 2026-08-06 |
-| P15 | 多-SKILL.md 输入防护（E3 缺陷修复） | 2026-08-06 |
+| [P6](P6-SKILL-SIZE-PROPOSAL.md) | Skill Size Reconciliation | 2026-08-01 |
+| [P7](P7-WORKFLOW-AUTHOR-COMMAND.md) | `aic-workflow` Authoring Command | 2026-08-05 |
+| [P8](P8-COMMAND-AUTHOR.md) | `aic-command` Authoring Command | 2026-08-05 |
+| [P9](P9-SKILL-LAUNCHER.md) | `aic-skill-launch` Skill Launcher | 2026-08-05 |
+| [P10](P10-SKILL-OPTIMIZER-SPLIT.md) | skill-optimizer 脚本拆分（超限文件 + 双入口去重） | 2026-08-06 |
+| [P11](P11-SKILL-OPTIMIZER-ABSORPTION.md) | skill-optimizer 网络思想吸收（held-out 门控/demo-augment/description 调优） | 2026-08-06 |
+| [P12](P12-LANGCHAIN-REMOVAL.md) | 移除 langchain 依赖（openai SDK 直调） | 2026-08-06 |
+| [P13](P13-DEPENDENCY-CYCLE-CLEANUP.md) | 破除 3 个 Skill 依赖环（检测器语义分层） | 2026-08-06 |
+| [P14](P14-SNAPSHOT-GOVERNANCE.md) | 跨服务 SNAPSHOT 治理纪律（S4） | 2026-08-06 |
+| [P15](P15-MULTISKILL-GUARD.md) | 多-SKILL.md 输入防护（E3 缺陷修复） | 2026-08-06 |
 
 ---
 

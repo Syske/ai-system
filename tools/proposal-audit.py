@@ -156,6 +156,20 @@ def audit():
                 "item": re.sub(r"^\s*-\s*\[\s*\]\s*", "", line),
             })
 
+    # 报告索引纪律（proposal-policy §6）：reports/ 下每个报告 .md 必须登记
+    # 到 reports/README.md；索引文件本身豁免。
+    index_path = reports / "README.md"
+    if index_path.exists():
+        index_text = index_path.read_text(encoding="utf-8", errors="ignore")
+        for p in sorted(reports.glob("*.md")):
+            if p.name in ("README.md", "PROPOSALS.md"):
+                continue
+            if p.name not in index_text:
+                warnings.append(
+                    f"{p.name}: not registered in reports/README.md index "
+                    f"(proposal-policy §6)"
+                )
+
     return {
         "proposals": proposals,
         "open_items": open_items,
