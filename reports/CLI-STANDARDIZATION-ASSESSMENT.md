@@ -106,6 +106,23 @@ Batch C1 (测试基座) → Batch C2 (字段一致) → Batch C3 (文档) → Ba
 
 ---
 
+## 7. 待办（Pending，2026-08-06 记录，明日执行）
+
+**Batch C1 — CLI 测试基座（精简版，预估 20-30 分钟）**
+
+| 项 | 内容 | 用例 |
+|----|------|------|
+| menu_config | menu.yaml 解析语义断言（sections/command_fields/i18n） | ~8 |
+| prompt_builder | workflow/command 模板渲染断言 | ~6 |
+| state_store | 读写/默认值/损坏恢复 | ~5 |
+| CI | workflow 增加 cli 测试步 | — |
+
+> 全量版（+workflow_reader/main 命令断言）约 40-60 分钟；
+> 先做核心 3 模块（配置解析+渲染，风险最高），main 的命令结构已有 check.py 兜底。
+> 后续批次：C2 字段一致 → C3 文档 → C4 代码组织。
+
+---
+
 ## 6. 结论
 
 CLI 的**结构健康度良好**（配置驱动、命名规范、门禁完整），缺的是**测试基座 + 文档规范**。
