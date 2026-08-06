@@ -25,6 +25,10 @@ from collections import defaultdict
 
 SKILLS_SUBDIR = "skills"
 
+# Edge kinds that represent REAL dependencies (participate in cycle detection).
+# Plain backtick mentions ("references") are documentation-only and excluded.
+REAL_EDGE_KINDS = {"delegates_to", "invokes", "orchestrates"}
+
 
 def resolve_root(root):
     """Return the ai-system root regardless of whether repo-root points at
@@ -84,6 +88,13 @@ def extract_references(skill_name, root):
             if candidate in all_skills and candidate != skill_name:
                 refs.add((candidate, "invokes"))
 
+        for m in re.finditer(
+            r"[Oo]rchestrates?\s+`?([a-z][a-z0-9-]+)`?", content
+        ):
+            candidate = m.group(1).lower()
+            if candidate in all_skills and candidate != skill_name:
+                refs.add((candidate, "orchestrates"))
+
     return refs
 
 
@@ -119,7 +130,12 @@ def get_skill_layers(root):
     return dict(layers)
 
 
-def detect_cycles(skills, edges):
+def detect_cycles(skills, edges, edge_kinds=None):
+    """Detect cycles over the given edge kinds.
+
+    edge_kinds: None means ALL kinds (including doc-only "references");
+    pass REAL_EDGE_KINDS to detect only real dependency cycles.
+    """
     visited = set()
     recursion_stack = set()
     cycles = []
@@ -128,7 +144,9 @@ def detect_cycles(skills, edges):
         visited.add(node)
         recursion_stack.add(node)
 
-        for target, _ in edges[node]:
+        for target, kind in edges.get(node, []):
+            if edge_kinds is not None and kind not in edge_kinds:
+                continue
             if target not in visited:
                 dfs(target, path + [target])
             elif target in recursion_stack:
@@ -174,10 +192,20 @@ def generate_text_graph(root, skills, edges, layers):
             else:
                 lines.append(f"  {skill}  (standalone)")
 
-    cycles = detect_cycles(list(skills.keys()), edges)
+    cycles = detect_cycles(list(skills.keys()), edges, REAL_EDGE_KINDS)
     if cycles:
-        lines.append(f"\n\n  ⚠ CYCLES DETECTED:")
+        lines.append(f"\n\n  ⚠ CYCLES DETECTED (real):")
         for c in cycles:
+            lines.append(f"    {c}")
+
+    doc_only_cycles = [
+        c
+        for c in detect_cycles(list(skills.keys()), edges, None)
+        if c not in cycles
+    ]
+    if doc_only_cycles:
+        lines.append(f"\n  ℹ DOC-ONLY MENTION CYCLES (no real dependency):")
+        for c in doc_only_cycles:
             lines.append(f"    {c}")
 
     lines.append("")
@@ -238,14 +266,19 @@ def main():
         edges[name] = refs
 
     layers = get_skill_layers(root)
-    cycles = detect_cycles(list(skills.keys()), edges)
+    cycles = detect_cycles(list(skills.keys()), edges, REAL_EDGE_KINDS)
 
     if args.format == "text":
         print(generate_text_graph(root, skills, edges, layers))
     elif args.format == "dot":
         print(generate_dot(root, skills, edges))
     elif args.format == "json":
-        print(generate_json(skills, edges, layers, cycles))
+        doc_only = [
+            c
+            for c in detect_cycles(list(skills.keys()), edges, None)
+            if c not in cycles
+        ]
+        print(generate_json(skills, edges, layers, {"real": cycles, "doc_only": doc_only}))
 
     if cycles:
         sys.exit(1)

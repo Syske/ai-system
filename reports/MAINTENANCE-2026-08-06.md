@@ -108,7 +108,7 @@
 |------|------|------|----------|
 | WARN | F1 | `.aic-state.yaml` 引用 `projects/pywechat-live-2608`，仓库已不在 junction 目标中 | **建议修复**（结构性变更：删除/更新 state 引用，需确认） |
 | WARN | F2 | 3 处死链：`rfc/ADR-0002`→`playbooks/maven.md`、`rfc/RFC-0001`→`playbooks/reflection-test-utils.md`（playbooks/ 目录不存在）、`reports/MAINTENANCE-2026-08-06-method-comment-convention.md:18`→`governance/workflows/bugfix.md`（实为 `workflows/bugfix.md`） | **建议修复**（文档级小修：RFC 引用标注"规划中"或改链；report 改路径） |
-| WARN | F3 | 依赖环 3 个（review↔review-changes、outcome↔skill-benchmark、skill↔routing-benchmark） | 记录，待确认意图后转为单向 |
+| WARN | F3 | 依赖环 3 个（review↔review-changes、outcome↔skill-benchmark、skill↔routing-benchmark） | **已解决（P13）**：检测器语义分层——环均为文档提及误报，真实依赖单向；现有工具区分 real/doc-only 环（2026-08-06） |
 | INFO | F4 | 根目录 `nul` 空文件（0 字节，Windows 保留名产物） | 建议删除（一次性清理） |
 | INFO | F5 | AGENTS.md 未登记 `extensions/` 与 `nul` | 建议补登记（文档小修） |
 | INFO | F6 | `runtime-base.md` 无 workflow 引用（孤儿模板） | 记录，季度评估是否归档 |
