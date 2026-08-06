@@ -14,7 +14,6 @@ KNOWN_PLACEHOLDER_DEBT = {
 }
 
 FALSE_POSITIVES = {
-    "../AuditTypeEnum.java",
     "../ai-runtime/",
     "metrics/baseline-",
     # Generated artifacts referenced by command/runtime docs (produced at run time)
@@ -25,6 +24,31 @@ FALSE_POSITIVES = {
     "ai-system/skills/foo/report.md",
     "config/governance/",
     "reports/foo-skill/",
+}
+
+# Example-only references (T2/Batch 2): paths that appear inside doc examples,
+# templates, or placeholder snippets — they are illustrative, not real
+# dependencies. Kept separate from FALSE_POSITIVES so the distinction stays
+# visible.
+EXAMPLE_ONLY = {
+    # governance/standards/common/cross-project-sync.md: illustrative **/ wildcard
+    "../AuditTypeEnum.java",
+    # skills/skill-sync/SKILL.md: "upload a skill you built" example target
+    "../skill-generator",
+    # skills/open-cli/SKILL.md: correct-example paths under ~/.opencli/clis
+    "cli/clis/aem/page-views.ts",
+    "cli/clis/bilibili/favorites.ts",
+    "cli/clis/twitter/lists.yaml",
+    # skills/bugfix/feedback-loop.md: "cut inputs/callers/config/data" prose
+    "config/data",
+    # skills/iterative-optimizer/examples/*: template placeholder
+    "skills/my-skill",
+    # skills/skill-optimizer/workflow.md: /Users/xxx sample command
+    "skills/offline-disk-fault-diagnosis",
+    # skills/iterative-optimizer/workflow.md: user-prompt example skill
+    "skills/openeuler-docker-fault",
+    # skills/index-project/SKILL.md: $HOME/.claude tool path (runtime env)
+    "tools/code-indexer/reindex_cli.py",
 }
 
 # Runtime data roots: workspace-level directories that hold project/workspace
@@ -79,9 +103,15 @@ def collect_files():
 
     scan += [
         AIS / "OPERATIONS.md",
-        AIS / "skills" / "implement" / "planning.md",
-        AIS / "skills" / "implement" / "SKILL.md",
-        AIS / "skills" / "implement" / "workflow.md",
+    ]
+
+    # All skill files (T1/Batch 2: previously only skills/implement was
+    # scanned, which left repository-governor etc. as an audit blind spot).
+    scan += [
+        p for p in (AIS / "skills").rglob("*")
+        if p.is_file()
+        and p.suffix in (".md", ".yaml", ".yml")
+        and "archived" not in p.parts
     ]
 
     return [
@@ -106,7 +136,8 @@ def main():
 
         for m in PATH_RE.finditer(text):
 
-            tok = m.group(0).rstrip(".,;:)`'\"*")
+            raw_tok = m.group(0)
+            tok = raw_tok.rstrip(".,;:)`'\"*")
 
             after = text[m.end():m.end() + 1]
 
@@ -114,17 +145,36 @@ def main():
                 placeholders += 1
                 continue
 
-            if "{" in tok or "*" in tok or "$" in tok or "<" in tok:
+            # A trailing '*' stripped by rstrip is still a wildcard placeholder
+            # (e.g. `rfc\RFC-*`). Check the RAW token before stripping.
+            if (
+                "{" in tok or "*" in raw_tok or "$" in tok or "<" in tok
+            ):
                 placeholders += 1
                 continue
 
             if tok in FALSE_POSITIVES:
                 continue
 
+            if tok in EXAMPLE_ONLY:
+                continue
+
             if re.match(r"[A-Za-z]:", tok):
 
                 if "://" in tok:
                     continue
+
+                # Self-referential absolute paths: docs describing the ai-system
+                # repo's OWN structure (e.g. "count RFCs under
+                # D:\\workspace\\ai-workspace\\ai-system\\rfc"). These point at
+                # the repo root itself, so they are not "outside environments"
+                # — skip them when the target exists under the repo.
+                ais_norm = str(AIS).replace("\\", "/").rstrip("/")
+                tok_norm = tok.replace("\\", "/").rstrip("/")
+                if tok_norm == ais_norm or tok_norm.startswith(ais_norm + "/"):
+                    target = AIS / tok_norm[len(ais_norm) + 1:]
+                    if target.exists():
+                        continue
 
                 if "config/environments" not in rel.replace("\\", "/"):
                     absolute.setdefault(tok, set()).add(rel)

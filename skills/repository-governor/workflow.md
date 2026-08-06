@@ -60,7 +60,7 @@ python tools/repo-lint.py --repo-root .
 ```
 
 2.3 For each BLOCKER and ERROR, read the specific rule from
-`D:\workspace\ai-workspace\ai-system\governance\quality-gates.md`.
+`governance/policies/quality-gates.md`.
 
 **Output:** `{linterResult, blockers: [...], errors: [...], warnings: [...]}`
 

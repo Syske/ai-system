@@ -54,12 +54,16 @@ A reference from one component to another follows these patterns:
 
 ### Orphan Detection Algorithm
 
+> Path note: `playbooks/` and `checklists/` directories are **planned**
+> (RFC-0001/ADR-0002); they do not exist yet. The algorithm below is
+> forward-looking — run it against the shared dirs once created.
+
 ```
-For each playbook in D:\workspace\ai-workspace\ai-system\playbooks:
+For each playbook in <repo-root>/playbooks:
   grep all skill files for "playbooks/<playbook_name>"
   if count == 0 → flag as ORPHAN
 
-For each checklist in D:\workspace\ai-workspace\ai-system\checklists:
+For each checklist in <repo-root>/checklists:
   grep all skill checklists.md for headings matching checklist name
   if count == 0 → flag as UNREFERENCED
 
