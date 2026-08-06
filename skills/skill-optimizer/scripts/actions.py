@@ -163,6 +163,41 @@ def run_validate(input_path: Path, benchmark_file: Optional[Path]) -> int:
         logger.error("benchmark.json must be a non-empty array")
         return 1
 
+    # Normalize generator-native formats to (task, expected_outcome) pairs.
+    # Supported shapes:
+    #   routing item   -> {query, expectedSkills, routingIntent?, routingAnchors?}
+    #   outcome item   -> {skill?, skillVersion?, standardAnswer, rootCauses?, keyActions?}
+    #   minimal item   -> {task, expected_outcome}
+    normalized = []
+    for item in tasks:
+        if not isinstance(item, dict):
+            continue
+        if "task" in item and "expected_outcome" in item:
+            normalized.append((item["task"], item["expected_outcome"]))
+        elif "query" in item and "expectedSkills" in item:
+            norm = {
+                "task": item["query"],
+                "expected_outcome": item["expectedSkills"],
+            }
+            for k in ("routingIntent", "routingAnchors"):
+                if item.get(k):
+                    norm[k] = item[k]
+            normalized.append((item["query"], item["expectedSkills"]))
+        elif "standardAnswer" in item:
+            norm = {"task": item.get("sourceScenario") or "skill outcome"}
+            expected = {"standardAnswer": item["standardAnswer"]}
+            if item.get("rootCauses"):
+                expected["rootCauses"] = item["rootCauses"]
+            if item.get("keyActions"):
+                expected["keyActions"] = item["keyActions"]
+            normalized.append((norm["task"], expected))
+
+    if not normalized:
+        logger.error("benchmark.json contains no recognizable items "
+                     "(expected routing/outcome/minimal shapes)")
+        return 1
+    tasks = [{"task": t, "expected_outcome": e} for t, e in normalized]
+
     # Current baseline = live SKILL.md; candidate = latest snapshot version
     from snapshot_manager import SnapshotManager
     sm = SnapshotManager(skill_dir)

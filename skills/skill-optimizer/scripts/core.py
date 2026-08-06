@@ -71,7 +71,6 @@ class RealLLMClient:
 
         self.model_name = model_name
         self.llm = OpenAI(
-            model=model_name,
             base_url=base_url,
             api_key=api_key,
             http_client=httpx.Client(verify=False, timeout=300.0),
