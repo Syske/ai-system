@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (new command + optional scaffold tool) |
 | Author | AI Maintainer |
 | Created | 2026-08-05 |

@@ -31,6 +31,7 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    - Link health: junction/symlink target dirs like projects/ exist and are accessible (`Get-Item -Force` to check LinkType and Target)
    - Doc-vs-reality: AGENTS.md workspace structure diagram, AI_DEVELOPMENT_CONTRACT architecture diagram, OPERATIONS entry sections match the actual directory layout
    - State hygiene: project/change references in workspaces/.aic-state.yaml still exist
+   - **Proposal leftovers**: run `python tools/proposal-audit.py` — evaluate open proposals (Status ≠ Implemented/Approved/Rejected/Archived) and unclosed `- [ ]` action items in reports/; refresh the index (`--refresh-index`) and report each leftover's disposition (approve / implement / reject / defer)
 
 4. **Persist report**
    - Write to ai-system/reports/MAINTENANCE-{date}.md: findings list (by severity), fix suggestions, metric comparison (vs previous snapshot)

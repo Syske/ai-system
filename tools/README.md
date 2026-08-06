@@ -9,6 +9,7 @@ Automated governance tooling for the AI repository.
 | `repo-metrics.py` | Health metrics collector and snapshot comparison |
 | `dependency-graph.py` | Skill dependency visualizer |
 | `path-audit.py` | Path reference integrity audit (skips runtime/placeholder/generated refs) |
+| `proposal-audit.py` | Proposal/action-item audit + proposal-policy gate (Status/Review/Implementation consistency) |
 | `setup.py` | Environment configuration provision (generates config/environments/*.yaml) |
 | `workflow-scaffold.py` | New-workflow scaffold (generates 8-section md + config yaml + runtime skeleton, appends registry) |
 | `command-scaffold.py` | New-command scaffold (generates aic-<name>.md + registration checklist) |

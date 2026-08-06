@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (Skill restructuring) |
 | Author | AI Maintainer |
 | Created | 2026-08-01 |

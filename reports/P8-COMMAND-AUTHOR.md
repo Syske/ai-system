@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Approved — Option A** |
+| Status | **Implemented** |
 | Type | Structural (new command + scaffold tool) |
 | Author | AI Maintainer |
 | Created | 2026-08-05 |
@@ -94,3 +94,21 @@ necessity gate the Workflow layer now has.
 | Reviewer | Decision | Date |
 |---|---|---|
 | User (AI Maintainer operator) | **Approved — Option A** | 2026-08-05 |
+
+---
+
+## Implementation Record (2026-08-05)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+
+1. `tools/command-scaffold.py` — new command scaffold tool (non-destructive
+   aic-<name>.md generation, `--list`, idempotent duplicate refusal).
+2. `cli/commands/aic-command.md` — command definition with necessity-assessment
+   gate (layer classification → overlap → Evolution Principle → user confirm).
+3. `config/menu.yaml` + `config/i18n/zh.yaml` — registered `command` command
+   + fields + icons.
+4. `tools/README.md` — registered command-scaffold.py.
+5. Functional validation: scaffolded `demo-cmd` end-to-end; cleaned up.
+6. `reports/MAINTENANCE-2026-08-05.md` — S2 record.
+
+**Validation**: check.py PASS; repo-lint 0/0/9; path-audit 0 broken.

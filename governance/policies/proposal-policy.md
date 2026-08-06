@@ -1,0 +1,93 @@
+# Proposal Policy
+
+定义 ai-system 变更提案（`reports/P*.md`）的格式、维护流程与门禁。
+
+## 1. 提案格式（Required Template）
+
+每个提案 `reports/P<序号>-<主题>.md` 必须包含以下首部表与章节：
+
+```markdown
+# Change Proposal: P<序号> — <主题>
+
+| Field | Value |
+|---|---|
+| Status | **Proposed** |
+| Type | Structural (…) / Fix / Doc |
+| Author | AI Maintainer |
+| Created | YYYY-MM-DD |
+| Reference | 触发来源（如 MAINTENANCE-… 的 F#/S#；用户请求） |
+| Process | OPERATIONS §12 Change Management |
+
+---
+
+## 1. Problem        # 现状问题 / 缺口
+## 2. Root-Cause     # 根因分析（若适用）
+## 3. Options        # 至少两个方案对比（含 Recommended）
+## 4. Recommendation # 推荐方案 + 理由
+## 5. Proposed Changes  # 具体改动清单
+## 6. Validation Plan   # 如何验证
+## 7. Risks             # 风险与缓解
+
+---
+
+## Review Log
+
+| Reviewer | Decision | Date |
+|---|---|---|
+| User (AI Maintainer operator) | **Pending** | YYYY-MM-DD |
+
+---
+
+## Implementation Record (YYYY-MM-DD)   # 实施后追加
+
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+1. …（具体改动）
+**Validation**: check.py / repo-lint / path-audit 结果
+```
+
+**规则**：
+- 章节顺序固定（1 Problem → 7 Risks）。
+- `Status` 字段、`Review Log`、`Implementation Record` 为机读字段（proposal-audit 解析）。
+- Review Log 决策后必须把 `Status` 更新为对应状态（见 §2），并同步 `reports/PROPOSALS.md` 索引。
+
+## 2. 状态机（Lifecycle）
+
+| 状态 | 含义 | 触发 |
+|---|---|---|
+| `Proposed` | 已提出待评审 | 新建提案时 |
+| `Approved` | 评审通过，待实施 | Review Log 记录 Approved 后，**应同步 Status** |
+| `Rejected` | 评审否决 | Review Log 记录 Rejected |
+| `Implemented` | 已实施并验证 | 追加 Implementation Record 后，Status 置为 Implemented |
+| `Archived` | 已归档（不实施） | 明确放弃时 |
+
+**规则**：
+- Status 与 Review Log / Implementation Record **必须一致**（门禁校验）。
+- 已实施提案不删除，保留为历史记录（`PROPOSALS.md` 状态列同步）。
+
+## 3. 维护流程（Process）
+
+1. **发现问题**：实战 / 巡检中发现缺口 → 生成提案（§1 模板）。
+2. **索引登记**：在 `reports/PROPOSALS.md` 加一行（状态 Proposed）。
+3. **评审**：用户确认方向（Approved / Rejected）。
+4. **状态更新**：提案 Status + PROPOSALS.md 同步。
+5. **实施**：OPERATIONS §12（Analyze → Propose → Review → Approve → Implement → Validate）。
+6. **记录**：追加 Implementation Record，Status → Implemented，PROPOSALS.md 同步。
+7. **巡检回收**：每次维护运行 `tools/proposal-audit.py`，评估遗留（Proposed / 未关闭待办）。
+
+## 4. 门禁（Gate）
+
+`tools/proposal-audit.py`（接入 `tools/check.py` 检查项）：
+
+| 检查 | 失败 |
+|---|---|
+| 提案文件必须含 `Status` 字段 | ERROR |
+| `Status` 必须是合法值（Proposed/Approved/Rejected/Implemented/Archived） | ERROR |
+| `Approved` 但 Review Log 无 Approved 记录 | WARN |
+| `Implemented` 但无 Implementation Record | ERROR |
+| `reports/PROPOSALS.md` 索引与提案文件 Status 不一致 | WARN |
+| 存在遗留（Proposed / 未关闭 `- [ ]` 待办） | WARN（巡检报告列出） |
+
+## 5. Reference
+
+- OPERATIONS §12（Change Management）
+- AI_OPERATING_RULES（Evolution Principle / Minimal Change）

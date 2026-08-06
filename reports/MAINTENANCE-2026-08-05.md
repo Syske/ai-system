@@ -366,6 +366,23 @@ commands 层与 workflows 对称的缺口已补齐（详见 `reports/P8-COMMAND-
 
 **验证**：skill-groups.yaml YAML 有效；check.py 0 warning、lint 0/0/9、audit 0 broken ✅。
 
+**S4 补充 11 — 提案索引 + proposal-policy + 门禁（巡检评估遗留提案）**：
+
+用户建议：巡检应先检查提案记录，评估遗留提案，避免"发现问题→生成提案→提案被遗忘"断层。
+
+| # | 产物 | 说明 |
+|---|------|------|
+| A-1 | `tools/proposal-audit.py` | 扫描 reports/ 提案：校验 Status 合法值、Review Log/Implementation Record 一致性（gate ERROR/WARN）；扫描 MAINTENANCE/P* 的 `- [ ]` 遗留待办（排除历史清单模板）；`--refresh-index` 重建 PROPOSALS.md 索引 |
+| A-2 | `reports/PROPOSALS.md` | 提案索引（状态/主题/创建/文件），方便查看确认 |
+| A-3 | `governance/policies/proposal-policy.md` | 提案格式模板（P<序号>-<主题>，7 章节固定序）+ 状态机（Proposed→Approved/Rejected→Implemented→Archived）+ 维护流程 + 门禁定义 |
+| A-4 | `tools/checks/misc.py` + `__init__.py` | `check_proposal_audit` 接入 check.py（gate errors 破坏构建） |
+| A-5 | `aic-maintain.md` | 巡检新增"提案遗留评估"步骤（proposal-audit + 逐项处置） |
+| A-6 | 状态修复 | P6/P7/P8/P9 Status → Implemented + 补 Implementation Record；aic-sync 文档待办勾选（aic-archive.md 已修复） |
+
+**sync 能力决策**：用户问是否实现 `/aic-sync` 以支持替换 spec 工具。调研结论：provider 抽象（methodologies/providers/）是**声明性、无代码消费**；openspec-cn **无独立 sync 命令**（同步只内建于 archive）。按 Evolution Principle + Minimal Change，**暂不实现**，记录为待触发（未来换 spec 工具时再建 provider sync capability）。
+
+**验证**：check.py 0 warning（含 proposal 门禁）、proposal-audit 0 遗留、索引表 4 列对齐 ✅。
+
 **S1/S2 Review（用户要求复核两个新增作者能力）**：
 
 | # | 检查项 | 结果 |

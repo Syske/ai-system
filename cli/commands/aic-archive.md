@@ -56,7 +56,9 @@ Archive a completed change in the experimental workflow.
    - If changes needed: "Sync now (recommended)", "Archive without syncing"
    - If already synced: "Archive now", "Sync anyway", "Cancel"
 
-   If the user chooses to sync, execute the `/aic-sync` logic. Continue archiving regardless of choice.
+   If the user chooses to sync, run `openspec-cn archive <name> -y`, whose built-in sync
+   merges incremental specs into `openspec/specs/` (verified 2026-08-06: archive merges
+   without a separate command). Continue archiving regardless of choice.
 
 5. **Perform the archive**
 
@@ -152,5 +154,5 @@ On error (archive exists):
 - Do not block archiving on warnings - just inform and confirm
 - Preserve `.openspec.yaml` when moving to archive (it moves with the directory)
 - Show a clear operation summary
-- If sync is requested, use the Skill tool to invoke `openspec-sync-specs` (agent-driven)
+- If sync is requested, run `openspec-cn archive <name> -y` (built-in spec sync; no separate command or skill exists)
 - Always run the sync evaluation if incremental specs exist, and show a consolidated summary before prompting

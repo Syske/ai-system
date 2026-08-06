@@ -7,6 +7,7 @@ from .misc import (
     check_compile,
     check_imports,
     check_path_audit,
+    check_proposal_audit,
     check_repo_lint,
     check_tools_readme,
 )
@@ -36,6 +37,7 @@ def run_all():
     check_repo_lint(c)
     check_path_audit(c)
     check_tools_readme(c)
+    check_proposal_audit(c)
     check_memory(c)
 
     print(

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (new command + CLI service) |
 | Author | AI Maintainer |
 | Created | 2026-08-05 |
@@ -137,4 +137,27 @@ global/project skills come from the shared roots both opencode and pi read.
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-08-05 |
+| User (AI Maintainer operator) | **Approved — Option A** | 2026-08-05 |
+
+---
+
+## Implementation Record (2026-08-05)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+
+1. `cli/services/skill_scan.py` — skill discovery (extensions config-driven
+   first, then global `~/.agents/skills`, then project-local; realpath dedupe).
+2. `cli/services/skill_launcher.py` — interactive launcher (skills → agent →
+   task → confirm; thin-trigger prompt).
+3. `cli/services/agent_picker.py` — reusable agent selection (providers.yaml).
+4. `cli/main.py` — `skill-launch` dispatch + `_INTERACTIVE_COMMANDS` +
+   `_run_interactive`; `cli/services/interactive.py` — InteractiveCommand
+   state machine (BACK rollback / Esc handling).
+5. `templates/prompts/skill-launch.md` — thin-trigger template.
+6. `cli/commands/aic-skill-launch.md` + `config/menu.yaml` + `i18n/zh.yaml`
+   — command registration, skill-groups.yaml grouping/tasks config.
+7. Follow-ups: extensions/ dir + setup.py scaffold, provider `command`/`icon`
+   fields, `aic-skill-optimize` command (O-1..O-6).
+8. `reports/MAINTENANCE-2026-08-05.md` — S4 records.
+
+**Validation**: check.py PASS; repo-lint 0/0/9; path-audit 0 broken.

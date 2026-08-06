@@ -196,3 +196,71 @@ def check_tools_readme(c):
         c.error(
             f"tools/{name} not registered in tools/README.md"
         )
+
+
+def check_proposal_audit(c):
+    """Proposal-policy gate via tools/proposal-audit.py.
+
+    Errors break the build (invalid Status, missing Implementation Record).
+    Leftover proposals / open items are reported as warnings for the
+    maintenance report.
+    """
+
+    script = ROOT / "tools" / "proposal-audit.py"
+
+    if not script.exists():
+        c.warn("tools/proposal-audit.py not found, skipped")
+        return
+
+    try:
+
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "proposal_audit_check",
+            script
+        )
+
+        mod = importlib.util.module_from_spec(spec)
+
+        spec.loader.exec_module(mod)
+
+    except Exception as exc:
+
+        c.error(f"cannot load proposal-audit: {exc!r}")
+
+        return
+
+    try:
+
+        result = mod.audit()
+
+    except Exception as exc:
+
+        c.error(f"proposal-audit failed: {exc!r}")
+
+        return
+
+    for e in result.get("errors", []):
+        c.error(f"proposal: {e}")
+
+    for w in result.get("warnings", []):
+        c.warn(f"proposal: {w}")
+
+    leftover = [
+        p["file"]
+        for p in result.get("proposals", [])
+        if p["status"].lower() not in mod.CLOSED_STATUSES
+    ]
+
+    open_items = result.get("open_items", [])
+
+    if leftover:
+        c.warn(
+            f"proposal: open proposals — {', '.join(leftover)}"
+        )
+
+    if open_items:
+        c.warn(
+            f"proposal: {len(open_items)} open action item(s) in reports/"
+        )
