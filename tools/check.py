@@ -26,7 +26,15 @@ Exit code 0 = pass, 1 = failures (system may be unrunnable).
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+_TOOLS_DIR = Path(__file__).resolve().parent
+_REPO_ROOT = _TOOLS_DIR.parent
+
+# Make both tools/ and the repo root importable regardless of CWD.
+# `import cli` (repo-root package) fails when check.py runs from another
+# directory; the CI workflow runs it from the repo root but tools/ is what
+# gets inserted here, so the root must be added explicitly.
+sys.path.insert(0, str(_REPO_ROOT))
+sys.path.insert(0, str(_TOOLS_DIR))
 
 from checks import run_all
 
