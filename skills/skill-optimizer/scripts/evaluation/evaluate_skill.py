@@ -5,7 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from langchain_openai import ChatOpenAI
+import httpx
+from openai import OpenAI
 
 try:
     from .prompts import PROMPT_SKILL_META, PROMPT_CODE_QUALITY
@@ -43,9 +44,14 @@ def load_directory_content(dir_path: Path) -> str:
 
 
 def _coerce_llm_response_text(resp: Any) -> str:
+    if resp is None:
+        return ""
     content_str = getattr(resp, "content", None)
     if isinstance(content_str, str):
         return content_str
+    if hasattr(resp, "choices") and resp.choices:
+        msg = resp.choices[0].message
+        return getattr(msg, "content", None) or ""
     return str(resp)
 
 
@@ -55,16 +61,19 @@ def call_deepseek_api(prompt: str, content: str) -> Dict[str, Any] | None:
         return None
 
     final_prompt = prompt.format(content=content)
-    max_retries = 3
 
-    llm = ChatOpenAI(
-        model=os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+    llm = OpenAI(
         base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/"),
         api_key=os.getenv("DEEPSEEK_API_KEY"),
-        max_retries=max_retries,
+        http_client=httpx.Client(verify=False, timeout=300.0),
+        max_retries=3,
+        timeout=300.0,
     )
 
-    response = llm.invoke(final_prompt)
+    response = llm.chat.completions.create(
+        model=os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+        messages=[{"role": "user", "content": final_prompt}],
+    )
     content_str = _coerce_llm_response_text(response)
     return {"choices": [{"message": {"content": content_str}}]}
 
@@ -228,13 +237,13 @@ def evaluate_single_skill(skill_dir: Path) -> None:
 
 class SkillEvaluator:
     def __init__(self, llm: Any):
-        self.llm = llm
+        self.llm = llm  # expected to be a callable (RealLLMClient or similar)
 
     def evaluate_meta(
         self, content: str, trace_id: Optional[str] = None
     ) -> Tuple[List[Dict[str, Any]], str]:
         final_prompt = PROMPT_SKILL_META.format(content=content)
-        resp = self.llm.invoke(final_prompt)
+        resp = self.llm(final_prompt)
         text = _coerce_llm_response_text(resp)
         results, comment = parse_evaluation_response(text)
         dim_map = {

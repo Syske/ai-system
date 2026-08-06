@@ -92,8 +92,10 @@ class EvaluationAdapter:
 
         # 2. Call the existing evaluation logic
         # Initialize SkillEvaluator with the existing client
-        # We assume self.model_client is RealLLMClient which wraps ChatOpenAI in .llm
-        llm_instance = getattr(self.model_client, "llm", self.model_client)
+        # SkillEvaluator expects a callable (RealLLMClient.__call__)
+        llm_instance = self.model_client if callable(self.model_client) else getattr(
+            self.model_client, "__call__", None
+        ) or self.model_client
 
         evaluator = SkillEvaluator(llm_instance)
 

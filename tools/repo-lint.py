@@ -181,11 +181,13 @@ def check_frontmatter(skill_dir, results):
 
 
 def check_skill_size(skill_dir, results):
-    # Per-file limit: a single documentation file over 1000 lines is a problem;
-    # aggregated docs across many reference files are not.
+    # Per-file limit: a single file over 1000 lines is a problem;
+    # aggregated docs across many reference files are not. Script files
+    # (.py/.cjs/.sh) are checked too (S1: closes the lint blind spot that
+    # let skill-optimizer's scripts exceed the RFC-0002 per-file budget).
     max_lines = 0
     max_file = None
-    for f in walk_skill_files(skill_dir, (".md", ".yaml", ".yml")):
+    for f in walk_skill_files(skill_dir, (".md", ".yaml", ".yml", ".py", ".cjs", ".sh")):
         n = count_lines(f)
         if n > max_lines:
             max_lines = n

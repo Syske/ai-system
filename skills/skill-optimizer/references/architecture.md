@@ -43,7 +43,7 @@
 
 ## 代码位置导航
 
-- 入口脚本： scripts/main.py
+- 入口脚本： scripts/main.py（核心辅助函数在 scripts/core.py）
 - CLI 包装脚本： scripts/opt.sh
 - 核心优化器：scripts/optimizer.py
 - 引擎层（评估/结晶/变异/报告）：scripts/engine

@@ -17,6 +17,9 @@
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
+| Implemented | skill-optimizer 脚本拆分（超限文件 + 双入口去重） | 2026-08-06 | `P10-SKILL-OPTIMIZER-SPLIT.md` |
+| Implemented | skill-optimizer 网络思想吸收（held-out 门控/demo-augment/description 调优） | 2026-08-06 | `P11-SKILL-OPTIMIZER-ABSORPTION.md` |
+| Implemented | 移除 langchain 依赖（openai SDK 直调） | 2026-08-06 | `P12-LANGCHAIN-REMOVAL.md` |
 
 ## 当前遗留（未关闭）
 

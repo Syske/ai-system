@@ -1,7 +1,6 @@
 from typing import List
 from architecture.genome import SkillGenome
 from architecture.scoring import Diagnosis
-from langchain_core.messages import HumanMessage
 
 REPORT_PROMPT = """
 You are an expert technical writer and code reviewer.
@@ -80,11 +79,8 @@ class OptimizationReportGenerator:
 
         try:
             print(">>> Generating Optimization Report...")
-            # Use invoke if available (LangChain), else direct call
-            if hasattr(self.model_client, "llm"):
-                response = self.model_client.llm.invoke([HumanMessage(content=prompt)])
-                return response.content
-            elif callable(self.model_client):
+            # Use native chat completion if available, else direct call
+            if callable(self.model_client):
                 return self.model_client(prompt)
             else:
                 return "Invalid model_client."

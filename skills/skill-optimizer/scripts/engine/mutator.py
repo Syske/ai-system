@@ -4,9 +4,6 @@ from typing import List, Optional
 
 from architecture.genome import SkillGenome
 from architecture.scoring import Diagnosis
-from langchain.agents import create_agent
-from langchain_core.messages import HumanMessage
-from langchain_core.tools import tool
 from prompts.mutation_prompts import (
     GENERAL_FIX_PROMPT,
     HUMAN_FEEDBACK_TEMPLATE,
@@ -87,8 +84,8 @@ class DiagnosticMutator:
         )
 
         # 3. Choose Execution Mode
-        if hasattr(self.model_client, "llm"):
-            # Agentic Mode (Tool Calling)
+        if hasattr(self.model_client, "chat"):
+            # Agentic Mode (native Tool Calling)
             return self._mutate_with_tools(parent, prompt, trace_id=trace_id)
         else:
             # Legacy Mode (String only)
@@ -168,7 +165,6 @@ class DiagnosticMutator:
                 return None
             return "Only SKILL.md, scripts/*, and references/* are allowed."
 
-        @tool
         def write_file_chunk(
             path: str,
             index: int,
@@ -220,7 +216,6 @@ class DiagnosticMutator:
             received = sorted(file_chunks[p].keys())
             return f"Saved {p} chunk {index}/{total}. Received: {received}"
 
-        @tool
         def record_fix(diagnosis_index: int, description: str, changed_sections: str):
             """
             Record a fix action in the changelog.
@@ -240,7 +235,6 @@ class DiagnosticMutator:
             )
             return f"Recorded fix for Diagnosis #{diagnosis_index}."
 
-        @tool
         def delete_file(path: str):
             """Delete an auxiliary file (scripts/* or references/*)."""
             p = normalize_path(path)
@@ -253,11 +247,66 @@ class DiagnosticMutator:
                 return f"Successfully deleted {p}."
             return f"File {p} not found."
 
-        tools = [
-            write_file_chunk,
-            delete_file,
-            record_fix,
+        TOOL_SCHEMAS = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "write_file_chunk",
+                    "description": (
+                        "Write a chunk of a file. Supports large files via (index, total) chunks. "
+                        "path='SKILL.md' updates the main skill definition; path starting with "
+                        "scripts/ or references/ updates auxiliary files."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "path": {"type": "string", "description": "Target relative path (SKILL.md, scripts/..., references/...)."},
+                            "index": {"type": "integer", "description": "1-based chunk index."},
+                            "total": {"type": "integer", "description": "Total number of chunks (must be consistent across calls for the same path)."},
+                            "content": {"type": "string", "description": "Raw file content for this chunk (no markdown fences)."},
+                            "summary": {"type": "string", "description": "Required for scripts/* and references/* (one-line purpose/usage or doc summary)."},
+                        },
+                        "required": ["path", "index", "total", "content"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "delete_file",
+                    "description": "Delete an auxiliary file (scripts/* or references/*).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "path": {"type": "string", "description": "Relative path of the auxiliary file to delete."},
+                        },
+                        "required": ["path"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "record_fix",
+                    "description": "Record a fix action in the changelog. MUST be called whenever you address a diagnosis.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "diagnosis_index": {"type": "integer", "description": "The index of the diagnosis (from the provided list, starting at 1)."},
+                            "description": {"type": "string", "description": "A brief explanation of what was fixed and why."},
+                            "changed_sections": {"type": "string", "description": "Which sections (e.g., 'Instruction', 'Risk') were modified."},
+                        },
+                        "required": ["diagnosis_index", "description", "changed_sections"],
+                    },
+                },
+            },
         ]
+
+        TOOL_IMPL = {
+            "write_file_chunk": write_file_chunk,
+            "delete_file": delete_file,
+            "record_fix": record_fix,
+        }
 
         def extract_referenced_paths(skill_md: str) -> set[str]:
             import re
@@ -273,43 +322,67 @@ class DiagnosticMutator:
 
 
         def run_agent_round(round_prompt: str) -> tuple[str, object | None]:
-            callbacks = []
+            """One agent round: system prompt + round_prompt, execute any tool
+            calls natively (openai-style), then return the final assistant text.
+            The caller builds messages via self.model_client.chat()."""
             ai_messages: list[str] = []
-            last_non_tool_msg: object | None = None
-            for event in agent_graph.stream(
-                {"messages": [HumanMessage(content=round_prompt)]},
-                stream_mode="updates",
-                config={"callbacks": callbacks},
-            ):
-                for _, updates in event.items():
-                    if "messages" not in updates:
-                        continue
-                    last_msg = updates["messages"][-1]
-                    if getattr(last_msg, "tool_calls", None):
-                        print(
-                            f"\n[Agent Thought]: Decided to call {len(last_msg.tool_calls)} tools:"
-                        )
-                        for tc in last_msg.tool_calls:
-                            print(f"  - Tool: {tc['name']}")
-                            print(f"    Args: {tc['args']}")
-                        continue
+            last_non_tool_msg = None
 
-                    if getattr(last_msg, "tool_call_id", None):
-                        print(
-                            f"\n[Tool Result]: {last_msg.content[:200]}..."
-                            if len(last_msg.content) > 200
-                            else f"\n[Tool Result]: {last_msg.content}"
-                        )
-                        continue
+            # messages seeded per round: system + this round's user prompt
+            messages = [
+                {"role": "system", "content": MUTATOR_SYSTEM_PROMPT},
+                {"role": "user", "content": round_prompt},
+            ]
 
-                    if hasattr(last_msg, "content") and last_msg.content:
-                        ai_messages.append(last_msg.content)
-                        last_non_tool_msg = last_msg
-                        print(
-                            f"\n[Agent Message]: {last_msg.content[:200]}..."
-                            if len(last_msg.content) > 200
-                            else f"\n[Agent Message]: {last_msg.content}"
-                        )
+            for _ in range(20):  # safety cap on tool-call turns within a round
+                response = self.model_client.chat(messages, tools=TOOL_SCHEMAS)
+                if response is None:
+                    return "\n\n".join(ai_messages) or "", last_non_tool_msg
+
+                msg = response.choices[0].message
+                tool_calls = getattr(msg, "tool_calls", None) or []
+
+                if tool_calls:
+                    print(
+                        f"\n[Agent Thought]: Decided to call {len(tool_calls)} tools:"
+                    )
+                    messages.append({"role": "assistant", "content": msg.content or "", "tool_calls": [
+                        {"id": tc.id, "type": "function", "function": {"name": tc.function.name, "arguments": tc.function.arguments}}
+                        for tc in tool_calls
+                    ]})
+                    for tc in tool_calls:
+                        print(f"  - Tool: {tc.function.name}")
+                        print(f"    Args: {tc.function.arguments}")
+                        fn_name = tc.function.name
+                        try:
+                            import json
+                            fn_args = json.loads(tc.function.arguments or "{}")
+                        except json.JSONDecodeError:
+                            fn_args = {}
+                        impl = TOOL_IMPL.get(fn_name)
+                        if impl is None:
+                            result = f"Error: unknown tool {fn_name}"
+                        else:
+                            try:
+                                result = impl(**fn_args)
+                            except TypeError as e:
+                                result = f"Error: bad arguments: {e}"
+                        messages.append({"role": "tool", "tool_call_id": tc.id, "content": str(result)})
+                        truncated = str(result)[:200]
+                        print(f"\n[Tool Result]: {truncated}")
+                    continue
+
+                # No tool calls: final text turn
+                content = getattr(msg, "content", None) or ""
+                if content:
+                    ai_messages.append(content)
+                    last_non_tool_msg = content
+                    print(
+                        f"\n[Agent Message]: {content[:200]}..."
+                        if len(content) > 200
+                        else f"\n[Agent Message]: {content}"
+                    )
+                break
 
             if not ai_messages:
                 return "", last_non_tool_msg
@@ -355,13 +428,7 @@ class DiagnosticMutator:
             return False
 
         try:
-            agent_graph = create_agent(
-                model=self.model_client.llm,
-                tools=tools,
-                system_prompt=MUTATOR_SYSTEM_PROMPT,
-            )
-
-            logger.info(">>> Starting Agentic Mutation Loop (Graph)...")
+            logger.info(">>> Starting Agentic Mutation Loop (native tool-calling)...")
 
             max_rounds = int(os.getenv("SKILL_OPT_MUTATOR_MAX_ROUNDS", "2") or "2")
             missing: list[str] = []

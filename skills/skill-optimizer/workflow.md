@@ -186,6 +186,14 @@ Agent: ✅ 静态优化完成！已打开 Diff 页面，你可以看看变化。
 
 **3.4 重复 3.1-3.3**：如果有多个模式待执行，循环直到所有模式完成或用户选择停止。
 
+**3.5 附加 Action（P11 吸收，可选）**：按需在优化后执行候选优先的辅助动作——均只写入新快照、不自动采纳，采纳走既有 accept：
+
+| Action | 命令 | 用途 |
+| :----- | :--- | :--- |
+| augment | `./scripts/opt.sh --action augment --input <skill_dir> --demos <demos.json>` | 将成功执行示例沉淀为 `## Examples` 区（DSPy BootstrapFewShot 思想） |
+| validate | `./scripts/opt.sh --action validate --input <skill_dir> --benchmark <benchmark.json>` | held-out 门控：候选 vs 基线通过率对比，输出 accept/reject 建议（SkillOpt 思想） |
+| tune-description | `./scripts/opt.sh --action tune-description --input <skill_dir> [--routing-report <routing.json>]` | description 路由触发质量评估与改写建议（Claude skill-creator 思想） |
+
 交互流程与快照版本结构详见 [references/diff-review-loop.md](references/diff-review-loop.md)。
 
 ---

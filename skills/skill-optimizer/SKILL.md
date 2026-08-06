@@ -22,6 +22,25 @@ DiagnosticMutator 可修改目标 Skill 目录下的 `SKILL.md` 及辅助文件�
 | `trace`    | 基于运行时 trace 结晶优化              | 有 trace 数据，想针对性优化   |
 | `feedback` | 纯用户反馈驱动，不跑框架评估                | 用户有明确修改意见        |
 
+## 附加 Action（P11 吸收）
+
+| Action | 含义 | 对应思想 |
+| :----- | :--- | :------- |
+| `augment` | demo-augment：将成功执行示例（demos.json）沉淀为 SKILL.md 的 `## Examples` 区 | DSPy BootstrapFewShot |
+| `validate` | held-out 验证门控：用 benchmark.json（skill-benchmark-generator 产物）对比候选快照 vs 当前基线，输出 PASS/FAIL 与 accept/reject 建议 | SkillOpt held-out gating |
+| `tune-description` | description 调优：评估 frontmatter description 的路由触发质量并给出改写建议 | Claude skill-creator |
+
+三者均为**候选优先 + 快照版本化 + 人工决策**：只写入新快照，不自动采纳；采纳走既有 `accept` action。
+
+```bash
+# 示例沉淀（demos.json: [{task, approach, result}, ...]）
+./scripts/opt.sh --action augment --input /path/to/skill_dir --demos /path/to/demos.json
+# held-out 验证（benchmark.json: [{task, expected_outcome}, ...]）
+./scripts/opt.sh --action validate --input /path/to/skill_dir --benchmark /path/to/benchmark.json
+# description 调优（可选 --routing-report 传入路由命中报告）
+./scripts/opt.sh --action tune-description --input /path/to/skill_dir [--routing-report /path/to/routing.json]
+```
+
 > **模式选择注意**：当用户明确指定 `dynamic` 模式 / 动态优化 / 只使用运行日志时，执行 dynamic 而非 static+dynamic 组合。
 > 当用户明确指定 `trace` 模式 / trace 优化 / 只使用 trace 数据时，执行 trace 而非 static+trace 组合。
 
@@ -74,8 +93,10 @@ uv run python scripts/diff_viewer.py --snapshots /path/to/skill-snapshots --titl
 ## 主要脚本 (Scripts)
 
 - `scripts/opt.sh`: 核心入口脚本。负责环境初始化、执行不同模式的优化操作（`optimize`）、接受优化结果（`accept`）以及版本回滚（`revert`）。
+- `scripts/main.py`: CLI 主入口（S1 拆分后保留）。核心辅助函数已移至 `scripts/core.py`；多 SKILL.md 时可用 `--parallel` 并行处理。
+- `scripts/core.py`: 共享核心逻辑（LLM 客户端、SKILL.md 验证、辅助文件引用集成等），由 main.py 引入。
 - `scripts/load_skill.sh`: Skill 加载脚本。归档旧 Skill 到 `~/.agent-insight/skill-history/` 并将优化后的 Skill 复制到指定位置。参数：`--new <优化后skill路径> --old <旧skill路径>`。
-- `scripts/diff_viewer.py`: Diff 可视化工具。用于在浏览器中直观对比优化前后的版本差异，支持按快照目录或指定新旧目录进行比对。
+- `scripts/diff_viewer.py`: Diff 可视化工具 CLI 入口（S1 拆分后为薄入口）。计算逻辑在 `scripts/diff_core.py`，HTML 模板在 `scripts/html_report.py`。用于在浏览器中直观对比优化前后的版本差异，支持按快照目录或指定新旧目录进行比对。
 - `scripts/model_config_detector.py`: 环境准备脚本。自动检测并提取当前环境的大模型配置，生成 `.env` 文件。
 - `scripts/test_model_connectivity.py`: 连通性测试脚本。用于检查大模型 API 是否可用，确保后续优化流程能够正常调用 LLM。
 
