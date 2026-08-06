@@ -446,11 +446,24 @@ def run_optimizer(
                 reason = build_auto_snapshot_reason(mode, diagnoses)
                 source = "auto"
 
+            # R6/Q2: persist the textual gradient (diagnoses + fixes) so
+            # accept/revert carry "why this change" context.
+            gradient_lines = []
+            for d in diagnoses:
+                dim = getattr(d, "dimension", "") or ""
+                desc = str(getattr(d, "description", "") or "").strip()
+                fix = str(getattr(d, "suggested_fix", "") or "").strip()
+                gradient_lines.append(
+                    f"[{dim}] {desc}" + (f" => {fix}" if fix else "")
+                )
+            optimization_gradient = "\n".join(gradient_lines) if gradient_lines else None
+
             new_version = sm.create_snapshot(
                 mode=mode,
                 reason=reason,
                 source=source,
-                is_feedback=is_feedback
+                is_feedback=is_feedback,
+                optimization_gradient=optimization_gradient,
             )
 
             skill_save_dir = sm.snapshots_dir / new_version

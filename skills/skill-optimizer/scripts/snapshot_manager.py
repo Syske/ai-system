@@ -110,11 +110,22 @@ class SnapshotManager:
             return latest or "v0"
         return curr
 
-    def create_snapshot(self, mode: str, reason: str, source: str, is_feedback: bool = False) -> str:
+    def create_snapshot(
+        self,
+        mode: str,
+        reason: str,
+        source: str,
+        is_feedback: bool = False,
+        optimization_gradient: Optional[str] = None,
+    ) -> str:
         """Create a new snapshot directory and write meta.json.
 
         For v0 baseline, use create_v0_if_needed() which copies current files.
         For other snapshots, caller writes the optimized artifacts into the snapshot directory.
+
+        optimization_gradient (R6/Q2): free-text "why this change" context
+        (diagnoses + suggested fixes) persisted to meta.json so accept/revert
+        decisions carry the decision context.
         """
         self.create_v0_if_needed()
         
@@ -154,8 +165,10 @@ class SnapshotManager:
             "mode": mode,
             "created_at": datetime.utcnow().isoformat() + "Z",
             "base_version": base_version,
-            "notes": []
+            "notes": [],
         }
+        if optimization_gradient:
+            meta["optimization_gradient"] = optimization_gradient
         with open(new_dir / "meta.json", "w", encoding="utf-8") as f:
             json.dump(meta, f, indent=2, ensure_ascii=False)
             

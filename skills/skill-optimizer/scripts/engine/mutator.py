@@ -41,6 +41,20 @@ class DiagnosticMutator:
             )
             return [parent]
 
+        # R2 (Q1): bounded edits — cap the number of diagnoses addressed in
+        # one mutation round to prevent runaway rewrites (E1 observed all
+        # diagnoses being rewritten). Set SKILL_OPT_MUTATOR_MAX_DIAGNOSES to
+        # override; 0/absent = no cap.
+        max_diag = int(
+            os.getenv("SKILL_OPT_MUTATOR_MAX_DIAGNOSES", "0") or "0"
+        )
+        if max_diag > 0 and len(diagnoses) > max_diag:
+            logger.warning(
+                f"[bounded-edits] {len(diagnoses)} diagnoses exceed cap {max_diag}; "
+                f"addressing top {max_diag} only."
+            )
+            diagnoses = diagnoses[:max_diag]
+
         # 1. Format Diagnosis List for Prompt
         diagnosis_text = ""
         for i, d in enumerate(diagnoses):

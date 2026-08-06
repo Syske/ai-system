@@ -1,0 +1,42 @@
+name: ai-system CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install openai httpx python-dotenv pyyaml requests pyperclip
+
+      - name: Python compile check (all modules)
+        run: |
+          python -m compileall -q tools cli skills -x "(__pycache__|/\.venv/|/\.opt/|archived)" || true
+          python -m py_compile tools/repo-lint.py tools/check.py tools/path-audit.py tools/dependency-graph.py
+
+      - name: repo-lint
+        run: python tools/repo-lint.py --repo-root .
+
+      - name: path-audit
+        run: python tools/path-audit.py
+
+      - name: check.py (integrity gate)
+        run: python tools/check.py
+
+      - name: skill-optimizer unit tests
+        run: python -m unittest discover -s skills/skill-optimizer/scripts/tests -v
+
+      - name: skill-optimizer smoke test
+        run: python skills/skill-optimizer/scripts/smoke_test.py

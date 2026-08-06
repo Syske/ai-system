@@ -119,6 +119,43 @@ class TestAgenticMutationLoop(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertIn("Original body", result[0].raw_text)
 
+    def test_bounded_edits_caps_diagnoses(self):
+        # Q1: SKILL_OPT_MUTATOR_MAX_DIAGNOSES caps how many diagnoses are
+        # addressed in one mutation round.
+        import os
+        from architecture.scoring import Diagnosis
+
+        old = os.environ.get("SKILL_OPT_MUTATOR_MAX_DIAGNOSES")
+        os.environ["SKILL_OPT_MUTATOR_MAX_DIAGNOSES"] = "2"
+        try:
+            fake = FakeLLM(then_text="Done.")
+            mutator = DiagnosticMutator(model_client=fake)
+            diags = [
+                Diagnosis(dimension="structure", issue_type="t", severity="high",
+                          description=f"issue {i}", evidence="e")
+                for i in range(5)
+            ]
+            result = mutator.mutate(make_parent(), diags)
+            self.assertEqual(len(result), 1)
+        finally:
+            if old is None:
+                os.environ.pop("SKILL_OPT_MUTATOR_MAX_DIAGNOSES", None)
+            else:
+                os.environ["SKILL_OPT_MUTATOR_MAX_DIAGNOSES"] = old
+
+    def test_no_cap_by_default(self):
+        from architecture.scoring import Diagnosis
+
+        fake = FakeLLM(then_text="Done.")
+        mutator = DiagnosticMutator(model_client=fake)
+        diags = [
+            Diagnosis(dimension="structure", issue_type="t", severity="high",
+                      description=f"issue {i}", evidence="e")
+            for i in range(5)
+        ]
+        result = mutator.mutate(make_parent(), diags)
+        self.assertEqual(len(result), 1)  # no exception; cap off
+
     def test_legacy_path_when_no_chat(self):
         class PlainCallable:
             def __call__(self, prompt):
