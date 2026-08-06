@@ -18,7 +18,7 @@ description: >
 ## Overview
 
 repository-maintainer is the **repository-as-product engineer**. It treats
-the entire `D:\workspace\ai-workspace\ai-system/`, `.opencode/`, and `tools/` ecosystem as a software product
+the entire `<repo-root>/`, `.opencode/`, and `tools/` ecosystem as a software product
 and continuously improves its consistency, maintainability, reusability,
 discoverability, and composability.
 

@@ -18,11 +18,11 @@
 
 1.6 Scan `.opencode/checklists/` — list all shared Checklist files.
 
-1.7 Scan `D:\workspace\ai-workspace\ai-system\rfc` — list all RFC and ADR files.
+1.7 Scan `<repo-root>/rfc` — list all RFC and ADR files.
 
-1.8 Scan `D:\workspace\ai-workspace\ai-system\governance` — list all governance files.
+1.8 Scan `<repo-root>/governance` — list all governance files.
 
-1.9 Scan `D:\workspace\ai-workspace\ai-system\reports` — list all report files.
+1.9 Scan `<repo-root>/reports` — list all report files.
 
 **Output:** `{skills: [...], workflows: [...], playbooks: [...], knowledge: [...],
 templates: [...], checklists: [...], rfc: [...], adr: [...], governance: [...], reports: [...]}`

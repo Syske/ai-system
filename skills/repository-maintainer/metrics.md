@@ -15,15 +15,15 @@ Use during Stage 3 of the workflow.
 | Number of Knowledge documents | `.opencode/knowledge/` file count | Integer |
 | Number of Templates | `.opencode/templates/` file count | Integer |
 | Number of Checklists | `.opencode/checklists/` file count | Integer |
-| Number of RFCs | `D:\workspace\ai-workspace\ai-system\rfc\RFC-*` file count | Integer |
-| Number of ADRs | `D:\workspace\ai-workspace\ai-system\rfc\NNNN-*` file count | Integer |
-| Number of governance documents | `D:\workspace\ai-workspace\ai-system\governance` file count | Integer |
+| Number of RFCs | `<repo-root>/rfc/RFC-*` file count | Integer |
+| Number of ADRs | `<repo-root>/rfc/NNNN-*` file count | Integer |
+| Number of governance documents | `<repo-root>/governance` file count | Integer |
 
 ## Size Metrics
 
 | Metric | Calculation |
 |---|---|
-| Total repository lines | Sum of all lines in `.opencode/`, `D:\workspace\ai-workspace\ai-system`, `tools/` |
+| Total repository lines | Sum of all lines in `.opencode/`, `<repo-root>`, `tools/` |
 | Average Skill size | Total Skill lines / Number of Skills |
 | Largest Skill | Max(Skill total lines) |
 | Smallest Skill | Min(Skill total lines) |
@@ -98,8 +98,8 @@ Metric: Linter ERROR count
 
 ```shell
 # Collect all metrics via the metrics tool
-python tools/repo-metrics.py --repo-root . --snapshot D:\workspace\ai-workspace\ai-system\metrics\<date>.json
+python tools/repo-metrics.py --repo-root . --snapshot <repo-root>/metrics/<date>.json
 
 # Compare with previous snapshot
-python tools/repo-metrics.py --repo-root . --compare D:\workspace\ai-workspace\ai-system\metrics\<previous>.json
+python tools/repo-metrics.py --repo-root . --compare <repo-root>/metrics/<previous>.json
 ```
