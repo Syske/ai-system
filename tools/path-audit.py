@@ -20,6 +20,8 @@ FALSE_POSITIVES = {
     "../ai-system-pack",
     "config/environments/local.yaml",
     "ai-system/config/environments/context.yaml",
+    # metrics/ is gitignored (runtime snapshots); absent in CI checkouts
+    "ai-system/metrics",
     # Deliberate counter-examples in governance/DIRECTORY-RESPONSIBILITY.md
     "ai-system/skills/foo/report.md",
     "config/governance/",
@@ -167,14 +169,15 @@ def main():
                 # Self-referential absolute paths: docs describing the ai-system
                 # repo's OWN structure (e.g. "count RFCs under
                 # D:\\workspace\\ai-workspace\\ai-system\\rfc"). These point at
-                # the repo root itself, so they are not "outside environments"
-                # — skip them when the target exists under the repo.
+                # the repo root itself, so they are not "outside environments" —
+                # skip by PREFIX match. Do not require target.exists(): the
+                # path is a Windows-style absolute path that will never exist
+                # on a Linux CI checkout, but the prefix alone proves it
+                # references the repo's own tree (not an external env).
                 ais_norm = str(AIS).replace("\\", "/").rstrip("/")
                 tok_norm = tok.replace("\\", "/").rstrip("/")
                 if tok_norm == ais_norm or tok_norm.startswith(ais_norm + "/"):
-                    target = AIS / tok_norm[len(ais_norm) + 1:]
-                    if target.exists():
-                        continue
+                    continue
 
                 if "config/environments" not in rel.replace("\\", "/"):
                     absolute.setdefault(tok, set()).add(rel)
