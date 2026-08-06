@@ -194,6 +194,9 @@ items for quality gates.
 | Skill containing ReflectionTestUtils patterns | Must reference playbooks/reflection-test-utils.md |
 | Skill duplicating a checklist | Checklist must be shared via the Skill's own checklists.md |
 | Skill embedding a report template | Template must live in `ai-system/templates/` |
+
+> Status note: the `playbooks/` directory is **planned** (target of this RFC);
+> `playbooks/reflection-test-utils.md` is a forward reference, not a broken link.
 | Workflow implementing business logic | Workflow orchestrates, does not implement |
 | Playbook containing project paths | Playbook must be reusable |
 | Knowledge containing execution instructions | Knowledge describes, does not instruct |

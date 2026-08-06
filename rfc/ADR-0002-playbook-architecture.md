@@ -35,6 +35,10 @@ The "reference by path" pattern keeps the dependency explicit. A Skill that
 references `playbooks/maven.md` makes its dependency visible. The linter can
 detect orphaned playbooks (playbooks that no Skill references).
 
+> Status note: the `playbooks/` directory is **planned** (RFC-0001/ADR-0002
+> target architecture); it does not exist yet. References to `playbooks/*.md`
+> in this RFC are forward references, not broken links.
+
 ## Related
 
 - `RFC-0001` — Repository Architecture (Playbook definition)
