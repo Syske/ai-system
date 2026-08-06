@@ -249,6 +249,107 @@ def check_workflow_stages(skill_dir, results):
     # Only the "at least 3 stages" check is enforced.
 
 
+CJK_RE = re.compile(r"[\u4e00-\u9fff]")
+
+
+def check_language(root, results):
+    """Enforce governance/LANGUAGE_CONVENTION.md (方案 A / Batch L1).
+
+    Two rules, both WARN-level (heuristic, human-reviewable):
+
+    1. cli/commands/aic-*.md — Flow-control content (Steps / Guardrails)
+       must be English; CJK-only sentences in these sections are flagged.
+    2. cli/**/*.py and tools/*.py — code comments must be Chinese per
+       documentation.md (LANGUAGE_CONVENTION: code comments → Chinese);
+       non-ASCII-free English comment lines are flagged.
+
+    Keep thresholds tolerant to avoid false positives on identifiers.
+    """
+    root = resolve_root(root)
+
+    # Rule 1: command docs — Steps/Guardrails should be English
+    cmd_dir = root / "cli" / "commands"
+    if cmd_dir.exists():
+        for p in sorted(cmd_dir.glob("aic-*.md")):
+            text = read_file(p)
+            # Only inspect Steps.. (up to next ## or end) blocks
+            for section_name in ("Steps", "Guardrails"):
+                m = re.search(rf"^\*\*{section_name}\*\*.*$", text, re.MULTILINE)
+                if not m:
+                    continue
+                # collect the following list items until a blank + ** or EOF
+                seg = text[m.end():]
+                seg = re.split(r"\n\s*\*\*[A-Z]", seg)[0]
+                lines = [ln for ln in seg.splitlines() if ln.strip()]
+                cjk_lines = [ln for ln in lines if CJK_RE.search(ln) and len(ln.strip()) > 2]
+                if len(cjk_lines) >= 2:
+                    results.warning(
+                        f"{p.name} {section_name} contains Chinese (LANGUAGE_CONVENTION: "
+                        f"flow control must be English; {len(cjk_lines)} lines)",
+                        file=str(p),
+                    )
+
+    # Rule 2: python comments must be Chinese (documentation.md)
+    for base in (root / "cli", root / "tools"):
+        if not base.exists():
+            continue
+        for p in sorted(base.rglob("*.py")):
+            if any(x in p.parts for x in EXCLUDED_DIRS):
+                continue
+            try:
+                text = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            # 三引号状态机：跳过字符串字面量内部的行（如模板字符串中的
+            # `## Purpose`），避免把模板内容误判为注释。
+            in_triple = None
+            for i, ln in enumerate(text.splitlines(), start=1):
+                s = ln.strip()
+                # 更新三引号状态
+                if in_triple:
+                    if in_triple in ln:
+                        in_triple = None
+                    continue
+                for q in ("\"\"\"", "'''"):
+                    if q in ln:
+                        in_triple = q
+                        break
+                if in_triple:
+                    continue
+                if not s.startswith("#"):
+                    continue
+                # Skip shebang, coding declarations, pure separators
+                if s.startswith(("#!/", "# -*-", "# coding", "# ---", "# ==", "# ▸", "# ─")):
+                    continue
+                body = s.lstrip("#").strip()
+                if not body:
+                    continue
+                # Comment is flagged when it is a real sentence WITHOUT any CJK
+                # but longer than a bare label (avoid "# noqa", "# type:" etc.)
+                if CJK_RE.search(body):
+                    continue
+                if re.match(r"^[a-z]+\)?:?\s*$", body):
+                    continue  # bare label like "# deps"
+                if len(body) < 4:
+                    continue
+                # Allow inline code-ish/tooling comments
+                if re.match(r"^(noqa|type|pragma|region|endregion|TODO|FIXME|XXX)[: ]", body, re.IGNORECASE):
+                    continue
+                # Allow workflow-section keywords (Purpose/Runtime/Inputs/...)
+                # — flow-control terminology is English by convention
+                if re.match(
+                    r"^(Purpose|Runtime|Preconditions|Inputs|Context|Outputs|"
+                    r"Exit Criteria|Next|Trigger|Stopping Conditions|Steps|Guardrails|Workflow)\\b",
+                    body,
+                ):
+                    continue
+                results.warning(
+                    f"English comment (LANGUAGE_CONVENTION: code comments → Chinese): "
+                    f"{p.name}:{i}: {body[:60]}",
+                    file=str(p),
+                )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Repository Governance Linter")
     parser.add_argument("--repo-root", required=True, help="Repository root directory")
@@ -271,6 +372,8 @@ def main():
             check_skill_size(skill_dir, results)
             check_prohibited_content(skill_dir, skill_name, results)
             check_workflow_stages(skill_dir, results)
+
+    check_language(root, results)
 
     if args.json:
         print(json.dumps(results.to_dict(), indent=2))

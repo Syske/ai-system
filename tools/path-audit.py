@@ -6,57 +6,57 @@ AIS = Path(__file__).resolve().parents[1]
 WS = AIS.parent
 
 KNOWN_PLACEHOLDER_DEBT = {
-    # Reserved directory references in the memory index (targets not yet created)
+    # 记忆索引中保留的目录引用（目标 not yet created)
     "governance/memory/integration/",
     "governance/memory/python/",
-    # Historical reference inside a memory entry (describes pre-archive state)
+    # 记忆条目内的历史引用（描述迁移前chive state)
     "governance/standards/common/code-quality.md",
 }
 
 FALSE_POSITIVES = {
     "../ai-runtime/",
     "metrics/baseline-",
-    # Generated artifacts referenced by command/runtime docs (produced at run time)
+    # 命令/运行时文档引用的生成产物（运行时产生）uced at run time)
     "../ai-system-pack",
     "config/environments/local.yaml",
     "ai-system/config/environments/context.yaml",
-    # metrics/ is gitignored (runtime snapshots); absent in CI checkouts
+    # metrics/ 被 gitignore（运行时快照）；CI checkout 中不存在ckouts
     "ai-system/metrics",
-    # Deliberate counter-examples in governance/DIRECTORY-RESPONSIBILITY.md
+    # governance/DIRECTORY-RESPONSIBILITY.md 中的故意反例BILITY.md
     "ai-system/skills/foo/report.md",
     "config/governance/",
     "reports/foo-skill/",
 }
 
-# Example-only references (T2/Batch 2): paths that appear inside doc examples,
-# templates, or placeholder snippets — they are illustrative, not real
-# dependencies. Kept separate from FALSE_POSITIVES so the distinction stays
-# visible.
+# 仅示例引用（T2/Batch 2）：出现在文档示例中的路径de doc examples,
+# 模板或占位片段中——它们是说明性的， not real
+# 非真实依赖。与 FALSE_POSITIVES 分开保持可区分性inction stays
+# 可见。
 EXAMPLE_ONLY = {
-    # governance/standards/common/cross-project-sync.md: illustrative **/ wildcard
+    # governance/standards/common/cross-project-sync.md：说明性的ive **/ wildcard
     "../AuditTypeEnum.java",
-    # skills/skill-sync/SKILL.md: "upload a skill you built" example target
+    # skills/skill-sync/SKILL.md："上传你构建的技能"示例le target
     "../skill-generator",
-    # skills/open-cli/SKILL.md: correct-example paths under ~/.opencli/clis
+    # skills/open-cli/SKILL.md：~/.opencli 下的正确示例路径ncli/clis
     "cli/clis/aem/page-views.ts",
     "cli/clis/bilibili/favorites.ts",
     "cli/clis/twitter/lists.yaml",
-    # skills/bugfix/feedback-loop.md: "cut inputs/callers/config/data" prose
+    # skills/bugfix/feedback-loop.md："逐一切除 inputs/callers/ata" prose
     "config/data",
-    # skills/iterative-optimizer/examples/*: template placeholder
+    # skills/iterative-optimizer/examples/*：模板占位符
     "skills/my-skill",
-    # skills/skill-optimizer/workflow.md: /Users/xxx sample command
+    # skills/skill-optimizer/workflow.md：/Users/xxx 示例命令d
     "skills/offline-disk-fault-diagnosis",
-    # skills/iterative-optimizer/workflow.md: user-prompt example skill
+    # skills/iterative-optimizer/workflow.md：用户提示示例 skill
     "skills/openeuler-docker-fault",
-    # skills/index-project/SKILL.md: $HOME/.claude tool path (runtime env)
+    # skills/index-project/SKILL.md：$HOME/.claude 工具路径（运行时环境）ime env)
     "tools/code-indexer/reindex_cli.py",
 }
 
-# Runtime data roots: workspace-level directories that hold project/workspace
-# content created at run time. References into these are not source-code
-# dependencies, so the audit skips them (unless the target also exists inside
-# the AI System repo).
+# 运行时数据根：workspace 级目录，保存运行时创建的内容oject/workspace
+# 对这些的引用不是源码依赖，ource-code
+# 审计跳过它们（除非目标也存在于o exists inside
+# AI System 仓库内）。
 RUNTIME_ROOTS = (
     "methodologies/",
     "workspaces/",
@@ -107,8 +107,8 @@ def collect_files():
         AIS / "OPERATIONS.md",
     ]
 
-    # All skill files (T1/Batch 2: previously only skills/implement was
-    # scanned, which left repository-governor etc. as an audit blind spot).
+    # 全部技能文件（T1/Batch 2：此前仅扫描 skills/implement，t was
+    # 导致 repository-governor 等成为审计盲区）。nd spot).
     scan += [
         p for p in (AIS / "skills").rglob("*")
         if p.is_file()
@@ -147,8 +147,8 @@ def main():
                 placeholders += 1
                 continue
 
-            # A trailing '*' stripped by rstrip is still a wildcard placeholder
-            # (e.g. `rfc\RFC-*`). Check the RAW token before stripping.
+            # 被 rstrip 剥掉的尾部 '*' 仍是通配符占位符older
+            # （如 `rfc\RFC-*`）。检查剥离前的原始 token。
             if (
                 "{" in tok or "*" in raw_tok or "$" in tok or "<" in tok
             ):
@@ -166,14 +166,12 @@ def main():
                 if "://" in tok:
                     continue
 
-                # Self-referential absolute paths: docs describing the ai-system
-                # repo's OWN structure (e.g. "count RFCs under
-                # D:\\workspace\\ai-workspace\\ai-system\\rfc"). These point at
-                # the repo root itself, so they are not "outside environments" —
-                # skip by PREFIX match. Do not require target.exists(): the
-                # path is a Windows-style absolute path that will never exist
-                # on a Linux CI checkout, but the prefix alone proves it
-                # references the repo's own tree (not an external env).
+                # 自引用绝对路径：描述 ai-system 自身结构的文档
+                # （如统计 D:/workspace/ai-workspace/ai-system/rfc 下的
+                # RFC 数量）。这些指向仓库根自身，不是外部环境——
+                # 按前缀匹配跳过，不用 target.exists()：Windows 风格
+                # 绝对路径在 Linux CI checkout 上永不存在，但前缀本身
+                # 已证明它引用仓库自身树（非外部环境）。
                 ais_norm = str(AIS).replace("\\", "/").rstrip("/")
                 tok_norm = tok.replace("\\", "/").rstrip("/")
                 if tok_norm == ais_norm or tok_norm.startswith(ais_norm + "/"):

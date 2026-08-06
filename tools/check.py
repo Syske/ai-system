@@ -29,10 +29,9 @@ from pathlib import Path
 _TOOLS_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = _TOOLS_DIR.parent
 
-# Make both tools/ and the repo root importable regardless of CWD.
-# `import cli` (repo-root package) fails when check.py runs from another
-# directory; the CI workflow runs it from the repo root but tools/ is what
-# gets inserted here, so the root must be added explicitly.
+# 使 tools/ 与仓库根均可导入（不依赖 CWD）。
+# 从其他目录运行 check.py 时 `import cli`（仓库根包）会失败；
+# CI workflow 从仓库根运行，但这里只插入了 tools/，故需显式加入根。
 sys.path.insert(0, str(_REPO_ROOT))
 sys.path.insert(0, str(_TOOLS_DIR))
 

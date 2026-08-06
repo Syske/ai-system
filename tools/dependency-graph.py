@@ -25,8 +25,8 @@ from collections import defaultdict
 
 SKILLS_SUBDIR = "skills"
 
-# Edge kinds that represent REAL dependencies (participate in cycle detection).
-# Plain backtick mentions ("references") are documentation-only and excluded.
+# 代表真实依赖的边类型（参与环检测）。
+# 纯反引号提及（"references"）仅文档性质，不参与。
 REAL_EDGE_KINDS = {"delegates_to", "invokes", "orchestrates"}
 
 
