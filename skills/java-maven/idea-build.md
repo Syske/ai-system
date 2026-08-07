@@ -4,6 +4,11 @@
 > multi-module services). IntelliJ IDEA's resident incremental compiler is
 > the fast path; IDEA 2025.2+ exposes it to external agents via the built-in
 > **MCP Server** (`build_project` tool).
+>
+> **STATUS: VERIFIED 2026-08-07** — end-to-end connection tested against
+> IntelliJ IDEA 2026.2.0.1 (Ultimate, `IU`). 38 tools exposed incl.
+> `build_project`; real compile executed via MCP and returned JPS build
+> results.
 
 ## When to Use IDEA Build (fast path)
 
@@ -29,6 +34,37 @@ use CLI only when tests/package are needed or IDEA is unavailable.
   (not needed for compile; useful for ad-hoc mvn).
 - Connect: IDEA Settings → enable "MCP Server" → Auto-Configure writes the
   client config, or copy the SSE/Stdio URL manually.
+
+## Verified Connection (2026-08-07, IDEA 2026.2.0.1 Ultimate)
+
+**Enablement (one-time GUI):**
+
+- Plugin `com.intellij.mcpServer` must be enabled (Plugins → Installed).
+- Settings → Tools → MCP Server → check **Enable MCP Server**
+  (persists to `options/mcpServer.xml` with `enableMcpServer=true`).
+- If the settings page does not appear, restart IDEA fully (File → Exit).
+
+**Endpoints (verified):**
+
+```
+SSE : http://127.0.0.1:64342/sse      (port = built-in 63342 + 1000)
+      Header: IJ_MCP_SERVER_PROJECT_PATH=<project path>
+stdio: idea64.exe stdioMcpServer
+      env IJ_MCP_SERVER_PORT=64342
+      env IJ_MCP_SERVER_PROJECT_PATH=<project path>
+```
+
+**Handshake:** standard MCP `initialize` then `tools-list` (slash form) returns 38 tools incl.
+`build_project`, `execute_terminal_command`, `get_project_modules`, `read_file`,
+`search_symbol`, git tools, xdebug debugger tools.
+
+**Constraints (verified):**
+
+- `build_project` only compiles projects **open in IDEA**; passing an
+  unopened project path returns an error listing currently open projects.
+- Enabling the server is a GUI action (plugin enable + settings checkbox); the
+  headless `appStarter id="mcpServer"` CLI entry exists but is blocked by
+  IDEA's single-instance lock when a GUI instance is running.
 
 ## pi Integration (extension sketch)
 
