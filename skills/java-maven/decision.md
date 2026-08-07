@@ -53,6 +53,30 @@ Add `clean` only when:
 
 **Never** default to `clean`. Always explain why `clean` is needed.
 
+## Network Mode Decisions
+
+Pick the network mode before generating the command (real-world benchmark on
+a 7-module, SNAPSHOT-heavy knowledge service: offline 62.98s vs online
+70.07s):
+
+| Condition | Mode | Command flag |
+|---|---|---|
+| Local repo warmed (all SNAPSHOTs present) | **Offline (preferred)** | `-o` |
+| First build / new deps expected | Online, no snapshot update | `-nsu` |
+| Cold repo / explicit latest-SNAPSHOT need | Online full | (none) |
+| Repeated CLI builds in one session | Daemon | `mvnd` instead of `mvnw` |
+
+Rules:
+
+- **Default to `-o` when the local repo has the needed SNAPSHOTs** — offline
+  is both faster and immune to nexus flakiness.
+- `-o` failure with `Could not resolve ... not downloaded before` → retry
+  online once (missing artifact), then re-warm the local repo.
+- Never add `-U` (force snapshot update) unless the user explicitly wants the
+  latest SNAPSHOT; it defeats the cache.
+- Settings file: prefer one with `<snapshots><updatePolicy>never</updatePolicy>`
+  to stop per-build SNAPSHOT probing at the source.
+
 ## Stopping Conditions
 
 | Condition | Action |

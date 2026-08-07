@@ -54,6 +54,50 @@
 <exec> -f <pom> -pl <module> -am verify
 ```
 
+### Fast compile (offline, warmed cache)
+
+When the local repository is already warmed (all SNAPSHOTs present), prefer
+offline mode — real-world measurement on a 7-module knowledge service:
+online 70.07s → offline 62.98s (1.11x), and offline avoids network flakes:
+
+```shell
+<exec> -f <pom> -s <settings> -pl <module> -am compile -o
+```
+
+### Fast compile (no snapshot update, occasional new deps)
+
+`-nsu` skips SNAPSHOT metadata checks while still allowing new artifact pulls:
+
+```shell
+<exec> -f <pom> -s <settings> -pl <module> -am compile -nsu
+```
+
+### Daemon-backed compile (mvnd)
+
+For repeated CLI builds, `mvnd` (Maven Daemon) keeps a warm JVM — the same
+reason IDEA incremental builds feel fast. Requires `scoop install mvnd` (or
+package-manager equivalent) and its own `-s`:
+
+```shell
+mvnd -s <settings> compile -pl <module> -am -o -T 4
+```
+
+> `-T 4` parallelizes multi-module builds; combine with `-o` for max speed.
+
+## Speed Strategy (measured)
+
+From `knowledge-api-compile-optimization` real-world benchmarks, the three
+real bottlenecks are (in order):
+
+1. **JVM cold start** — every CLI run boots a fresh JVM and parses all poms
+   (~5s fixed); use `mvnd` to keep a resident daemon.
+2. **Network SNAPSHOT probing** — significant only on deep, SNAPSHOT-heavy
+   modules; use `-o` offline (best) or `-nsu`.
+3. **Cold local repository** — first build on a new machine is slow; warm the
+   local repo (shared cache) or symlink it.
+
+See `build-speed.md` for the full analysis.
+
 ### Full repository
 
 ```shell

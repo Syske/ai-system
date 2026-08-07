@@ -106,7 +106,7 @@ Rules:
 | Governance outside `governance/` | `config/governance/` | Move to `ai-system/governance/` |
 | Source asset in generated dir | `reports/foo-skill/` | Move to `ai-system/skills/` |
 | Generated output in source dir | `ai-system/skills/foo/report.md` | Move to `reports/` |
-| Business project report in ai-system | `ai-system/reports/isv-msg-format-check.md` | Move to `workspaces/{project_id}/outputs/<workflow>/` |
+| Business project report in ai-system | project deploy/risk report placed in `ai-system/reports/` | Move to `workspaces/{project_id}/outputs/<workflow>/` |
 
 ---
 

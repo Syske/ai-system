@@ -93,6 +93,7 @@ it is a human convenience wrapper — agents resolve from metadata.
 | `decision.md` | Activation, scope, lifecycle, clean build decisions | Stage 3-4 |
 | `discovery.md` | Repository/module/wrapper discovery workflows | Stage 1-2 |
 | `commands.md` | Command generation, flag selection, templates | Stage 5 |
+| `build-speed.md` | Offline/daemon/parallel build speed practices (measured) | Stage 5, slow builds |
 | `diagnosis.md` | Compilation/Surefire/dependency/Spring Boot diagnosis | Stage 7 |
 | `retry.md` | Incremental retry strategy and stopping conditions | Stage 8 |
 | `checklists.md` | 7 reusable checklists | Any stage |
