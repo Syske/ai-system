@@ -72,15 +72,28 @@ ai-system/                         Is it business project code?
                                                           ├─ yes ──────┤
                                                           │            │
                                                           ▼            ▼
-                                                        its target dir  belongs to the
-                                                        (logs/metrics/  consuming project
-                                                         reports)        or external
+                                                     Generated report   its target dir
+                                                          │              belongs to the
+                                              ┌───────────┴──────────┐   consuming
+                                              │                       │   project
+                                              ▼                       ▼
+                                    about ai-system itself   about a specific business
+                                    (workflow/command/       project (deploy check,
+                                    standard improvement)    risk, migration)
+                                              │                       │
+                                              ▼                       ▼
+                                       ai-system/reports/    workspaces/{project_id}/
+                                                              outputs/<workflow>/
+                                                              (release/, review/, ...)
 ```
 
 Rules:
 - Knowledge, shared, long-lived assets → `ai-system/`.
 - Business project code → `projects/` (references ai-system, never duplicates).
 - Generated outputs → `logs/`, `metrics/`, `reports/`; never commit temp/cache.
+- Generated reports → subject decides location: ai-system's own improvement → `ai-system/reports/`;
+  a specific business project's deploy/risk/migration matter → `workspaces/{project_id}/outputs/<workflow>/`
+  (e.g. `outputs/release/`, `outputs/review/`).
 
 ---
 
@@ -93,6 +106,7 @@ Rules:
 | Governance outside `governance/` | `config/governance/` | Move to `ai-system/governance/` |
 | Source asset in generated dir | `reports/foo-skill/` | Move to `ai-system/skills/` |
 | Generated output in source dir | `ai-system/skills/foo/report.md` | Move to `reports/` |
+| Business project report in ai-system | `ai-system/reports/isv-msg-format-check.md` | Move to `workspaces/{project_id}/outputs/<workflow>/` |
 
 ---
 
