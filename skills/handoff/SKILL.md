@@ -47,6 +47,22 @@ Exclude from the handoff:
 
 Use the template below. Keep it under ~50 lines; P0 items first.
 
+### 4. Persist session state (cross-session)
+
+Write the handoff summary to the project's persistent session-state file so
+work survives across sessions AND across tools (pi / opencode):
+
+```
+workspaces/<project_id>/contexts/session-state.md
+```
+
+- Overwrite the previous state (it is the *current* state, not a log).
+- Keep the file under ~60 lines; P0 items first.
+- The file is loaded by the next session's opening context when work resumes.
+- If the project has no `contexts/` dir yet, create it.
+- This file is workspace state — NOT Coding Memory (experience) and NOT a
+  report (outputs/).
+
 ## Handoff Summary Template
 
 ```
@@ -65,10 +81,12 @@ Use the template below. Keep it under ~50 lines; P0 items first.
 |---|---|
 | pi | Present the summary to the user, then run `/compact 保留: <P0 items> 丢弃: <drop list>` with the priorities spelled out |
 | opencode | Post the summary as a user message immediately before `/compact`, stating the compaction must follow it (opencode `/compact` accepts no custom instructions) |
-| New session | Paste the summary as the opening context of the new session |
+| New session | Paste the summary as the opening context of the new session. When resuming a paused task, first read `workspaces/<project_id>/contexts/session-state.md` and the handoff summary, then continue |
 
 ## Validation
 
 - Every P0 item (task/done/decisions/leftovers/contract) is present
 - No raw tool output, no exploration logs, no repeated diagnostics
 - Summary is self-contained: a fresh agent could continue from it
+- Session state persisted to `workspaces/<project_id>/contexts/session-state.md`
+  (unless user opted out)

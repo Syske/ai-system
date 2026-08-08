@@ -44,6 +44,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | archive-openspec | OpenSpec change archive procedure (loaded by aic-archive) | Command-loaded (aic-archive) |
 | propose-openspec | OpenSpec change creation procedure (loaded by aic-propose) | Command-loaded (aic-propose) |
 | apply-openspec | OpenSpec implementation procedure, develop contract (loaded by aic-apply) | Command-loaded (aic-apply) |
+| memory-capture | Capture verified session experience into Coding Memory (MEMORY_GUIDELINES, dedupe via index) | Session end / explicit request |
 
 ## Optimization & Benchmarking Skills (6)
 
