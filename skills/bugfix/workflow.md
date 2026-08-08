@@ -34,6 +34,17 @@ actual values.
 
 2.4 If log message: capture surrounding log context (10 lines before/after).
 
+2.4a Log analysis discipline (when investigating from logs):
+- Detect the log format first (plain-text / JSON / structured) before parsing.
+- Redact PII/secrets before quoting logs in the report.
+- Distinguish the **first error** from the **root cause** — they are usually
+  different; trace upstream to the originating component.
+- Separate noise from signal with a rough count/time-window: N identical
+  errors in 1 hour vs 1 hour apart are different signals.
+- Correlate across services using `trace_id` / `request_id` when logs span
+  multiple components.
+- End with a prioritised list of hypotheses + which evidence supports each.
+
 2.5 Run `git diff` and `git log --oneline -10` to check recent changes.
 
 2.6 Check if the bug was introduced by a specific commit:

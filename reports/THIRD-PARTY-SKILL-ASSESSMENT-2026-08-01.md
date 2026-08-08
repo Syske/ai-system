@@ -189,3 +189,29 @@ Anthropic 官方 skill 仓库，多为**平台生态**（文档/办公文件处�
 | ECC delivery-gate / context-budget | 若验证或上下文开销出现真实问题 |
 | ECC skill-stocktake / skill-comply | 若 skill 质量审计需自动化测量 |
 | anthropics 描述触发率优化 | 若需量化测量 skill 描述触发率（需平台支持） |
+
+---
+
+## 九、第二轮评估（2026-08-08）— johnqtcg/awesome-skills
+
+来源: johnqtcg/awesome-skills (51 skills, 含定量评估体系: 64 评估报告 + 376 golden test fixtures + 93 回归测试)
+
+### 已吸收(真实缺口)
+
+| skill | 吸收到 | 内容 | Commit |
+|---|---|---|---|
+| log-analyzer | skills/bugfix/workflow.md Stage 2.4a | 日志分析纪律: 格式检测 / PII 脱敏 / 首错 vs 根因 / 统计噪声 / trace_id 跨服务关联 / 假设排序 | (2026-08-08) |
+
+### 待评估(中价值, 触发条件)
+
+| skill | 借鉴点 | 触发条件 |
+|---|---|---|
+| incident-postmortem | 无责复盘 / 5-Why·鱼骨图 / 严重度分级 / 行动项追踪 | 出现生产事故复盘需求时 |
+| golden test fixtures 体系 | skill 评估的可复现回归(fixture + 量化报告) | 需量化测量 skill 质量时(与 repo-lint / skill-author 整合) |
+
+### 未吸收(低/无价值)
+
+- go-* 系列(go-benchmark/ci-workflow/code-reviewer 等): Go 技术栈特定, 与 ai-system 治理无关
+- mysql/pg/oracle/mongo 迁移, redis-cache, kafka 设计等: 领域特定
+- stock-analysis 系列: 非本领域
+- create-pr / git-commit / readme-generator: 与现有 VCS/workflow 重叠
