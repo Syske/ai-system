@@ -18,7 +18,7 @@ Renaming a file without syncing its content creates a filename↔content mismatc
 Solution:
 
 - Move Skill Lifecycle content to a dedicated `policies/skill-lifecycle.md`.
-- Rewrite `routing-policy.md` as the real routing policy (from `routing/ai-routing.yaml`). Later judged redundant and deleted (commit 54d36e5); routing is now wizard-driven (`cli/services/wizard.py` parses each workflow's `## Next` section).
+- Rewrite `routing-policy.md` as the real routing policy (from `routing/ai-routing.yaml`). Later judged redundant and deleted (commit 54d36e5); routing is now wizard-driven (`cli/services/wizard/` parses each workflow's `## Next` section).
 - Rewrite `violation-rules.md` as violation severity classification.
 
 Lesson:

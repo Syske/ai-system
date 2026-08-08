@@ -92,7 +92,6 @@ def check_menu(c, workflows, commands):
 def check_wizard_dry_run(c, workflows, commands):
     try:
         import cli.utils.menu as menu
-        from cli.services import wizard as wz
         from cli.services.wizard import Wizard
 
         def fake_choose(
@@ -108,8 +107,17 @@ def check_wizard_dry_run(c, workflows, commands):
                     return i
             return 0
 
-        wz.choose = fake_choose
-        wz.choose_many = lambda *a, **k: None
+        # Patch the consumer module globals that wizard selection/fields
+        # bind at import time (from cli.utils.menu import ... choose).
+        # Patching select.choose or the package re-export does NOT affect
+        # these bound names — the consumers must be patched directly.
+        import cli.services.wizard.selection as _wsel
+        import cli.services.wizard.fields as _wfields
+        import cli.services.wizard.output as _wout
+
+        for _mod in (_wsel, _wfields, _wout):
+            _mod.choose = fake_choose
+            _mod.choose_many = lambda *a, **k: None
 
         w = Wizard(ROOT)
         w._recommend_workflow = lambda project, ws: None
