@@ -242,3 +242,21 @@ def check_next_sections(c, workflows):
                 f"'{first}' is not a registered workflow "
                 "(put the workflow name first in the bullet)"
             )
+
+
+def check_workflow_size(c):
+    """RFC-0003 gate: workflow definition files must be <= 100 lines."""
+
+    wf_dir = ROOT / "workflows"
+    if not wf_dir.exists():
+        return
+
+    for p in sorted(wf_dir.glob("*.md")):
+        if p.name == "README.md":
+            continue
+        n = len(p.read_text(encoding="utf-8", errors="replace").splitlines())
+        if n > 100:
+            c.error(
+                f"workflows/{p.name} exceeds RFC-0003 limit: "
+                f"{n} lines (max 100)"
+            )

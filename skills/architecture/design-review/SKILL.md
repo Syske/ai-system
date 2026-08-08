@@ -313,3 +313,27 @@ Approved with Suggestions
 Needs Revision
 
 Rejected
+
+---
+
+## Verdict Thresholds (Binding)
+
+Scores map to the verdict as follows — the verdict MUST follow the score:
+
+| Condition | Verdict |
+|---|---|
+| Complexity ≤ 3 AND Evolution ≥ 3 AND Maintainability ≥ 3 | Approved |
+| Complexity ≤ 3 AND (Evolution ≥ 3 OR Maintainability ≥ 3), one score at 2 | Approved with Suggestions |
+| Complexity ≥ 4 OR Evolution ≤ 2 OR Maintainability ≤ 2 | Needs Revision |
+| Any score 5 (over-engineered) OR a blocking finding | Rejected |
+
+Rules:
+
+- **A verdict more lenient than the score is not allowed.** If scores say
+  Needs Revision, the verdict must be Needs Revision (or Rejected).
+- **Approved without scores is not allowed.** Every review must include the
+  three scores.
+- Any **blocking finding** (correctness, security, data-loss risk)
+  overrides scores → Rejected regardless of score.
+- When verdict is Needs Revision or Rejected, findings must list the
+  specific score driver (which score failed and why).

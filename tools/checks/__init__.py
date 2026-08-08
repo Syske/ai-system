@@ -1,6 +1,7 @@
 """Integrity check submodules aggregated into a single runnable gate."""
 
 from .base import Checker, ROOT
+from .adr import check_adr
 from .misc import (
     check_build,
     check_commands,
@@ -16,6 +17,7 @@ from .memory import check_memory
 from .workflow import (
     check_next_sections,
     check_registry,
+    check_workflow_size,
     discover,
 )
 
@@ -31,6 +33,7 @@ def run_all():
     check_menu(c, workflows, commands)
     check_registry(c)
     check_next_sections(c, workflows)
+    check_workflow_size(c)
     check_commands(c)
     check_build(c, workflows, commands)
     check_wizard_dry_run(c, workflows, commands)
@@ -39,6 +42,7 @@ def run_all():
     check_tools_readme(c)
     check_proposal_audit(c)
     check_memory(c)
+    check_adr(c)
 
     print(
         f"discovered: {len(workflows)} workflows, "
