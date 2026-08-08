@@ -91,8 +91,8 @@ them here — invoke the other Skill.
 
 | Need | Skill | Trigger |
 |---|---|---|
-| Compile code | `java-maven` | `mvn -pl <mod> -am compile` |
-| Run tests | `java-maven` | `mvn -pl <mod> -am test -Dtest=...` |
+| Compile code | `java-maven` | Delegate: compile the affected module |
+| Run tests | `java-maven` | Delegate: run the affected test(s) |
 | Update mock fixtures | `mock-test` | Describe the mock change needed |
 | Code review | `review` | Request review of the change |
 | Specification update | `spec` | Describe the spec change needed |

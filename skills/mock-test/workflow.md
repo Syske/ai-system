@@ -270,11 +270,8 @@ Rule 5 check: If relaxing matchers, is it justified?
 
 9.1 Apply all validated fixes from Stages 4-7.
 
-9.2 Run the smallest possible test scope:
-
-```
-mvn -pl <module> -am test -Dtest=<TestClass>
-```
+9.2 Delegate to `java-maven`: run the smallest possible test scope
+(single test class).
 
 9.3 If all tests pass → report success with change summary.
 

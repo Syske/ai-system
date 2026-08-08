@@ -20,7 +20,7 @@ symptom → root cause → fix priority → safest fix → retry scope.
 
 **Safest fix:** Update matcher in both `when()` and `verify()` to match new production value.
 
-**Retry scope:** `mvn test -Dtest=TestClass#testMethod`
+**Retry scope:** Delegate to java-maven: run the single test method
 
 ---
 
@@ -41,7 +41,7 @@ symptom → root cause → fix priority → safest fix → retry scope.
 
 **Safest fix:** Based on scenario. Never add `verifyNoMoreInteractions()` as workaround.
 
-**Retry scope:** `mvn test -Dtest=TestClass#testMethod`
+**Retry scope:** Delegate to java-maven: run the single test method
 
 ---
 
@@ -61,7 +61,7 @@ symptom → root cause → fix priority → safest fix → retry scope.
 
 **Safest fix:** Update `times(n)` to match new call count, or use `atLeast(n)`.
 
-**Retry scope:** `mvn test -Dtest=TestClass#testMethod`
+**Retry scope:** Delegate to java-maven: run the single test method
 
 ---
 
@@ -82,7 +82,7 @@ symptom → root cause → fix priority → safest fix → retry scope.
 **Safest fix:** Delete orphaned stubbings. Only use `lenient()` when the stubbing
 is genuinely optional (called from setup but not by every test method).
 
-**Retry scope:** `mvn test -Dtest=TestClass`
+**Retry scope:** Delegate to java-maven: run the single test class
 
 ---
 
@@ -102,7 +102,7 @@ is genuinely optional (called from setup but not by every test method).
 
 **Safest fix:** Use broader matcher (`anyString()` → `eq("a")`) or split test.
 
-**Retry scope:** `mvn test -Dtest=TestClass`
+**Retry scope:** Delegate to java-maven: run the single test class
 
 ---
 
@@ -124,7 +124,7 @@ is genuinely optional (called from setup but not by every test method).
 **Safest fix:** Initialize the null field using the appropriate mechanism
 (constructor → add mock; `@Value` → `ReflectionTestUtils`; Spring → `@MockBean`).
 
-**Retry scope:** `mvn test -Dtest=TestClass`
+**Retry scope:** Delegate to java-maven: run the single test class
 
 ---
 
@@ -146,7 +146,7 @@ is genuinely optional (called from setup but not by every test method).
 **Safest fix:** Update the expected value to match production. Never remove
 the assertion — that deletes the test, it doesn't fix it.
 
-**Retry scope:** `mvn test -Dtest=TestClass#testMethod`
+**Retry scope:** Delegate to java-maven: run the single test method
 
 ---
 
@@ -169,4 +169,4 @@ the assertion — that deletes the test, it doesn't fix it.
 **Safest fix:** Add missing `@MockBean` or `@TestPropertySource` entries.
 If circular dependency, check production code design.
 
-**Retry scope:** `mvn test -Dtest=TestClass`
+**Retry scope:** Single test class via java-maven

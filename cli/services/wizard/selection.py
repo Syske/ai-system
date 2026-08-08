@@ -70,10 +70,14 @@ class WizardSelection:
         header
     ):
 
-        projects = self._dirs(
-            self.workspaces,
-            exclude={"archived"}
-        )
+        projects = [
+            p
+            for p in self._dirs(
+                self.workspaces,
+                exclude={"archived"}
+            )
+            if self._project_exists(p)
+        ]
 
         options = [
             f"{_e(self._menu_option('project', 'item'))}{p}"

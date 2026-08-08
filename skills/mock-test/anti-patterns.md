@@ -67,13 +67,13 @@ production change first, then fix the test.
 
 ## 6. Running Every Test
 
-**Pattern:** `mvn clean test` or `mvn test` without specifying the affected test.
+**Pattern:** Running `clean test` or a full test suite without specifying the affected test.
 
 **Why it fails:** Takes 10x longer. Masks which tests are actually affected.
 May introduce unrelated failures that confuse diagnosis.
 
-**Instead:** `mvn test -Dtest=AffectedTest` — smallest possible scope.
-Expand only after the affected test passes.
+**Instead:** Delegate to `java-maven` targeting the affected test only
+(smallest possible scope). Expand only after the affected test passes.
 
 ---
 

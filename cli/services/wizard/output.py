@@ -95,6 +95,49 @@ class WizardOutput:
 
         return (None, *providers)[idx]
 
+    def _project_exists(
+        self,
+        project
+    ):        
+        """Validate that a selected project is real before persisting state.
+
+        A project is considered valid when its workspace context directory
+        exists. When the business repository root (projects/ junction) is
+        available, the corresponding repository must exist as well — this
+        prevents stale references where the workspace dir remains after the
+        business repo is removed (MAINTENANCE-2026-08-08 F1 / P16).
+        """
+
+        if not project:
+            return False
+
+        workspace_dir = (
+            self.workspaces
+            / project
+        )
+
+        if not workspace_dir.is_dir():
+            return False
+
+        projects_root = getattr(
+            self,
+            "projects_root",
+            None
+        )
+
+        if projects_root is None:
+            return True
+
+        if not projects_root.is_dir():
+            # repository root 不可用（如无 junction）——
+            # 回退为仅校验 workspace 目录
+            return True
+
+        return (
+            projects_root
+            / project
+        ).is_dir()
+
     def _save_state(
         self,
         project,
@@ -102,7 +145,7 @@ class WizardOutput:
         values
     ):
 
-        if not project:
+        if not self._project_exists(project):
             return
 
         name, kind = target

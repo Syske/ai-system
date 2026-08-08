@@ -283,10 +283,7 @@ no unrelated fixes.
 
 12.1 Run the test or reproduction case that demonstrated the bug.
 
-12.2 If compilation needed, use `java-maven`:
-```
-mvn -pl <mod> -am test -Dtest=AffectedTest
-```
+12.2 If compilation needed, delegate to `java-maven` (affected test scope):
 
 12.3 If the fix passes, proceed to Stage 13.
 
@@ -308,15 +305,10 @@ Validate failed → Hypothesis wrong?
 
 **Steps:**
 
-13.1 Run all tests in the affected module:
-```
-mvn -pl <mod> -am test
-```
+13.1 Delegate to `java-maven`: run all tests in the affected module.
 
-13.2 Run all tests in modules that depend on the affected module:
-```
-mvn -pl <mod> -amd test
-```
+13.2 Delegate to `java-maven`: run all tests in modules that depend
+on the affected module.
 
 13.3 If any test fails, determine:
 - Is the failure caused by my change? → Return to Stage 10 (redesign)

@@ -22,7 +22,7 @@ Stages 6-7 of the workflow.
 | 11 | Dependency complexity | MEDIUM | ≤ 3 direct dependencies |
 | 12 | Frontmatter quality | HIGH | YAML frontmatter with name + description |
 | 13 | Naming convention | MEDIUM | Directory name matches `name:` field |
-| 14 | Maven delegation | HIGH | No hardcoded mvn commands (unless java-maven) |
+| 14 | Maven delegation | HIGH | No hardcoded Maven CLI commands (unless java-maven) |
 | 15 | Evolution risk | LOW | Changes to this Skill would not cascade widely |
 
 ### Skill recommendations

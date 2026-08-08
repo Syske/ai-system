@@ -196,7 +196,7 @@ Mockito.lenient().when(dependency.optionalCall()).thenReturn(x);
 During validation stage, check for unnecessary stubbings:
 
 ```java
-// Run: mvn test -Dtest=XxxTest -Dmockito.junit.jupiter.StrictMockitoJUnitRunner
+// Run targeted test via java-maven (strict mode detects unnecessary stubbings):
 // Or add to test class:
 @ExtendWith(MockitoExtension.class)
 class XxxTest {

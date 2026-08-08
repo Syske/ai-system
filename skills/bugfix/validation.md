@@ -29,7 +29,7 @@ Affected module            → -pl <mod> -am test
   ↓
 Module + dependents        → -pl <mod> -amd test
   ↓
-Full repository            → mvn test (only when explicitly needed)
+Full repository            → full test run via java-maven (only when explicitly needed)
 ```
 
 **Escalation rule:** Pass at current scope → done. Fail at current scope → fix
@@ -43,8 +43,8 @@ and retry at same scope. Never jump to larger scope without passing current.
 |---|---|---|
 | Tests in affected module | `-pl <mod> -am test` | Medium |
 | Tests in dependent modules | `-pl <mod> -amd test` | Medium-high |
-| All tests in repository | `mvn test` | High |
-| Integration tests | `mvn verify` | High |
+| All tests in repository | Full test run via java-maven | High |
+| Integration tests | Verify goal via java-maven | High |
 
 ### When to check what
 

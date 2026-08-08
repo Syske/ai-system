@@ -59,11 +59,11 @@ Stage 11 — Implement:
   Add: if (message == null) { return; }
 
 Stage 12 — Validate:
-  mvn -pl service -am test -Dtest=LiveServiceTest
+  Delegate to java-maven: run the affected test (LiveServiceTest)
   → BUILD SUCCESS (all tests pass)
 
 Stage 13 — Regressions:
-  mvn -pl service -am test
+  Delegate to java-maven: run module tests (service)
   → BUILD SUCCESS (45 tests pass)
 
 Stage 14 — Done.
@@ -121,10 +121,12 @@ Stage 11 — Implement:
   One-character method name update.
 
 Stage 12 — Validate:
-  mvn -pl service -am compile → BUILD SUCCESS
+  Delegate to java-maven: compile module (service)
+  → BUILD SUCCESS
 
 Stage 13 — Regressions:
-  mvn -pl service -am test → BUILD SUCCESS (all pass)
+  Delegate to java-maven: run module tests (service)
+  → BUILD SUCCESS (all pass)
 
 Stage 14 — Done.
 ```
@@ -193,11 +195,11 @@ Stage 11 — Implement:
   Single character change.
 
 Stage 12 — Validate:
-  mvn -pl core -am test -Dtest=PaginationTest
+  Delegate to java-maven: run the affected test (PaginationTest)
   → BUILD SUCCESS (test passes: 20 items returned)
 
 Stage 13 — Regressions:
-  mvn -pl core -am test
+  Delegate to java-maven: run module tests (core)
   → BUILD SUCCESS (all pagination tests pass)
 
 Stage 14 — Done.

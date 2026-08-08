@@ -29,7 +29,7 @@ For each file in a Skill, compare against Playbook topics:
 
 | Playbook | Skill file | Detection |
 |---|---|---|
-| `maven.md` | Any file with `mvn` commands | Direct match (grep) |
+| `maven.md` | Any file with Maven command literals | Direct match (grep) |
 | `mockito.md` | Any file with Mockito patterns | Direct match (grep) |
 | `reflection-test-utils.md` | Any file with `ReflectionTestUtils` | Direct match (grep) |
 | `spring-boot-test.md` | Any file with `@SpringBootTest` | Direct match (grep) |

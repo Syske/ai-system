@@ -55,13 +55,13 @@ Those tests may catch regressions that manual verification misses.
 
 ## 5. Full Build Without Reason
 
-**Pattern:** `mvn clean install` after every fix.
+**Pattern:** Running a full `clean install` build after every fix.
 
 **Why it fails:** Takes 10x longer than incremental build. May introduce
 unrelated failures that confuse diagnosis.
 
-**Instead:** `mvn -pl <mod> -am test -Dtest=FailingTest`. Expand scope
-only when necessary.
+**Instead:** Delegate the run to `java-maven` — smallest scope that
+exercises the failing test. Expand scope only when necessary.
 
 ---
 

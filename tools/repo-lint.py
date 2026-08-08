@@ -201,6 +201,10 @@ def check_skill_size(skill_dir, results):
 
 
 def check_prohibited_content(skill_dir, skill_name, results):
+    # RFC-0002: no Maven command literals outside java-maven (P17).
+    # Matches ANY bare `mvn` word, not just `mvn <goal>` — and there is no
+    # per-file exemption: mentioning "java-maven" does not legalize command
+    # literals. Skills must delegate via prose ("Delegate to java-maven:").
     if skill_name == "java-maven":
         return
 
@@ -208,13 +212,12 @@ def check_prohibited_content(skill_dir, skill_name, results):
         content = read_file(f)
         lines = content.splitlines()
         for i, line in enumerate(lines):
-            if re.search(r"\bmvn\s+(clean|compile|test|package|verify|install|deploy)\b", line):
-                if "java-maven" not in content and "playbooks/maven" not in content:
-                    results.warning(
-                        f"Maven command on line {i+1}: '{line.strip()[:60]}'",
-                        file=str(f),
-                    )
-                    break
+            if re.search(r"\bmvn\b", line):
+                results.warning(
+                    f"Maven command literal on line {i+1}: '{line.strip()[:60]}'",
+                    file=str(f),
+                )
+                break
         for i, line in enumerate(lines):
             if re.search(r'["\']/[A-Za-z]/|["\']C:\\|["\']/home/|["\']/usr/|["\']/workspace/', line):
                 results.warning(

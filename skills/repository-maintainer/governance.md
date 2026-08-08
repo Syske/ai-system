@@ -12,7 +12,7 @@ Use during Stage 4 of the workflow.
 | Six asset types used correctly | Scan all files, classify by directory | Asset in wrong directory |
 | Layer rules followed | Dependency graph analysis | Foundation Skill depends on Orchestration |
 | Naming conventions followed | Regex check on directory and file names | Non-compliant name |
-| Prohibited patterns absent | Grep for mvn in non-java-maven, absolute paths | Prohibited content found |
+| Prohibited patterns absent | Grep for Maven command literals in non-java-maven skills, absolute paths | Prohibited content found |
 
 ## RFC-0002: Skill Specification
 
@@ -27,10 +27,30 @@ Use during Stage 4 of the workflow.
 | Stopping conditions defined | Check for stop/failure conditions | Missing stopping conditions |
 | Delegation documented | Check for "delegates to" or "invoke" | Missing delegation |
 | No single file exceeds 1000 lines (aggregated reference files exempt) | Per-file line count | Exceeds limit |
-| No Maven commands (unless java-maven) | Grep for mvn patterns | Prohibited commands |
+| No Maven command literals (unless java-maven) | Grep for bare Maven CLI words in non-java-maven skills | Prohibited command literals |
 | Workflow ≥ 3 stages (if workflow.md exists) | Stage count | Insufficient stages |
 | No shared checklist duplication | Compare checklist headings with `.opencode/checklists/` | Duplicate checklist |
 | No shared playbook duplication | Cross-reference with `.opencode/playbooks/` | Duplicate knowledge |
+
+### Maven Delegation Convention (P17)
+
+Outside `java-maven`, Skills must **never** contain Maven CLI command
+literals (any bare Maven CLI word such as a goal, flag, or the `-pl`/
+`-am` selectors). Maven execution is the single responsibility of the
+`java-maven` Skill; other Skills reference it through delegation prose:
+
+- Use the canonical form: **`Delegate to java-maven: <intent>`**
+  (e.g. "Delegate to java-maven: run the affected test").
+- Do not embed the generated command; describe the intent only.
+- The `java-maven` Skill documents actual commands; point readers there
+  (e.g. `java-maven/commands.md`) instead of reproducing them.
+- Exception: documentation *about* the convention may use the phrase
+  "Maven CLI" or describe patterns in prose, but must not include a
+  literal command line.
+
+This convention is enforced by `tools/repo-lint.py`
+(`check_prohibited_content`), which flags any bare Maven CLI word in a
+non-`java-maven` Skill. See `reports/P17-MAVEN-DELEGATION-GOVERNANCE.md`.
 
 ## RFC-0003: Workflow Specification
 
