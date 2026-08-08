@@ -31,6 +31,11 @@ When clarification is needed, follow these rules:
 4. **Use the table as a checklist.** After each answer, re-check which of the
    six questions remain NO; proceed to the next unresolved question in
    priority order.
+5. **Surface contradictions explicitly.** If the user's description conflicts
+   with what the code, logs, tests, or git history show, point out the
+   contradiction and let the user decide which side is the truth — never
+   silently assume one side. A symptom description that disagrees with the
+   observed stack trace is a signal, not a choice to paper over.
 
 ---
 

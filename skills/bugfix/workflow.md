@@ -42,6 +42,11 @@ git log --all --full-history -- <affected-file>
 git blame <affected-file> -L<line>,+10
 ```
 
+2.7 Reproducibility discipline: can the bug be triggered reliably? If it
+cannot be reproduced consistently, do not guess a fix — gather more data
+(extra logging, more context, ask the user for exact reproduction steps)
+until it is reproducible or the cause is otherwise proven.
+
 **Evidence sufficiency check (from `decision.md`):**
 - Is there a stack trace pointing to application code? → Sufficient
 - Is there a failing test with expected/actual? → Sufficient
