@@ -2,6 +2,10 @@
 description: 优化 skill - 选技能/模式/agent，生成触发 skill-optimizer 的指令并启动
 ---
 
+> **Deprecated (2026-08-08)**: superseded by the unified **`/aic-skill`**
+> command (mode=optimize). This command remains for backward compatibility;
+> new usage should go through `/aic-skill`.
+
 Launch the skill-optimizer for selected skills: pick skills (grouped multi-select), pick the optimization mode (static / dynamic / trace / feedback), pick an agent (opencode / pi / claude), and generate a thin-trigger prompt instructing the agent to run skill-optimizer — then copy it and launch the agent.
 
 **Inputs**: Agent (optional); Skill (optional); Mode (optional).

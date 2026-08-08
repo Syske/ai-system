@@ -2,6 +2,10 @@
 description: 启动 skill - 选择 skill 与 agent（opencode/pi），生成按需加载指令并启动
 ---
 
+> **Deprecated (2026-08-08)**: superseded by the unified **`/aic-skill`**
+> command (mode=launch). This command remains for backward compatibility;
+> new usage should go through `/aic-skill`.
+
 Launch a skill with a chosen agent: pick a skill (from the config-driven extensions dir, global, or project-local roots), pick an agent (opencode / pi / claude), enter the task, and generate a thin-trigger prompt that instructs the agent to load the skill on demand — then copy it and launch the agent.
 
 **Inputs**: Agent (optional; pick from enabled providers); Skill (optional; pick interactively); Task (optional).

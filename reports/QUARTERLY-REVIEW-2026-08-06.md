@@ -90,7 +90,44 @@
 
 ---
 
-## 6. 季度建议清单（按优先级，待 Approve）
+## 6. Workflow / Command 健康评估（新增维度）
+
+> 2026-08-08 新增：季度评审应包含 workflow/command 层的健康审计，
+> 使用 `tools/workflow-command-audit.py --repo-root .` 输出基线。
+> 后续季度照此模板执行。
+
+### 审计命令
+
+```bash
+python tools/workflow-command-audit.py --repo-root .
+```
+
+### 审计维度
+
+| 维度 | 门禁 | 说明 |
+|---|---|---|
+| workflow 行数 | ≤100(RFC-0003) | 超限 = 职责膨胀 |
+| workflow 必需段落 | 8 段齐全 | Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next |
+| Next 断链/死循环 | 0 | 指向未注册 workflow = 断链 |
+| command 行数 | ≤100(薄命令) | 超限 = 内嵌实现逻辑 |
+| 悬空命令引用 | 0 | `/aic-xxx` 无对应文件 |
+| menu.yaml 注册 | 全部 | 未注册 = 不可达 |
+
+### 2026-08-08 基线
+
+- Workflows 14 / Commands 14(含新 aic-skill)
+- **0 blockers**;4 个命令超 100 行(apply 114 / explore 124 / archive 87 / propose 77)——
+  apply/explore 超限,archive/propose 已精简合规
+- 悬空引用已清零(2026-08-08 A 批清理)
+
+### 下次评审动作
+
+- 运行审计脚本,对比基线
+- apply/explore 若仍超 100 行:评估继续下沉或接受(输出模板属命令职责)
+
+---
+
+## 7. 季度建议清单（按优先级，待 Approve）
 
 | # | 建议 | 类型 | 工作量 |
 |---|------|------|--------|
@@ -103,7 +140,7 @@
 
 ---
 
-## 7. 结论
+## 8. 结论
 
 - 系统健康度**显著提升**：0 真实环、26 测试、门禁全绿、真实 LLM 端到端验证通过
 - 季度重点：**R2 + R6 + CI**（Q1-Q3）——均满足"真实问题触发 + 收益明确"

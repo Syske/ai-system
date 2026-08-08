@@ -104,6 +104,9 @@ sections:
       - name: command
         kind: command
         icon: "📝 "
+      - name: skill
+        kind: command
+        icon: "🚀 "
       - name: skill-launch
         kind: command
         icon: "🚀 "
@@ -166,6 +169,15 @@ command_fields:
     - - "Command Name"
       - true
     - - "Description"
+      - false
+  skill:
+    - - "Mode"
+      - false
+    - - "Agent"
+      - false
+    - - "Skill"
+      - false
+    - - "Task"
       - false
   skill-launch:
     - - "Agent"

@@ -18,6 +18,11 @@ from pathlib import Path
 
 from cli.services import agent_picker, skill_scan
 from cli.services.interactive import BACK_, InteractiveCommand, NEXT, QUIT
+from cli.services.skill_launcher import (  # noqa: F401 (reused helpers)
+    _group_skills,
+    _skill_label,
+    _source_mark,
+)
 from cli.services.wizard import Wizard
 from cli.utils.menu import BACK, Section, ask_text, choose, choose_many, e
 from cli.utils.file import read_text
@@ -30,109 +35,6 @@ MODES = (
     ("trace", "runtime trace data (needs trace data source)"),
     ("feedback", "user-provided feedback only"),
 )
-
-
-def _source_mark(source):
-
-    marks = {
-        "extensions": f"{e('🧩 ')}ext",
-        "global": f"{e('🌍 ')}g",
-        "local": f"{e('📁 ')}proj",
-    }
-
-    return marks.get(source, source)
-
-
-def _skill_label(skill):
-
-    label = skill["name"]
-
-    label += f" [{_source_mark(skill['source'])}]"
-
-    if skill["description"]:
-        label += f" — {skill['description']}"
-
-    return label
-
-
-def _group_skills(config, skills):
-    """Group skills per config/skill-groups.yaml (reused from skill-launch)."""
-
-    groups = config.skill_groups()
-
-    skills_by_index = {}
-
-    options = []
-
-    assigned = set()
-
-    for group in groups:
-
-        gtype = group.get("type")
-        value = group.get("value")
-
-        members = []
-
-        if gtype == "source":
-
-            for s in skills:
-
-                if (
-                    s["source"] == value
-                    and s["name"] not in assigned
-                ):
-                    members.append(s)
-
-        elif gtype == "list":
-
-            names = set(group.get("skills") or [])
-
-            for s in skills:
-
-                if (
-                    s["name"] in names
-                    and s["name"] not in assigned
-                ):
-                    members.append(s)
-
-        if not members:
-            continue
-
-        title = config.skill_group_title(group.get("title", ""))
-
-        options.append(Section(title))
-
-        for s in members:
-
-            idx = len(options)
-
-            options.append(_skill_label(s))
-
-            skills_by_index[idx] = s
-
-            assigned.add(s["name"])
-
-    remaining = [
-        s
-        for s in skills
-        if s["name"] not in assigned
-    ]
-
-    if remaining:
-
-        title = config.skill_group_title("skill_group_other")
-
-        options.append(Section(title))
-
-        for s in remaining:
-
-            idx = len(options)
-
-            options.append(_skill_label(s))
-
-            skills_by_index[idx] = s
-
-    return options, skills_by_index
 
 
 def _render_prompt(wizard, skills, mode, mode_desc, agent):
