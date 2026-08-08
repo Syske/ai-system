@@ -39,6 +39,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | index-project | Rebuild code semantic index | Manual |
 | open-cli | Web API → CLI adapter generation | Manual |
 | idea-build | Optional IDEA MCP compile backend (`build.backend=idea`) | Config-driven (bugfix), manual |
+| handoff | Session handoff summary (compaction / task switch / cross-tool), per CONTEXT_RETENTION Keep/Drop | Manual (before /compact or new session) |
 
 ## Optimization & Benchmarking Skills (6)
 
