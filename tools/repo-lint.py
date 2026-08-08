@@ -255,13 +255,18 @@ CJK_RE = re.compile(r"[\u4e00-\u9fff]")
 def check_language(root, results):
     """Enforce governance/LANGUAGE_CONVENTION.md (方案 A / Batch L1).
 
-    Two rules, both WARN-level (heuristic, human-reviewable):
+    Three rules, all WARN-level (heuristic, human-reviewable):
 
     1. cli/commands/aic-*.md — Flow-control content (Steps / Guardrails)
        must be English; CJK-only sentences in these sections are flagged.
     2. cli/**/*.py and tools/*.py — code comments must be Chinese per
        documentation.md (LANGUAGE_CONVENTION: code comments → Chinese);
        non-ASCII-free English comment lines are flagged.
+    3. governance/*.md (excluding archive/, README.md) — AI-internal
+       governance layer must be English per LANGUAGE_CONVENTION;
+       documents that are user-facing reports or reference bilingual
+       identifiers (proposal-policy, DIRECTORY-RESPONSIBILITY) may carry
+       CJK and are exempted below.
 
     Keep thresholds tolerant to avoid false positives on identifiers.
     """
@@ -346,6 +351,51 @@ def check_language(root, results):
                 results.warning(
                     f"English comment (LANGUAGE_CONVENTION: code comments → Chinese): "
                     f"{p.name}:{i}: {body[:60]}",
+                    file=str(p),
+                )
+
+    # Rule 3: governance/*.md documents must be English (AI-internal layer)
+    gov_dir = root / "governance"
+    if gov_dir.exists():
+        # Files that legitimately carry CJK are exempt:
+        #  - README / index (bilingual navigation)
+        #  - policies that are user-facing (proposal-policy, skill-policy)
+        #  - standards docs that define WHEN Chinese is used, which carry
+        #    bilingual examples by design (documentation, chinese-documentation)
+        exempt_names = {
+            "README.md",
+            "DIRECTORY-RESPONSIBILITY.md",
+            "LANGUAGE_CONVENTION.md",
+            "proposal-policy.md",
+            "skill-policy.md",
+        }
+        # Sub-directories whose docs define Chinese usage by design
+        exempt_subdirs = {"standards"}
+        for p in sorted(gov_dir.rglob("*.md")):
+            if any(x in p.parts for x in EXCLUDED_DIRS):
+                continue
+            if "archive" in p.parts:
+                continue
+            if p.name in exempt_names:
+                continue
+            if any(x in p.parts for x in exempt_subdirs):
+                continue
+            try:
+                text = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            # Strip fenced code blocks / tables so CJK inside examples is not
+            # counted; flag only when prose sentences carry CJK.
+            body = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+            body = re.sub(r"\n\|[^\n]*\|\n", "", body)  # table rows
+            cjk_lines = [
+                ln for ln in body.splitlines()
+                if CJK_RE.search(ln) and len(ln.strip()) > 2
+            ]
+            if len(cjk_lines) >= 3:
+                results.warning(
+                    f"{p.name} contains Chinese (LANGUAGE_CONVENTION: governance "
+                    f"layer must be English; {len(cjk_lines)} lines)",
                     file=str(p),
                 )
 

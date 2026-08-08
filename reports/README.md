@@ -48,6 +48,7 @@
 | Quarterly | 季度评估（E9） | 2026-08-06 | `QUARTERLY-REVIEW-2026-08-06.md` | Q4/Q5 下季度 |
 | Assessment | CLI 规范化评估 | 2026-08-06 | `CLI-STANDARDIZATION-ASSESSMENT.md` | **C1 待办（明日执行）→ C2/C3/C4** |
 | Assessment | bugfix skill 优化评估 | 2026-08-08 | `BUGFIX-SKILL-ASSESSMENT-2026-08-08.md` | — |
+| Maintenance | 语言检查存量债登记 | 2026-08-08 | `MAINTENANCE-2026-08-08-language-lint-debt.md` | #1-3 参数说明可接受 / #4 顺手修 / #5-7 memory 翻译待办 |
 | Assessment | 架构评估 | 2026-07 | `ARCHITECTURE-ASSESSMENT-2026-07.md` | — |
 | Assessment | 三方 Skill 参考价值 | 2026-08-01 | `THIRD-PARTY-SKILL-ASSESSMENT-2026-08-01.md` | — |
 | Review | Workflow 层优化 | 2026-07 | `WORKFLOW-OPTIMIZATION-REPORT-2026-07.md` | — |
