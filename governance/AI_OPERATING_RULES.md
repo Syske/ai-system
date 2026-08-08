@@ -29,6 +29,8 @@ Always:
 - Verify before concluding.
 - Explain before changing.
 - Validate before finishing.
+- Manage context budget (see CONTEXT_LOADING): summarize big outputs, keep
+  MCP/skill overhead lean, audit when sessions slow down.
 
 Never:
 
@@ -37,6 +39,7 @@ Never:
 - Skip verification.
 - Hide uncertainty.
 - Modify unrelated code.
+- Waste context (carry raw verbose output, load unused components).
 
 ---
 

@@ -105,6 +105,29 @@ Do not reload the same context unless it has changed.
 
 ---
 
+## Context Budget Discipline
+
+Context is a finite budget. Long sessions, verbose tool output, and MCP tool
+schemas silently consume it. Follow these rules to keep headroom:
+
+1. **Big outputs → summarize before continuing.** After a large tool result
+   (compile log, full diff, search dump), replace it with a short summary in
+   the working notes; do not carry the raw output forward.
+2. **MCP tool schemas are the biggest lever.** Each MCP tool costs ~500 tokens
+   of schema per call context; a large server (20+ tools) can outweigh all
+   skills combined. Keep MCP servers to what the current task needs; disable
+   unused ones.
+3. **Load on demand, release after use.** Skills/rules/standards are loaded
+   per task (see Loading Order); once resolved, do not keep re-reading them.
+4. **Audit after changes.** When adding a skill, rule, MCP server, or long
+   reference doc, estimate the token cost it adds and whether it stays under
+   the session budget.
+5. **Sluggishness / degraded output is a signal.** If a session feels slow or
+   quality drops, audit context consumption (inventory loaded components,
+   classify always/sometimes/rarely, rank token savings) before continuing.
+
+---
+
 ## Reference
 
 Every Runtime Template must reference this document.
