@@ -31,15 +31,17 @@ def _launch(
 
 
 _INTERACTIVE_COMMANDS = {
+    "skill": "skill_launcher",
     "skill-launch": "skill_launcher",
     "skill-optimize": "skill_optimize",
 }
 
 
-def _run_interactive(builder, args, name):
-    """Run an interactive command (skill-launch / skill-optimize).
+def _run_interactive(builder, args, name, mode=None):
+    """Run an interactive command (skill / skill-launch / skill-optimize).
 
     Returns (prompt, agent) or None (cancelled/quit).
+    mode is the wizard-collected Mode field for /aic-skill.
     """
 
     import importlib
@@ -54,6 +56,14 @@ def _run_interactive(builder, args, name):
     )
 
     try:
+
+        if name == "skill":
+
+            return module.run_skill(
+                wizard,
+                args.agent,
+                mode or args.mode
+            )
 
         return module.run(
             wizard,
@@ -131,9 +141,11 @@ def main():
             "weekly",
             "monthly",
             "quarterly",
-            "on-demand"
+            "on-demand",
+            "launch",
+            "optimize",
         ],
-        help="Execution modifier. re-entry = L3 change re-entry (prepare/spec); weekly/monthly/quarterly/on-demand = maintenance modes (maintain)"
+        help="Execution modifier. re-entry = L3 change re-entry (prepare/spec); weekly/monthly/quarterly/on-demand = maintenance modes (maintain); launch/optimize = skill modes (/aic-skill)"
     )
 
     parser.add_argument(
@@ -239,10 +251,16 @@ def main():
 
             if name in _INTERACTIVE_COMMANDS:
 
+                mode = None
+
+                if isinstance(context, dict):
+                    mode = context.get("Mode")
+
                 result = _run_interactive(
                     builder,
                     args,
-                    name
+                    name,
+                    mode=mode
                 )
 
                 if result is None:

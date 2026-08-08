@@ -114,3 +114,49 @@ class TestMenuConfigRegression(unittest.TestCase):
             for field, required in mc.command_fields(cmd):
                 self.assertIsInstance(field, str)
                 self.assertIsInstance(required, bool)
+
+
+class TestSkillModeRouting(unittest.TestCase):
+    """Unified /aic-skill: mode routing and mode_choices."""
+
+    def test_providers_skill_modes(self):
+        # skill command offers launch/optimize modes
+        from cli.services import providers
+        from cli.services.menu_config import MenuConfig
+
+        mc = MenuConfig(ROOT)
+
+        class FakeWizard:
+            target_name = "skill"
+
+        modes = providers.mode_choices(FakeWizard(), {})
+        self.assertIn("launch", modes)
+        self.assertIn("optimize", modes)
+
+    def test_providers_maintain_modes_unchanged(self):
+        from cli.services import providers
+
+        class FakeWizard:
+            target_name = "maintain"
+
+        modes = providers.mode_choices(FakeWizard(), {})
+        self.assertEqual(modes, ["weekly", "monthly", "quarterly", "on-demand"])
+
+    def test_run_skill_unknown_mode_falls_back(self):
+        from unittest.mock import patch
+        from cli.services import skill_launcher
+
+        with patch("cli.services.skill_launcher.run", return_value=("p", "a")):
+            result = skill_launcher.run_skill(None, None, "bogus")
+            self.assertEqual(result, ("p", "a"))
+
+    def test_run_skill_optimize_routes(self):
+        from unittest.mock import patch
+        from cli.services import skill_launcher
+
+        with patch(
+            "cli.services.skill_optimize.run", return_value=("o", "a")
+        ) as mock_run:
+            result = skill_launcher.run_skill(None, None, "optimize")
+            self.assertEqual(result, ("o", "a"))
+            mock_run.assert_called_once()

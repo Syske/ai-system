@@ -260,7 +260,7 @@ class Wizard:
 
                 target_name = target[0]
 
-                if target_name in ("skill-launch", "skill-optimize"):
+                if target_name in ("skill", "skill-launch", "skill-optimize"):
 
                     self._save_state(
                         project,
@@ -785,7 +785,7 @@ class Wizard:
 
             self._field_defaults = {}
 
-            if name in ("skill-launch", "skill-optimize"):
+            if name in ("skill", "skill-launch", "skill-optimize"):
                 return []
 
             return self._command_fields(name)

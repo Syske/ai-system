@@ -19,6 +19,12 @@ def mode_choices(wizard, values):
             "on-demand"
         ]
 
+    if wizard.target_name == "skill":
+        return [
+            "launch",
+            "optimize"
+        ]
+
     return ["re-entry"]
 
 
