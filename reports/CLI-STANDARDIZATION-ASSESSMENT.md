@@ -129,6 +129,33 @@ Batch C1 (测试基座) → Batch C2 (字段一致) → Batch C3 (文档) → Ba
 
 ---
 
+## 8. 交互方案调研与后续优化方向（2026-08-08 记录）
+
+### 调研结论
+
+当前方案（prompt_toolkit 手写菜单层）在功能上是业界先进水平，**不推荐替换**：
+
+- ✅ **做对的**：基于 prompt_toolkit（最成熟底层）；非 TTY 降级（questionary/textual 都没有）；
+  Sections 分组 + type-to-filter（questionary 2.1 才刚补上）；enter_selects_current。
+- ⚠️ **负债**：手写代码多（原 menu.py 1263 行），维护成本高，新人难上手。
+- ❌ **不推荐替换**：questionary 缺非 TTY 降级且同底层；textual 是全屏 TUI，与本项目
+  "菜单式向导"定位不符。
+
+### P2/P3 优化方向（待触发）
+
+| 优先级 | 方向 | 触发条件 | 说明 |
+|---|---|---|---|
+| P2 | 借鉴 questionary 样式/主题 | 视觉统一需求时 | 只借鉴 style 体系，不替换；对齐现有图标体系 |
+| P3 | questionary 做独立子命令的新交互 | 新交互需求时 | 非替换现有，渐进去重手写层 |
+| P1 ✅ | menu.py 模块化拆分 | 已完成（2026-08-08） | 1263 行 → 6 模块包 base/keys/render/text/select/multi，31 测试守护 |
+
+### 相关
+
+- 调研来源：questionary / prompt_toolkit / textual 对比（2026-08-08）
+- 拆分提交：menu.py 模块化（P1）
+
+---
+
 ## 6. 结论
 
 CLI 的**结构健康度良好**（配置驱动、命名规范、门禁完整），缺的是**测试基座 + 文档规范**。
