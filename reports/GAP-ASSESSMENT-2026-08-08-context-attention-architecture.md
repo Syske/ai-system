@@ -59,3 +59,28 @@
 
 - memory 条目(会话经验沉淀流程)自动化,未做(需 memory 机制独立设计)
 - 跨会话任务状态持久化,未做(当前靠 handoff 摘要人工传递)
+
+---
+
+## 七、追加修复与待办（2026-08-08 晚）
+
+### 已修复（P0）
+
+| 项 | 内容 |
+|---|---|
+| wizard.py 拆分 | 1235 行 → 6 模块 mixin 包(base/steps/selection/fields/output/analysis),外部 API 不变 |
+| 核心服务测试 | skill_launcher/skill_scan 10 用例(源标记/标签/分组/渲染/扫描),cli 测试 31→41 |
+| dry-run patch 修复 | wizard 模块化后 patch 目标改为消费模块(selection/fields/output) |
+| path-audit 引用修复 | memory/file-contract.md 旧 wizard.py 路径 → 包路径 |
+
+### 待办（触发式,勿主动做）
+
+| 项 | 触发条件 | 来源 |
+|---|---|---|
+| skills/README "On-Demand(7)" 与实际 14 不符 | 下次 skills 增删时顺手 | 系统评估 |
+| reports/README 登记不存在的文件(live-facade-snapshot-risk) | 下次报告维护时 | 系统评估 |
+| CI 补 context-audit/dependency-graph/repo-metrics 3 步 | CI 需覆盖审计工具时 | 系统评估 |
+| 3 个已知坏引用白名单(memory/integration、python、code-quality) | 创建占位目录或删除引用 | 系统评估 |
+| repo-lint 脚本 .py 扫描盲区 | 确认 P10 后扩展 | 系统评估 |
+| memory 翻译存量债(#5-7) | 独立工作项 | MAINTENANCE |
+| wizard/engine/mutator.py 733 行接近门禁 | 超过 800 行时 | 系统评估 |
