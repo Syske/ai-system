@@ -23,7 +23,8 @@ description: Bug fixing workflow — analyze root cause, implement the smallest 
 After fixing, this skill is part of a pipeline:
 - Review the fix with `review-changes`
 - Generate tests with `mock-test` if needed
-- Run `java-maven` for build verification
+- Run build verification with the configured backend: `idea-build` when
+  `build.backend=idea`, else `java-maven` (default CLI)
 
 ## Output
 

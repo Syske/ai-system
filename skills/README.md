@@ -38,6 +38,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | debug-issue | Knowledge-graph-driven issue debugging | Manual |
 | index-project | Rebuild code semantic index | Manual |
 | open-cli | Web API → CLI adapter generation | Manual |
+| idea-build | Optional IDEA MCP compile backend (`build.backend=idea`) | Config-driven (bugfix), manual |
 
 ## Optimization & Benchmarking Skills (6)
 

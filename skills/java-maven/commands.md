@@ -96,10 +96,11 @@ real bottlenecks are (in order):
 3. **Cold local repository** — first build on a new machine is slow; warm the
    local repo (shared cache) or symlink it.
 
-**Fastest compile verification:** when IDEA is running with the project open,
-use the IDEA MCP `build_project` tool (resident incremental compiler) instead
-of CLI — see `idea-build.md`. CLI offline remains the fallback (and the only
-option for tests/package or headless runs).
+**Fastest compile verification (optional backend):** when `build.backend=idea`
+is configured (environments yaml), use the **idea-build skill** (IDEA MCP
+`build_project`, resident incremental compiler) instead of CLI — see
+`ai-system/skills/idea-build/`. CLI offline remains the default and fallback
+(and the only option for tests/package or headless runs).
 
 See `build-speed.md` for the full analysis.
 

@@ -36,7 +36,7 @@
 
 | Situation | Action |
 |---|---|
-| Fix needs compilation | Invoke `java-maven` with smallest scope |
+| Fix needs compilation | Invoke build skill per config: `idea-build` if `build.backend=idea`, else `java-maven`, smallest scope |
 | Fix needs test fixture update | Invoke `mock-test` with change context |
 | Fix is complete, needs review | Recommend invoking `review` |
 | Fix involves spec change | Recommend invoking `spec` |

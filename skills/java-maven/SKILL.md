@@ -94,7 +94,7 @@ it is a human convenience wrapper — agents resolve from metadata.
 | `discovery.md` | Repository/module/wrapper discovery workflows | Stage 1-2 |
 | `commands.md` | Command generation, flag selection, templates | Stage 5 |
 | `build-speed.md` | Offline/daemon/parallel build speed practices (measured) | Stage 5, slow builds |
-| `idea-build.md` | IDEA MCP `build_project` fast compile verification + fallback | Stage 5, compile checks |
+| — IDEA MCP fast compile | Optional backend: see separate skill `idea-build` (config `build.backend=idea`) | Stage 5, when configured |
 | `diagnosis.md` | Compilation/Surefire/dependency/Spring Boot diagnosis | Stage 7 |
 | `retry.md` | Incremental retry strategy and stopping conditions | Stage 8 |
 | `checklists.md` | 7 reusable checklists | Any stage |

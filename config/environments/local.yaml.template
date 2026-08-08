@@ -6,6 +6,14 @@ build:
   java_home: D:/tools/java/jdk8
   maven_home: D:/tools/apache-maven-3.6.3
   maven_settings: "D:/tools/apache-maven-3.6.3/conf/settings - coolcollege.xml"
+  # 编译后端: maven(默认, CLI) | idea(IDEA MCP 常驻编译, 需本机 IDEA + MCP Server 已启用)
+  backend: maven
+  # IDEA 编译后端配置(backend=idea 时生效)
+  idea:
+    # IDEA 安装路径的 idea64.exe(各人版本/路径不同, 必须按本机配置)
+    executable: 'C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.0.1/bin/idea64.exe'
+    # IDEA MCP Server 端口(内置端口 63342 + 1000)
+    port: 64342
 
 layers:
   ai_system:

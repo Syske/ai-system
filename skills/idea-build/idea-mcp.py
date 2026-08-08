@@ -29,6 +29,8 @@ import time
 import urllib.request
 
 DEFAULT_PORT = 64342
+# IDEA MCP Server 端口与 IDEA executable 均可由环境变量覆盖(见 ai-system/config/environments/{env}.yaml build.idea.*)
+IDEA_EXECUTABLE = __import__("os").environ.get("IJ_MCP_SERVER_EXECUTABLE", "")
 
 
 def mcp_session(port, project_path, timeout=120):

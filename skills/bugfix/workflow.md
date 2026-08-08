@@ -227,7 +227,9 @@ Root cause → intermediate effect → immediate cause → symptom
 10.2 Check if the repair introduces any side effects.
 
 10.3 Check if the repair needs other Skills:
-- Needs compilation? → Mark for `java-maven` invocation
+- Needs compilation? → Mark for build-backend invocation:
+  `build.backend=idea` (environments config) → `idea-build` skill;
+  otherwise (default) → `java-maven` skill
 - Needs test fixture update? → Mark for `mock-test` invocation
 - Needs code review? → Mark for `review` invocation
 
@@ -246,7 +248,8 @@ Root cause → intermediate effect → immediate cause → symptom
 11.2 Do NOT make any additional changes. No refactoring, no formatting,
 no unrelated fixes.
 
-11.3 If compilation needed, invoke `java-maven` with smallest scope.
+11.3 If compilation needed, invoke the configured build skill with smallest
+    scope: `idea-build` (when `build.backend=idea`) or `java-maven` (default).
 
 11.4 If test fixtures need updating, invoke `mock-test` with context.
 
