@@ -20,7 +20,13 @@ Automated governance tooling for the AI repository.
 Run order after a change:
 
 ```text
-python tools/repo-lint.py --repo-root .
+python tools/repo-lint.py --repo-root .   # structural + language checks (Rule 1-3)
 python tools/path-audit.py
-python tools/check.py
+python tools/check.py                     # integrity gate (re-runs repo-lint internally)
 ```
+
+**Language checks are mandatory on every change** — `repo-lint.py`
+`check_language` (LANGUAGE_CONVENTION Rule 1-3) runs in the first step of
+this sequence, is re-run by `check.py` (`check_repo_lint`), and is also a
+standalone CI step. A change that introduces a language violation fails all
+three gates.
