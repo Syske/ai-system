@@ -13,16 +13,20 @@
 
 | 状态 | 提案 | 创建 | 文件 |
 |---|---|---|---|
+| Implemented | skill-optimizer 脚本拆分（消除 3 个超限文件 + 双入口重复） | 2026-08-06 | `P10-SKILL-OPTIMIZER-SPLIT.md` |
+| Implemented | Skill Optimizer 网络思想吸收（SkillOpt / DSPy / TextGrad / Claude skill-creator） | 2026-08-06 | `P11-SKILL-OPTIMIZER-ABSORPTION.md` |
+| Implemented | 移除 langchain 依赖（openai SDK 直调） | 2026-08-06 | `P12-LANGCHAIN-REMOVAL.md` |
+| Implemented | 破除 3 个 Skill 依赖环（S3） | 2026-08-06 | `P13-DEPENDENCY-CYCLE-CLEANUP.md` |
+| Implemented | 跨服务 SNAPSHOT 治理纪律（S4） | 2026-08-06 | `P14-SNAPSHOT-GOVERNANCE.md` |
+| Implemented | 多-SKILL.md 输入防护（E3 缺陷修复） | 2026-08-06 | `P15-MULTISKILL-GUARD.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
-| Implemented | skill-optimizer 脚本拆分（超限文件 + 双入口去重） | 2026-08-06 | `P10-SKILL-OPTIMIZER-SPLIT.md` |
-| Implemented | skill-optimizer 网络思想吸收（held-out 门控/demo-augment/description 调优） | 2026-08-06 | `P11-SKILL-OPTIMIZER-ABSORPTION.md` |
-| Implemented | 移除 langchain 依赖（openai SDK 直调） | 2026-08-06 | `P12-LANGCHAIN-REMOVAL.md` |
-| Implemented | 破除 3 个 Skill 依赖环（检测器语义分层） | 2026-08-06 | `P13-DEPENDENCY-CYCLE-CLEANUP.md` |
-| Implemented | 跨服务 SNAPSHOT 治理纪律（S4） | 2026-08-06 | `P14-SNAPSHOT-GOVERNANCE.md` |
-| Implemented | 多-SKILL.md 输入防护（E3 缺陷修复） | 2026-08-06 | `P15-MULTISKILL-GUARD.md` |
+| Implemented | wizard 状态写入增加项目存在性校验（S2 根因修复） | 2026-08-08 | `P16-STATE-WRITE-GUARD.md` |
+| Implemented | java-maven 委派规范（D1 根治） | 2026-08-08 | `P17-MAVEN-DELEGATION-GOVERNANCE.md` |
+| Proposed | aic-apply / aic-explore 命令瘦身（thin-command 门禁） | 2026-08-08 | `P18-THIN-COMMAND-SLIMMING.md` |
+| Proposed | explore 与 explore-codebase 技能关系澄清（D5，季度评估合并） | 2026-08-08 | `P19-EXPLORE-SKILLS-RELATIONSHIP.md` |
 
 ## 当前遗留（未关闭）
 

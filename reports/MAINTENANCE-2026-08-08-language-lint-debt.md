@@ -22,6 +22,13 @@
 | 6 | `governance/memory/ai-system/coding-memory.md` | 5 行中文 | 同上 |
 | 7 | `governance/memory/java/coding-memory.md` | 5 行中文 | 同上 |
 | 8 | (Rule 1 既有) aic-scan/skill-source/trace 与交互提示 | — | 与 1-3 同源 |
+| 9 | `cli/services/menu_config.py:17-18` | 2 行英文注释（Path/str 解析说明） | 应中文 |
+| 10 | `cli/tests/test_services.py:17,123` | 2 行英文注释（cli 可导入性、skill 命令模式） | 应中文 |
+| 11 | `cli/tests/test_skill_launcher.py:20,83,86` | 3 行英文注释（非 TTY 降级、分组标签、by_index 唯一性） | 应中文 |
+| 12 | `cli/tests/test_state_store.py:45,58` | 2 行英文注释（中间路径为 dict、磁盘重载） | 应中文 |
+| 13 | `tools/context-audit.py:31,62` | 2 行英文注释（CJK 权重、回退扫描策略） | 应中文 |
+| 14 | (Rule 3 新暴露) `governance/memory/ai-system/coding-memory.md` 5 行中文 | 记忆条目索引 | 与 5-7 同源 |
+| 15 | (Rule 3 新暴露) `governance/memory/coding-memory.md` 10 行中文 | 记忆条目索引 | 与 5-7 同源 |
 
 ## 处置建议
 

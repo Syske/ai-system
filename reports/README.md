@@ -24,6 +24,10 @@
 | [P13](P13-DEPENDENCY-CYCLE-CLEANUP.md) | 破除 3 个 Skill 依赖环（检测器语义分层） | 2026-08-06 |
 | [P14](P14-SNAPSHOT-GOVERNANCE.md) | 跨服务 SNAPSHOT 治理纪律（S4） | 2026-08-06 |
 | [P15](P15-MULTISKILL-GUARD.md) | 多-SKILL.md 输入防护（E3 缺陷修复） | 2026-08-06 |
+| [P16](P16-STATE-WRITE-GUARD.md) | wizard 状态写入增加项目存在性校验（S2 根因修复） | 2026-08-08 |
+| [P17](P17-MAVEN-DELEGATION-GOVERNANCE.md) | java-maven 委派规范（D1 根治） | 2026-08-08 |
+| [P18](P18-THIN-COMMAND-SLIMMING.md) | aic-apply / aic-explore 命令瘦身（thin-command 门禁） | 2026-08-08 |
+| [P19](P19-EXPLORE-SKILLS-RELATIONSHIP.md) | explore 与 explore-codebase 技能关系澄清（季度评估合并） | 2026-08-08 |
 
 ---
 
@@ -38,6 +42,7 @@
 | 2026-08-06 | on-demand | aic-sync 复查 | `MAINTENANCE-2026-08-06-aic-sync.md` | — |
 | 2026-08-06 | on-demand | live-facade SNAPSHOT 风险 | `MAINTENANCE-2026-08-06-live-facade-snapshot-risk.md` | —（P14 已闭环） |
 | 2026-08-06 | on-demand | 方法长度与注释约定 | `MAINTENANCE-2026-08-06-method-comment-convention.md` | P1/P2/P3 → propose（见 P11 记录） |
+| 2026-08-08 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次 A1-A4 | `MAINTENANCE-2026-08-08.md` | F1-F3 已修复（A1-A4 已闭环） |
 
 ---
 
