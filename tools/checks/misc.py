@@ -1,5 +1,6 @@
 """Compile, import, command, prompt-build, and repo-lint checks."""
 
+import json
 import re
 import subprocess
 import sys
@@ -264,3 +265,53 @@ def check_proposal_audit(c):
         c.warn(
             f"proposal: {len(open_items)} open action item(s) in reports/"
         )
+
+
+def check_workflow_command_audit(c):
+    """Dangling command refs and structural health of workflows/commands."""
+
+    audit = ROOT / "tools" / "workflow-command-audit.py"
+
+    if not audit.exists():
+        c.warn("tools/workflow-command-audit.py not found, skipped")
+        return
+
+    result = subprocess.run(
+        [sys.executable, str(audit), "--repo-root", str(ROOT), "--json"],
+        capture_output=True,
+        text=True,
+        timeout=120
+    )
+
+    try:
+        data = json.loads(result.stdout)
+    except Exception:
+        c.error("workflow-command-audit: unrecognized output (tool may be broken)")
+        return
+
+    for b in data.get("blockers", []):
+        c.error(f"wfc-audit: {b}")
+
+    for w in data.get("warnings", []):
+        c.warn(f"wfc-audit: {w}")
+
+
+def check_cli_tests(c):
+    """CLI service unit tests (C1 test base) must pass."""
+
+    tests_dir = ROOT / "cli" / "tests"
+    if not tests_dir.exists():
+        c.warn("cli/tests not found, skipped")
+        return
+
+    result = subprocess.run(
+        [sys.executable, "-m", "unittest", "discover", "-s", str(tests_dir)],
+        capture_output=True,
+        text=True,
+        timeout=180,
+        cwd=str(ROOT),
+    )
+
+    out = result.stdout + result.stderr
+    if result.returncode != 0:
+        c.error("cli tests failed:\n" + out[-2000:])

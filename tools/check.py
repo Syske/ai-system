@@ -18,6 +18,8 @@ Validates:
 10. Every tools/*.py is registered in tools/README.md
 11. ADR integrity: numbering, status, date, sections, README registry
 12. Workflow definition size <= 100 lines (RFC-0003 gate)
+13. CLI service unit tests pass (C1 test base)
+14. Workflow/command audit: dangling command refs, menu registration
 
 The check logic lives in `tools/checks/` submodules; this file keeps the
 documented command entrypoint stable.

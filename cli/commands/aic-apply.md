@@ -4,6 +4,14 @@ description: 实现 OpenSpec 变更中的任务（实验性）
 
 Implement tasks in an OpenSpec change.
 
+> **Contract binding**: this command drives the **develop workflow**
+> (`workflows/develop.md` + `templates/runtime/runtime-develop.md`) — it is
+> the CLI entry point for that workflow. Implementation MUST follow the
+> develop contract: one task card per cycle, contract-driven, traceable to
+> Specification → Contract → Task Card, smallest safe change. The openspec
+> commands below (`status` / `instructions apply`) are the workflow's
+> artifact-resolution steps, not a parallel implementation path.
+
 **Inputs**: Optionally specify the change name (e.g. `/aic-apply add-auth`). If omitted, check whether it can be inferred from conversation context. If ambiguous or unclear, you must prompt for the available changes.
 
 **Steps**
@@ -38,7 +46,7 @@ Implement tasks in an OpenSpec change.
    - Dynamic instructions based on current state
 
    **Handle states:**
-   - If `state: "blocked"` (missing artifacts): show message, suggest `/aic-continue`
+   - If `state: "blocked"` (missing artifacts): show message, suggest `/aic-apply`
    - If `state: "all_done"`: congratulate, suggest archiving
    - Otherwise: continue implementation
 

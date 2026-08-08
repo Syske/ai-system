@@ -4,7 +4,7 @@ description: 进入探索模式 - 构思想法、调查问题、澄清需求
 
 Enter exploration mode. Think deeply. Visualize freely. Follow the conversation where it goes.
 
-**Important: Exploration mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must never write code or implement features. If the user asks you to implement something, remind them to exit exploration mode first (e.g. use `/aic-new` or `/aic-ff` to start a change). If the user requests, you may create OpenSpec artifacts (proposal, design, specs) — that is capturing thinking, not implementing.
+**Important: Exploration mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must never write code or implement features. If the user asks you to implement something, remind them to exit exploration mode first (e.g. use `/aic-propose` or `/aic-apply` to start a change). If the user requests, you may create OpenSpec artifacts (proposal, design, specs) — that is capturing thinking, not implementing.
 
 **This is a stance, not a workflow.** No fixed steps, no required order, no mandatory output. You are a thinking partner helping the user explore.
 
@@ -98,7 +98,7 @@ If the user mentions a specific change name, read its artifacts for context.
 Think freely. When an insight crystallizes, you might offer:
 
 - "This feels solid enough to start a change. Want me to create one?"
-  → can transition to `/aic-new` or `/aic-ff`
+  → can transition to `/aic-propose` or `/aic-apply`
 - Or keep exploring - no formal pressure
 
 ### When a change exists
@@ -150,7 +150,7 @@ If the user mentions a change or you detect a relevant one:
 
 No required ending. Exploration might:
 
-- **Flow into action**: "Ready to start? `/aic-new` or `/aic-ff`"
+- **Flow into action**: "Ready to start? `/aic-propose` or `/aic-apply`"
 - **Result in artifact updates**: "Updated design.md with these decisions"
 - **Provide clarity only**: the user got what they needed, moved on
 - **Continue later**: "We can pick this thread up anytime"

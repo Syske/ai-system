@@ -30,6 +30,14 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
    - **impact**: analyze modules, interfaces, contracts, and callers affected by Code Reference changes/references, graded by blast radius
    - **manual**: execute the user's instruction in Code Reference as an analysis task; within scope/branch if provided, otherwise self-contained
 
+   > **Delegation (binding)**: `chain` and `impact` operations are deep
+   > impact/risk analysis — run the **change-impact workflow**
+   > (`workflows/change-impact.md`) for these, which produces the full
+   > impact report (blast radius, risks, modification plan). `scan` keeps
+   > `search` / `diff` / `manual` for lightweight keyword and comparison
+   > scans; `chain` / `impact` here are thin triggers that hand off to the
+   > workflow rather than re-implementing impact analysis in the command.
+
 3. **Conclude**
    - Hit list: location (file:line), code excerpt, context note
    - Analysis conclusion: per operation (search results / differences / chain / impact / instruction result)

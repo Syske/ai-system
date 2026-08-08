@@ -8,9 +8,11 @@ from .misc import (
     check_compile,
     check_imports,
     check_path_audit,
+    check_cli_tests,
     check_proposal_audit,
     check_repo_lint,
     check_tools_readme,
+    check_workflow_command_audit,
 )
 from .menu import check_menu, check_wizard_dry_run
 from .memory import check_memory
@@ -30,6 +32,7 @@ def run_all():
 
     check_compile(c)
     check_imports(c)
+    check_cli_tests(c)
     check_menu(c, workflows, commands)
     check_registry(c)
     check_next_sections(c, workflows)
@@ -40,6 +43,7 @@ def run_all():
     check_repo_lint(c)
     check_path_audit(c)
     check_tools_readme(c)
+    check_workflow_command_audit(c)
     check_proposal_audit(c)
     check_memory(c)
     check_adr(c)

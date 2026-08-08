@@ -6,6 +6,7 @@ Automated governance tooling for the AI repository.
 |------|---------|
 | `check.py` | System integrity + runnability gate (9 checks; run after every change) |
 | `repo-lint.py` | Structural linter — run before every change. Language check (`check_language`) enforces `LANGUAGE_CONVENTION.md`: (1) `cli/commands/aic-*.md` Steps/Guardrails must be English; (2) `cli/**/*.py` + `tools/*.py` comments must be Chinese; (3) `governance/*.md` (excl. archive/, standards/, README, policies) must be English |
+| `workflow-command-audit.py` | Workflow & command health auditor — file length (RFC-0003 / thin-command gates), required sections, Next targets, dangling command references, menu.yaml registration |
 | `repo-metrics.py` | Health metrics collector and snapshot comparison |
 | `context-audit.py` | Session context consumption auditor — token usage, largest messages, ACTIVE vs FULL history, Session Health Level (per CONTEXT_LOADING 40/60/80 thresholds) |
 | `dependency-graph.py` | Skill dependency visualizer |
