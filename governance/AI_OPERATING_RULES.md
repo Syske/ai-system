@@ -16,6 +16,7 @@ The following governance documents are binding for all Workflows and Runtimes:
 - **Context Loading**: `governance/CONTEXT_LOADING.md` — Minimal, deterministic context loading
 - **Repository First**: `governance/REPOSITORY_FIRST.md` — Search before creating
 - **Reflection Rules**: `governance/REFLECTION_RULES.md` — Mandatory reflection at every Workflow completion
+- **Attention Management**: `governance/ATTENTION_MANAGEMENT.md` — Attention decay signals, mid-task checkpoints, interruption rules
 - **Language Convention**: `governance/LANGUAGE_CONVENTION.md` — English for AI control flow, Chinese for user-facing reports
 
 ---
