@@ -40,6 +40,10 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | open-cli | Web API → CLI adapter generation | Manual |
 | idea-build | Optional IDEA MCP compile backend (`build.backend=idea`) | Config-driven (bugfix), manual |
 | handoff | Session handoff summary (compaction / task switch / cross-tool), per CONTEXT_RETENTION Keep/Drop | Manual (before /compact or new session) |
+| explore | OpenSpec-aware exploration support (loaded by aic-explore) | Command-loaded (aic-explore) |
+| archive-openspec | OpenSpec change archive procedure (loaded by aic-archive) | Command-loaded (aic-archive) |
+| propose-openspec | OpenSpec change creation procedure (loaded by aic-propose) | Command-loaded (aic-propose) |
+| apply-openspec | OpenSpec implementation procedure, develop contract (loaded by aic-apply) | Command-loaded (aic-apply) |
 
 ## Optimization & Benchmarking Skills (6)
 

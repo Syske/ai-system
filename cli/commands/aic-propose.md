@@ -17,78 +17,20 @@ When ready to implement, run /aic-apply
 
 **Steps**
 
+> The full creation procedure (project guardrail → scaffold → artifact
+> loop → status) lives in the **`propose-openspec` skill** — load
+> `skills/propose-openspec/SKILL.md` and execute it step by step. The
+> command below is the thin trigger: derive the change name, then follow
+> the skill's 6 steps (context guardrail → ask goal → `openspec-cn new
+> change` → artifact loop → final status).
+
 0. **Confirm project context (guardrail)**
 
-   openspec-cn locates the project by the current working directory: the change is created in `./openspec/changes/<name>/`.
-
-   Check:
-   - Current directory must be the target project workspace `workspaces/{project_id}/` (contains `openspec/`)
-   - Wrong directory → use the **AskUserQuestion tool** to ask which project, switch to `workspaces/{project_id}/` and continue
-   - `openspec/` missing → prompt to run `openspec-cn init` first; never create a change in the wrong location
-
-   Context loading (minimal loading):
-   - If a Preparation Report for this change exists (prepare phase artifact), read it before generating proposal.md
-   - Formal requirements should go through the main chain (prepare → spec, driven by the provider during spec); standalone use of this command is only for small, low-risk changes
-
-1. **If no input provided, ask what they want to build**
-
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask, in the system language:
-   > "您想要处理什么变更？请描述您想要构建或修复的内容。"
-
-   Derive a kebab-case name from their description (e.g. "add user authentication" → `add-user-auth`).
-
-   **Important**: Do not proceed without knowing what the user wants to build.
-
-2. **Create the change directory**
-   ```bash
-   openspec-cn new change "<name>"
-   ```
-   This creates a scaffolded change with `.openspec.yaml` under `openspec/changes/<name>/`.
-
-3. **Get artifact build order**
-   ```bash
-   openspec-cn status --change "<name>" --json
-   ```
-   Parse JSON to get:
-   - `applyRequires`: array of artifact IDs required before implementation (e.g. `["tasks"]`)
-   - `artifacts`: list of all artifacts with status and dependencies
-
-4. **Create artifacts in order until ready to apply**
-
-   Use the **TodoWrite tool** to track artifact progress.
-
-   Loop over artifacts in dependency order (artifacts with no pending dependencies first):
-
-   a. **For each `ready` artifact (dependencies satisfied)**:
-      - Get instructions:
-        ```bash
-        openspec-cn instructions <artifact-id> --change "<name>" --json
-        ```
-      - The instruction JSON includes:
-        - `context`: project background (a constraint on you - do not include in output)
-        - `rules`: artifact-specific rules (a constraint on you - do not include in output)
-        - `template`: structure for the output file
-        - `instruction`: schema-specific guidance for this artifact type
-        - `outputPath`: where to write the artifact
-        - `dependencies`: completed artifacts to read for context
-      - Read any completed dependency files for context
-      - Create the artifact file using `template` as structure
-      - Apply `context` and `rules` as constraints - but do not copy them into the file
-      - Show brief progress: "✓ Created <artifact-id>"
-
-   b. **Continue until all `applyRequires` artifacts are done**
-      - After creating each artifact, re-run `openspec-cn status --change "<name>" --json`
-      - Check that each artifact ID in `applyRequires` has `status: "done"` in the artifacts array
-      - Stop when all `applyRequires` artifacts are complete
-
-   c. **If an artifact needs user input** (unclear context):
-      - Use the **AskUserQuestion tool** to clarify
-      - Then continue creating
-
-5. **Show final status**
-   ```bash
-   openspec-cn status --change "<name>"
-   ```
+   Load the `propose-openspec` skill. Key guardrail: cwd must be the
+   target project workspace `workspaces/{project_id}/` (contains
+   `openspec/`); wrong directory → ask which project; missing `openspec/`
+   → prompt `openspec-cn init`. Formal requirements go through the main
+   chain (prepare → spec); standalone use is for small, low-risk changes.
 
 **Output**
 

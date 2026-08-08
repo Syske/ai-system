@@ -16,77 +16,32 @@ Implement tasks in an OpenSpec change.
 
 **Steps**
 
-1. **Select the change**
+> The full implementation procedure (select change → schema → apply
+> instructions → context files → task loop) lives in the
+> **`apply-openspec` skill** — load `skills/apply-openspec/SKILL.md` and
+> execute it step by step. Contract binding: this command drives the
+> **develop workflow** (`workflows/develop.md` + runtime-develop); the
+> steps below are the thin trigger.
 
-   If a name is provided, use it. Otherwise:
-   - If the user mentioned a change, infer it from conversation context
-   - If only one active change exists, auto-select it
-   - If ambiguous, run `openspec-cn list --json` to get available changes, and use the **AskUserQuestion tool** to let the user choose
+1. **Select the change** — name provided, inferred, auto-selected, or
+   AskUserQuestion from `openspec-cn list --json`.
 
-   Always announce: "Using change: <name>" and how to override (e.g. `/aic-apply <other>`).
+2. **Check status** — `openspec-cn status --change "<name>" --json` for
+   schema and task artifact.
 
-2. **Check status to understand the schema**
-   ```bash
-   openspec-cn status --change "<name>" --json
-   ```
-   Parse JSON to understand:
-   - `schemaName`: the workflow schema in use (e.g. "spec-driven")
-   - Which artifact holds the tasks (usually "tasks" for spec-driven; check the status of other artifacts)
+3. **Get apply instructions** — `openspec-cn instructions apply
+   --change "<name>" --json`; handle blocked / all_done / in-progress.
 
-3. **Get apply instructions**
+4. **Read context files** from `contextFiles` (proposal, specs, design,
+   tasks for spec-driven).
 
-   ```bash
-   openspec-cn instructions apply --change "<name>" --json
-   ```
+5. **Show progress** — schema, N/M complete, remaining tasks.
 
-   This returns:
-   - `contextFiles`: artifact ID -> array of concrete file paths (schema-specific)
-   - Progress (total, done, remaining)
-   - Task list with statuses
-   - Dynamic instructions based on current state
+6. **Implement tasks** — loop per the skill: minimal changes per task,
+   mark `- [x]`, pause on unclear/design-problem/blocker/interrupt.
 
-   **Handle states:**
-   - If `state: "blocked"` (missing artifacts): show message, suggest `/aic-apply`
-   - If `state: "all_done"`: congratulate, suggest archiving
-   - Otherwise: continue implementation
-
-4. **Read context files**
-
-   Read each file path listed in `contextFiles` in the apply instructions output.
-   Files depend on the schema in use:
-   - **spec-driven**: proposal, specs, design, tasks
-   - Other modes: follow `contextFiles` in the CLI output
-
-5. **Show current progress**
-
-   Show:
-   - Schema in use
-   - Progress: "N/M tasks complete"
-   - Overview of remaining tasks
-   - Dynamic instructions from the CLI
-
-6. **Implement tasks (loop until complete or blocked)**
-
-   For each pending task:
-   - Show which task is being processed
-   - Make the required code changes
-   - Keep changes minimal and focused
-   - Mark the task complete in the task file: `- [ ]` → `- [x]`
-   - Continue to the next task
-
-   **Pause if:**
-   - Task is unclear → ask for clarification
-   - Implementation reveals a design problem → suggest updating artifacts
-   - Hit an error or blocker → report and wait for guidance
-   - User interrupts
-
-7. **On completion or pause, show status**
-
-   Show:
-   - Tasks completed this session
-   - Overall progress: "N/M tasks complete"
-   - If all done: suggest archiving
-   - If paused: explain why and wait for guidance
+7. **On completion or pause, show status** — completed this session,
+   overall progress, suggest archive when all done.
 
 **Output**
 

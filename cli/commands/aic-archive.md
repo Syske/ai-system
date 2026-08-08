@@ -8,83 +8,12 @@ Archive a completed change in the experimental workflow.
 
 **Steps**
 
-1. **If no change name provided, prompt for selection**
-
-   Run `openspec-cn list --json` to get available changes. Use the **AskUserQuestion tool** to let the user choose.
-
-   Show only active (unarchived) changes.
-   Include the schema used by each change, if available.
-
-   **Important**: Do not guess or auto-select a change. Always let the user choose.
-
-2. **Check artifact completion status**
-
-   Run `openspec-cn status --change "<name>" --json` to check artifact completion.
-
-   Parse JSON to understand:
-   - `schemaName`: the workflow schema in use
-   - `artifacts`: list of artifacts and their status (`done` or other values)
-
-   **If any artifact is not `done`:**
-   - Show a warning listing the incomplete artifacts
-   - Prompt the user to confirm whether to continue
-   - If the user confirms, continue
-
-3. **Check task completion status**
-
-   Read the task file (usually `tasks.md`) to check for incomplete tasks.
-
-   Count tasks marked `- [ ]` (incomplete) vs `- [x]` (complete).
-
-   **If incomplete tasks are found:**
-   - Show a warning with the number of incomplete tasks
-   - Prompt the user to confirm whether to continue
-   - If the user confirms, continue
-
-   **If no task file exists:** continue without a task-related warning.
-
-4. **Evaluate incremental spec sync status**
-
-   Check for incremental specs in `openspec/changes/<name>/specs/`. If absent, continue without prompting for sync.
-
-   **If incremental specs exist:**
-   - Compare each incremental spec against its corresponding main spec in `openspec/specs/<capability>/spec.md`
-   - Determine which changes would apply (add, modify, delete, rename)
-   - Show a merge summary before prompting
-
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If the user chooses to sync, run `openspec-cn archive <name> -y`, whose built-in sync
-   merges incremental specs into `openspec/specs/` (verified 2026-08-06: archive merges
-   without a separate command). Continue archiving regardless of choice.
-
-5. **Perform the archive**
-
-   Create the archive directory if it does not exist:
-   ```bash
-   mkdir -p openspec/changes/archive
-   ```
-
-   Generate the target name using the current date: `YYYY-MM-DD-<change-name>`
-
-   **Check whether the target already exists:**
-   - If yes: fail with an error, suggest renaming the existing archive or using a different date
-   - If no: move the change directory to the archive
-
-   ```bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-   ```
-
-6. **Show summary**
-
-   Show an archive completion summary, including:
-   - Change name
-   - Schema used
-   - Archive location
-   - Spec sync status (synced / skipped sync / no incremental specs)
-   - Notes on any warnings (incomplete artifacts/tasks)
+> The full archive procedure (select change → check artifact/task
+> completion → evaluate spec sync → archive) lives in the
+> **`archive-openspec` skill** — load `skills/archive-openspec/SKILL.md`
+> and execute it step by step. The command below is the thin trigger:
+> select or confirm the change name, then follow the skill's 6 steps
+> (select → status → tasks → spec-sync prompt → mv archive → summary).
 
 **Output**
 
