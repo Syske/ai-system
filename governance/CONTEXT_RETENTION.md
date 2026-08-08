@@ -1,56 +1,57 @@
-# Context Retention Strategy (跨工具上下文保留策略)
+# Context Retention Strategy
 
-统一定义"选择性保留/丢弃上下文"的策略。适用于所有 AI 工具
-(pi / opencode),由各工具的压缩机制执行。
+Unified cross-tool strategy for selectively retaining / dropping context.
+Applies to all AI tools (pi / opencode); each tool executes it through its own
+compaction mechanism.
 
-## 触发时机
+## When to Apply
 
-- 完成一个工作单元、切换任务前
-- 会话上下文达到 50% 以上
-- 感知到注意力退化 / 输出质量下降
-- 新会话开始前(生成交接摘要)
+- Before finishing a work unit or switching tasks
+- When session context reaches 50% or more
+- When attention degrades / output quality drops
+- Before starting a new session (produce a handoff summary)
 
-## 保留(Keep)——按优先级
+## Keep (by priority)
 
-| 优先级 | 内容 | 示例 |
+| Priority | Content | Examples |
 |---|---|---|
-| P0 | 当前任务的决策与结论 | 根因、选型理由、验收结果 |
-| P0 | 未完成的待办与下一步 | 遗留问题、下一步操作、阻塞点 |
-| P0 | 契约 / 接口变更 | 修改的 API、字段、协议 |
-| P1 | 关键文件与提交记录 | 改过的文件清单、commit hash |
-| P1 | 治理决策 | 采用的标准、纪律、策略 |
-| P2 | 上下文线索 | 日志中的关键行、复现步骤 |
+| P0 | Decisions and conclusions of the current task | root cause, rationale, acceptance result |
+| P0 | Unfinished todos and next steps | open issues, next action, blockers |
+| P0 | Contract / interface changes | modified API, fields, protocols |
+| P1 | Key files and commit records | changed file list, commit hashes |
+| P1 | Governance decisions | adopted standards, disciplines, policies |
+| P2 | Context clues | key log lines, reproduction steps |
 
-## 丢弃(Drop)
+## Drop
 
-| 内容 | 理由 |
+| Content | Reason |
 |---|---|
-| 早期探索细节 | 过程噪音,结论已沉淀 |
-| 编译/测试原始输出 | 只保留结果 + 错误行 |
-| 重复的工具调用 | 已完成的诊断步骤 |
-| 冗长 diff | 只保留摘要 + 影响面 |
-| 与当前任务无关的历史 | 完成的工作单元 |
+| Early exploration detail | process noise; conclusions already captured |
+| Raw compile / test output | keep only result + error lines |
+| Repeated tool calls | already-completed diagnostic steps |
+| Long diffs | keep only summary + blast radius |
+| History unrelated to current task | completed work units |
 
-## 执行方式(按工具)
+## Execution by Tool
 
-| 工具 | 执行机制 | 保留策略注入 |
+| Tool | Mechanism | Retention Injection |
 |---|---|---|
-| pi | `/compact [保留X, 丢弃Y]` | 指令直接作为压缩提示 |
-| opencode | `/compact`(无指令) | **压缩前主动将保留策略作为用户消息提交**,并提示"压缩时遵循上述保留策略" |
+| pi | `/compact [keep X, drop Y]` | instructions passed directly as the compaction prompt |
+| opencode | `/compact` (no custom instructions) | **submit the retention priorities as a user message immediately before `/compact`**, stating the compaction must follow them |
 
-## 交接摘要模板(换会话/换任务时)
+## Handoff Summary Template (new session / new task)
 
 ```
-## 会话交接摘要
-- 任务: <当前目标>
-- 已完成: <结论 + commit>
-- 决策: <关键选型 + 理由>
-- 遗留: <待办 + 下一步>
-- 契约变更: <API/字段/文件清单>
-- 注意: <风险/阻塞>
+## Handoff Summary
+- Task: <current goal>
+- Done: <conclusions + commits>
+- Decisions: <key choices + rationale>
+- Leftovers: <todos + next step>
+- Contract changes: <API / fields / file list>
+- Notes: <risks / blockers>
 ```
 
-## 关联
+## Related
 
-- `CONTEXT_LOADING.md` — Session Health Levels(40/60/80 阈值)
+- `CONTEXT_LOADING.md` — Session Health Levels (40/60/80 thresholds)
 - `AI_OPERATING_RULES.md` — Context Budget Discipline
