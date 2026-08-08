@@ -126,6 +126,27 @@ schemas silently consume it. Follow these rules to keep headroom:
    quality drops, audit context consumption (inventory loaded components,
    classify always/sometimes/rarely, rank token savings) before continuing.
 
+## Layered Context Management
+
+Prevention beats compression. Route work by operation type so the main
+session holds only decisions + conclusions:
+
+| Operation type | Route | Why |
+|---|---|---|
+| Exploration / search / audit / multi-file scan | **subagent isolation** (pi-worker style) | returns conclusions only; main context stays flat |
+| Large tool output (compile, diff, log dump) | keep summary only (result + key lines) | ~70% of bloat is raw output |
+| Session > 50% context | **active `/compact` with focus instructions** | pre-empts attention decay |
+| New large task | **new session + handoff summary** | clean window for deep reasoning |
+
+## Session Health Levels
+
+| Usage | Action |
+|---|---|
+| < 40% | Normal; deep reasoning OK |
+| 40-60% | Summarize big outputs; delegate exploration to subagents |
+| > 60% | Actively compact with focus; consider session boundary |
+| > 80% | Split session now; keep only essential conclusions |
+
 ---
 
 ## Reference
