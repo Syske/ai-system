@@ -30,7 +30,9 @@ Always:
 - Explain before changing.
 - Validate before finishing.
 - Manage context budget (see CONTEXT_LOADING): summarize big outputs, keep
-  MCP/skill overhead lean, audit when sessions slow down.
+  MCP/skill overhead lean, audit when sessions slow down. Selectively retain
+  context per CONTEXT_RETENTION (keep P0 decisions/conclusions, drop exploration
+  noise) when compacting or switching tasks.
 
 Never:
 

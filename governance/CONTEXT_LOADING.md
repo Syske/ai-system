@@ -138,6 +138,10 @@ session holds only decisions + conclusions:
 | Session > 50% context | **active `/compact` with focus instructions** | pre-empts attention decay |
 | New large task | **new session + handoff summary** | clean window for deep reasoning |
 
+Selective retention is defined in **`CONTEXT_RETENTION.md`** (what to keep / drop by
+priority, plus the handoff summary template). Follow it when compacting or
+switching tasks. For pi: pass the retention priorities as `/compact` instructions.
+
 ## Session Health Levels
 
 | Usage | Action |
