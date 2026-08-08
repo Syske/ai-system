@@ -108,6 +108,12 @@ Batch C1 (测试基座) → Batch C2 (字段一致) → Batch C3 (文档) → Ba
 
 ## 7. 待办（Pending，2026-08-06 记录，明日执行）
 
+> **状态更新（2026-08-08）：C1 已全部完成**（menu_config + prompt_builder + state_store，
+> 20 用例），并已挂接 check.py（check_cli_tests）+ CI（cli unit tests 步）。
+> **C2 已全部完成**：propose/apply/archive/explore 注册 command_fields；同时修复
+> MenuConfig 相对路径静默失败缺陷（C2 隐藏根因之一），含 3 条回归测试。
+> 剩余：C3 文档规范化、C4 代码组织（季度级）。
+
 **Batch C1 — CLI 测试基座（精简版，预估 20-30 分钟）**
 
 | 项 | 内容 | 用例 |

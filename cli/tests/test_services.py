@@ -90,3 +90,27 @@ class TestPromptBuilder(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMenuConfigRegression(unittest.TestCase):
+    """C2 regression: relative-path root and command_fields registration."""
+
+    def test_relative_root_loads_menu(self):
+        # Regression: string relative root used to silently load empty menu
+        mc = MenuConfig(".")
+        self.assertGreater(len(mc.menu.get("sections", [])), 0)
+        self.assertIn("command_fields", mc.menu)
+
+    def test_c2_fields_registered(self):
+        # C2: propose/apply/archive/explore must have command_fields
+        mc = MenuConfig(ROOT)
+        for cmd in ("propose", "apply", "archive", "explore"):
+            fields = mc.command_fields(cmd)
+            self.assertGreater(len(fields), 0, f"{cmd} missing command_fields")
+
+    def test_fields_shape(self):
+        mc = MenuConfig(ROOT)
+        for cmd in ("propose", "apply", "archive", "explore"):
+            for field, required in mc.command_fields(cmd):
+                self.assertIsInstance(field, str)
+                self.assertIsInstance(required, bool)

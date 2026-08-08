@@ -5,6 +5,7 @@ lookup helpers used by the wizard, so the wizard stays an orchestrator.
 """
 
 import re
+from pathlib import Path
 
 from cli.utils.yaml import load_yaml
 
@@ -13,7 +14,9 @@ class MenuConfig:
 
     def __init__(self, root):
 
-        self.root = root
+        # Accept both Path and str; resolve to absolute so relative paths
+        # (e.g. ".") do not silently load an empty menu.
+        self.root = Path(root).resolve()
 
         self.menu = self._load(
             "menu.yaml"

@@ -181,6 +181,20 @@ command_fields:
       - false
     - - "Mode"
       - false
+  propose:
+    - - "Change Name"
+      - false
+    - - "Description"
+      - false
+  apply:
+    - - "Change Name"
+      - false
+  archive:
+    - - "Change Name"
+      - false
+  explore:
+    - - "Topic"
+      - false
 
 default_command_fields:
   - - "Project ID"
