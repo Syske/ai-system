@@ -4,6 +4,11 @@ Shared design-review vocabulary for assessing module shape and coupling.
 Use these terms exactly during design review; consistent language surfaces
 design issues that vague terms ("component", "service", "API") hide.
 
+> **Authoritative copy**: `governance/standards/architecture/module-shape.md`
+> (Architecture Standard: Module Shape). This file is the working copy used
+> by the design-review skill; the governance standard is the source of truth.
+> Keep them in sync when changing shared terms.
+
 ## Glossary
 
 **Module** — anything with an interface and an implementation. Scale-agnostic:
