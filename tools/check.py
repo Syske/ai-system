@@ -16,6 +16,8 @@ Validates:
 8. governance/memory structure, entry format, language, and index
 9. tools/path-audit.py reports no broken path references
 10. Every tools/*.py is registered in tools/README.md
+11. ADR integrity: numbering, status, date, sections, README registry
+12. Workflow definition size <= 100 lines (RFC-0003 gate)
 
 The check logic lives in `tools/checks/` submodules; this file keeps the
 documented command entrypoint stable.
