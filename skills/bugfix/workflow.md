@@ -65,7 +65,9 @@ git blame <affected-file> -L<line>,+10
 - An obvious correctness rule (null check, bounds check)
 
 3.2 If the expected behavior cannot be determined from any source, ask the
-user to clarify.
+user to clarify — **one question at a time**, highest-priority first, each
+with a recommended answer (see Clarification Discipline in `decision.md`).
+Never batch multiple questions in one turn.
 
 **Output:** `{expectedBehavior, source: test|spec|git|obvious|askUser}`
 

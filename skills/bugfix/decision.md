@@ -15,6 +15,23 @@
 
 **If any answer is NO → do not edit. Return to analysis.**
 
+## Clarification Discipline
+
+When clarification is needed, follow these rules:
+
+1. **One question at a time.** Ask a single question, provide a **recommended
+   answer**, and wait for feedback before asking the next. Never batch multiple
+   questions in one turn — it is bewildering and buries the most important ask.
+2. **Priority order.** Ask in the order the table above: bug understanding →
+   expected behavior → root cause → evidence → scope → validation. Address the
+   highest-priority unknown first.
+3. **Look up facts first.** If the answer can be found by exploring the
+   environment (code, tests, logs, git history), find it — only ask the user
+   for genuine decisions or unavailable context.
+4. **Use the table as a checklist.** After each answer, re-check which of the
+   six questions remain NO; proceed to the next unresolved question in
+   priority order.
+
 ---
 
 ## Stage Decisions
