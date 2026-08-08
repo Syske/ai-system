@@ -9,9 +9,11 @@ Quality gates, policies, naming conventions, and review standards for the AI rep
 | `AI_OPERATING_RULES.md` | Global AI behavior rules (v1.3). Binding for all Workflows. |
 | `SOURCE_OF_TRUTH.md` | Authoritative priority hierarchy of all information sources. |
 | `CONTEXT_LOADING.md` | Minimal, deterministic context loading strategy. |
+| `CONTEXT_RETENTION.md` | Cross-tool context retention: Keep/Drop priorities + handoff template. |
+| `ATTENTION_MANAGEMENT.md` | Attention decay signals, mid-task checkpoints, interruption rules. |
 | `REPOSITORY_FIRST.md` | Search-before-create principle. Reuse over rewrite. |
 | `REFLECTION_RULES.md` | Mandatory reflection at every Workflow completion. |
-| `LANGUAGE_CONVENTION.md` | English for AI flow control, Chinese for user-facing reports. |
+| `LANGUAGE_CONVENTION.md` | English for AI flow control, Chinese for user-facing reports. Enforced by `repo-lint.py check_language` (Rule 1-3). |
 
 ## Quality & Review
 
@@ -50,3 +52,18 @@ Rules:
 - Written in English (AI-internal governance layer, per `LANGUAGE_CONVENTION.md`).
 - Register the file in this index (`governance/README.md`).
 - Active standards only; obsolete standards move to `governance/archive/`.
+
+## Language Enforcement (LANGUAGE_CONVENTION)
+
+Language rules are enforced automatically by `repo-lint.py check_language`,
+run by `tools/check.py` after every change:
+
+| Rule | Scope | Requirement |
+|---|---|---|
+| 1 | `cli/commands/aic-*.md` Steps/Guardrails | English (flow control) |
+| 2 | `cli/**/*.py` + `tools/*.py` comments | Chinese (documentation.md) |
+| 3 | `governance/*.md` (excl. archive/, standards/, README, policies) | English (AI-internal) |
+
+When adding a new governance document, keep it English and expect Rule 3 to
+verify it on the next `check.py` run. See `tools/README.md` for the tool
+coverage note.
