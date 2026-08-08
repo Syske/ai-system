@@ -68,6 +68,25 @@ stdio: idea64.exe stdioMcpServer
 
 ## pi Integration (extension sketch)
 
+> **Chosen implementation: generic Python CLI** (`idea-mcp.py`) — not a pi
+> extension. Zero dependencies (stdlib urllib), callable from any agent via
+> bash (pi / opencode / claude), speaks standard MCP SSE.
+>
+> open-cli / opencli framework is NOT suitable here: it wraps websites/HTTP
+> APIs into CLI adapters; IDEA MCP is a standard MCP protocol server, so a
+> plain MCP client is the right tool.
+>
+> Usage (verified 2026-08-08):
+> ```bash
+> python <skill>/idea-mcp.py tools <projectPath>   # list 38 tools
+> python <skill>/idea-mcp.py build <projectPath>   # compile (incremental)
+> python <skill>/idea-mcp.py build --rebuild <path> # full rebuild
+> python <skill>/idea-mcp.py exec <path> <cmd> [args...]  # terminal cmd
+> env: IJ_MCP_SERVER_PORT (default 64342), IJ_MCP_SERVER_PROJECT_PATH
+> ```
+> `build_project` returns `{"isSuccess":true,"problems":[]}` on success;
+> non-zero exit + fallback hint on failure.
+
 pi extensions can register custom tools via `pi.registerTool()`. Sketch for an
 `idea_build` tool that proxies to the IDEA MCP server (SSE/Stdio):
 
