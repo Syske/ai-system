@@ -131,3 +131,38 @@ class TestSaveStateGuard(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSelectProjectListsAll(unittest.TestCase):
+    """Regression: _select_project must list ALL workspace projects, even
+    those without a business repo in projects/ (fix 2026-08-08). P16's
+    _project_exists guards _save_state only, not the project list."""
+
+    def _make_wizard(self, tmp):
+        from pathlib import Path
+        from cli.services.wizard import Wizard
+
+        root = Path(tmp)
+        (root / "config" / "environments").mkdir(parents=True)
+        (root / "config" / "i18n").mkdir(parents=True)
+        (root / "config" / "environments" / "local.yaml").write_text(
+            "workspace:\n  root: {}\n".format(root.as_posix()),
+            encoding="utf-8",
+        )
+        (root / "config" / "i18n" / "zh.yaml").write_text("{}", encoding="utf-8")
+        (root / "workspaces" / "alpha").mkdir(parents=True)
+        (root / "workspaces" / "beta").mkdir(parents=True)
+        # business repo root exists but has NO alpha/beta dirs (real F1)
+        (root / "projects").mkdir()
+        return Wizard(root)
+
+    def test_lists_workspace_projects_without_repo(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            w = self._make_wizard(tmp)
+            projects = w._dirs(w.workspaces, exclude={"archived"})
+            self.assertEqual(projects, ["alpha", "beta"])
+            # _save_state must skip when repo missing (P16)
+            w._save_state("alpha", ("develop", "workflow"), {})
+            self.assertNotIn("alpha", w.state.get("projects", {}))

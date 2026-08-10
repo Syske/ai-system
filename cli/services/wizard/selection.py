@@ -70,14 +70,14 @@ class WizardSelection:
         header
     ):
 
-        projects = [
-            p
-            for p in self._dirs(
-                self.workspaces,
-                exclude={"archived"}
-            )
-            if self._project_exists(p)
-        ]
+        # List ALL workspace projects — including those without a business
+        # repo in projects/ (they are valid workspace contexts, e.g.
+        # pywechat-live-2608). P16's _project_exists guard applies to
+        # _save_state (prevent stale last_project), NOT to the list here.
+        projects = self._dirs(
+            self.workspaces,
+            exclude={"archived"}
+        )
 
         options = [
             f"{_e(self._menu_option('project', 'item'))}{p}"
