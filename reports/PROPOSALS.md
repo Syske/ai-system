@@ -27,6 +27,7 @@
 | Implemented | java-maven 委派规范（D1 根治） | 2026-08-08 | `P17-MAVEN-DELEGATION-GOVERNANCE.md` |
 | Proposed | aic-apply / aic-explore 命令瘦身（thin-command 门禁） | 2026-08-08 | `P18-THIN-COMMAND-SLIMMING.md` |
 | Proposed | explore 与 explore-codebase 技能关系澄清（D5，季度评估合并） | 2026-08-08 | `P19-EXPLORE-SKILLS-RELATIONSHIP.md` |
+| Proposed | hotfix-test-doc 发布链护栏增强（校验误报 + 空单元格自动修复） | 2026-08-11 | `P20-HOTFIX-TEST-DOC-GUARDRAILS.md` |
 
 ## 当前遗留（未关闭）
 
