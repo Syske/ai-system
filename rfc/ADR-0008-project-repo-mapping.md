@@ -8,110 +8,138 @@ Date: 2026-08-08
 
 ## Context
 
-ai-system 的 workspaces/<project_id>/ 存放 OpenSpec 工件与运行时状态,projects/
-存放业务仓库。维护时希望在 workspaces 视角能定位项目的业务代码。候选方案:
+ai-system keeps OpenSpec artifacts and runtime state in
+`workspaces/<project_id>/` and business repositories in `projects/`. When
+maintaining a project, we want to locate its business code from the
+workspace view. Candidate approaches:
 
-1. **软链接迁移**:把 projects/ 下仓库软链到各 workspaces/<id>/projects/(junction)
-2. **逻辑映射**:workspaces/<id>/workspace.yaml 记录 service → repo path/branch/remote
+1. **Symlink migration**: link each repository under `projects/` into
+   `workspaces/<id>/projects/` (Windows junction)
+2. **Logical mapping**: `workspaces/<id>/workspace.yaml` records
+   service → repo path / branch / remote
 
 ## Decision
 
-**采用逻辑映射(Option 2),不迁移、不软链。**
+**Adopt logical mapping (Option 2) — no migration, no symlinks.**
 
-1. `projects/` 保持业务代码权威源(AGENTS.md 契约不变)
-2. `workspaces/<project_id>/workspace.yaml` 的 `repository` 段记录映射:
-   - `available`: [{service, path, branch, dev_branch, remote}] — 已接入仓库
-   - `unavailable`: [service, note...] — 未接入仓库(记录意图 + 原因)
-3. ai-system 读取该映射(providers.project_repos),wizard 项目列表显示仓库服务名
+1. `projects/` stays the authoritative source of business code (AGENTS.md
+   contract unchanged).
+2. `workspaces/<project_id>/workspace.yaml` `repository` section records the
+   mapping:
+   - `available`: [{service, path, branch, dev_branch, remote}] — repos
+     wired into the current task
+   - `unavailable`: [{service, note}] — repos involved but not wired in
+     (records intent + reason)
+3. ai-system reads the mapping (`providers.project_repos`); the wizard
+   project list shows the mapped service names.
 
-## Repository available / unavailable 判定标准
+## Repository available / unavailable Classification
 
-**available** = 可直接操作的仓库,须**全部**满足:
+**available** = directly operable repository; must satisfy ALL:
 
-1. 参与当前任务变更(proposal/design 涉及)
-2. 本地路径存在且可访问(path 指向真实目录)
-3. 有明确开发分支(dev_branch 已 checkout 或可创建)
-4. 团队负责(可修改/提交,非只读参考)
+1. Participates in the current task change (proposal/design mentions it)
+2. Local path exists and is accessible (path points to a real directory)
+3. Has an operable development branch (dev_branch checked out or creatable)
+4. Team owns it (can modify/commit; not read-only reference)
 
-**unavailable** = 参与变更但不可直接操作,满足**任一**:
+**unavailable** = participates but is NOT directly operable; ANY of:
 
-- 路径不可用(缺失/在其他位置未接入)
-- 分支未接入(dev_branch 未 checkout)
-- 他人负责 / 只读参考
-- 仅需了解接口无需改代码
+- Path unavailable (missing / located elsewhere, not wired in)
+- Branch not wired in (dev_branch not checked out)
+- Another team owns it / read-only reference
+- Only interface knowledge needed; no code change
 
-**判定顺序**(新增服务时按序执行):
-
-```
-1. 参与当前任务变更?
-   ├─ 否 → 不列入 workspace.yaml(只记录任务相关服务)
-   └─ 是 → 2
-2. 本地路径存在且可访问?
-   ├─ 否 → unavailable(note: 路径缺失)
-   └─ 是 → 3
-3. 有可操作的开发分支?
-   ├─ 否 → unavailable(note: 分支未接入)
-   └─ 是 → 4
-4. 团队负责(可修改提交)?
-   ├─ 否 → unavailable(note: 他人负责/只读)
-   └─ 是 → available(带完整字段)
-```
-
-**格式要求**:
-
-- available 条目必须带 service/path/branch/dev_branch/remote 全字段
-- unavailable 条目必须带 note(原因),无原因 → 无法判定,视为待补充
-
-## workspace.yaml 初始化流程
-
-**执行者:AI(开发流程中)**——当开始一个新的 workspace 项目时,AI 在
-spec/develop 阶段负责创建并维护 workspace.yaml。
+**Classification order** (for each newly involved service):
 
 ```
-触发: 新建 workspace 项目(dev-setup / prepare 阶段识别到
-      workspaces/<project_id>/ 无 workspace.yaml)
-
-流程:
- 1. 识别项目身份:读 openspec/changes/*/proposal.md 的任务说明,
-    提取涉及的服务列表
- 2. 对每个服务执行 available/unavailable 判定(见上)
- 3. 生成 workspace.yaml:
-    - task 段:当前任务 id/service/status/spec_ref
-    - repository 段:按判定结果填 available/unavailable
-    - specification 段:引用 openspec 主路径
- 4. 校验:projects_repos(wizard) 能正确读取;无仓库项目填空映射
- 5. 提交:workspace.yaml 是项目元数据,随项目提交(不入 ai-system 仓库)
+1. Does it participate in the current task change?
+   ├─ no  → do NOT list in workspace.yaml (task-relevant services only)
+   └─ yes → 2
+2. Is a local path present and accessible?
+   ├─ no  → unavailable (note: path missing)
+   └─ yes → 3
+3. Is there an operable dev branch?
+   ├─ no  → unavailable (note: branch not wired in)
+   └─ yes → 4
+4. Does the team own it (modifiable/committable)?
+   ├─ no  → unavailable (note: other team / read-only)
+   └─ yes → available (full fields)
 ```
 
-**更新触发**(任务推进时):
+**Format requirements**:
 
-- 新服务加入变更 → 按判定标准补充 available/unavailable
-- 服务状态变化(分支接入/路径恢复)→ 移入/移出 available
-- 任务完成 → task.status 更新为 completed
+- available entries MUST carry full fields: service / path / branch /
+  dev_branch / remote
+- unavailable entries MUST carry a `note` (reason); a reason-less entry is
+  unclassifiable and must be completed
 
-**禁止**:
+## workspace.yaml Initialization
 
-- 不手动编造 path/remote(须来自真实仓库)
-- 不把未参与变更的服务列入(保持 workspace.yaml 只含任务相关服务)
-- 不双源维护(生命周期用 archived/ 目录,不在 workspace.yaml 存 status)
+**Executor: the AI (during the development flow)** — when a new workspace
+project begins, the AI creates and maintains workspace.yaml in the
+spec/develop phase.
+
+```
+Trigger: a new workspace project is detected (dev-setup / prepare phase
+         finds workspaces/<project_id>/ without workspace.yaml)
+
+Flow:
+ 1. Identify the project: read openspec/changes/*/proposal.md task
+    description; extract the involved service list
+ 2. Classify each service available/unavailable (rules above)
+ 3. Generate workspace.yaml:
+    - task section: current task id / service / status / spec_ref
+    - repository section: filled per classification
+    - specification section: references the main openspec path
+ 4. Validate: project_repos(wizard) reads it correctly; repo-less projects
+    get an empty mapping
+ 5. Commit: workspace.yaml is project metadata, committed with the project
+    (NOT into the ai-system repository)
+```
+
+**Update triggers** (as the task progresses):
+
+- New service joins the change → classify and add to available/unavailable
+- Service status changes (branch wired in / path restored) → move between
+  available / unavailable
+- Task completes → update task.status to completed
+
+**Prohibited**:
+
+- Never fabricate path/remote (must come from real repositories)
+- Never list services not participating in the change (keep workspace.yaml
+  scoped to task-relevant services)
+- No dual-source lifecycle (use archived/ directory for lifecycle, not a
+  status field in workspace.yaml)
 
 ## Rationale
 
-- **物理隔离,逻辑关联**:业务仓库留在 projects/(单一权威源),workspace 只记录"指向哪"
-- **无软链脆弱性**:Windows junction 需管理员权限、易失效、git/构建工具兼容差
-- **复用已有格式**:pywechat-live-2608/workspace.yaml 已含 repository 映射(2026-07),本决策是"让 ai-system 读取它",非新造格式
-- **向后兼容**:无映射的项目显示 "(no repo mapped)",行为不变
+- **Physical separation, logical association**: business repos stay in
+  `projects/` (single authoritative source); workspace only records where
+  they point
+- **No symlink fragility**: Windows junctions need admin rights, break
+  easily, and git/build tooling support them inconsistently
+- **Reuses existing format**: pywechat-live-2608/workspace.yaml already had
+  a repository mapping (2026-07); this decision makes ai-system consume it,
+  not a new format
+- **Backward compatible**: projects without a mapping show
+  "(no repo mapped)", behavior unchanged
 
 ## Consequences
 
-- 项目选择时显示映射仓库(用户可确认项目对应的服务)
-- 未来可扩展:repo_path_for() 定位仓库、分支提示、远程对比
-- workspaces/<id>/contexts/ 保留给运行时状态(session-state.md 等),映射放 workspace.yaml(项目级元数据)
-- available/unavailable 有明确判定标准,AI 可在流程中自动维护
-- workspace.yaml 初始化由 AI 在项目创建时执行(见上文流程)
+- Project selection shows mapped repos (user confirms the services behind a
+  project)
+- Future extensions: repo_path_for() repo location, branch hints, remote
+  comparison
+- `workspaces/<id>/contexts/` stays for runtime state (session-state.md
+  etc.); the mapping lives in workspace.yaml (project-level metadata)
+- available/unavailable have explicit classification rules; the AI maintains
+  them automatically during the flow
+- workspace.yaml initialization is executed by the AI at project creation
+  (flow above)
 
 ## References
 
-- `AGENTS.md` — projects/ 与 workspaces/ 职责边界
-- `workspaces/pywechat-live-2608/workspace.yaml` — 映射格式实例
-- `cli/services/providers.py` — project_repos() 读取实现
+- `AGENTS.md` — projects/ and workspaces/ responsibility boundary
+- `workspaces/pywechat-live-2608/workspace.yaml` — mapping format instance
+- `cli/services/providers.py` — project_repos() reading implementation
