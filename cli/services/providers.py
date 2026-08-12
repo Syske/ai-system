@@ -7,6 +7,7 @@ project roots) and the collected field values.
 """
 
 import subprocess
+from pathlib import Path
 
 
 def mode_choices(wizard, values):
@@ -122,3 +123,96 @@ def git_branches(wizard, values):
             continue
 
     return sorted(branches)
+
+
+def project_meta(wizard, project):
+    """Read workspaces/<project>/contexts/project.yaml mapping.
+
+    Returns a dict ({} when absent): {project_id, repo_path, repo_mapped,
+    openspec, notes}. The mapping links a workspace project to its business
+    repo in projects/ WITHOUT moving code (architecture decision 2026-08-08:
+    logical mapping, physical separation).
+    """
+
+    from cli.utils.yaml import load_yaml
+
+    if not project:
+        return {}
+
+    meta_path = (
+        wizard.workspaces
+        / project
+        / "contexts"
+        / "project.yaml"
+    )
+
+    try:
+
+        data = load_yaml(meta_path) or {}
+
+    except Exception:
+
+        return {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    data.setdefault("project_id", project)
+
+    data.setdefault("repo_path", "")
+
+    data.setdefault("repo_mapped", bool(data.get("repo_path")))
+
+    return data
+
+
+def repo_path_for(wizard, project):
+    """Resolve the business repo path for a project (mapped or projects/<id>)."""
+
+    meta = project_meta(wizard, project)
+
+    mapped = meta.get("repo_path")
+
+    if mapped:
+        return wizard.projects_root / mapped if not Path(mapped).is_absolute() else Path(mapped)
+
+    if (wizard.projects_root / project).is_dir():
+        return wizard.projects_root / project
+
+    return None
+
+
+def project_repos(wizard, project):
+    """Read workspaces/<project>/workspace.yaml repository mapping.
+
+    Returns {"available": [...], "unavailable": [...]} from the existing
+    workspace.yaml (architecture decision 2026-08-08: logical mapping,
+    physical separation — business repos stay in projects/, the workspace
+    file maps service -> repo path/branch/remote). Empty dict when absent.
+    """
+
+    if not project:
+        return {}
+
+    yaml_path = (
+        wizard.workspaces
+        / project
+        / "workspace.yaml"
+    )
+
+    from cli.utils.yaml import load_yaml
+
+    try:
+
+        data = load_yaml(yaml_path) or {}
+
+    except Exception:
+
+        return {}
+
+    repos = data.get("repository") or {}
+
+    if not isinstance(repos, dict):
+        return {}
+
+    return repos

@@ -145,3 +145,47 @@ class TestSkillScan(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestProjectRepos(unittest.TestCase):
+    """workspace.yaml repository mapping read (ADR-0008)."""
+
+    def test_reads_repository_mapping(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            ws = root / "workspaces" / "demo"
+            ws.mkdir(parents=True)
+            (ws / "workspace.yaml").write_text(
+                "repository:\n"
+                "  available:\n"
+                "    - service: svc-a\n"
+                "      path: /repos/svc-a\n"
+                "  unavailable:\n"
+                "    - svc-b\n",
+                encoding="utf-8",
+            )
+
+            from cli.services.providers import project_repos
+
+            class FakeWizard:
+                workspaces = root / "workspaces"
+
+            repos = project_repos(FakeWizard(), "demo")
+            self.assertEqual(repos["available"][0]["service"], "svc-a")
+            self.assertEqual(repos["unavailable"], ["svc-b"])
+
+    def test_missing_yaml_returns_empty(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "workspaces" / "nope").mkdir(parents=True)
+
+            from cli.services.providers import project_repos
+
+            class FakeWizard:
+                workspaces = root / "workspaces"
+
+            self.assertEqual(project_repos(FakeWizard(), "nope"), {})

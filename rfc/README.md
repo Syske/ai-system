@@ -27,6 +27,7 @@ Each ADR references the RFC it implements.
 | ADR-0005 | Runtime Architecture | Accepted |
 | ADR-0006 | Workflow-First Design | Accepted |
 | ADR-0007 | Governance Independence | Accepted |
+| ADR-0008 | Project ↔ Repository Logical Mapping | Accepted |
 
 ### When to Create an ADR
 

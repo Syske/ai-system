@@ -79,10 +79,32 @@ class WizardSelection:
             exclude={"archived"}
         )
 
-        options = [
-            f"{_e(self._menu_option('project', 'item'))}{p}"
-            for p in projects
-        ]
+        from cli.services.providers import project_repos
+
+        options = []
+
+        for p in projects:
+
+            repos = project_repos(self, p)
+
+            available = repos.get("available") or []
+
+            if available:
+
+                services = ", ".join(
+                    r.get("service", "?")
+                    for r in available[:3]
+                )
+
+                suffix = f" — {services}"
+
+            else:
+
+                suffix = " (no repo mapped)"
+
+            options.append(
+                f"{_e(self._menu_option('project', 'item'))}{p}{suffix}"
+            )
 
         options.append(
             f"{_e(self._menu_option('project', 'system'))}"
