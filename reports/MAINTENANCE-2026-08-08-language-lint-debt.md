@@ -37,3 +37,9 @@
 - #5-7: memory 索引条目,需按 LANGUAGE_CONVENTION 的 Coding Memory → English 要求翻译,属独立工作项
 
 **决策:本次仅补全检查规则(防止新增违规),存量债登记不批量修**(最小改动原则)。后续单独处理。
+
+## 补充登记(2026-08-08 晚)
+
+| # | 位置 | 内容 | 性质 |
+|---|---|---|---|
+| 9 | `rfc/*.md`(ADR/RFC) | repo-lint Rule 3 只查 governance/,不查 rfc/——ADR 中文无自动拦截(ADR-0008 曾 179 处中文,已手工修) | 规则盲区,建议 Rule 3 扩展覆盖 rfc/(ADR 须英文) |
