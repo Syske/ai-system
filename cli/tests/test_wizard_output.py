@@ -97,10 +97,27 @@ class TestSaveStateGuard(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def test_save_skipped_for_stale_project(self):
+    def test_save_written_for_workspace_only_project(self):
+        # "stale" has workspace dir but no repo — still a valid selectable
+        # project; its state MUST persist (fix 2026-08-08: state memory
+        # matches the project list, repo presence is not required).
         w = FakeWizard(self.workspaces, projects_root=self.projects)
         w._save_state(
             "stale",
+            ("trace", "command"),
+            {}
+        )
+        self.assertEqual(w.state["last_project"], "stale")
+        self.assertEqual(
+            w.state["projects"]["stale"]["last_command"],
+            "trace"
+        )
+
+    def test_save_skipped_when_workspace_missing(self):
+        # project with NO workspace dir at all -> cannot be picked -> skip
+        w = FakeWizard(self.workspaces, projects_root=self.projects)
+        w._save_state(
+            "ghost",
             ("trace", "command"),
             {}
         )
@@ -163,6 +180,6 @@ class TestSelectProjectListsAll(unittest.TestCase):
             w = self._make_wizard(tmp)
             projects = w._dirs(w.workspaces, exclude={"archived"})
             self.assertEqual(projects, ["alpha", "beta"])
-            # _save_state must skip when repo missing (P16)
+            # state persists for workspace-only projects (fix 2026-08-08)
             w._save_state("alpha", ("develop", "workflow"), {})
-            self.assertNotIn("alpha", w.state.get("projects", {}))
+            self.assertIn("alpha", w.state.get("projects", {}))

@@ -145,7 +145,18 @@ class WizardOutput:
         values
     ):
 
-        if not self._project_exists(project):
+        # Record state for ANY project the user could pick — i.e. whose
+        # workspace dir exists. Do NOT apply the _project_exists (business
+        # repo) guard here: workspace-only projects (e.g. pywechat-live-2608)
+        # are valid, selectable contexts and their last_action/last_workflow
+        # must persist for the wizard recommendation to work. The repo
+        # presence check is for repo-level operations, not state memory.
+        if not project:
+            return
+
+        workspace_dir = self.workspaces / project
+
+        if not workspace_dir.is_dir():
             return
 
         name, kind = target
