@@ -357,9 +357,13 @@ def check_language(root, results):
                     file=str(p),
                 )
 
-    # Rule 3: governance/*.md documents must be English (AI-internal layer)
-    gov_dir = root / "governance"
-    if gov_dir.exists():
+    # Rule 3: governance/*.md AND rfc/*.md (ADR/RFC) documents must be
+    # English (AI-internal layer). ADR/RFC are Governance-layer records per
+    # LANGUAGE_CONVENTION (English is less ambiguous); a Chinese ADR (e.g.
+    # ADR-0008 initial draft) must be flagged.
+    for target_dir in (root / "governance", root / "rfc"):
+        if not target_dir.exists():
+            continue
         # Files that legitimately carry CJK are exempt:
         #  - README / index (bilingual navigation)
         #  - policies that are user-facing (proposal-policy, skill-policy)
@@ -374,7 +378,7 @@ def check_language(root, results):
         }
         # Sub-directories whose docs define Chinese usage by design
         exempt_subdirs = {"standards"}
-        for p in sorted(gov_dir.rglob("*.md")):
+        for p in sorted(target_dir.rglob("*.md")):
             if any(x in p.parts for x in EXCLUDED_DIRS):
                 continue
             if "archive" in p.parts:
@@ -397,8 +401,8 @@ def check_language(root, results):
             ]
             if len(cjk_lines) >= 3:
                 results.warning(
-                    f"{p.name} contains Chinese (LANGUAGE_CONVENTION: governance "
-                    f"layer must be English; {len(cjk_lines)} lines)",
+                    f"{p.name} contains Chinese (LANGUAGE_CONVENTION: "
+                    f"AI-internal layer must be English; {len(cjk_lines)} lines)",
                     file=str(p),
                 )
 

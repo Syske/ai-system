@@ -34,6 +34,7 @@ The following layers MUST use English:
 | Runtime templates | Phase names, step instructions, decision rules | Execution logic; must not have ambiguity |
 | Skills | Implementation instructions, validation rules, anti-patterns | Reusable across teams |
 | Governance | Rules, standards, policies | Authoritative; English is less ambiguous |
+| RFC / ADR | rfc/ 下的规范与决策记录 | Authoritative records; English is less ambiguous |
 | Coding Memory | Lesson entries, memory indexes (governance/memory/) | Loaded by agents at execution time; must be deterministic |
 | Config files | YAML keys, routing rules | Machine-parsed |
 

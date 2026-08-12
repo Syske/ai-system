@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# pre-commit: run the ai-system integrity gate before every commit.
+# Ensures "maintenance completed -> gate check" is never skipped by hand.
+#   python tools/repo-lint.py     (structural + language, standalone re-run)
+#   python tools/check.py         (17 checks incl. repo-lint, path-audit, ADR)
+#
+# Install: copy to .git/hooks/pre-commit (or `git config core.hooksPath .githooks`)
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+echo "🔍 pre-commit: running repo-lint..."
+LINT_OUT="$(python tools/repo-lint.py --repo-root . 2>&1 || true)"
+echo "$LINT_OUT" | tail -2
+
+if echo "$LINT_OUT" | grep -E "BLOCKERS: [1-9]|ERRORS: [1-9]" >/dev/null 2>&1; then
+    echo "❌ pre-commit: repo-lint found blockers/errors. Fix before committing."
+    exit 1
+fi
+
+echo "🔍 pre-commit: running check.py (integrity gate)..."
+CHECK_OUT="$(python tools/check.py 2>&1 || true)"
+echo "$CHECK_OUT" | tail -3
+
+if echo "$CHECK_OUT" | grep -E "^FAIL" >/dev/null 2>&1; then
+    echo "❌ pre-commit: check.py failed. Fix before committing."
+    exit 1
+fi
+
+echo "✅ pre-commit: gates passed."
+exit 0
