@@ -28,6 +28,7 @@ Each ADR references the RFC it implements.
 | ADR-0006 | Workflow-First Design | Accepted |
 | ADR-0007 | Governance Independence | Accepted |
 | ADR-0008 | Project ↔ Repository Logical Mapping | Accepted |
+| ADR-0009 | AI-Operation-First Design (AI 自运行自维护优先) | Accepted |
 
 ### When to Create an ADR
 
