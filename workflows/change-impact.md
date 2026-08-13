@@ -47,6 +47,8 @@ Never load the entire repository tree or every branch into context.
 - change-impact-report.md
 
 Reports are written to `outputs/change-impact/{date}-{target}/` under the workspace root.
+`{target}` is a kebab-case descriptor of the session (≤30 chars); same-day reruns on the
+same target append `-N` (outputs/change-impact/2026-08-13-live-api-timeout/).
 The report records, per project, the base branch and target branch used.
 The report includes a Spec/Task Impact section when a Change ID is provided.
 The report is written in the system language (config/menu.yaml → locale, per governance/LANGUAGE_CONVENTION.md).

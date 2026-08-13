@@ -15,6 +15,7 @@ Quality gates, policies, naming conventions, and review standards for the AI rep
 | `REFLECTION_RULES.md` | Mandatory reflection at every Workflow completion. |
 | `LANGUAGE_CONVENTION.md` | English for AI flow control, Chinese for user-facing reports. Enforced by `repo-lint.py check_language` (Rule 1-3). |
 | `AI_USER_RESPONSIBILITY_CONTRACT.md` | AI/user division of labor, decision rights matrix (D1-D10), escalation ladder, interaction protocol (per ADR-0009). |
+| `outputs-convention.md` | Outputs directory convention — two-layer structure (domain + per-session {date}-{descriptor}), report format, scope (non-operational commands). |
 
 ## Quality & Review
 

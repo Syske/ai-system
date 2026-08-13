@@ -45,6 +45,8 @@ Never load content outside the discussion scope.
 - solution.md
 
 Documents are written to `outputs/proposal/{date}-{title}/` under the workspace root.
+`{title}` is a kebab-case descriptor of the session (≤30 chars); same-day reruns on the
+same title append `-N`.
 The document records any referenced code as `project:branch`.
 The document is written in the system language (config/menu.yaml → locale, per governance/LANGUAGE_CONVENTION.md).
 

@@ -45,6 +45,8 @@ Never load the entire repository tree or every branch into context.
 - review-report.md
 
 Reports are written to `outputs/code-review/{date}-{target}/` under the workspace root.
+`{target}` is a kebab-case descriptor of the session (≤30 chars); same-day reruns on the
+same target append `-N`.
 The report records, per project, the base branch and target branch used.
 The report is written in the system language (config/menu.yaml → locale, per governance/LANGUAGE_CONVENTION.md).
 

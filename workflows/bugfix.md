@@ -43,6 +43,11 @@ Never load the entire repository tree into context.
 - Regression Report
 - BugFix Report
 
+Reports are written to `outputs/bugfix/{date}-{descriptor}/` under the workspace root,
+where `{descriptor}` is the bug theme (kebab-case, e.g. `incentive-bizcourse-npe`);
+same-day same-theme reruns append `-N` (existing flat files under `outputs/bugfix/`
+are historical and stay as-is).
+
 ## Exit Criteria
 
 Success:
