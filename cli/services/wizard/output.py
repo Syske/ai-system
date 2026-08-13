@@ -145,12 +145,11 @@ class WizardOutput:
         values
     ):
 
-        # Record state for ANY project the user could pick — i.e. whose
-        # workspace dir exists. Do NOT apply the _project_exists (business
-        # repo) guard here: workspace-only projects (e.g. pywechat-live-2608)
-        # are valid, selectable contexts and their last_action/last_workflow
-        # must persist for the wizard recommendation to work. The repo
-        # presence check is for repo-level operations, not state memory.
+        # 记录用户可选的任意项目状态——即 workspace 目录存在的项目。
+        # 此处不套用 _project_exists（业务仓库）守卫：仅工作区项目
+        # （如 pywechat-live-2608）也是合法、可选的上下文，其
+        # last_action/last_workflow 必须持久化，wizard 推荐才能生效。
+        # 业务仓库存在性检查针对仓库级操作，不针对状态记忆。
         if not project:
             return
 

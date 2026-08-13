@@ -70,10 +70,10 @@ class WizardSelection:
         header
     ):
 
-        # List ALL workspace projects — including those without a business
-        # repo in projects/ (they are valid workspace contexts, e.g.
-        # pywechat-live-2608). P16's _project_exists guard applies to
-        # _save_state (prevent stale last_project), NOT to the list here.
+        # 列出全部工作区项目——包括 projects/ 下无业务仓库的项目
+        # （它们是合法工作区上下文，如 pywechat-live-2608）。
+        # P16 的 _project_exists 守卫作用于 _save_state（防止陈旧
+        # last_project），不作用于此处列表。
         projects = self._dirs(
             self.workspaces,
             exclude={"archived"}

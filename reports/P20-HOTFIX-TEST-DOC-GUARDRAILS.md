@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Fix (extension tooling) |
 | Author | AI Maintainer |
 | Created | 2026-08-11 |
@@ -68,12 +68,20 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-08-11 |
+| User (AI Maintainer operator) | **Approved** | 2026-08-13 |
 
 ---
 
-## Implementation Record (YYYY-MM-DD)
+## Implementation Record (2026-08-13)
 
 Applied per approval (OPERATIONS §12 → Implement → Validate):
-1. …（待批准后追加）
-**Validation**: …（待批准后追加）
+1. `validate_hotfix_doc.py`：占位符检测改用等长空格遮蔽行内代码/围栏代码块；新增 `ALLOWABLE_PLACEHOLDERS = {"test_report_link"}` 豁免清单；`{title}` 等真实遗留占位符仍阻断。
+2. `publish_markdown_to_confluence.py` `build_html_storage_body`：渲染后统一补齐空单元格（`<td></td>`→`<td><br /></td>`、`<th></th>`→`<th><br /></th>`）。
+3. `template_content.md`：`{test_report_link}` 行加注释说明“占位符由测试同学转测后补充，创建/提测时保持原样”。
+4. `SKILL.md`：补充占位符规则（接口路径 `{}` 可保留、`{test_report_link}` 由测试同学转测后补充，创建方保持原样）。
+
+**Validation**:
+- `py_compile` 两脚本 OK。
+- 校验器回归：保留 `` `{enterpriseId}` `` 路径 + `{test_report_link}` 字面量 → `VALIDATION OK`（exit 0）；保留真实 `{title}` 未替换 → 阻断（exit 1）。
+- `build_html_storage_body` 单测：含空单元格 markdown → storage 无 `<td></td>`/`<th></th>`，空单元格补齐 `<br />`。
+- 发布回归：草稿页发布 + `verify_hotfix_page.py` 一次通过（待实际发布时执行）。
