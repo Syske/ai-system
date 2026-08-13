@@ -119,6 +119,9 @@ sections:
       - name: pack
         kind: command
         icon: "📦 "
+      - name: extensions-init
+        kind: command
+        icon: "🧰 "
 
 # 各命令的字段定义（[[字段名, 是否必填], ...]）；未注册的命令用 default。
 command_fields:
@@ -135,6 +138,13 @@ command_fields:
     - - "Mode"
       - false
     - - "Scope"
+      - false
+  extensions-init:
+    - - "Remote URL"
+      - false
+    - - "Committer Email"
+      - false
+    - - "Committer Name"
       - false
   pack:
     - - "Output Directory"
