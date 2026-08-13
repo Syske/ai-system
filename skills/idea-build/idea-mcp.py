@@ -5,7 +5,7 @@ idea-mcp — IntelliJ IDEA MCP Server CLI 客户端(通用)
 通过 IDEA 内置 MCP Server 调用 build_project(IDE 常驻增量编译器,秒级),
 替代 CLI mvnw 冷启动编译(62-70s)。任何 AI agent 可通过 bash 调用。
 
-已验证连接(2026-08-07, IDEA 2026.2.0.1 Ultimate, 见 ai-system/skills/java-maven/idea-build.md):
+已验证连接(2026-08-07, IDEA 2026.2.0.1 Ultimate, 见 ai-system/skills/idea-build/SKILL.md):
   SSE:  http://127.0.0.1:64342/sse   (IDEA 内置端口 63342 + 1000)
   Header: IJ_MCP_SERVER_PROJECT_PATH=<项目路径>
 
@@ -116,15 +116,18 @@ def cmd_tools(port, project):
         print(f"  - {t['name']}: {t.get('description', '')[:60]}")
 
 
-def cmd_build(port, project, rebuild=False):
+def cmd_build(port, project, rebuild=False, files=None):
     post = mcp_session(port, project)
     rpc(post, "initialize", {
         "protocolVersion": "2024-11-05", "capabilities": {},
         "clientInfo": {"name": "idea-mcp-cli", "version": "1.0"},
     })
+    args = {"projectPath": project, "rebuild": rebuild}
+    if files:
+        args["files"] = files
     result = rpc(post, "tools/call", {
         "name": "build_project",
-        "arguments": {"projectPath": project, "rebuild": rebuild},
+        "arguments": args,
     }, _id=3)
     content = result.get("result", {}).get("content", [])
     text = "\n".join(c.get("text", "") for c in content if c.get("type") == "text")
@@ -155,6 +158,7 @@ def main():
     parser.add_argument("target", nargs="?", help="项目路径(默认当前目录)")
     parser.add_argument("rest", nargs="*", help="exec: command 及其参数; build: --rebuild 标志")
     parser.add_argument("--rebuild", action="store_true", help="build: 全量重建")
+    parser.add_argument("--files", action="append", default=[], help="build: 指定编译文件(可多次, IDEA 项目内路径)")
     args = parser.parse_args()
 
     port = int(__import__("os").environ.get("IJ_MCP_SERVER_PORT", DEFAULT_PORT))
@@ -164,7 +168,7 @@ def main():
         if args.command == "tools":
             cmd_tools(port, project)
         elif args.command == "build":
-            cmd_build(port, project, rebuild=args.rebuild)
+            cmd_build(port, project, rebuild=args.rebuild, files=args.files)
         elif args.command == "exec":
             if not args.rest:
                 print("用法: idea-mcp.py exec <projectPath> <command> [args...]", file=sys.stderr)
