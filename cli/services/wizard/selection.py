@@ -254,6 +254,7 @@ class WizardSelection:
             w
             for w in workflows
             if w not in configured["workflow"]
+            and w not in self.hidden_workflows()
         ]
 
         if remaining:

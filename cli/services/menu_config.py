@@ -187,6 +187,12 @@ class MenuConfig:
             self.get("multi_select_fields")
         )
 
+    def hidden_workflows(self):
+
+        return set(
+            self.get("hidden_workflows")
+        )
+
     def menu_option(self, menu, key):
 
         return (

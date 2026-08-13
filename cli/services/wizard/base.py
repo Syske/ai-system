@@ -44,6 +44,10 @@ class WizardConfigAccess:
 
         return self.config.multi_select_fields()
 
+    def hidden_workflows(self):
+
+        return self.config.hidden_workflows()
+
     def _menu_option(self, menu, key):
 
         return self.config.menu_option(menu, key)

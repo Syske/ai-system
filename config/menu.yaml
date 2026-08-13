@@ -12,6 +12,14 @@ locale: zh
 # kind: workflow（注册于 workflow-registry.yaml）或 command（cli/commands/*.md）。
 # title 为 i18n key（解析见 config/i18n/{locale}.yaml）。
 # flow_main 的编号仅表达主链展示顺序；主链拓扑（谁接谁）以 workflows/README.md 为唯一来源。
+
+# AI 内部工作流：不在用户菜单显示（不落“其他流程”），由 AI 按需触发
+# （ADR-0009: AI 运维优先）。已注册但隐藏 = AI 可调用、用户菜单不可见。
+hidden_workflows:
+  - bootstrap      # 环境首启/缺失时 AI 触发（状态驱动）
+  - analysis       # maintain 内部环节（系统健康）
+  - knowledge      # maintain 内部环节（知识生命周期）
+
 sections:
   - title: flow_main
     items:
