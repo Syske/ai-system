@@ -1,6 +1,6 @@
 # AI Operating Rules
 
-Version: 1.3
+Version: 1.4
 
 This document defines how the AI Runtime behaves.
 
@@ -18,6 +18,7 @@ The following governance documents are binding for all Workflows and Runtimes:
 - **Reflection Rules**: `governance/REFLECTION_RULES.md` — Mandatory reflection at every Workflow completion
 - **Attention Management**: `governance/ATTENTION_MANAGEMENT.md` — Attention decay signals, mid-task checkpoints, interruption rules
 - **Language Convention**: `governance/LANGUAGE_CONVENTION.md` — English for AI control flow, Chinese for user-facing reports
+- **AI-User Responsibility Contract**: `governance/AI_USER_RESPONSIBILITY_CONTRACT.md` — Division of labor, decision rights matrix (D1-D10), escalation ladder; who decides what (per ADR-0009)
 
 ---
 
