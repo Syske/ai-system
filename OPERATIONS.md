@@ -270,6 +270,7 @@ titles are user-facing (Chinese); the item `kind` (workflow/command) is internal
   * `开发主链`: the numbered chain `prepare → spec → dev-setup → develop → review → verify → release` (1-7).
   * `修复流程`: parallel entry `bugfix`.
   * `系统能力`: standalone `bootstrap`, `analysis`, `knowledge`.
+  * `代码分析`: standalone business-analysis workflows `code-review`, `change-impact`, `proposal` (review/impact/solution for business code, symmetrical to the `代码分析` command group).
   * `其他流程`: discovered but ungrouped workflows (automatic).
 * **Commands**
   * `变更管理`: OpenSpec change lifecycle — `propose`, `apply`, `archive`, `explore`.

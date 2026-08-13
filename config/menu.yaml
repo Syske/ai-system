@@ -62,6 +62,8 @@ sections:
       - name: knowledge
         kind: workflow
         icon: "📚 "
+  - title: flow_analysis
+    items:
       - name: code-review
         kind: workflow
         icon: "🔎 "
