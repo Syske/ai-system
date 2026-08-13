@@ -24,6 +24,7 @@ config/environments/context.yaml
 workspaces/.aic-state.yaml
 logs/
 metrics/
+.ai-system/generated/
 
 # OS
 .DS_Store
