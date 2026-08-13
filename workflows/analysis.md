@@ -4,6 +4,10 @@
 
 Analyze AI System structure, quality and consistency.
 
+> AI-operation-first (ADR-0009): this workflow runs as an **internal stage of
+> the maintenance cycle** (aic-maintain), not a standalone user menu entry.
+> It may also be invoked directly on demand (Scope=analysis).
+
 ## Runtime
 
 - templates/runtime/runtime-analysis.md

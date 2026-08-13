@@ -19,6 +19,7 @@ Automated governance tooling for the AI repository.
 | `mr-provider-scaffold.py` | MR-submit provider scaffold (init generates contract skeleton + contract tests for the bugfix hotfix mode; e.g. Codeup) |
 | `extensions-init.py` | Extensions directory bootstrap — standalone git repo init (.gitignore/README/example skill/remote/committer identity), idempotent |
 | `extensions-lint.py` | Extensions domain linter — checks the separate extensions repo (SKILL.md / OPTIMIZATION_LOG.md conventions, no sensitive/compiled artifacts tracked); --fix-missing-log scaffolds logs |
+| `quick-check.py` | Read-only quick health check (repo-lint + path-audit + extensions-lint) — seconds, safe at every session; records findings to metrics/quick-check-{date}.json for trend tracking |
 | `pack.py` | AI System packaging (output dir, zip) |
 
 Run order after a change:

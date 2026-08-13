@@ -2,7 +2,18 @@
 
 ## Purpose
 
-Load environment configuration and prepare execution context for all downstream workflows.
+Bootstrap the environment on first use or after environment loss: provision
+missing config, derive base paths, and mark the environment ready.
+
+Triggered by the AI (per ADR-0009) — not a user menu entry:
+- `bootstrap.status == none` in workspaces/.aic-state.yaml → first use, AI triggers
+- `bootstrap.status == in-progress` → previous run interrupted, AI resumes
+- `bootstrap.status == done` → ready; every session resolves the Environment
+  Context automatically at entry (cli/main.py), bootstrap is NOT re-run
+- Environment config missing/corrupted → AI re-triggers to provision
+
+Once ready, the workflow is complete; downstream workflows consume the
+Environment Context as a precondition.
 
 ## Runtime
 

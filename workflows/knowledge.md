@@ -4,6 +4,11 @@
 
 Manage AI System knowledge assets.
 
+> AI-operation-first (ADR-0009): knowledge lifecycle (collect/review/archive)
+> is managed by AI as part of the maintenance cycle (OPERATIONS 1.7); the
+> workflow may be invoked directly on demand but is not a standalone user
+> menu entry.
+
 ## Runtime
 
 - templates/runtime/runtime-knowledge.md

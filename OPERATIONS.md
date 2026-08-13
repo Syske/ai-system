@@ -171,8 +171,8 @@ Prevention: Change Control (L1 / L2 / L3) plus the mandatory Deviations report m
 ## 1.7 System Health and Knowledge
 
 ```text
-analysis     periodic AI System health check
-knowledge    collect / update / search / review / archive knowledge assets
+maintain     AI routine maintenance (quick-check pre-flight + mode-based inspection)
+knowledge    knowledge lifecycle managed by AI inside the maintenance cycle
 ```
 
 Knowledge lifecycle triggers (matching `knowledge` workflow operations):
@@ -183,9 +183,17 @@ review    — monthly: de-duplicate, check contradiction, check stale entries
 archive   — quarterly: archive outdated entries, update the index
 ```
 
-Run `knowledge collect` after each release or retrospective.
+AI manages knowledge as part of the maintenance cycle (not a standalone
+user menu entry). `governance/memory/` is validated by `tools/check.py`
+(entry format, index integrity, language).
 
-`governance/memory/` is validated by `tools/check.py` (entry format, index integrity, language).
+AI-operation-first health flow (ADR-0009):
+
+- Session start: AI runs `python tools/quick-check.py` (read-only, seconds);
+  findings recorded to `metrics/quick-check-{date}.json` (traceable).
+- Due maintenance: AI checks `workspaces/.aic-state.yaml → maintenance.
+  next_maintenance`; when due, prompts the user for authorization.
+- The user decides only whether to run and which Mode/Scope.
 
 ---
 
@@ -203,11 +211,18 @@ Modes:
 * monthly
 * on-demand
 
-Trigger:
+Trigger (AI-operation-first, ADR-0009):
 
 ```text
 python -m cli.main maintain --mode weekly
 ```
+
+- AI runs `tools/quick-check.py` at session start (read-only pre-flight).
+- AI prompts for authorization when `maintenance.next_maintenance` is due.
+- The user decides whether to run and which Mode/Scope; execution, report
+  generation, and next-maintenance scheduling are AI-owned.
+- analysis (AI system health) and knowledge lifecycle run as internal
+  stages of the maintenance cycle, not standalone menu entries.
 
 The maintain command runs repo-lint / repo-metrics, the repository-maintainer inspection for the selected mode, and the governance consistency spot checks (workflow eight-section contract, registry minimality, reference integrity, doc-reality alignment).
 

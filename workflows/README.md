@@ -35,10 +35,12 @@ Execution lifecycle (phases, checkpoints, recovery, persistence) is owned by the
 
 ## Entry & Main Chain
 
-Cold start (once per environment):
+Cold start (once per environment, AI-triggered per ADR-0009):
 
 ```text
-bootstrap
+bootstrap     # AI triggers on first use / environment loss; state in
+              # workspaces/.aic-state.yaml → bootstrap.status; not re-run
+              # per session (cli/main.py resolves env automatically)
 ```
 
 Change lifecycle main chain:
@@ -61,11 +63,14 @@ Independent entry:
 
 Standalone:
 
-- analysis
-- knowledge
 - code-review
 - change-impact
 - proposal
+
+AI-internal (not user menu entries):
+
+- analysis  — runs as an internal stage of the maintenance cycle
+- knowledge — lifecycle managed by AI inside maintenance (OPERATIONS 1.7)
 
 ---
 

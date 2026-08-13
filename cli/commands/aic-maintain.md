@@ -6,7 +6,22 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 
 **Inputs**: Mode (weekly / monthly / quarterly / on-demand, default weekly); optional Scope (for on-demand, limits the range, e.g. workflows / runtime / skills / governance / cli).
 
+**AI scheduling** (ADR-0009):
+- At session start the AI runs `python tools/quick-check.py` (read-only,
+  seconds); issues are reported and recorded to
+  metrics/quick-check-{date}.json.
+- The AI checks workspaces/.aic-state.yaml → maintenance.next_maintenance;
+  when due, it prompts the user for authorization before running this command.
+- The user decides only whether to run and which Mode/Scope.
+
 **Steps**
+
+0. **Pre-check (AI auto, read-only)**
+
+   ```bash
+   python tools/quick-check.py            # lint + path + extensions, records findings
+   python tools/quick-check.py --history  # recent snapshots (trend for report)
+   ```
 
 1. **Tool checks** (run in the ai-system directory)
 
@@ -28,6 +43,14 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
      `python tools/extensions-lint.py --fix-missing-log` (scaffold logs),
      verify extensions repo sync (`git -C <workspace>/extensions status`),
      and report per-extension health (SKILL.md / OPTIMIZATION_LOG coverage)
+
+2.5 **AI system health (analysis workflow, internal)** — run the analysis
+   workflow's checks (structure/quality/consistency) as an internal stage;
+   the analysis workflow is not a standalone menu entry.
+
+2.6 **Knowledge lifecycle (internal)** — per OPERATIONS 1.7: collect (after
+   release/retrospective), review (monthly: de-dup/contradiction/stale),
+   archive (quarterly). Managed by AI as part of the maintenance cycle.
 
 3. **Governance consistency spot check** (always, to prevent recurrence of past issues)
    - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches README glossary; Runtime reference files exist; Preconditions/Next chain closes
@@ -51,6 +74,17 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 - 巡检发现（按严重度分级）
 - 一致性抽查结论（逐项通过/失败）
 - 修复动作与建议清单
+- quick-check 趋势（近 N 日快照对比）
+
+完成后更新 workspaces/.aic-state.yaml:
+
+```yaml
+maintenance:
+  last_run: {date}
+  mode: {mode}
+  next_maintenance: {date + interval}   # weekly:+7d monthly:+30d quarterly:+90d
+  last_findings: [...]                    # 本次问题摘要
+```
 
 **Guardrails**
 

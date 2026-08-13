@@ -51,17 +51,11 @@ sections:
       - name: hotfix-test-doc
         kind: workflow
         icon: "📋 "
-  - title: flow_capability
+  - title: flow_init
     items:
-      - name: bootstrap
-        kind: workflow
-        icon: "🌱 "
-      - name: analysis
-        kind: workflow
-        icon: "📊 "
-      - name: knowledge
-        kind: workflow
-        icon: "📚 "
+      - name: extensions-init
+        kind: command
+        icon: "🧰 "
   - title: flow_analysis
     items:
       - name: code-review
@@ -112,9 +106,6 @@ sections:
       - name: pack
         kind: command
         icon: "📦 "
-      - name: extensions-init
-        kind: command
-        icon: "🧰 "
       - name: skill-source
         kind: command
         icon: "🌐 "

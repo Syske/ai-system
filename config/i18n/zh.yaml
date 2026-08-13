@@ -6,6 +6,7 @@ sections:
   flow_main: "开发主链"
   flow_fix: "修复流程"
   flow_capability: "系统能力"
+  flow_init: "初始化"
   flow_analysis: "代码分析"
   commands_changes: "变更管理"
   commands_analysis: "代码分析"
