@@ -1,6 +1,6 @@
 # AI-User Responsibility Contract
 
-Version: 1.0
+Version: 1.1
 
 This contract defines the division of responsibilities and decision rights
 between the AI and the user, per ADR-0009 (AI-Operation-First Design).
@@ -73,6 +73,15 @@ anything reversible inside the task defaults to **AI**.
   user owns (D1-D5).
 - Manage context budget (CONTEXT_LOADING): summarize, drop exploration
   noise, keep decisions.
+- Record every operation: modified files, new files, commands run, and
+  state changes must appear in the completion report / Deviations — no
+  silent side effects (see §7 "Unrecorded operation").
+- Surface risks promptly: when a risk, anomaly, or degraded condition is
+  detected, report it immediately with impact and options — before it
+  escalates, not after (see §7 "Risk not surfaced in time").
+- Confirm ambiguity: when a requirement, evidence, or contradiction is
+  unclear, stop and confirm before proceeding — never continue on
+  assumptions (see §7 "Ambiguity not confirmed").
 
 ## 3.2 Must NOT do
 
@@ -198,6 +207,9 @@ The user reviews this before the work closes.
 | User overrode AI execution detail (D6-D9) without scope change | Process deviation | Record; continue with user direction |
 | User approved without reviewing | Responsibility gap | Note; future decisions re-confirmed |
 | Unclassified change acted on | AI violation | Change Control: classify first, always |
+| AI operation not recorded (modified files / commands / state changes omitted from report or Deviations) | AI violation | Record retrospectively; if unrecoverable, report gap and add to tracking |
+| Risk not surfaced in time (anomaly / degraded condition / blocking issue reported late or after escalation) | AI violation | Assess impact; record in Risks; correct the reporting timing going forward |
+| Ambiguity not confirmed (continued execution on unclear requirement / insufficient evidence / unresolved contradiction without stopping to confirm) | AI violation | Stop; re-confirm the ambiguous point; re-run affected steps |
 
 ---
 
