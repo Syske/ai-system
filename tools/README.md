@@ -16,6 +16,7 @@ Automated governance tooling for the AI repository.
 | `workflow-scaffold.py` | New-workflow scaffold (generates 8-section md + config yaml + runtime skeleton, appends registry) |
 | `command-scaffold.py` | New-command scaffold (generates aic-<name>.md + registration checklist) |
 | `branch-parser-scaffold.py` | Branch-name parser provider scaffold (init generates contract skeleton + contract tests for the bugfix hotfix mode) |
+| `extensions-init.py` | Extensions directory bootstrap — standalone git repo init (.gitignore/README/example skill/remote/committer identity), idempotent |
 | `pack.py` | AI System packaging (output dir, zip) |
 
 Run order after a change:
