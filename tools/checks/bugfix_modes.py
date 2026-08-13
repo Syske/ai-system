@@ -96,11 +96,19 @@ def check_bugfix_modes(c):
         if parser:
             resolved = _resolve_parser(parser)
             if resolved is None:
-                c.error(
-                    f"{CONFIG.name} [{name}]: parser '{parser}' "
-                    "does not resolve to an existing "
-                    f"extensions/<name>/scripts/{CONTRACT_SCRIPT}"
-                )
+                if _extensions_available():
+                    c.error(
+                        f"{CONFIG.name} [{name}]: parser '{parser}' "
+                        "does not resolve to an existing "
+                        f"extensions/<name>/scripts/{CONTRACT_SCRIPT}"
+                    )
+                else:
+                    c.warn(
+                        f"{CONFIG.name} [{name}]: parser '{parser}' not "
+                        f"verified — extensions/ unavailable (CI/env "
+                        "without the extensions repo); run extensions-init "
+                        "to provision"
+                    )
             else:
                 _check_parser_contract(c, name, parser, resolved)
 
@@ -110,11 +118,19 @@ def check_bugfix_modes(c):
         if provider:
             script = _resolve_mr_provider(provider)
             if script is None:
-                c.error(
-                    f"{CONFIG.name} [{name}]: mr.provider '{provider}' "
-                    "does not resolve to an existing "
-                    f"extensions/<name>/scripts/{MR_SCRIPT}"
-                )
+                if _extensions_available():
+                    c.error(
+                        f"{CONFIG.name} [{name}]: mr.provider '{provider}' "
+                        "does not resolve to an existing "
+                        f"extensions/<name>/scripts/{MR_SCRIPT}"
+                    )
+                else:
+                    c.warn(
+                        f"{CONFIG.name} [{name}]: mr.provider '{provider}' "
+                        f"not verified — extensions/ unavailable (CI/env "
+                        "without the extensions repo); run extensions-init "
+                        "to provision"
+                    )
             else:
                 _check_mr_contract(c, name, provider, script)
 
@@ -124,6 +140,17 @@ def check_bugfix_modes(c):
                 f"{CONFIG.name} [{name}]: phases contains 'mr' "
                 "but no mr.provider configured"
             )
+
+
+def _extensions_available() -> bool:
+    """True when the extensions repo (sibling of ai-system) is present.
+
+    extensions/ is a SEPARATE repository (e.g. Codeup). CI checkouts of
+    ai-system alone do not include it — provider contract verification is
+    then degraded to a warning, not an error (the extension is an optional
+    runtime provider, provisioned by extensions-init).
+    """
+    return (ROOT.parent / "extensions").is_dir()
 
 
 def _resolve_parser(parser: str):
