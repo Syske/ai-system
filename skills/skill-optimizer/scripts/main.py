@@ -30,8 +30,10 @@ from constants import ENV_FILE, GLOBAL_CONFIG_DIR
 from core import (
     RealLLMClient,
     build_auto_snapshot_reason,
+    cache_stats_report,
     extract_referenced_skill_paths,
     integrate_auxiliary_references,
+    reset_cache_stats,
     sanitize_reference_content,
     validate_auxiliary_file,
     validate_skill_file,
@@ -916,4 +918,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # 缓存命中率监控：会话开始时清零，无论哪个分支退出都输出汇总
+    reset_cache_stats()
+    try:
+        main()
+    finally:
+        logger.info(cache_stats_report())

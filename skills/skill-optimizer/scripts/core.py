@@ -37,6 +37,46 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# 缓存命中率监控（跨实例累计，模块级）：
+#   DeepSeek usage 字段: prompt_cache_hit_tokens / prompt_cache_miss_tokens
+#   命中率 = hit / (hit + miss)。每次调用成功后累计，退出时汇总输出。
+CACHE_STATS = {
+    "calls": 0,       # 计入统计的调用次数
+    "hit": 0,         # prompt_cache_hit_tokens 累计
+    "miss": 0,        # prompt_cache_miss_tokens 累计
+}
+
+
+def reset_cache_stats():
+    """清零缓存统计（单次优化会话开始时调用）。"""
+    CACHE_STATS["calls"] = 0
+    CACHE_STATS["hit"] = 0
+    CACHE_STATS["miss"] = 0
+
+
+def record_cache_usage(usage):
+    """从 OpenAI response.usage 累计缓存命中/未命中 token。"""
+    if not usage:
+        return
+    hit = getattr(usage, "prompt_cache_hit_tokens", 0) or 0
+    miss = getattr(usage, "prompt_cache_miss_tokens", 0) or 0
+    CACHE_STATS["calls"] += 1
+    CACHE_STATS["hit"] += int(hit)
+    CACHE_STATS["miss"] += int(miss)
+
+
+def cache_stats_report() -> str:
+    """格式化缓存命中率报告（供退出时输出）。"""
+    hit = CACHE_STATS["hit"]
+    miss = CACHE_STATS["miss"]
+    total = hit + miss
+    rate = (hit / total * 100) if total else 0.0
+    return (
+        f"[CacheStats] calls={CACHE_STATS['calls']} "
+        f"hit_tokens={hit} miss_tokens={miss} "
+        f"hit_rate={rate:.1f}%"
+    )
+
 
 
 class RealLLMClient:
@@ -99,6 +139,7 @@ class RealLLMClient:
                 messages=messages,
                 max_tokens=8192,
             )
+            record_cache_usage(response.usage)
             return (response.choices[0].message.content or "").strip()
         except Exception as e:
             logger.error(f"[RealLLM] Error: {e}")
@@ -122,7 +163,9 @@ class RealLLMClient:
         if tools:
             kwargs["tools"] = tools
         try:
-            return self.llm.chat.completions.create(**kwargs)
+            resp = self.llm.chat.completions.create(**kwargs)
+            record_cache_usage(getattr(resp, "usage", None))
+            return resp
         except Exception as e:
             logger.error(f"[RealLLM] chat error: {e}")
             return None
