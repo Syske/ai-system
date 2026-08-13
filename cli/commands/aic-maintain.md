@@ -23,6 +23,11 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    - monthly: architecture review, capability matrix, lifecycle report, evolution suggestions
    - quarterly: workflow redesign assessment, capability restructuring, Playbook consolidation, knowledge cleanup
    - on-demand: run the corresponding items above per Scope
+   - Scope=extensions (any mode): run the extensions domain inspection —
+     `python tools/extensions-lint.py` (conventions + tracked artifacts),
+     `python tools/extensions-lint.py --fix-missing-log` (scaffold logs),
+     verify extensions repo sync (`git -C <workspace>/extensions status`),
+     and report per-extension health (SKILL.md / OPTIMIZATION_LOG coverage)
 
 3. **Governance consistency spot check** (always, to prevent recurrence of past issues)
    - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches README glossary; Runtime reference files exist; Preconditions/Next chain closes

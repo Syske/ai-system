@@ -17,6 +17,7 @@ Automated governance tooling for the AI repository.
 | `command-scaffold.py` | New-command scaffold (generates aic-<name>.md + registration checklist) |
 | `branch-parser-scaffold.py` | Branch-name parser provider scaffold (init generates contract skeleton + contract tests for the bugfix hotfix mode) |
 | `extensions-init.py` | Extensions directory bootstrap — standalone git repo init (.gitignore/README/example skill/remote/committer identity), idempotent |
+| `extensions-lint.py` | Extensions domain linter — checks the separate extensions repo (SKILL.md / OPTIMIZATION_LOG.md conventions, no sensitive/compiled artifacts tracked); --fix-missing-log scaffolds logs |
 | `pack.py` | AI System packaging (output dir, zip) |
 
 Run order after a change:
