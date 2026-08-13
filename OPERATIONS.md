@@ -69,6 +69,49 @@ bugfix → review → verify
 
 Requires Project Context and Workspace Context from a previous dev-setup.
 
+### 1.3.1 BugFix 运行模式（配置驱动）
+
+bugfix 支持多种运行模式，行为差异**全部收敛到配置**，流程文档不散落条件分支：
+
+- 配置唯一来源：`config/workflows/bugfix-modes.yaml`（模式结构 / phases / 分支模板 / 解析器）
+- 运行开关：`config/environments/{env}.yaml → bugfix.mode`（机器级，不入库）
+- 门禁：`tools/checks/bugfix_modes.py`（check.py 第 15 项）——新增/修改模式必须通过
+  结构、phases、模板占位符、解析器契约四重校验，配置错字或死引用无法静默通过
+
+| 模式 | 适用 | 阶段链 |
+|------|------|--------|
+| `standard`（默认） | 常规缺陷诊断修复 | analysis → reproduce → root-cause → plan → implement → regress → report |
+| `hotfix` | 现网问题，基于 master 直接修复，走完整发布前链路 | analysis → reproduce → root-cause → plan → **branch** → implement → regress → **commit** → verify → **doc** |
+
+hotfix 模式要点：
+
+- `plan` 后为**方案确认门禁**（approval_gate），修复方案须经人工确认才切分支
+- 分支按 `branch.template` 生成，默认 `cc{date}_{type}{desc}_{service}`
+  （如 `cc20260813_fix_thread_leak_housekeeping-service-api`）
+- 编译后端沿用 `build.backend`（idea / maven），由 bugfix skill 按环境配置委派
+- 验证通过后按需生成转测文档（`hotfix-test-doc` 工作流）
+
+### 1.3.2 分支名解析器（契约 / 实现分离）
+
+分支命名是公司/平台特有规范，采用**契约归 ai-system、实现归扩展**的架构：
+
+- 契约（ai-system，稳定不变）：`templates/runtime/runtime-bugfix.md` Phase 4.6
+  - 脚本 `scripts/branch_parser.py` / 方法 `parse(branch_name) -> ParsedBranch | None`
+  - 返回字段 `{date, type, desc, service}`；无法解析返回 `None`（不抛异常）
+- 实现（扩展提供者）：`extensions/<name>/scripts/branch_parser.py`，由拥有规范的一方
+  维护公司特定正则；ai-system 不内置任何公司特定分支规范
+- 脚手架：`tools/branch-parser-scaffold.py init <provider>` 非破坏生成契约骨架 +
+  契约测试，提供者只需填实现；新平台（不同分支规范）运行同一 init 即可接入
+- 新接入步骤：scaffold → 填实现 → 加测试实例 → 在 `bugfix-modes.yaml` 注册
+  `branch.parser` → 门禁自动校验
+
+新增/修改模式或解析器后必须运行：
+
+```text
+python tools/check.py
+python tools/repo-lint.py --repo-root .
+```
+
 ---
 
 ## 1.4 Urgent Interruption

@@ -1,0 +1,6 @@
+version: 1
+
+name: hotfix-test-doc
+
+workflow: workflows/hotfix-test-doc.md
+runtime: templates/runtime/runtime-hotfix-test-doc.md

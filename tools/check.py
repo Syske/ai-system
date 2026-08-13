@@ -20,6 +20,7 @@ Validates:
 12. Workflow definition size <= 100 lines (RFC-0003 gate)
 13. CLI service unit tests pass (C1 test base)
 14. Workflow/command audit: dangling command refs, menu registration
+15. bugfix-modes.yaml availability: modes/phases/template/parser resolve
 
 The check logic lives in `tools/checks/` submodules; this file keeps the
 documented command entrypoint stable.

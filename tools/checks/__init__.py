@@ -2,6 +2,7 @@
 
 from .base import Checker, ROOT
 from .adr import check_adr
+from .bugfix_modes import check_bugfix_modes
 from .misc import (
     check_build,
     check_commands,
@@ -47,6 +48,7 @@ def run_all():
     check_proposal_audit(c)
     check_memory(c)
     check_adr(c)
+    check_bugfix_modes(c)
 
     print(
         f"discovered: {len(workflows)} workflows, "

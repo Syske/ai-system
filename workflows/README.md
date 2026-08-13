@@ -23,6 +23,7 @@ Execution lifecycle (phases, checkpoints, recovery, persistence) is owned by the
 | Verify against specification and contract | verify.md |
 | Prepare release readiness | release.md |
 | Diagnose and fix a defect | bugfix.md |
+| Generate a HotFix test document (转测文档) | hotfix-test-doc.md |
 | Analyze AI System health | analysis.md |
 | Manage knowledge assets | knowledge.md |
 | Review arbitrary code and produce a review result | code-review.md |
@@ -56,6 +57,7 @@ Conditional transitions:
 Independent entry:
 
 - bugfix → review → verify
+- hotfix-test-doc (from bugfix hotfix mode; standalone entry also available)
 
 Standalone:
 

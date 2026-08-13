@@ -48,6 +48,9 @@ sections:
       - name: bugfix
         kind: workflow
         icon: "🐛 "
+      - name: hotfix-test-doc
+        kind: workflow
+        icon: "📋 "
   - title: flow_capability
     items:
       - name: bootstrap

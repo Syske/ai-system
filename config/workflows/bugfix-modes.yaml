@@ -1,0 +1,39 @@
+version: 1
+
+# bugfix 运行模式（配置驱动）。
+# - 流程差异集中于此，避免在 skill/runtime 中散落条件分支。
+# - 由 tools/checks/bugfix_modes.py 门禁校验（check.py 第 15 项）：
+#   结构合法 / phases 已知 / template 占位符合法 / parser 解析可用。
+# - 运行时开关：config/environments/{env}.yaml → bugfix.mode（default: standard）。
+
+# 已知阶段（新增阶段必须同步登记到 tools/checks/bugfix_modes.py KNOWN_PHASES）：
+#   analysis reproduce root-cause plan branch implement regress commit verify doc report
+modes:
+  # 标准模式（默认）：诊断 → 最小修复 → 回归验证（现状行为，向后兼容）
+  standard:
+    phases: [analysis, reproduce, root-cause, plan, implement, regress, report]
+
+  # hotfix 模式：现网问题，基于 master 直接修复，走完整发布前链路。
+  # branch.parser 契约见 templates/runtime/runtime-bugfix.md Phase 4.6：
+  #   脚本 scripts/branch_parser.py / 方法 parse(branch_name) -> ParsedBranch | None
+  #   返回字段 {date, type, desc, service}；实现由扩展提供者完成（extensions/<name>/scripts/）。
+  hotfix:
+    base: master
+    approval_gate: plan
+    phases: [analysis, reproduce, root-cause, plan, branch, implement, regress, commit, verify, doc]
+    branch:
+      # 分支命名模板（配置驱动，勿硬编码前缀）。
+      # 占位符: {date}=YYYYMMDD, {type}=fix/feat 等, {desc}=修复描述, {service}=项目/服务名
+      # 约定: 模板须以 cc{date} 开头 —— hotfix-test-doc 通过正则 cc(\d{8}) 解析日期。
+      template: "cc{date}_{type}{desc}_{service}"
+      # 解析器逻辑名：解析到 extensions/<name>/scripts/branch_parser.py（提供者实现）。
+      # 未配置 → 跳过解析（门禁仅在校验配置了 parser 时强制契约）。
+      parser: hotfix-branch-parser
+      from: master
+    commit:
+      require_message: true
+    doc:
+      extension: hotfix-test-doc
+      trigger: on-verify-pass
+
+default: standard

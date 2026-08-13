@@ -184,7 +184,50 @@ Prefer the smallest safe change.
 
 ---
 
-# Phase 5 — Implementation
+# Phase 4.5 — Approval Gate (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
+
+Activate only when the configured mode sets `approval_gate` (e.g. hotfix:
+`approval_gate: plan`) and the current run is in that mode.
+
+Steps:
+
+- Present the Fix Plan: Scope, Impact, Risks, Rollback Considerations.
+- Present the confirmation request in the system language (config/menu.yaml → locale).
+- Wait for explicit user confirmation.
+- Stop (do NOT proceed to branch/implement) until confirmed. No confirmation → stop.
+
+---
+
+# Phase 4.6 — Branch (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
+
+Activate only when the configured mode's `phases` contains `branch`.
+
+Steps:
+
+1. Determine the base branch: `branch.from` in the mode config (hotfix default: master).
+2. Build the branch name from `branch.template` placeholders
+   ({date}/{type}/{desc}/{service}; values come from the BugFix context).
+3. Create the branch locally: `git switch -c <name> <from>` (never push until commit verified).
+4. Before creating, invoke the branch name parser (contract below) to sanity-check
+   the generated name: parse(<name>) must not return None.
+
+## Branch Name Parser Contract (stable — providers MUST NOT change)
+
+- Logical name: `branch.parser` in the mode config (e.g. `hotfix-branch-parser`).
+- Script path (resolved by provider): `extensions/<name>/scripts/branch_parser.py`
+  where `<name>` is the provider extension directory matching the logical name.
+- Method (fixed): `parse(branch_name: str) -> ParsedBranch | None`
+- Return fields (fixed): `{date, type, desc, service}` (all `str`; empty string when absent)
+- Behavior:
+  - Unparseable input → return `None` (do NOT raise).
+  - Empty/blank input → return `None`.
+- ai-system only depends on the method name, parameter, and return fields above;
+  it never depends on provider-internal parsing details.
+- Provider implementation: scaffold with `python tools/branch-parser-scaffold.py init <name>`
+  (generates contract skeleton + contract tests), then fill in the company-specific
+  pattern (e.g. `cc{date}_{type}{desc}_{service}`).
+- Gate: `tools/checks/bugfix_modes.py` (check.py item 15) enforces that a configured
+  parser resolves to an existing script with the exact contract signature.
 
 Invoke:
 
@@ -214,6 +257,33 @@ Verify:
 Generate:
 
 Regression Report
+
+---
+
+# Phase 6.5 — Commit (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
+
+Activate only when the configured mode's `phases` contains `commit`.
+
+Steps:
+
+- When `commit.require_message` is true, commit with a message following
+  the repository commit conventions (one fix per commit, atomic).
+- Commit on the branch created in Phase 4.6.
+- Do NOT push unless a later phase (doc / MR) requires it.
+
+---
+
+# Phase 6.6 — Doc (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
+
+Activate only when the configured mode's `phases` contains `doc` AND regression
+verification passed (or `doc.trigger` is `on-verify-pass` and Phase 6 passed).
+
+Steps:
+
+- Delegate to the extension named by `doc.extension` (hotfix default:
+  hotfix-test-doc) to generate the 转测文档 from the committed branch.
+- The extension owns the document template and publication flow.
+- Output: 转测文档 generated/updated (see workflows/bugfix.md Next: hotfix-test-doc).
 
 # Reflection
 

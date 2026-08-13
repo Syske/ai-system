@@ -17,3 +17,4 @@ workflows:
   code-review: config/workflows/code-review.yaml
   proposal: config/workflows/proposal.yaml
   change-impact: config/workflows/change-impact.yaml
+  hotfix-test-doc: config/workflows/hotfix-test-doc.yaml
