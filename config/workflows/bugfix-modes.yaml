@@ -7,7 +7,7 @@ version: 1
 # - 运行时开关：config/environments/{env}.yaml → bugfix.mode（default: standard）。
 
 # 已知阶段（新增阶段必须同步登记到 tools/checks/bugfix_modes.py KNOWN_PHASES）：
-#   analysis reproduce root-cause plan branch implement regress commit verify doc report
+#   analysis reproduce root-cause plan branch implement regress commit verify mr doc report
 modes:
   # 标准模式（默认）：诊断 → 最小修复 → 回归验证（现状行为，向后兼容）
   standard:
@@ -20,7 +20,7 @@ modes:
   hotfix:
     base: master
     approval_gate: plan
-    phases: [analysis, reproduce, root-cause, plan, branch, implement, regress, commit, verify, doc]
+    phases: [analysis, reproduce, root-cause, plan, branch, implement, regress, commit, verify, mr, doc]
     branch:
       # 分支命名模板（配置驱动，勿硬编码前缀）。
       # 占位符: {date}=YYYYMMDD, {type}=fix/feat 等, {desc}=修复描述, {service}=项目/服务名
@@ -35,5 +35,16 @@ modes:
     doc:
       extension: hotfix-test-doc
       trigger: on-verify-pass
+    mr:
+      # MR 提供者逻辑名：解析到 extensions/<name>/scripts/submit_mr.py（契约见
+      # templates/runtime/runtime-bugfix.md Phase 6.6）。Codeup 特有实现由
+      # extensions/codeup-submit-mr 提供；其他平台替换 provider 即可。
+      provider: codeup-submit-mr
+      trigger: on-verify-pass
+      target_branch: master
+      # MR 描述模板（按分支类型）：{desc}=修复/需求描述, {title}=MR 标题
+      description_templates:
+        bugfix: "bugfix：{desc}"
+        requirement: "{requirement}：{desc}"
 
 default: standard

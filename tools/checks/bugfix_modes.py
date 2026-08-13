@@ -26,16 +26,22 @@ CONFIG = ROOT / "config" / "workflows" / "bugfix-modes.yaml"
 KNOWN_PHASES = {
     "analysis", "reproduce", "root-cause", "plan",
     "branch", "implement", "regress", "commit", "verify", "doc",
-    "report",
+    "report", "mr",
 }
 
 KNOWN_PLACEHOLDERS = {"date", "type", "desc", "service"}
 
-# 契约：与 templates/runtime/runtime-bugfix.md Phase 4.6 保持一致。
+# 契约：与 templates/runtime/runtime-bugfix.md Phase 4.6/6.6 保持一致。
 CONTRACT_SCRIPT = "branch_parser.py"
 CONTRACT_METHOD = "parse"
 CONTRACT_PARAM = "branch_name"
 CONTRACT_FIELDS = {"date", "type", "desc", "service"}
+
+# MR provider 契约（templates/runtime/runtime-bugfix.md Phase 6.6）。
+MR_SCRIPT = "submit_mr.py"
+MR_METHOD = "submit"
+MR_PARAMS = ["source_branch", "target_branch", "title", "description"]
+MR_FIELDS = {"url", "id"}
 
 
 def check_bugfix_modes(c):
@@ -98,6 +104,27 @@ def check_bugfix_modes(c):
             else:
                 _check_parser_contract(c, name, parser, resolved)
 
+        # 4. mr.provider 解析可用（若配置）
+        mr = mode.get("mr", {})
+        provider = mr.get("provider") if isinstance(mr, dict) else None
+        if provider:
+            script = _resolve_mr_provider(provider)
+            if script is None:
+                c.error(
+                    f"{CONFIG.name} [{name}]: mr.provider '{provider}' "
+                    "does not resolve to an existing "
+                    f"extensions/<name>/scripts/{MR_SCRIPT}"
+                )
+            else:
+                _check_mr_contract(c, name, provider, script)
+
+        # 5. mr 阶段依赖校验：phases 含 mr 必须有 mr.provider
+        if "mr" in phases and not provider:
+            c.warn(
+                f"{CONFIG.name} [{name}]: phases contains 'mr' "
+                "but no mr.provider configured"
+            )
+
 
 def _resolve_parser(parser: str):
     """Resolve a logical parser name to its script path.
@@ -114,6 +141,24 @@ def _resolve_parser(parser: str):
         # 解析规则：目录名 = 逻辑名，或其 scripts/ 下声明归属。
         script = ext_dir / "scripts" / CONTRACT_SCRIPT
         if script.is_file() and ext_dir.name == parser:
+            return script
+    return None
+
+
+def _resolve_mr_provider(provider: str):
+    """Resolve a logical MR provider name to its script path.
+
+    Contract: providers register by placing submit_mr.py in
+    extensions/<name>/scripts/.
+    """
+    ext_root = ROOT.parent / "extensions"
+    if not ext_root.is_dir():
+        return None
+    for ext_dir in sorted(ext_root.iterdir()):
+        if not ext_dir.is_dir():
+            continue
+        script = ext_dir / "scripts" / MR_SCRIPT
+        if script.is_file() and ext_dir.name == provider:
             return script
     return None
 
@@ -164,4 +209,54 @@ def _check_parser_contract(c, name, parser, script: Path):
             f"{CONFIG.name} [{name}]: parser '{parser}' return "
             f"fields {sorted(fields)} != contract "
             f"{sorted(CONTRACT_FIELDS)}"
+        )
+
+
+def _check_mr_contract(c, name, provider, script: Path):
+    """Load the provider script and verify the MR contract signature."""
+
+    spec = importlib.util.spec_from_file_location(
+        f"submit_mr_{provider}", script
+    )
+    if spec is None or spec.loader is None:
+        c.error(f"{CONFIG.name} [{name}]: cannot load mr provider '{provider}'")
+        return
+    mod = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)
+    except Exception as exc:
+        c.error(
+            f"{CONFIG.name} [{name}]: mr provider '{provider}' "
+            f"failed to import: {exc}"
+        )
+        return
+
+    if not hasattr(mod, MR_METHOD):
+        c.error(
+            f"{CONFIG.name} [{name}]: mr provider '{provider}' "
+            f"missing method '{MR_METHOD}()'"
+        )
+        return
+
+    sig = inspect.signature(getattr(mod, MR_METHOD))
+    params = list(sig.parameters)
+    if params != MR_PARAMS:
+        c.error(
+            f"{CONFIG.name} [{name}]: mr provider '{provider}' signature "
+            f"must be {MR_METHOD}({', '.join(MR_PARAMS)}) "
+            f"-> MrResult | None, got {params}"
+        )
+        return
+
+    probe = getattr(mod, MR_METHOD)(
+        "__probe_src__", "__probe_tgt__", "__probe_title__", "__probe_desc__"
+    )
+    if probe is None:
+        return  # 合法：失败/探测返回 None（幂等探测不创建）
+
+    fields = set(getattr(probe, "__dataclass_fields__", {}))
+    if fields != MR_FIELDS:
+        c.error(
+            f"{CONFIG.name} [{name}]: mr provider '{provider}' return "
+            f"fields {sorted(fields)} != contract {sorted(MR_FIELDS)}"
         )

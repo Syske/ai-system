@@ -273,7 +273,49 @@ Steps:
 
 ---
 
-# Phase 6.6 — Doc (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
+# Phase 6.6 — Submit MR (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
+
+Activate only when the configured mode's `phases` contains `mr` AND the branch
+is committed and pushed (Phase 6.5).
+
+Steps:
+
+1. Resolve target branch:
+   - Parsed branch `type` == `fix`/bugfix → `mr.target_branch` in config (default master).
+   - Otherwise (requirement/feat) → read the requirement branch from project
+     context / workspace state; ask the user when unavailable.
+2. Build title and description:
+   - Bugfix: title from fix summary; description template per
+     `mr.description_templates.bugfix` (e.g. `bugfix: {desc}`).
+   - Requirement: title from requirement summary; description template per
+     `mr.description_templates.requirement` (e.g. `{requirement}: {desc}`).
+3. Invoke the MR provider (contract below).
+4. 转测文档 is created LATER (Phase 6.7) — the MR is NOT required to reference
+   the document URL (documents are created after the MR, per workflow order).
+
+## MR Provider Contract (stable — providers MUST NOT change)
+
+- Logical name: `mr.provider` in the mode config (e.g. `codeup-submit-mr`).
+- Script path (resolved by provider): `extensions/<name>/scripts/submit_mr.py`
+  where `<name>` is the provider extension directory matching the logical name.
+- Method (fixed): `submit(source_branch: str, target_branch: str, title: str,
+  description: str) -> MrResult | None`
+- Return fields (fixed): `MrResult = {url, id}` (url: str, id: str/int)
+- Behavior:
+  - Idempotent: an open MR already exists for source+target → return the
+    existing MR (do NOT create a duplicate).
+  - Failure → return `None` (do NOT raise).
+  - Provider-internal details (API host, credentials, org id) live in the
+    provider script, never in ai-system.
+- Provider implementation: scaffold with
+  `python tools/mr-provider-scaffold.py init <name>` (contract skeleton +
+  contract tests), then fill the platform-specific logic.
+- Gate: `tools/checks/bugfix_modes.py` (check.py item 15) enforces that a
+  configured provider resolves to an existing script with the exact contract.
+
+---
+
+# Phase 6.7 — Doc (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
 
 Activate only when the configured mode's `phases` contains `doc` AND regression
 verification passed (or `doc.trigger` is `on-verify-pass` and Phase 6 passed).
