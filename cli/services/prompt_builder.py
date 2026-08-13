@@ -107,7 +107,10 @@ class PromptBuilder:
                 "workflow_definition":
                     workflow_md,
                 "runtime_definition":
-                    runtime_md,
+                    self._skeletonize_runtime(
+                        config["runtime"],
+                        runtime_md
+                    ),
                 "inputs":
                     self._inputs(context)
             }
@@ -169,6 +172,63 @@ class PromptBuilder:
             )
 
         return "\n".join(lines)
+
+    @staticmethod
+    def _skeletonize_runtime(
+        runtime_path: str,
+        runtime_md: str
+    ) -> str:
+        """Reduce a full runtime template to a phase skeleton for the prompt.
+
+        Cache/volume optimization (轨道 A 延伸): the full runtime template
+        is large (release ~12K chars) and 98% static. Embedding it whole
+        inflates the prompt prefix. Instead, embed:
+          - every `# Phase N — Title` heading
+          - the first requirement line under each phase (if any)
+          - a reference to the full template file for on-demand reading
+
+        The agent reads the referenced file when it reaches a phase.
+        Determinism: phase names/order are preserved verbatim.
+        """
+
+        import re
+
+        lines = runtime_md.splitlines()
+        skeleton = []
+        current_phase = None
+
+        for line in lines:
+
+            s = line.strip()
+
+            m = re.match(r"^# Phase (\d+[^—]*—?.+)$", s)
+
+            if m:
+
+                if current_phase:
+                    skeleton.append("")
+
+                current_phase = s
+
+                skeleton.append(s)
+
+                continue
+
+            if current_phase and s and not s.startswith(("#", "-", "|", "`")):
+
+                skeleton.append(f"  {s[:120]}")
+
+                current_phase = None  # 只取每阶段第一句要求
+
+        skeleton.append(
+            f""
+        )
+        skeleton.append(
+            f"Full runtime template: ai-system/{runtime_path} "
+            "(read the phase's section when executing it)"
+        )
+
+        return "\n".join(skeleton)
 
     @staticmethod
     def _labels():
