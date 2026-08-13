@@ -36,6 +36,33 @@ class WizardSteps:
                 if result is BACK:
                     continue
 
+                if result == "__AI_GUIDE__":
+
+                    # AI 引导（无项目任务）：意图 intake → 返回命令目标
+                    intake_target = self.intake(
+                        self._header(
+                            None,
+                            None,
+                            [],
+                            {}
+                        )
+                    )
+
+                    if intake_target is BACK:
+                        continue
+
+                    self.project = None
+
+                    target = (intake_target, "command")
+
+                    fields = self._fields_for(target)
+
+                    values = {}
+
+                    step = 2
+
+                    continue
+
                 project = result
 
                 self.project = result

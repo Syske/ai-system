@@ -151,6 +151,10 @@ class WizardOutput:
         # last_action/last_workflow 必须持久化，wizard 推荐才能生效。
         # 业务仓库存在性检查针对仓库级操作，不针对状态记忆。
         if not project:
+            # 无项目场景（AI 引导入口）：记录命令使用统计（快捷候选排序）
+            name, kind = target
+            if kind == "command":
+                self.record_usage(name)
             return
 
         workspace_dir = self.workspaces / project

@@ -19,6 +19,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from cli.services.state_store import StateStore  # noqa: E402
 from cli.services.wizard.output import WizardOutput  # noqa: E402
+from cli.services.wizard.intake import PROJECTLESS_COMMANDS  # noqa: E402
 
 
 class FakeWizard(WizardOutput):
@@ -36,6 +37,14 @@ class FakeWizard(WizardOutput):
             / ".aic-state.yaml"
         )
         self.state = self.store.data
+
+    def record_usage(self, target):
+        """Minimal stand-in for WizardIntake.record_usage (real Wizard has it)."""
+        if target not in PROJECTLESS_COMMANDS:
+            return
+        usage = self.state.setdefault("projectless_usage", {})
+        usage[target] = usage.get(target, 0) + 1
+        self.store.save()
 
 
 class TestProjectExists(unittest.TestCase):
@@ -63,7 +72,7 @@ class TestProjectExists(unittest.TestCase):
 
     def test_repo_root_unavailable_falls_back_to_workspace(self):
         (self.workspaces / "demo").mkdir(parents=True)
-        # projects_root points at a non-existent dir (e.g. no junction)
+        # projects_root 指向不存在目录（如无 junction）
         w = FakeWizard(
             self.workspaces,
             projects_root=self.base / "no-such-junction"
@@ -71,7 +80,7 @@ class TestProjectExists(unittest.TestCase):
         self.assertTrue(w._project_exists("demo"))
 
     def test_workspace_without_repo_rejected(self):
-        # F1 scenario: workspace dir exists, business repo removed
+        # F1 场景：workspace 目录存在，业务仓库已移除
         (self.workspaces / "pywechat-live-2608").mkdir(parents=True)
         self.projects.mkdir(parents=True)
         w = FakeWizard(self.workspaces, projects_root=self.projects)
@@ -98,9 +107,9 @@ class TestSaveStateGuard(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_save_written_for_workspace_only_project(self):
-        # "stale" has workspace dir but no repo — still a valid selectable
-        # project; its state MUST persist (fix 2026-08-08: state memory
-        # matches the project list, repo presence is not required).
+        # “stale” 有 workspace 目录但无仓库——仍是合法可选项；
+        # 其状态必须持久化（2026-08-08 修复：状态记忆与项目列表一致，
+        # 仓库存在性非必需）。
         w = FakeWizard(self.workspaces, projects_root=self.projects)
         w._save_state(
             "stale",
@@ -114,7 +123,7 @@ class TestSaveStateGuard(unittest.TestCase):
         )
 
     def test_save_skipped_when_workspace_missing(self):
-        # project with NO workspace dir at all -> cannot be picked -> skip
+        # 无 workspace 目录的项目 → 不可选 → 跳过
         w = FakeWizard(self.workspaces, projects_root=self.projects)
         w._save_state(
             "ghost",
@@ -145,6 +154,19 @@ class TestSaveStateGuard(unittest.TestCase):
         )
         self.assertEqual(w.state, {})
 
+    def test_usage_recorded_for_projectless_command(self):
+        w = FakeWizard(self.workspaces, projects_root=self.projects)
+        # maintain 在 PROJECTLESS_COMMANDS → 无项目时记录使用统计
+        w._save_state(
+            None,
+            ("maintain", "command"),
+            {}
+        )
+        self.assertEqual(
+            w.state["projectless_usage"].get("maintain"),
+            1,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
@@ -169,7 +191,7 @@ class TestSelectProjectListsAll(unittest.TestCase):
         (root / "config" / "i18n" / "zh.yaml").write_text("{}", encoding="utf-8")
         (root / "workspaces" / "alpha").mkdir(parents=True)
         (root / "workspaces" / "beta").mkdir(parents=True)
-        # business repo root exists but has NO alpha/beta dirs (real F1)
+        # 业务仓库根存在但无 alpha/beta 目录（真实 F1）
         (root / "projects").mkdir()
         return Wizard(root)
 
@@ -180,6 +202,6 @@ class TestSelectProjectListsAll(unittest.TestCase):
             w = self._make_wizard(tmp)
             projects = w._dirs(w.workspaces, exclude={"archived"})
             self.assertEqual(projects, ["alpha", "beta"])
-            # state persists for workspace-only projects (fix 2026-08-08)
+            # 仅工作区项目状态持久化（2026-08-08 修复）
             w._save_state("alpha", ("develop", "workflow"), {})
             self.assertIn("alpha", w.state.get("projects", {}))

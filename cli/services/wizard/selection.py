@@ -111,6 +111,10 @@ class WizardSelection:
             "system (no project)"
         )
 
+        options.append(
+            f"{_e('🤖 ')}AI 引导（无项目任务）"
+        )
+
         default = 0
 
         last = self.state.get("last_project")
@@ -135,6 +139,9 @@ class WizardSelection:
 
         if idx == len(projects):
             return None
+
+        if idx == len(projects) + 1:
+            return "__AI_GUIDE__"
 
         return projects[idx]
 

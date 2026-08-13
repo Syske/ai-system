@@ -24,6 +24,7 @@ from cli.utils.menu import screen_enter, screen_exit
 from .analysis import WizardAnalysis
 from .base import WizardConfigAccess
 from .fields import WizardFields
+from .intake import WizardIntake
 from .output import WizardOutput
 from .selection import WizardSelection
 from .steps import WizardSteps
@@ -33,6 +34,7 @@ class Wizard(
     WizardConfigAccess,
     WizardSteps,
     WizardSelection,
+    WizardIntake,
     WizardFields,
     WizardOutput,
     WizardAnalysis,
