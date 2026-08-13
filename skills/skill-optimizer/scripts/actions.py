@@ -90,7 +90,7 @@ def run_augment(input_path: Path, demos_file: Optional[Path]) -> int:
 
     skill_content = _read_skill(skill_md)
 
-    prompt = (
+    SYSTEM_EXAMPLES = (
         "You are improving an agent Skill definition. The Skill's SKILL.md\n"
         "content is provided below. You are given a set of successful\n"
         "execution examples (task / approach / result) from real usage.\n\n"
@@ -101,10 +101,13 @@ def run_augment(input_path: Path, demos_file: Optional[Path]) -> int:
         "invent examples beyond the data. If a '## Examples' section already\n"
         "exists, propose an UPDATED version (replace or extend it).\n\n"
         "Return ONLY the '## Examples' section markdown, no preamble.\n\n"
+    )
+
+    prompt = (
         f"===== DEMOS (JSON) =====\n{json.dumps(demos, ensure_ascii=False, indent=2)}\n\n"
         f"===== CURRENT SKILL.md =====\n{skill_content[:8000]}"
     )
-    section = (llm(prompt) or "").strip()
+    section = (llm(prompt, system=SYSTEM_EXAMPLES) or "").strip()
 
     if not section:
         logger.error("LLM returned empty Examples section; aborting")
@@ -212,16 +215,19 @@ def run_validate(input_path: Path, benchmark_file: Optional[Path]) -> int:
     )
     baseline_content = _read_skill(skill_md)
 
+    SYSTEM_VALIDATOR = (
+        "You are a held-out validator for an agent Skill. For each task\n"
+        "below, decide whether the Skill definition would produce the\n"
+        "expected outcome. Answer strictly PASS or FAIL per task, with a\n"
+        "one-line reason. End with 'PASS RATE: X/Y'.\n\n"
+    )
+
     def judge(content: str, label: str) -> dict:
         prompt = (
-            "You are a held-out validator for an agent Skill. For each task\n"
-            "below, decide whether the Skill definition would produce the\n"
-            "expected outcome. Answer strictly PASS or FAIL per task, with a\n"
-            "one-line reason. End with 'PASS RATE: X/Y'.\n\n"
             f"===== SKILL ({label}) =====\n{content[:8000]}\n\n"
             f"===== TASKS =====\n{json.dumps(tasks, ensure_ascii=False, indent=2)}"
         )
-        out = (llm(prompt) or "").strip()
+        out = (llm(prompt, system=SYSTEM_VALIDATOR) or "").strip()
         # Count PASS/FAIL on task lines only; exclude the trailing
         # "PASS RATE: X/Y" summary line (would double-count).
         body = "\n".join(
@@ -306,7 +312,7 @@ def run_tune_description(input_path: Path, routing_report: Optional[Path]) -> in
         except OSError:
             routing = ""
 
-    prompt = (
+    SYSTEM_TUNE_DESC = (
         "You are tuning the frontmatter description of an agent Skill.\n"
         "The description is what a router/agent reads to decide whether to\n"
         "invoke this Skill. A good description: names the concrete trigger\n"
@@ -317,11 +323,14 @@ def run_tune_description(input_path: Path, routing_report: Optional[Path]) -> in
         "1) 2-3 bullet critiques\n"
         "2) '---' separator\n"
         "3) the new description value only\n\n"
+    )
+
+    prompt = (
         f"CURRENT DESCRIPTION: {current_desc!r}\n"
         + (f"\nROUTING REPORT:\n{routing}\n" if routing else "\n(no routing report provided)\n")
         + f"\nSKILL.md head:\n{skill_content[:3000]}"
     )
-    out = (llm(prompt) or "").strip()
+    out = (llm(prompt, system=SYSTEM_TUNE_DESC) or "").strip()
 
     new_desc = None
     parts = out.split("---")

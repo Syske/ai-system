@@ -79,13 +79,24 @@ class RealLLMClient:
         )
         logger.info(f"[RealLLM] Using base_url={base_url}, model={model_name}")
 
-    def __call__(self, prompt):
-        """Simple text completion (no tools). Returns str."""
+    def __call__(self, prompt, system=None):
+        """Simple text completion (no tools). Returns str.
+
+        system: optional static system instruction. When provided, the
+        request becomes [system] + [user] — the constant system part is
+        prefix-stable across calls, enabling DeepSeek-style prefix cache
+        hits (cache optimization). Default None keeps legacy single-user
+        behavior.
+        """
         logger.info(f"\n[RealLLM] Sending Prompt (truncated): {prompt[:100]}...")
         try:
+            messages = []
+            if system:
+                messages.append({"role": "system", "content": system})
+            messages.append({"role": "user", "content": prompt})
             response = self.llm.chat.completions.create(
                 model=self.model_name,
-                messages=[{"role": "user", "content": prompt}],
+                messages=messages,
                 max_tokens=8192,
             )
             return (response.choices[0].message.content or "").strip()
