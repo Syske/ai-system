@@ -9,10 +9,10 @@ generate a thin-trigger prompt — then copy it and launch the agent.
 Two modes:
 
 - **launch** (default): load selected skills on demand, with an optional task
-  (replaces `/aic-skill-launch`)
+  (replaces the archived skill-launch command)
 - **optimize**: run the skill-optimizer on the selected skills, with an
   optimization mode (static / dynamic / trace / feedback)
-  (replaces `/aic-skill-optimize`)
+  (replaces the archived skill-optimize command)
 
 **Inputs**: Mode (optional; `launch` | `optimize`); Agent (optional); Skill (optional); Task (launch mode) / Mode-optimize (optimize mode).
 

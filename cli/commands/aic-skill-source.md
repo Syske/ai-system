@@ -60,11 +60,12 @@ Assess an external third-party skill source (e.g. a skill repository on GitHub),
 - 后续触发条件
 - 吸收决策选项（直接吸收 / 派生扩展 / 新建）
 
-产出写入 `outputs/skill-source/{date}-{descriptor}/`（workspace 根），
-`descriptor` 为来源主题（kebab-case，如 `awesome-coding-agents`），同日重跑追加 `-N`：
+产出写入 `reports/skill-source-{date}-{descriptor}/`（ai-system 根，运维域，
+对齐 analysis 先例），`descriptor` 为来源主题（kebab-case，如 `awesome-agents`），
+同日重跑追加 `-N`：
 
 ```
-outputs/skill-source/2026-08-13-awesome-coding-agents/
+reports/skill-source-{date}-{descriptor}/
   └── skill-source-report.md   # 评估报告（含 来源/统计/吸收建议）
 ```
 

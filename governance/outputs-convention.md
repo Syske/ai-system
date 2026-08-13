@@ -68,8 +68,11 @@ Chinese.
 
 | Domain | Convention reference |
 |--------|---------------------|
-| scan / trace / skill-source / bugfix | this file (command/workflow docs) |
+| scan / trace / bugfix | this file (command/workflow docs) |
 | change-impact / code-review / proposal | already aligned; this file standardizes wording |
 
 Operational maintenance (maintain / analysis / extensions-init /
 extensions-lint) records to `ai-system/reports/`, NOT `outputs/`.
+`skill-source` (third-party skill source assessment) is also operational —
+it records to `reports/skill-source-{date}-{descriptor}/` under the
+ai-system root, aligned with `analysis` (NOT `outputs/`).

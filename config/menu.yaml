@@ -93,9 +93,6 @@ sections:
       - name: trace
         kind: command
         icon: "🧵 "
-      - name: skill-source
-        kind: command
-        icon: "🌐 "
   - title: commands_maintenance
     items:
       - name: maintain
@@ -110,18 +107,15 @@ sections:
       - name: skill
         kind: command
         icon: "🚀 "
-      - name: skill-launch
-        kind: command
-        icon: "🚀 "
-      - name: skill-optimize
-        kind: command
-        icon: "🔧 "
       - name: pack
         kind: command
         icon: "📦 "
       - name: extensions-init
         kind: command
         icon: "🧰 "
+      - name: skill-source
+        kind: command
+        icon: "🌐 "
 
 # 各命令的字段定义（[[字段名, 是否必填], ...]）；未注册的命令用 default。
 command_fields:
@@ -191,20 +185,6 @@ command_fields:
     - - "Skill"
       - false
     - - "Task"
-      - false
-  skill-launch:
-    - - "Agent"
-      - false
-    - - "Skill"
-      - false
-    - - "Task"
-      - false
-  skill-optimize:
-    - - "Agent"
-      - false
-    - - "Skill"
-      - false
-    - - "Mode"
       - false
   propose:
     - - "Change Name"
