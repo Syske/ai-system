@@ -49,6 +49,7 @@
 | 2026-08-13 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次 S-A/S-B | `MAINTENANCE-2026-08-13.md` | F1-F2 已修复（S-A/S-B 已执行）；P18/P19 已闭环(2026-08-14)；P20 遗留 |
 | 2026-08-13 | on-demand | extensions 域巡检（Scope=extensions） | `EXTENSIONS-MAINTENANCE-2026-08-13.md` | F1: 6 个 OPTIMIZATION_LOG 空模板待补录 |
 | 2026-08-14 | on-demand | 巡检当前提案 + 治理一致性抽查 | `MAINTENANCE-2026-08-14.md` | P22 已 approve（阶段二 defer 至新提案）；F2/F3 已修复 |
+| 2026-08-14 | on-demand | 跨平台治理落地（P23 批次：gitattributes/hook/lint） | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` | —（P23 已 Implemented） |
 
 ---
 

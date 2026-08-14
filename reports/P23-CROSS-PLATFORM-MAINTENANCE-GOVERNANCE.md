@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Governance（治理条款登记，非结构改动） |
 | Author | AI Maintainer |
 | Created | 2026-08-14 |

@@ -26,6 +26,7 @@
 | Implemented | hotfix-test-doc 发布链护栏增强（校验误报 + 空单元格自动修复） | 2026-08-11 | `P20-HOTFIX-TEST-DOC-GUARDRAILS.md` |
 | Implemented | hotfix-test-doc 模板标题渲染缺陷修复与回填工具 | 2026-08-12 | `P21-HOTFIX-TEST-DOC-RENDER-FIX.md` |
 | Approved | WSL 环境集成与初始化能力 | 2026-08-14 | `P22-WSL-ENVIRONMENT-INTEGRATION.md` |
+| Implemented | 跨平台（Linux/WSL + Windows）混合维护治理约定 | 2026-08-14 | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
