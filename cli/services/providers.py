@@ -7,7 +7,44 @@ project roots) and the collected field values.
 """
 
 import subprocess
+import sys
 from pathlib import Path
+
+
+def _linux_path(path):
+    """Convert a Windows absolute path (e.g. D:\\workspace\\x) to WSL (/mnt/d/workspace/x).
+
+    No-op on Windows or for non-Windows-style paths. Used so workspace.yaml
+    repo paths written on Windows resolve correctly under WSL.
+    """
+
+    s = str(path)
+
+    if len(s) < 3 or s[1] != ":":
+        return s
+
+    s = s.replace("\\", "/")
+
+    drive = s[0].lower()
+
+    return f"/mnt/{drive}{s[2:]}"
+
+
+def _repo_path(wizard, path):
+    """Resolve a repo path from workspace.yaml to a real filesystem path."""
+
+    if not path:
+        return None
+
+    p = Path(str(path))
+
+    if Path(str(p)).is_absolute():
+        return p
+
+    if sys.platform == "linux":
+        return Path(_linux_path(path))
+
+    return wizard.projects_root / path
 
 
 def mode_choices(wizard, values):
@@ -174,7 +211,7 @@ def repo_path_for(wizard, project):
     mapped = meta.get("repo_path")
 
     if mapped:
-        return wizard.projects_root / mapped if not Path(mapped).is_absolute() else Path(mapped)
+        return _repo_path(wizard, mapped)
 
     if (wizard.projects_root / project).is_dir():
         return wizard.projects_root / project
@@ -214,5 +251,13 @@ def project_repos(wizard, project):
 
     if not isinstance(repos, dict):
         return {}
+
+    for bucket in ("available", "unavailable"):
+
+        for entry in repos.get(bucket) or []:
+
+            if isinstance(entry, dict) and entry.get("path"):
+
+                entry["path"] = _repo_path(wizard, entry["path"])
 
     return repos
