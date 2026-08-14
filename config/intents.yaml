@@ -1,0 +1,79 @@
+# 无项目意图清单（AI 维护，动态加载）
+#
+# 入口：无项目场景的"AI 引导"菜单——用户从意图列表中选择，然后补充信息。
+# 设计（ADR-0009 AI 运维优先）：
+# - 意图 = 用户场景（"我要做什么"），命令 = 执行机制（"用什么做"）。
+# - 一个意图可关联多个命令（串联流程，如 线上问题排查 → scan+change-impact+bugfix）。
+# - 排序按使用频率（workspaces/.aic-state.yaml → projectless_usage，命令级统计；
+#   多命令意图取关联命令的最大使用次数）。
+# - AI 维护：新意图由 AI 根据真实使用沉淀（描述 → AI 理解 → 推荐/新建）。
+#
+# Schema:
+#   name:     意图标识（kebab-case）
+#   label:    用户可见描述
+#   icon:     菜单图标
+#   commands: 关联命令列表（按执行顺序）
+#   prompt:   意图级引导语（可选，帮助用户补信息）
+#   builtin:  是否为内置意图（true=内置, false=AI 新建）
+
+version: 1
+
+intents:
+  - name: weekly-maintenance
+    label: 周度巡检（系统健康检查）
+    icon: "🧹"
+    commands: [maintain]
+    prompt: 选择巡检模式（weekly/monthly/quarterly/on-demand）与范围
+    builtin: true
+
+  - name: code-search
+    label: 代码扫描/检索
+    icon: "🔎"
+    commands: [scan]
+    prompt: 描述要检索的关键词或代码块
+    builtin: true
+
+  - name: init-extensions
+    label: 初始化扩展目录
+    icon: "🧰"
+    commands: [extensions-init]
+    prompt: 提供远程仓库地址与提交者信息
+    builtin: true
+
+  - name: skill-source-assessment
+    label: 三方技能评估
+    icon: "🌐"
+    commands: [skill-source]
+    prompt: 提供要评估的 skill 来源 URL
+    builtin: true
+
+  - name: package-system
+    label: 打包 AI 系统
+    icon: "📦"
+    commands: [pack]
+    builtin: true
+
+  - name: create-workflow
+    label: 新建工作流
+    icon: "🧩"
+    commands: [workflow]
+    builtin: true
+
+  - name: create-command
+    label: 新建命令
+    icon: "📝"
+    commands: [command]
+    builtin: true
+
+  - name: launch-skill
+    label: 启动技能
+    icon: "🚀"
+    commands: [skill]
+    builtin: true
+
+  - name: issue-investigation
+    label: 线上问题排查
+    icon: "🩺"
+    commands: [scan, change-impact, bugfix]
+    prompt: 描述问题现象（日志/报错/现象），将按 定位→影响→修复 串联
+    builtin: true

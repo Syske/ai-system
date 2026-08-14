@@ -18,6 +18,10 @@ class WizardSteps:
         values = {}
         output = None
 
+        # AI 引导意图链（多命令意图的后续命令，主命令执行后衔接）
+        self.active_intent = None
+        self.chain_commands = []
+
         step = 0
 
         while True:
@@ -38,8 +42,8 @@ class WizardSteps:
 
                 if result == "__AI_GUIDE__":
 
-                    # AI 引导（无项目任务）：意图 intake → 返回命令目标
-                    intake_target = self.intake(
+                    # AI 引导（无项目任务）：意图 intake → (意图名, 命令链)
+                    intake_result = self.intake(
                         self._header(
                             None,
                             None,
@@ -48,12 +52,18 @@ class WizardSteps:
                         )
                     )
 
-                    if intake_target is BACK:
+                    if intake_result is None:
                         continue
 
                     self.project = None
 
-                    target = (intake_target, "command")
+                    intent_name, commands = intake_result
+
+                    # 多命令意图：首个命令为主目标，其余存入链（执行后衔接）
+                    self.active_intent = intent_name
+                    self.chain_commands = commands[1:]
+
+                    target = (commands[0], "command")
 
                     fields = self._fields_for(target)
 
@@ -229,5 +239,15 @@ class WizardSteps:
                 target,
                 values
             )
+
+            if getattr(self, "chain_commands", []):
+
+                next_cmd = self.chain_commands[0]
+
+                print(
+                    f"\n▶ 意图链下一步: {next_cmd}\n"
+                    f"  （当前意图 {getattr(self, 'active_intent', '')} 关联多个命令，"
+                    f"主命令 {target[0]} 完成后继续 {next_cmd}）\n"
+                )
 
             return target[0], values, output, result

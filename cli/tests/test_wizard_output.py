@@ -19,7 +19,10 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from cli.services.state_store import StateStore  # noqa: E402
 from cli.services.wizard.output import WizardOutput  # noqa: E402
-from cli.services.wizard.intake import PROJECTLESS_COMMANDS  # noqa: E402
+
+# 无项目命令集合（用于测试 record_usage 白名单；与 intake 保持一致）
+_PROJECTLESS = {"maintain", "scan", "extensions-init", "skill-source",
+                "pack", "workflow", "command", "skill"}
 
 
 class FakeWizard(WizardOutput):
@@ -40,7 +43,7 @@ class FakeWizard(WizardOutput):
 
     def record_usage(self, target):
         """Minimal stand-in for WizardIntake.record_usage (real Wizard has it)."""
-        if target not in PROJECTLESS_COMMANDS:
+        if target not in _PROJECTLESS:
             return
         usage = self.state.setdefault("projectless_usage", {})
         usage[target] = usage.get(target, 0) + 1
@@ -156,7 +159,7 @@ class TestSaveStateGuard(unittest.TestCase):
 
     def test_usage_recorded_for_projectless_command(self):
         w = FakeWizard(self.workspaces, projects_root=self.projects)
-        # maintain 在 PROJECTLESS_COMMANDS → 无项目时记录使用统计
+        # maintain 在无项目命令集合 → 无项目时记录使用统计
         w._save_state(
             None,
             ("maintain", "command"),
