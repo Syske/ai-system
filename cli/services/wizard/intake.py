@@ -17,7 +17,7 @@ Design (ADR-0009 AI-operation-first, clarified 2026-08-13):
 Flow:  intent menu → pick → fill fields → run chained commands.
 """
 
-from cli.utils.menu import BACK, Section, choose, e as _e
+from cli.utils.menu import BACK, Section, choose
 from cli.utils.menu.text import ask_text
 from cli.utils.yaml import load_yaml
 
@@ -71,11 +71,11 @@ class WizardIntake:
             usage = self._intent_usage(it)
             suffix = f"（{usage}次）" if usage > 0 else ""
             options.append(
-                f"{_e(it.get('icon', '✨ '))}{it.get('label', it.get('name'))}{suffix}"
+                f"{it.get('icon', '✨')} {it.get('label', it.get('name'))}{suffix}"
             )
 
-        options.append(f"{_e('💬 ')}描述你的意图（AI 理解后推荐/新建）")
-        options.append(f"{_e('✖ ')}取消（返回项目选择）")
+        options.append("✍️  描述你的意图（AI 理解后推荐/新建）")
+        options.append("❌  取消（返回项目选择）")
 
         idx = choose(
             "选择意图（按使用频率排序）——你想做什么？",
@@ -127,10 +127,10 @@ class WizardIntake:
         """Present matched intent as a decision point; user confirms or re-describes."""
 
         options = [
-            f"{_e('✅ ')}确认：{_e(intent.get('icon', '✨ '))} {intent.get('label', intent.get('name'))}"
+            f"✅ 确认：{intent.get('icon', '✨')} {intent.get('label', intent.get('name'))}"
             f" → {', '.join(intent.get('commands', []))}",
-            f"{_e('💬 ')}重新描述",
-            f"{_e('✖ ')}取消",
+            "✍️  重新描述",
+            "❌  取消",
         ]
 
         idx = choose(
@@ -154,9 +154,9 @@ class WizardIntake:
         inferred = self._infer_command(text)
 
         options = [
-            f"{_e('✅ ')}创建新意图并进入引导",
-            f"{_e('💬 ')}重新描述",
-            f"{_e('✖ ')}取消",
+            "✅ 创建新意图并进入引导",
+            "✍️  重新描述",
+            "❌  取消",
         ]
 
         idx = choose(
@@ -239,7 +239,7 @@ class WizardIntake:
         intent = {
             "name": self._slug(text),
             "label": text[:30],
-            "icon": "✨ ",
+            "icon": "✨",
             "commands": [command] if command else [],
             "builtin": False,
         }
