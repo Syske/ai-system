@@ -25,6 +25,7 @@ except ImportError:
 
 from cli.utils.menu.base import BACK, _t, is_tty
 from cli.utils.menu.render import _frame
+from cli.utils.menu.theme import get as _theme
 
 _TEXT_SESSIONS = {}
 
