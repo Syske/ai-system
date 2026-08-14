@@ -1,30 +1,13 @@
-# UI 主题配置（配色驱动，调整颜色无需改代码）
-#
-# 用途：cli/utils/menu/ 的菜单/输入渲染统一从这里读颜色。
-# 语义键 → ANSI 序列（或 prompt_toolkit 颜色名）。
-# 调整配色：只改本文件，重启 aic 生效。
-#
-# 语义说明：
-#   selected    菜单选中项（反白背景）
-#   name        选中项名称（青色加粗）
-#   desc        描述文字（暗灰）
-#   note        提示注记（暗淡）
-#   prompt      输入提示符（青色加粗）
-#   toolbar_bg  输入底部工具条背景（反白）
-#   toolbar_fg  输入底部工具条前景
-#   divider     输入区顶部边框分隔线（青色）
-#   marker      多选标记
-
 version: 1
-
 theme:
-  selected: "\x1b[7m"
-  name: "\x1b[1;36m"
-  desc: "\x1b[2;90m"
-  note: "\x1b[1;2m"
-  prompt: "bold fg:ansicyan"
-  toolbar_bg: ""                # 无背景（取消灰色块, 更醒目）
-  toolbar_fg: "ansibrightcyan"  # 亮青前景 + bold, 文字本身高对比
-  divider: "\x1b[1;36m"
-  marker: "\x1b[7m"
-  reset: "\x1b[0m"
+  selected: "\e[7m"
+  name: "\e[1;36m"
+  desc: "\e[2;90m"
+  note: "\e[1;2m"
+  prompt: bold fg:ansicyan
+  toolbar_bg: ''
+  toolbar_fg: ansibrightcyan
+  toolbar_style: fg:ansibrightcyan bold
+  divider: "\e[1;36m"
+  marker: "\e[7m"
+  reset: "\e[0m"

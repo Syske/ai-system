@@ -27,6 +27,7 @@ _DEFAULTS = {
     "prompt": "bold fg:ansicyan",
     "toolbar_bg": "ansicyan",
     "toolbar_fg": "ansiblack",
+    "toolbar_style": "fg:ansibrightcyan bold",
     "divider": "\x1b[1;36m",
     "marker": "\x1b[7m",
     "reset": "\x1b[0m",

@@ -36,13 +36,9 @@ _TEXT_SESSIONS = {}
 _INPUT_STYLE = PTStyle.from_dict(
     {
         "prompt": _theme("prompt"),
-        # bottom-toolbar 颜色统一在此（不再在 HTML 内联，避免双源冲突）；
-        # 无背景（toolbar_bg 空）+ 亮色前景 + bold：文字高对比醒目，
-        # 无灰色块（灰色块与周围融为一体反而不醒目）
-        "bottom-toolbar": (
-            (f"bg:{_theme('toolbar_bg')} " if _theme('toolbar_bg') else "")
-            + f"fg:{_theme('toolbar_fg')} bold"
-        ),
+        # bottom-toolbar 样式完整来自配置 toolbar_style（统一换主题
+        # 改 config/ui.yaml 一个键即可, 代码无拼接逻辑）
+        "bottom-toolbar": _theme("toolbar_style") or "bold",
     }
 ) if PTStyle is not None else None
 
