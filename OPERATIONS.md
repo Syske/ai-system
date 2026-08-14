@@ -304,7 +304,7 @@ titles are user-facing (Chinese); the item `kind` (workflow/command) is internal
 * **Commands**
   * `代码分析`: `scan`, `trace`.
   * `技能管理`: `skill`, `skill-source` (skill usage + third-party skill assessment).
-  * `系统维护`: `maintain`, `workflow`, `command`, `pack`.
+  * `系统维护`: `maintain`, `workflow`, `command`, `pack`, `extensions-init` (system health, asset scaffolding, packaging, environment onboarding).
   * `其他命令`: discovered but ungrouped commands (automatic).
 
 Group names are 4 characters in Chinese (代码分析/技能管理/系统维护/变更管理)
