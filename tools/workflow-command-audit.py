@@ -96,12 +96,12 @@ def audit_workflow(p, workflows, results):
     if n > 100:
         results["warnings"].append(f"{p.name}: {n} lines (>100, RFC-0003)")
 
-    # Required sections
+    # 必备章节检查
     for sec in WORKFLOW_SECTIONS:
         if not re.search(rf"^## {sec}", text, re.MULTILINE):
             results["blockers"].append(f"{p.name}: missing '## {sec}'")
 
-    # Next targets
+    # Next 目标检查
     m = re.search(r"^## Next\s*\n(.*?)(?=\n## |\Z)", text, re.MULTILINE | re.DOTALL)
     if m:
         for line in m.group(1).splitlines():
@@ -126,7 +126,7 @@ def audit_command(p, menu_cmds, all_cmd_names, results):
     if name not in menu_cmds:
         results["blockers"].append(f"{p.name}: not registered in config/menu.yaml")
 
-    # Dangling command references: /aic-xxx where xxx has no command file
+    # 悬空命令引用检查：/aic-xxx 指向不存在的命令文件
     for ref in CMD_REF_RE.findall(text):
         if ref == name:
             continue  # self-reference

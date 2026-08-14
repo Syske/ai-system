@@ -298,14 +298,20 @@ titles are user-facing (Chinese); the item `kind` (workflow/command) is internal
 * **Workflows**
   * `开发主链`: the numbered chain `prepare → spec → dev-setup → develop → review → verify → release` (1-7).
   * `修复流程`: parallel entry `bugfix`.
-  * `系统能力`: standalone `bootstrap`, `analysis`, `knowledge`.
+  * `初始化`: `extensions-init` (AI-driven bootstrap/extensions init; 4-word group name).
   * `代码分析`: standalone business-analysis workflows `code-review`, `change-impact`, `proposal` (review/impact/solution for business code, symmetrical to the `代码分析` command group).
   * `其他流程`: discovered but ungrouped workflows (automatic).
 * **Commands**
-  * `变更管理`: OpenSpec change lifecycle — `propose`, `apply`, `archive`, `explore`.
   * `代码分析`: `scan`, `trace`.
-  * `系统维护`: `maintain`, `pack`.
+  * `技能管理`: `skill`, `skill-source` (skill usage + third-party skill assessment).
+  * `系统维护`: `maintain`, `workflow`, `command`, `pack`.
   * `其他命令`: discovered but ungrouped commands (automatic).
+
+Group names are 4 characters in Chinese (代码分析/技能管理/系统维护/变更管理)
+for visual consistency. Hidden (AI-internal) commands — `propose`/`apply`/
+`archive`/`explore` (change lifecycle), `bootstrap`/`analysis`/`knowledge`
+(AI-internal workflows) — are registered but not shown in the user menu
+(hidden_workflows / hidden_commands, ADR-0009 AI-operation-first).
 
 Boundary note (user-facing): `系统能力` builds system capabilities (environment,
 analysis, knowledge — outputs feed later work); `系统维护` keeps the system

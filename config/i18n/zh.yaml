@@ -10,6 +10,7 @@ sections:
   flow_analysis: "代码分析"
   commands_changes: "变更管理"
   commands_analysis: "代码分析"
+  commands_skills: "技能管理"
   commands_maintenance: "系统维护"
   flow_other: "其他流程"
   commands_other: "其他命令"
