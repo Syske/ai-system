@@ -20,6 +20,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -407,6 +408,50 @@ def check_language(root, results):
                 )
 
 
+def check_line_endings(root, results):
+    """Enforce cross-platform line-ending policy (P23, L1 storage layer).
+
+    WARN-level heuristic: text files tracked by git must not mix CRLF/LF.
+    The repo canonical ending is LF (see .gitattributes); working trees
+    may carry CRLF under Windows via text=auto, but a file that mixes both
+    inside one working tree signals two-platform editing and will produce
+    noisy diffs.
+
+    Scope: tracked text files (git ls-files) with a text extension;
+    skipped: .bat/.ps1 (canonical CRLF), binary-ish files.
+    """
+    root = resolve_root(root)
+    binary_ext = {".png", ".jpg", ".jpeg", ".gif", ".ico", ".woff", ".woff2", ".ttf", ".pyc"}
+    crlf_canonical = {".bat", ".ps1"}
+    text_ext = {".md", ".py", ".yaml", ".yml", ".json", ".sh", ".js", ".ts", ".txt"}
+    try:
+        tracked = subprocess.run(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
+            cwd=str(root), capture_output=True, text=True, check=True,
+        ).stdout.splitlines()
+    except Exception:
+        return
+    for rel in tracked:
+        p = root / rel
+        if not p.is_file() or p.suffix in binary_ext:
+            continue
+        if p.suffix not in text_ext and p.suffix not in crlf_canonical:
+            continue
+        try:
+            data = p.read_bytes()
+        except OSError:
+            continue
+        crlf_count = data.count(b"\r\n")
+        # true LF-only lines: LF not preceded by CR
+        lf_only = data.replace(b"\r\n", b"").count(b"\n")
+        if crlf_count and lf_only:
+            results.warning(
+                f"mixed line endings (CRLF {crlf_count} / LF {lf_only}) — "
+                f"same file edited on both Windows and WSL; normalize to LF (P23 L1)",
+                file=str(p.relative_to(root)),
+            )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Repository Governance Linter")
     parser.add_argument("--repo-root", required=True, help="Repository root directory")
@@ -431,6 +476,7 @@ def main():
             check_workflow_stages(skill_dir, results)
 
     check_language(root, results)
+    check_line_endings(root, results)
 
     if args.json:
         print(json.dumps(results.to_dict(), indent=2))

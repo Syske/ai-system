@@ -1,0 +1,18 @@
+# Cross-platform line-ending policy (P23, L1 storage layer)
+# LF is the single canonical in-repo line ending; text=auto lets each
+# platform's working tree use its native endings while the repo stores LF.
+* text=auto
+
+# Scripts / source must stay LF on every platform (WSL execution).
+*.sh   text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf
+*.js   text eol=lf
+*.ts   text eol=lf
+
+# Windows-native artifacts keep CRLF.
+*.bat  text eol=crlf
+*.ps1  text eol=crlf
