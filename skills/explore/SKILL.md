@@ -9,6 +9,27 @@ Supports the `aic-explore` command: thinking-partner exploration with
 OpenSpec awareness. This skill carries the OpenSpec-specific methodology;
 the command carries the stance.
 
+## Relationship with explore-codebase
+
+This skill is the **OpenSpec workspace exploration** capability — it is
+loaded by the `aic-explore` command to check active changes, reference
+artifacts, and offer to capture decisions. It is **not** for standalone
+codebase-structure analysis.
+
+For knowledge-graph driven codebase structure understanding (mapping
+modules, tracing usage, finding entry points before a change), use the
+**`explore-codebase`** skill (`skills/explore-codebase/SKILL.md`) instead —
+it is a standalone skill that navigates the code graph directly.
+
+**Which to use:**
+
+| 场景 | 用哪个 |
+|------|--------|
+| 被 `aic-explore` 命令调用（OpenSpec 工作区导航/澄清需求） | **explore**（本技能） |
+| 独立理解代码库结构（模块映射、调用追踪、入口点查找） | **explore-codebase** |
+| 变更前的结构概览（不涉及 OpenSpec 变更导航） | **explore-codebase** |
+| 变更提案/澄清需求时的工作区上下文（proposal/design/tasks） | **explore**（本技能） |
+
 ## Check the context
 
 At the start, quickly check what exists:

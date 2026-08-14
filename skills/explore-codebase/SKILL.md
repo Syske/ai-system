@@ -7,6 +7,27 @@ description: Navigate and understand codebase structure using the knowledge grap
 
 Use the code-review-graph MCP tools to explore and understand the codebase.
 
+## Relationship with explore
+
+This skill is the **standalone codebase-structure understanding** capability —
+knowledge-graph driven, independent of the CLI wizard. It is **not** loaded by
+any command; use it directly when you need to map, trace, or prepare a change
+against the actual code.
+
+For OpenSpec workspace exploration (active changes, artifact reference,
+capturing decisions during requirement clarification), use the **`explore`**
+skill (`skills/explore/SKILL.md`) — it is loaded by the `aic-explore` command
+and carries the OpenSpec-aware methodology.
+
+**Which to use:**
+
+| 场景 | 用哪个 |
+|------|--------|
+| 映射模块/查找入口点/追踪类或方法的调用（独立任务） | **explore-codebase**（本技能） |
+| 变更前结构概览（知识图谱，≤5 次调用） | **explore-codebase**（本技能） |
+| `aic-explore` 命令触发的 OpenSpec 工作区导航 | **explore** |
+| 需求澄清时引用 proposal/design/tasks 工件 | **explore** |
+
 ### Steps
 
 1. Run `list_graph_stats` to see overall codebase metrics.

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (capability consolidation evaluation) |
 | Author | AI Maintainer |
 | Created | 2026-08-08 |
@@ -60,12 +60,25 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-08-08 |
+| User (AI Maintainer operator) | **Approved & Implemented** | 2026-08-14 |
 
 ---
 
-## Implementation Record (YYYY-MM-DD)
+## Implementation Record (2026-08-14)
 
-Applied per approval (OPERATIONS §12 → Implement → Validate):
-1. …
-**Validation**: check.py / repo-lint / path-audit 结果
+Applied per approval (OPERATIONS §12 → Implement → Validate), Option B:
+
+1. `skills/explore/SKILL.md`（129 → 158 行）: 新增「Relationship with
+explore-codebase」小节——定位（aic-explore 命令配套, OpenSpec 工作区导航）
++ 指向 explore-codebase + 4 行「Which to use」决策表。
+2. `skills/explore-codebase/SKILL.md`（28 → 59 行）: 新增「Relationship with
+explore」小节——定位（独立, 知识图谱驱动的代码库结构理解）+ 指向 explore
++ 4 行「Which to use」决策表。
+
+**Validation**: 交叉引用检查（双向互引存在）/ repo-lint 0 BLOCKER 0 ERROR /
+path-audit OK（无 broken path）/ check.py PASS。
+
+**Deviations**: 无。技能行数增长（explore-codebase 28→59 行, 未超 80 阈值）。
+
+**Next**: 季度维护统计两技能实际触发频次, 评估 Option A 合并（遵循 Evolution
+Principle: 真实使用数据驱动结构性变更）。
