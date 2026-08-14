@@ -138,6 +138,23 @@
 
 ---
 
+## 5.2 跨平台治理落地（P23，用户批准后执行，2026-08-14）
+
+用户决策：LF 唯一入库规范 + text=auto 策略 + 全仓归一。四批落地：
+
+| 批 | 动作 | 结果 |
+|----|------|------|
+| 批1 | P23 提案登记 L1-L5 约定 | ✅ `reports/P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` |
+| 批2 | `.gitattributes` 入库（LF 唯一规范，text=auto） | ✅ 357 个行尾噪音 M → 0；`git add --renormalize` |
+| 批3 | `.githooks/pre-commit` python → python3 | ✅ hook 实跑输出真实 lint 摘要（PASS 0 warning） |
+| 批4 | `repo-lint.py` 新增 `check_line_endings` 规则（WARN） | ✅ 混排触发验证（CRLF 2/LF 1 精确报告） |
+
+**Validation**：repo-lint 0 BLOCKER/ERROR / 27 WARN（语言债，混排 0）；check.py PASS 0 warning；proposal-audit 0 gate errors / 0 leftover；quick-check OK；path-audit 0 broken；工作树 clean（stat 缓存陈旧条目经 `git add -u` 归零，内容 blob 与 HEAD 一致）。
+
+**关键经验**：`git checkout -- .` 不会重写已被 gitattributes 判定等价的 CRLF 工作区文件（status 干净但字节仍 CRLF）；需 `sed`/`dos2unix` 显式归一工作区字节。
+
+---
+
 ## 6. 环境备注（记录维护经验）
 
 - **python shim**：WSL 下 `python` 命中 `/mnt/c/Users/syske/.pyenv/pyenv-win/shims/python`（不可执行），必须 `python3`。已影响本次所有工具调用；P22 阶段二 env-init 自检应显式校验 `python3`。
