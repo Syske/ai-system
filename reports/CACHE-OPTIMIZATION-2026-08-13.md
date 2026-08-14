@@ -78,6 +78,7 @@ ai-system 是 **prompt 生成器**（PromptBuilder 生成 prompt → agent 执�
 |---|----|------|
 | R1 | 骨架化后 agent 是否主动读 runtime 文件（release 依赖） | ⚠️ 待实测——若不读，对关键工作流回退全量内嵌或加"强制全量"配置开关 |
 | R2 | 命中率实际值验证 | 待跑真实 skill-optimizer 观察 hit_rate（预期 70%+） |
+| R3 | 骨架化"强制全量"配置开关 | 待实现——prompt_builder 增加按工作流配置是否骨架化的开关（如 workflow yaml `prompt.skeleton: true/false`），release 等关键工作流可关闭骨架化保证 agent 读到完整 runtime |
 | R3 | 主链 agent 侧会话历史压缩（多轮摘要前缀） | agent 自管，ai-system 不干预 |
 
 ---

@@ -61,7 +61,7 @@
 | Maintenance | aic 项目识别与状态记录修复 | 2026-08-08 | `MAINTENANCE-2026-08-08-aic-project-recognition.md` | workspace.yaml 初始化未自动化 |
 | Assessment | 上下文/注意力/架构缺口评估+修复 | 2026-08-08 | `GAP-ASSESSMENT-2026-08-08-context-attention-architecture.md` | memory 沉淀/跨会话状态持久化遗留(已闭环于 skills) |
 | Assessment | ADR-0009 合规性系统诊断 | 2026-08-13 | `ADR-0009-COMPLIANCE-DIAGNOSIS-2026-08-13.md` | **P1 standards/cool 迁移待评审；P2 废弃命令待清理** |
-| Assessment | Token 缓存命中率优化 | 2026-08-13 | `CACHE-OPTIMIZATION-2026-08-13.md` | R1 骨架化 agent 读取待实测；R2 实际命中率待验证 |
+| Assessment | Token 缓存命中率优化 | 2026-08-13 | `CACHE-OPTIMIZATION-2026-08-13.md` | **R1 骨架化 agent 读取待实测；R2 实际命中率待验证；R3 强制全量开关待实现** |
 | Daily | 日终报告 | 2026-08-08 | `DAILY-2026-08-08.md` | — |
 | Assessment | 架构评估 | 2026-07 | `ARCHITECTURE-ASSESSMENT-2026-07.md` | — |
 | Assessment | 三方 Skill 参考价值 | 2026-08-01 | `THIRD-PARTY-SKILL-ASSESSMENT-2026-08-01.md` | — |
