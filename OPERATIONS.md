@@ -234,6 +234,20 @@ Used for:
 * capability analysis
 * lifecycle cleanup recommendations
 
+### 1.8.1 维护职责分离（Maintenance Responsibility Split）
+
+维护分两个独立域，分开触发：
+
+| 域 | 入口 | 关注 | 频率 |
+|----|------|------|------|
+| **aic 工具巡检** | `python tools/quick-check.py` | aic 工具自身健康：repo-lint（结构/语言）、path-audit（引用）、extensions-lint（扩展域）、CLI 测试、命令注册 | 会话启动自动 + on-demand |
+| **系统维护** | `python -m cli.main maintain --mode <mode>` | ai-system 架构：workflow 八段契约、governance 一致性、层级/目录、能力矩阵、知识生命周期 | weekly/monthly/quarterly |
+
+- quick-check 结果落盘 `metrics/quick-check-{date}.json`（趋势可查）。
+- 架构维护经验（CI 无 extensions / pyc 缓存 / 目录层级模拟等）不常驻本文，
+  记录在各次维护报告（reports/MAINTENANCE-*/CACHE-OPTIMIZATION-*）与
+  `reports/` 索引中，按需查阅。
+
 ---
 
 ## 1.9 Cross-Cutting Discipline

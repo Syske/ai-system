@@ -91,3 +91,6 @@ maintenance:
 - Follow AI_DEVELOPMENT_CONTRACT: no architecture redesign, no moving responsibilities across modules, structural changes prohibited from direct implementation
 - Confirm before each batch of fixes (Change Control)
 - Inspection is read-first; modifications limited to confirmed minor fixes
+- This command maintains ai-system ARCHITECTURE only; aic-tool health runs separately via quick-check (OPERATIONS 1.8.1)
+- Maintenance experience (CI env, pyc cache, repo layout) is recorded in reports/ — consult the index, not this file
+- CI without the extensions repo: parser/mr.provider checks degrade to WARN, not ERROR
