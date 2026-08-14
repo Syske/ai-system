@@ -18,6 +18,7 @@ Flow:  intent menu → pick → fill fields → run chained commands.
 """
 
 from cli.utils.menu import BACK, Section, choose
+from cli.utils.menu.text import ask_text
 from cli.utils.yaml import load_yaml
 
 # 内置意图配置文件（AI 维护；AI 新建意图写入 .aic-state.yaml）
@@ -104,36 +105,75 @@ class WizardIntake:
         it for future maintenance).
         """
 
-        text = input("描述你的意图: ").strip()
+        text = ask_text(
+            "描述你的意图: ",
+            header=header,
+            note="描述你想做什么（如：线上订单超时了 / 跑下巡检）。AI 理解后推荐或新建意图。",
+        )
 
-        if not text:
-            return self._intent_from_text(header)
+        if text is BACK or not text:
+            return None
 
         # 1) 规则匹配现有意图（按 label 关键词）
         matched = self._match_intent_label(text)
 
         if matched:
-            print(
-                f"\n决策: 选择要执行的意图\n"
-                f"推荐: {matched['label']} — 根据你的描述「{text[:30]}」\n"
-                f"影响: 进入该意图的字段收集与执行\n"
-            )
-            confirm = input("确认？[y/N] 或输入其他意图: ").strip().lower()
-            if confirm in ("y", "yes", ""):
-                return matched["name"], list(matched.get("commands", []))
-            return self._intent_from_text(header)
+            return self._confirm_intent(header, matched, text)
 
         # 2) 未匹配 → 提议新建意图（AI 维护）
-        print(
-            f"\n未匹配到现有意图「{text[:40]}」。\n"
-            f"AI 将为此创建一个新意图（记录到 ai_intents，供后续使用）。\n"
+        return self._propose_new_intent(header, text)
+
+    def _confirm_intent(self, header, intent, text):
+        """Present matched intent as a decision point; user confirms or re-describes."""
+
+        options = [
+            f"✅ 确认：{intent.get('icon', '✨')} {intent.get('label', intent.get('name'))}"
+            f" → {', '.join(intent.get('commands', []))}",
+            "✍️  重新描述",
+            "❌  取消",
+        ]
+
+        idx = choose(
+            f"AI 理解：{text[:30]} → {intent.get('label', intent.get('name'))}",
+            options,
+            0,
+            header=header,
         )
-        confirm = input("创建新意图并进入引导？[y/N]: ").strip().lower()
 
-        if confirm in ("y", "yes", ""):
-            return self._create_ai_intent(text)
+        if idx is BACK or idx == 2:
+            return None
 
-        return self._intent_from_text(header)
+        if idx == 1:
+            return self._intent_from_text(header)
+
+        return intent["name"], list(intent.get("commands", []))
+
+    def _propose_new_intent(self, header, text):
+        """Unmatched text → propose creating a new AI-maintained intent."""
+
+        inferred = self._infer_command(text)
+
+        options = [
+            "✅ 创建新意图并进入引导",
+            "✍️  重新描述",
+            "❌  取消",
+        ]
+
+        idx = choose(
+            f"未匹配到现有意图「{text[:30]}」——是否创建新意图？"
+            + (f"（AI 推断关联命令: {inferred or '待定'}）" if inferred else ""),
+            options,
+            0,
+            header=header,
+        )
+
+        if idx is BACK or idx == 2:
+            return None
+
+        if idx == 1:
+            return self._intent_from_text(header)
+
+        return self._create_ai_intent(text)
 
     def _match_intent_label(self, text):
         """Match free text against intent labels/names (keyword, zero-dep)."""
