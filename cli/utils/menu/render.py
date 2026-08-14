@@ -5,6 +5,8 @@ Split from cli/utils/menu.py (P1 modularization, C4).
 
 import sys
 
+from cli.utils.menu.theme import get as _theme
+
 
 def _frame(header, body):
 
@@ -25,10 +27,15 @@ def _frame(header, body):
 
 def _paint(opt, selected):
 
+    selected_s = _theme("selected")
+    name_s = _theme("name")
+    desc_s = _theme("desc")
+    reset_s = _theme("reset")
+
     if " — " not in opt:
 
         if selected:
-            return f"\x1b[7m> {opt}\x1b[0m"
+            return f"{selected_s}> {opt}{reset_s}"
 
         return f"  {opt}"
 
@@ -37,11 +44,11 @@ def _paint(opt, selected):
     if selected:
 
         return (
-            f"\x1b[7m> \x1b[1;36m{name}\x1b[0m"
-            f"\x1b[7m \x1b[2;90m— {desc}\x1b[0m"
+            f"{selected_s}> {name_s}{name}{reset_s}"
+            f"{selected_s} {desc_s}— {desc}{reset_s}"
         )
 
     return (
-        f"  \x1b[1;36m{name}\x1b[0m"
-        f" \x1b[2;90m— {desc}\x1b[0m"
+        f"  {name_s}{name}{reset_s}"
+        f" {desc_s}— {desc}{reset_s}"
     )

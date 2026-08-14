@@ -6,6 +6,7 @@ Split from cli/utils/menu.py (P1 modularization, C4).
 from cli.utils.menu.base import BACK, Section, _t
 from cli.utils.menu.keys import _normalize, _read_key
 from cli.utils.menu.render import _frame, _paint
+from cli.utils.menu.theme import get as _theme
 
 
 def _visible_indices(options, selectable, filter_buf):
@@ -68,7 +69,7 @@ def _handle_no_match(title, note, filter_buf, header):
     if note:
 
         body.append(
-            f"\x1b[1;2m{note}\x1b[0m"
+            f"{_theme('note')}{note}{_theme('reset')}"
         )
 
         body.append("")
@@ -188,7 +189,7 @@ def _interactive(title, options, default, allow_skip, header, note=None):
         if note:
 
             body.append(
-                f"\x1b[1;2m{note}\x1b[0m"
+                f"{_theme('note')}{note}{_theme('reset')}"
             )
 
             body.append("")
@@ -198,7 +199,7 @@ def _interactive(title, options, default, allow_skip, header, note=None):
             if isinstance(opt, Section):
 
                 body.append(
-                    f"\x1b[1;2m{opt.text}\x1b[0m"
+                    f"{_theme('note')}{opt.text}{_theme('reset')}"
                 )
 
             elif i not in visible:

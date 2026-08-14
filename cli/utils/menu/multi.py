@@ -7,16 +7,23 @@ from cli.utils.menu.base import BACK, Section, _t
 from cli.utils.menu.keys import _normalize, _read_key
 from cli.utils.menu.render import _frame
 from cli.utils.menu.select import _handle_filter_key, _handle_no_match, _visible_indices
+from cli.utils.menu.theme import get as _theme
 
 
 def _paint_many(opt, selected, marked):
 
     marker = "[x]" if marked else "[ ]"
 
+    selected_s = _theme("selected")
+    marker_s = _theme("marker")
+    name_s = _theme("name")
+    desc_s = _theme("desc")
+    reset_s = _theme("reset")
+
     if " — " not in opt:
 
         if selected:
-            return f"\x1b[7m> {marker} {opt}\x1b[0m"
+            return f"{selected_s}> {marker} {opt}{reset_s}"
 
         return f"  {marker} {opt}"
 
@@ -25,13 +32,13 @@ def _paint_many(opt, selected, marked):
     if selected:
 
         return (
-            f"\x1b[7m> {marker} \x1b[1;36m{name}\x1b[0m"
-            f"\x1b[7m \x1b[2;90m— {desc}\x1b[0m"
+            f"{selected_s}> {marker_s}{marker} {name_s}{name}{reset_s}"
+            f"{selected_s} {desc_s}— {desc}{reset_s}"
         )
 
     return (
-        f"  {marker} \x1b[1;36m{name}\x1b[0m"
-        f" \x1b[2;90m— {desc}\x1b[0m"
+        f"  {marker_s}{marker} {name_s}{name}{reset_s}"
+        f" {desc_s}— {desc}{reset_s}"
     )
 
 
@@ -127,7 +134,7 @@ def _interactive_many(
         if note:
 
             body.append(
-                f"\x1b[1;2m{note}\x1b[0m"
+                f"{_theme('note')}{note}{_theme('reset')}"
             )
 
             body.append("")
@@ -137,7 +144,7 @@ def _interactive_many(
             if isinstance(opt, Section):
 
                 body.append(
-                    f"\x1b[1;2m{opt.text}\x1b[0m"
+                    f"{_theme('note')}{opt.text}{_theme('reset')}"
                 )
 
             elif i not in visible:
