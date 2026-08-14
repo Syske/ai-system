@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Approved** |
 | Type | Structural (环境能力) |
 | Author | AI Maintainer |
 | Created | 2026-08-14 |
@@ -109,24 +109,25 @@ ai-system（`aic` CLI）当前仅面向 Windows 运行：`config/environments/lo
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-08-14 |
+| User (AI Maintainer operator) | **Approved**（阶段一落地确认；阶段二 defer 至新提案） | 2026-08-14 |
 
 ---
 
 ## Implementation Record (2026-08-14)
 
-阶段一已落地（本提案为登记，非新增代码改动）：
+阶段一已落地（登记为主）；阶段二开始落地代码改动：
 
 1. `config/environments/wsl.yaml` 已创建（`/mnt/d` 路径 + maven 后端）。
 2. WSL 依赖已安装，`aic` 注册至 `~/.local/bin/aic`。
 3. `~/.zshrc` / `~/.bashrc` / `~/.profile` 已追加 PATH 收敛。
 4. 验证全部通过（见 §6）。
+5. **WSL 项目识别修复（阶段二核心落地）**：`workspace.yaml` 的 `repository.available[].path` 为 Windows 路径（`D:\...`），Linux 下 `Path().is_absolute()` 为 False，导致 `project_repos` / `repo_path_for` 把路径错误拼到 `projects_root` 后 → 项目 repo 无法识别。已在 `cli/services/providers.py` 新增 `_linux_path()` / `_repo_path()`（Windows 绝对路径 → `/mnt/d/...` 转换），应用于 `repo_path_for` 与 `project_repos` 的 available/unavailable 路径。
 
-**Validation**: `tools/check.py` / 路径解析 / 向导流转 / PATH 命中 全部通过 ✅
+**Validation**: `tools/check.py` / 路径解析 / 向导流转 / PATH 命中 全部通过 ✅；`python -m unittest discover -s cli/tests` **71 tests OK** ✅；`project_repos('pywechat-live-2608')` 3 个 repo 路径转换后 `exists=True` ✅
 
 **Deviations**: 无。
 **Open Items**:
 1. 阶段二 `aic env-init` 子命令（自动探测挂载点生成环境配置 + 依赖安装 + PATH 收敛 + 自检）。
 2. 环境感知：默认环境按运行平台自动选择，减少 `--environment wsl` 显式传参。
 3. 交互向导完整自动化测试（agent 启动后的真实交互断言）。
-4. `reports/README.md` / `PROPOSALS.md` 登记本提案。
+4. `contexts/project.yaml` 与 `workspace.yaml` 两处 repo 路径来源统一（`repo_path_for` 目前仅读 project.yaml，实际数据在 workspace.yaml），后续合并为单一数据源。

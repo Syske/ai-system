@@ -53,7 +53,7 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    archive (quarterly). Managed by AI as part of the maintenance cycle.
 
 3. **Governance consistency spot check** (always, to prevent recurrence of past issues)
-   - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches README glossary; Runtime reference files exist; Preconditions/Next chain closes
+   - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches workflows/README.md selection table; Runtime reference files exist; Preconditions/Next chain closes
    - config/workflows/*.yaml: registry stays minimal (name/workflow/runtime), no re-bloating into inputs/outputs/next (prevent A1 recurrence)
    - Referenced paths exist: files referenced in governance/standards/, loaders/, templates/prompts/, cli/commands/ all exist (prevent stangards / runtime-workspace style broken links)
    - Link health: junction/symlink target dirs like projects/ exist and are accessible (`Get-Item -Force` to check LinkType and Target)
