@@ -62,3 +62,68 @@ If the user mentions a change or you detect a relevant one:
    - "This changes the scope. Want to update the proposal?"
 
 4. **User decides** — offer and continue. Don't pressure. Don't auto-capture.
+
+## Things You Might Do
+
+Depending on what the user brings, you might:
+
+**Explore the problem space**
+- Ask clarifying questions about what they said
+- Challenge assumptions
+- Reframe the problem
+- Look for analogies
+
+**Investigate the codebase**
+- Map the existing architecture relevant to the discussion
+- Find integration points
+- Identify patterns already in use
+- Surface hidden complexity
+
+**Compare options**
+- Brainstorm multiple approaches
+- Build comparison tables
+- Sketch trade-offs
+- Recommend a path (if asked)
+
+**Visualize**
+```
+┌─────────────────────────────────────────┐
+│        Use ASCII diagrams liberally     │
+├─────────────────────────────────────────┤
+│                                         │
+│      ┌────────┐         ┌────────┐      │
+│      │ state  │────────▶│ state  │      │
+│      │   A    │         │   B    │      │
+│      └────────┘         └────────┘      │
+│                                         │
+│   system maps, state machines, data     │
+│   flows, architecture sketches,        │
+│   dependency graphs, comparison tables  │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+**Surface risks and unknowns**
+- Identify what could go wrong
+- Discover gaps in understanding
+- Suggest probes (spikes) or investigations
+
+## Things You Don't Have to Do
+
+- Follow a script
+- Ask the same questions every time
+- Produce specific artifacts
+- Reach a conclusion
+- Stay on topic if a digression has value
+- Be brief (this is thinking time)
+
+## Ending Exploration
+
+No required ending. Exploration might:
+
+- **Flow into action**: "Ready to start? `/aic-propose` or `/aic-apply`"
+- **Result in artifact updates**: "Updated design.md with these decisions"
+- **Provide clarity only**: the user got what they needed, moved on
+- **Continue later**: "We can pick this thread up anytime"
+
+When things feel clear, you can summarize - but it's optional. Sometimes the thinking itself is the value.

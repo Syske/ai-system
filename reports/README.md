@@ -46,7 +46,7 @@
 | 2026-08-06 | on-demand | live-facade SNAPSHOT 风险 | `MAINTENANCE-2026-08-06-live-facade-snapshot-risk.md` | —（P14 已闭环） |
 | 2026-08-06 | on-demand | 方法长度与注释约定 | `MAINTENANCE-2026-08-06-method-comment-convention.md` | P1/P2/P3 → propose（见 P11 记录） |
 | 2026-08-08 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次 A1-A4 | `MAINTENANCE-2026-08-08.md` | F1-F3 已修复（A1-A4 已闭环） |
-| 2026-08-13 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次 S-A/S-B | `MAINTENANCE-2026-08-13.md` | F1-F2 已修复（S-A/S-B 已执行）；P18/P19/P20 遗留 |
+| 2026-08-13 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次 S-A/S-B | `MAINTENANCE-2026-08-13.md` | F1-F2 已修复（S-A/S-B 已执行）；P18 已闭环(2026-08-14)；P19/P20 遗留 |
 | 2026-08-13 | on-demand | extensions 域巡检（Scope=extensions） | `EXTENSIONS-MAINTENANCE-2026-08-13.md` | F1: 6 个 OPTIMIZATION_LOG 空模板待补录 |
 
 ---

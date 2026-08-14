@@ -76,3 +76,54 @@ parallel implementation path.
 - Changes trace to the task card (Specification → Contract → Task)
 - Changes minimal — no unrelated edits
 - State reported accurately (blocked / all_done / in-progress)
+
+## Output formats
+
+Present progress and results in the system language (Chinese):
+
+**During implementation**
+
+```
+## 正在实现：<change-name>（Schema：<schema-name>）
+
+正在处理任务 3/7：<task description>
+[...正在进行实现...]
+✓ 任务完成
+```
+
+**On completion**
+
+```
+## 实现完成
+
+**变更：** <change-name>
+**Schema：** <schema-name>
+**进度：** 7/7 任务已完成 ✓
+
+### 本次会话已完成
+- [x] 任务 1
+- [x] 任务 2
+...
+
+所有任务已完成！您可以使用 `/aic-archive` 归档此变更。
+```
+
+**When paused (hit a problem)**
+
+```
+## 实现暂停
+
+**变更：** <change-name>
+**Schema：** <schema-name>
+**进度：** 4/7 任务已完成
+
+### 遇到的问题
+<problem description>
+
+**选项：**
+1. <option 1>
+2. <option 2>
+3. 其他方法
+
+您想怎么做？
+```

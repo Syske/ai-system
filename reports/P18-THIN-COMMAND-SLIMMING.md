@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (command slimming) |
 | Author | AI Maintainer |
 | Created | 2026-08-08 |
@@ -58,12 +58,29 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-08-08 |
+| User (AI Maintainer operator) | **Approved & Implemented** | 2026-08-14 |
 
 ---
 
-## Implementation Record (YYYY-MM-DD)
+## Implementation Record (2026-08-14)
 
-Applied per approval (OPERATIONS §12 → Implement → Validate):
-1. …
-**Validation**: check.py / repo-lint / path-audit 结果
+Applied per approval (OPERATIONS §12 → Implement → Validate), Option A:
+
+1. **aic-apply.md** (114 → 43 行): 删除与 apply-openspec 技能重复的 7 步详细流程,
+   压缩 Output 模板为短引用(`apply-openspec` 技能 "Output formats" 章节),
+   保留 Purpose/Inputs/Contract binding/thin Steps/Output 引用/Guardrails/Fluid model。
+2. **aic-explore.md** (124 → 41 行): Stance 精简为 6 条核心,Captch 章节下沉
+   explore 技能,保留 Purpose/Important("思考非实现")/Stance/OpenSpec Awareness/
+   Guardrails, 引用 explore 技能。
+3. **skills/apply-openspec/SKILL.md** (78 → 129 行): 吸收原命令的 Output formats
+   (进行中/完成/暂停 三种输出模板)。
+4. **skills/explore/SKILL.md** (64 → 129 行): 吸收原命令的 `Things You Might Do` /
+   `Things You Don't Have to Do` / `Ending Exploration` 章节。
+
+**Validation**: check.py (wfc-audit 2 warnings → 0) / repo-lint 0 BLOCKER 0 ERROR
+(技能 >80 行无 workflow.md 新增 2 WARNING, 与既存 25 同类 warning 一致,
+为 health signal 非 P18 范围; 技能拆 workflow.md 留独立治理项) /
+path-audit OK / 命令 prompt 冒烟通过(apply 2354B / explore 2769B, 含技能引用)。
+
+**Deviations**: 技能增长触发 repo-lint "无 workflow.md >80 行" warning(x2),
+与既存 agent-debug-diagnosis(114)/contract-maintainer(134) 同质接受, 不在 P18 范围。
