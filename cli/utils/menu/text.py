@@ -37,9 +37,11 @@ _INPUT_STYLE = PTStyle.from_dict(
     {
         "prompt": _theme("prompt"),
         # bottom-toolbar 颜色统一在此（不再在 HTML 内联，避免双源冲突）；
-        # 用明确 bg/fg + bold 替代 reverse（reverse 依赖终端默认色, 不醒目）
+        # 无背景（toolbar_bg 空）+ 亮色前景 + bold：文字高对比醒目，
+        # 无灰色块（灰色块与周围融为一体反而不醒目）
         "bottom-toolbar": (
-            f"bg:{_theme('toolbar_bg')} fg:{_theme('toolbar_fg')} bold"
+            (f"bg:{_theme('toolbar_bg')} " if _theme('toolbar_bg') else "")
+            + f"fg:{_theme('toolbar_fg')} bold"
         ),
     }
 ) if PTStyle is not None else None

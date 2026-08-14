@@ -23,8 +23,8 @@ theme:
   desc: "\x1b[2;90m"
   note: "\x1b[1;2m"
   prompt: "bold fg:ansicyan"
-  toolbar_bg: "ansicyan"
-  toolbar_fg: "ansiblack"
+  toolbar_bg: ""                # 无背景（取消灰色块, 更醒目）
+  toolbar_fg: "ansibrightcyan"  # 亮青前景 + bold, 文字本身高对比
   divider: "\x1b[1;36m"
   marker: "\x1b[7m"
   reset: "\x1b[0m"
