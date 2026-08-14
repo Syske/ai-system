@@ -143,6 +143,7 @@
 - **python shim**：WSL 下 `python` 命中 `/mnt/c/Users/syske/.pyenv/pyenv-win/shims/python`（不可执行），必须 `python3`。已影响本次所有工具调用；P22 阶段二 env-init 自检应显式校验 `python3`。
 - **CRLF 教训**：行尾混排会导致基于文本匹配的门禁误报（本次 section 顺序抽查的 DIFF 全为误报）。后续抽查脚本应先行 `tr -d '\r'` 或统一 LF。
 - **既有未提交改动（会话前，非本次引入）**：`git status` 显示约 360 个条目（含 archived/*、reports/*、config/workflows/*.yaml 等），原因：工作区大量文件为 CRLF、HEAD 为 LF，且 P22 阶段二落地记录（providers.py 修复说明、validation 补充）已在工作区未提交。本次仅提交式登记（不入 git commit）；`git diff -w` 核实本次实质变更仅 4 文件（aic-maintain.md 2 行、P22 状态 2 处、PROPOSALS.md 索引、README.md 索引）。建议后续统一处理：全仓 CRLF→LF 一次提交 + 未提交改动审查。
+- **pre-commit hook 假阳性（2026-08-14 提交时发现）**：`.githooks/pre-commit` 调用 `python`，WSL 下命中不可执行 shim，报错被 `|| true` 吞掉后仍打印 “gates passed”——gate 实际未执行。建议 hook 改为 `python3`（或探测可用解释器），否则门禁形同虚设。本次两笔提交（6035d19 / f6b1855）已单独用 `python3 tools/check.py` 等真实跑过 gate。
 
 ---
 
