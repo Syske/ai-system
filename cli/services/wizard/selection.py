@@ -280,6 +280,7 @@ class WizardSelection:
             c
             for c in commands
             if c not in configured["command"]
+            and c not in self.hidden_commands()
         ]
 
         if remaining_commands:

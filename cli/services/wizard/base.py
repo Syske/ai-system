@@ -48,6 +48,10 @@ class WizardConfigAccess:
 
         return self.config.hidden_workflows()
 
+    def hidden_commands(self):
+
+        return self.config.hidden_commands()
+
     def _menu_option(self, menu, key):
 
         return self.config.menu_option(menu, key)

@@ -20,6 +20,14 @@ hidden_workflows:
   - analysis       # maintain 内部环节（系统健康）
   - knowledge      # maintain 内部环节（知识生命周期）
 
+# AI 内部命令：不在用户菜单显示（不落“其他命令”），由 AI 按需触发
+# （ADR-0009: AI 主导变更生命周期）。已注册但隐藏 = AI 可调用、用户菜单不可见。
+hidden_commands:
+  - propose       # 变更集创建（spec 环节 CLI 触发器, AI 在 prepare/spec 时调用）
+  - apply         # 实现变更任务（develop 环节 CLI 触发器, AI 实现时调用）
+  - archive       # 归档变更集（release 后 AI 自动归档）
+  - explore       # 构思入口（AI 推荐流程时按需触发, 用户无需选命令）
+
 sections:
   - title: flow_main
     items:
@@ -75,20 +83,6 @@ sections:
       - name: proposal
         kind: workflow
         icon: "💡 "
-  - title: commands_changes
-    items:
-      - name: propose
-        kind: command
-        icon: "💡 "
-      - name: apply
-        kind: command
-        icon: "🏗️ "
-      - name: archive
-        kind: command
-        icon: "🗄️ "
-      - name: explore
-        kind: command
-        icon: "🔭 "
   - title: commands_analysis
     items:
       - name: scan

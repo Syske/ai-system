@@ -52,14 +52,27 @@ def find_commands(root):
 
 
 def registered_commands(root):
-    """Command names registered in config/menu.yaml."""
+    """Command names registered in config/menu.yaml.
+
+    Includes both section items (name: x) and hidden_commands entries
+    (- x) — hidden commands are registered-but-invisible (AI-internal,
+    ADR-0009), not unregistered.
+    """
     menu = root / "config" / "menu.yaml"
     if not menu.exists():
         return set()
+    text = menu.read_text(encoding="utf-8")
     names = set()
-    for line in menu.read_text(encoding="utf-8").splitlines():
-        m = re.match(r"\s*-?\s*name:\s*([a-z][a-z0-9-]+)", line)
-        if m:
+    for m in re.finditer(r"name:\s*([a-z][a-z0-9-]+)", text):
+        names.add(m.group(1))
+    # hidden_commands 段的条目：- propose（无 name: 前缀）
+    hidden_section = text.split("hidden_commands:", 1)
+    if len(hidden_section) == 2:
+        for m in re.finditer(
+            r"^\s*-\s*([a-z][a-z0-9-]+)\s*(?:#.*)?$",
+            hidden_section[1].split("\nsections:")[0],
+            re.M,
+        ):
             names.add(m.group(1))
     return names
 

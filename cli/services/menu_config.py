@@ -193,6 +193,12 @@ class MenuConfig:
             self.get("hidden_workflows")
         )
 
+    def hidden_commands(self):
+
+        return set(
+            self.get("hidden_commands")
+        )
+
     def menu_option(self, menu, key):
 
         return (
