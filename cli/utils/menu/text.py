@@ -35,23 +35,23 @@ _TEXT_SESSIONS = {}
 # - 顶部边框分隔线（由调用方/渲染在 frame 中绘制）
 _INPUT_STYLE = PTStyle.from_dict(
     {
-        "prompt": "bold fg:ansicyan",
-        "bottom-toolbar": "reverse bold",
+        "prompt": _theme("prompt"),
+        # bottom-toolbar 颜色统一在此（不再在 HTML 内联，避免双源冲突）；
+        # 用明确 bg/fg + bold 替代 reverse（reverse 依赖终端默认色, 不醒目）
+        "bottom-toolbar": (
+            f"bg:{_theme('toolbar_bg')} fg:{_theme('toolbar_fg')} bold"
+        ),
     }
 ) if PTStyle is not None else None
 
 _INPUT_TOOLBAR_TEXT = (
-    "⏎ Enter 提交 · Alt+Enter 换行 · 退格返回 · Esc/Ctrl+C 退出"
+    "  ⏎ Enter 提交 · Alt+Enter 换行 · 退格返回 · Esc/Ctrl+C 退出  "
 )
 
 
 def _input_toolbar():
-    """反白底部提示条（输入区域醒目标识）。"""
-    if HTML is None:
-        return None
-    return HTML(
-        f"<style bg='ansicyan' fg='ansiblack'>{_INPUT_TOOLBAR_TEXT}</style>"
-    )
+    """底部提示条内容（颜色由 _INPUT_STYLE 控制, 纯文本避免双源冲突）。"""
+    return _INPUT_TOOLBAR_TEXT
 
 
 def _input_divider():
