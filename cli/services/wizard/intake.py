@@ -74,7 +74,7 @@ class WizardIntake:
                 f"{it.get('icon', '✨')} {it.get('label', it.get('name'))}{suffix}"
             )
 
-        options.append("✍️  描述你的意图（AI 理解后推荐/新建）")
+        options.append("💬  描述你的意图（AI 理解后推荐/新建）")
         options.append("❌  取消（返回项目选择）")
 
         idx = choose(
@@ -129,7 +129,7 @@ class WizardIntake:
         options = [
             f"✅ 确认：{intent.get('icon', '✨')} {intent.get('label', intent.get('name'))}"
             f" → {', '.join(intent.get('commands', []))}",
-            "✍️  重新描述",
+            "💬  重新描述",
             "❌  取消",
         ]
 
@@ -155,7 +155,7 @@ class WizardIntake:
 
         options = [
             "✅ 创建新意图并进入引导",
-            "✍️  重新描述",
+            "💬  重新描述",
             "❌  取消",
         ]
 
