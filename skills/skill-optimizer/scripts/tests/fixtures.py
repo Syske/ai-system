@@ -25,7 +25,7 @@ def make_core_stub():
         def __init__(self):
             pass
 
-        def __call__(self, prompt):
+        def __call__(self, prompt, system=None):
             return "stub response"
 
     core_stub.RealLLMClient = RealLLMClient

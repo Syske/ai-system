@@ -23,10 +23,11 @@ def main() -> int:
     from actions import _propose_candidate
 
     class StubLLM:
-        def __call__(self, prompt):
-            if "held-out validator" in prompt:
+        def __call__(self, prompt, system=None):
+            text = (system or "") + "\n" + prompt
+            if "held-out validator" in text:
                 return "T1: PASS\nT2: PASS\nPASS RATE: 2/2"
-            if "tuning the frontmatter" in prompt:
+            if "tuning the frontmatter" in text:
                 return "1) vague\n---\n`Optimize skills via static/dynamic`"
             return "## Examples\n\n- task: A\n  approach: B\n  result: C"
 

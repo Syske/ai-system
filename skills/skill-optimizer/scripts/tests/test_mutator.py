@@ -158,7 +158,7 @@ class TestAgenticMutationLoop(unittest.TestCase):
 
     def test_legacy_path_when_no_chat(self):
         class PlainCallable:
-            def __call__(self, prompt):
+            def __call__(self, prompt, system=None):
                 class R:
                     content = "---\nname: demo\n---\n\n# Demo\n\nLegacy fix.\n"
                 return R()
