@@ -1,0 +1,38 @@
+# WSL 环境配置模板 — 复制为 wsl.yaml 并替换占位路径（wsl.yaml 已 gitignore）
+#
+# 用法:
+#   cp config/environments/wsl.yaml.template config/environments/wsl.yaml
+#   替换 {wsl_workspace_root} 为实际 WSL 工作区根(如 /mnt/d/workspace/ai-workspace)
+#   aic --environment wsl 使用
+#
+# 说明: 机器级配置, 不入库(gitignore); 模板保持占位符, 实际路径按机器填写。
+
+workspace:
+  root: {wsl_workspace_root}
+  repository_root: {wsl_workspace_root}/projects
+
+build:
+  java_home: ''
+  maven_home: ''
+  maven_settings: ''
+  # WSL 环境无 IDEA，使用 maven CLI 后端
+  backend: maven
+
+bugfix:
+  # bugfix 运行模式: standard(默认) | hotfix(现网, master 基线, 完整发布前链路)
+  # 可配置为 config/workflows/bugfix-modes.yaml 中的模式(phases/template/parser 等)
+  mode: standard
+
+layers:
+  ai_system:
+    path: {wsl_workspace_root}/ai-system
+    description: AI Operating System core
+  projects:
+    path: {wsl_workspace_root}/projects
+    description: all code repository
+  methodologies:
+    path: {wsl_workspace_root}/methodologies
+    description: governance standards, openspec, specs, contracts
+  skills:
+    path: {wsl_workspace_root}/extensions
+    description: company/platform skill extensions (not auto-scanned by agents)

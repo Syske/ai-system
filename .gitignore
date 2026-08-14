@@ -19,6 +19,7 @@ node_modules/
 # Machine-specific environment config
 config/environments/local.yaml
 config/environments/context.yaml
+config/environments/wsl.yaml
 
 # Runtime state (wizard state, generated snapshots)
 workspaces/.aic-state.yaml

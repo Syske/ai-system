@@ -30,6 +30,7 @@
 | [P19](P19-EXPLORE-SKILLS-RELATIONSHIP.md) | explore 与 explore-codebase 技能关系澄清（季度评估合并） | 2026-08-08 |
 | [P20](P20-HOTFIX-TEST-DOC-GUARDRAILS.md) | hotfix-test-doc 发布链护栏增强（校验误报 + 空单元格自动修复） | 2026-08-11 |
 | [P21](P21-HOTFIX-TEST-DOC-RENDER-FIX.md) | hotfix-test-doc 模板标题渲染缺陷修复与回填工具 | 2026-08-12 |
+| [P22](P22-WSL-ENVIRONMENT-INTEGRATION.md) | WSL 环境集成与初始化能力 | 2026-08-14 |
 
 ---
 

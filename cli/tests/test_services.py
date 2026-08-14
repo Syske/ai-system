@@ -87,6 +87,29 @@ class TestPromptBuilder(unittest.TestCase):
         with self.assertRaises((RuntimeError, KeyError, ValueError)):
             self.pb.build(workflow="no-such-thing-xyz", context={})
 
+    def test_workflow_prompt_skeletonized(self):
+        # runtime 骨架化：Phase 标题保留 + 源文件引用，体积缩减
+        prompt = self.pb.build(workflow="release", context={})
+        self.assertIn("# Phase 1", prompt)
+        self.assertIn("Full runtime template", prompt)
+        # 骨架化后显著小于全量 runtime（release 原 ~16K 字符）
+        self.assertLess(len(prompt), 8000)
+
+    def test_workflow_prompt_prefix_stable(self):
+        # 同一工作流不同输入 → 前缀稳定（缓存优化：静态前置/动态后置）
+        p1 = self.pb.build(workflow="develop", context={"Project ID": "a"})
+        p2 = self.pb.build(workflow="develop", context={"Project ID": "b"})
+        # 动态输入在末尾（# Task 段之后）
+        i1 = p1.find("# Task")
+        self.assertGreater(i1, 0)
+        # 前缀（# Task 之前）完全一致
+        self.assertEqual(p1[:i1], p2[:i1])
+
+    def test_command_prompt_not_skeletonized(self):
+        # 命令 prompt 保留完整命令文档（不骨架化）
+        prompt = self.pb.build(workflow="maintain", context={"Mode": "weekly"})
+        self.assertIn("**Steps**", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()
