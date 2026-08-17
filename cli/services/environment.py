@@ -73,8 +73,8 @@ def paths(
     """Resolve all base paths for the given environment.
 
     workspace_root / repository_root / workspaces_root / ai_system_root /
-    methodologies_root — each from local.yaml when present, otherwise
-    derived from the default directory layout.
+    methodologies_root / outputs_root — each from local.yaml when present,
+    otherwise derived from the default directory layout.
     """
 
     env = load_environment(
@@ -112,6 +112,11 @@ def paths(
         layers.get("skills") or {}
     )
 
+    outputs_root = (
+        workspace.get("outputs_root")
+        or workspace_root / "outputs"
+    )
+
     return {
         "environment": name,
         "workspace_root": workspace_root,
@@ -129,6 +134,7 @@ def paths(
             _path(skills.get("path"))
             or workspace_root / "extensions"
         ),
+        "outputs_root": _path(outputs_root),
     }
 
 

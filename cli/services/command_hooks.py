@@ -55,7 +55,7 @@ class ScanHooks(CommandHooks):
 
         scan_dir = self._result_dir(
             values,
-            wizard.workspaces
+            wizard.outputs_root
         )
 
         if scan_dir:
@@ -88,17 +88,18 @@ class ScanHooks(CommandHooks):
         return True
 
     @staticmethod
-    def _result_dir(values, workspaces_root):
+    def _result_dir(values, outputs_root):
 
         if values.get("Keep Results") != "yes":
             return None
 
-        workspace = values.get("Workspace") or "system"
-
+        # Projectess/system workspace dirs are no longer a scan target —
+        # every saved scan lands under the configured outputs root, per the
+        # outputs convention (outputs-convention.md). A timestamp dir keeps
+        # naming deterministic (no agent-derived descriptor needed).
         scan_dir = (
-            workspaces_root
-            / workspace
-            / "scans"
+            outputs_root
+            / "scan"
             / f"scan-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
         )
 
@@ -107,4 +108,29 @@ class ScanHooks(CommandHooks):
         return str(scan_dir)
 
 
+class ChangeImpactHooks(CommandHooks):
+    """Change-impact workflow: requires a real project to analyse.
+
+    The change-impact workflow's Inputs declare Projects as Required, but the
+    workflow has no command hook (Preconditions: None), so the requirement was
+    documentation-only. This hook enforces it at the CLI so a project-less
+    "system" run cannot start and dump artifacts into the workspace.
+    """
+
+    def validate(self, wizard, values):
+
+        projects = values.get("Projects")
+
+        if not projects:
+
+            return False, (
+                "\n⚠ change-impact 需要至少一个项目（含代码仓库/范围）。\n"
+                "请选择 Projects；若确需无项目分析，改用 aic-scan（不写产物到 "
+                "项目工作区）。"
+            )
+
+        return True, None
+
+
 register("scan", ScanHooks())
+register("change-impact", ChangeImpactHooks())

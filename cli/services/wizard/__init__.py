@@ -78,6 +78,10 @@ class Wizard(
             "repository_root"
         ]
 
+        self.outputs_root = env_paths[
+            "outputs_root"
+        ]
+
         self.config = MenuConfig(root)
 
         self.store = StateStore(
