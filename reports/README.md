@@ -70,6 +70,8 @@
 | Daily | 日终报告 | 2026-08-08 | `DAILY-2026-08-08.md` | — |
 | Assessment | 架构评估 | 2026-07 | `ARCHITECTURE-ASSESSMENT-2026-07.md` | — |
 | Assessment | 三方 Skill 参考价值 | 2026-08-01 | `THIRD-PARTY-SKILL-ASSESSMENT-2026-08-01.md` | — |
+| Assessment | Skill 来源评估: mattpocock wayfinder（吸收为 skills/wayfinder, On-Demand） | 2026-08-17 | `skill-source-2026-08-17-wayfinder/skill-source-report.md` | M2: 等待真实大块模糊构想用例验证决策图层 |
+| Assessment | 运行诊断日志机制（logs/ 每运行落盘, 模板 + governance 契约） | 2026-08-17 | `templates/runtime/runtime-diagnostic-log.md`（经 AI_OPERATING_RULES §Completion、REFLECTION_RULES 落盘条目登记） | 待随一次实际 command/workflow 跑一轮验证字段/拆分阈值 |
 | Review | Workflow 层优化 | 2026-07 | `WORKFLOW-OPTIMIZATION-REPORT-2026-07.md` | — |
 | Report | Repository Optimization | — | `REPOSITORY-OPTIMIZATION-REPORT.md` | — |
 | Report | Repository Architecture v2 | — | `REPOSITORY-ARCHITECTURE-REPORT-v2.md` | — |

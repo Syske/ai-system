@@ -267,6 +267,12 @@ Risks
 
 Next Recommendation
 
+Every workflow completion persists a per-run diagnostic record to `logs/`
+per `templates/runtime/runtime-diagnostic-log.md` (fields mirror this Completion
+Report; failures must carry root cause; normal runs keep a one-page summary +
+pointer, splitting out detail on demand). Do not declare completion without writing
+this record.
+
 Workflow ends here.
 
 Do not continue automatically.

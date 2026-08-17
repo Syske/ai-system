@@ -98,6 +98,9 @@ checklist above.
 - Reflection **never** blocks Workflow completion
 - Recommendations may be acted on in a future task or dismissed by the user
 - Reflection is recorded in the Completion Report
+- Reflection MUST be persisted to `logs/` as a per-run diagnostic record
+  (template `templates/runtime/runtime-diagnostic-log.md`) before the run is declared
+  done — the on-disk copy makes any past run traceable after the session ends.
 
 ---
 
