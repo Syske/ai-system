@@ -58,7 +58,7 @@ Success:
 Stop:
 
 - Critical findings exist → Review Status = Changes Required
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - verify — on approved (routing: approved→verify / bug found→bugfix / spec gap→spec re-entry)

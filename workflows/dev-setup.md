@@ -51,7 +51,7 @@ Stop:
 
 - Project cannot be resolved → report missing project information and stop
 - Missing branches → prompt for confirmation and stop until confirmed
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - develop

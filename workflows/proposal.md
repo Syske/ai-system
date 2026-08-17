@@ -59,7 +59,7 @@ Success:
 Stop:
 
 - Information insufficient to form a solution → generate clarification questions and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - None

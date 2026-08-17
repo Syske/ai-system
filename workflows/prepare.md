@@ -58,7 +58,7 @@ Success:
 Stop:
 
 - Readiness = Blocked → report missing information and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - spec — on ready

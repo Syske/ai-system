@@ -55,7 +55,7 @@ Success:
 Stop:
 
 - Duplicate or contradictory knowledge detected → reject and report
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - None

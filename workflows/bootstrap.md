@@ -60,7 +60,7 @@ Success:
 Stop:
 
 - Environment configuration missing and not provisioned by tools/setup.py → report and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - prepare — on new change

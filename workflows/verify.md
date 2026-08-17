@@ -46,7 +46,7 @@ Success:
 Stop:
 
 - Any mandatory verification fails → Verification Status = FAIL
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - release — on PASS

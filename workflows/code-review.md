@@ -59,7 +59,7 @@ Success:
 Stop:
 
 - Any code target (project or branch) cannot be resolved → report and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - None

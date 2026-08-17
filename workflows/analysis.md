@@ -54,7 +54,7 @@ Success:
 Stop:
 
 - Analysis Target cannot be resolved → report and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - knowledge — collect reusable findings (governance/memory/)

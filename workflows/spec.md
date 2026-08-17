@@ -55,7 +55,7 @@ Stop:
 
 - Required information missing → generate clarification questions and stop
 - Consistency check failed → generate Consistency Report and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - dev-setup — on ready

@@ -63,7 +63,7 @@ Success:
 Stop:
 
 - The code target cannot be resolved → report and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - prepare — on spec/task adjustment required (scoped re-entry, per OPERATIONS.md 1.5)

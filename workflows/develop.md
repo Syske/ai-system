@@ -54,9 +54,9 @@ Stop:
 - Plan not approved → wait for confirmation
 - L2 change (approach) → stop, report, continue after confirmation
 - L3 change (specification, contract or scope) → stop and route to spec
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 
 Change levels are defined in governance/AI_OPERATING_RULES.md (Change Control).
-
 ## Next
 
 - review

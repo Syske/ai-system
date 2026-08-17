@@ -60,7 +60,7 @@ Stop:
 
 - Reproduction failed and assumptions not confirmed → stop and wait for confirmation
 - Root cause not identified → never implement a fix; stop and report
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - review

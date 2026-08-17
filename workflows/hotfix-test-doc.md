@@ -48,7 +48,7 @@ Success:
 Stop:
 
 - Confluence API fails and local save also fails → report and stop
-
+- Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
 - None
