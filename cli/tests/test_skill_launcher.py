@@ -171,6 +171,7 @@ class TestProjectRepos(unittest.TestCase):
 
             class FakeWizard:
                 workspaces = root / "workspaces"
+                projects_root = root
 
             repos = project_repos(FakeWizard(), "demo")
             self.assertEqual(repos["available"][0]["service"], "svc-a")
@@ -187,5 +188,51 @@ class TestProjectRepos(unittest.TestCase):
 
             class FakeWizard:
                 workspaces = root / "workspaces"
+                projects_root = root
 
             self.assertEqual(project_repos(FakeWizard(), "nope"), {})
+
+    def test_repo_path_dual_platform(self):
+        """_repo_path branches: win32 relative joins under projects_root;
+        Linux branch must NOT require projects_root (via _linux_path).
+
+        Regression guard for P24: FakeWizard must expose projects_root on
+        non-Linux; the Linux branch must resolve without it.
+        """
+        import tempfile
+        from unittest import mock
+
+        from cli.services.providers import _linux_path, _repo_path
+
+        # _linux_path unit: Windows drive path normalizes to a WSL mount
+        self.assertEqual(_linux_path(r"D:\workspace\svc-a"), "/mnt/d/workspace/svc-a")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            class FakeWizard:
+                workspaces = root / "workspaces"
+                projects_root = root
+
+            wiz = FakeWizard()
+
+            # Linux branch must not need projects_root (P24 guard)
+            class NoRootWizard:
+                workspaces = root / "workspaces"
+
+            with mock.patch("cli.services.providers.sys.platform", "linux"):
+                lnx = _repo_path(NoRootWizard(), "repos/svc-a")
+                self.assertEqual(lnx, Path("repos/svc-a"))
+
+            # win32: relative path joins under projects_root (P24 regression)
+            with mock.patch("cli.services.providers.sys.platform", "win32"):
+                rel = _repo_path(wiz, "repos/svc-a")
+                self.assertEqual(rel, root / "repos" / "svc-a")
+
+            # absolute path passes through on any platform
+            with mock.patch("cli.services.providers.sys.platform", "win32"):
+                abs_p = _repo_path(wiz, str(root / "svc-a"))
+                self.assertEqual(abs_p, root / "svc-a")
+
+            # empty path -> None
+            self.assertIsNone(_repo_path(wiz, ""))

@@ -31,6 +31,7 @@
 | [P20](P20-HOTFIX-TEST-DOC-GUARDRAILS.md) | hotfix-test-doc 发布链护栏增强（校验误报 + 空单元格自动修复） | 2026-08-11 |
 | [P21](P21-HOTFIX-TEST-DOC-RENDER-FIX.md) | hotfix-test-doc 模板标题渲染缺陷修复与回填工具 | 2026-08-12 |
 | [P22](P22-WSL-ENVIRONMENT-INTEGRATION.md) | WSL 环境集成与初始化能力 | 2026-08-14 |
+| [P24](P24-PROVIDER-CONTRACT-TEST-FIX.md) | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归，已实施 exit 0） | 2026-08-17 |
 
 ---
 
@@ -50,6 +51,7 @@
 | 2026-08-13 | on-demand | extensions 域巡检（Scope=extensions） | `EXTENSIONS-MAINTENANCE-2026-08-13.md` | F1: 6 个 OPTIMIZATION_LOG 空模板待补录 |
 | 2026-08-14 | on-demand | 巡检当前提案 + 治理一致性抽查 | `MAINTENANCE-2026-08-14.md` | P22 已 approve（阶段二 defer 至新提案）；F2/F3 已修复 |
 | 2026-08-14 | on-demand | 跨平台治理落地（P23 批次：gitattributes/hook/lint） | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` | —（P23 已 Implemented） |
+| 2026-08-17 | on-demand | 工具校验/周度巡检/一致性抽查 | `MAINTENANCE-2026-08-17.md` | R1: check.py 回归（FakeWizard 缺 projects_root）→ 已立提案 P24 待评审；其余全 PASS |
 
 ---
 
