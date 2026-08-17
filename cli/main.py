@@ -33,12 +33,11 @@ def _launch(
 _INTERACTIVE_COMMANDS = {
     "skill": "skill_launcher",
     "skill-launch": "skill_launcher",
-    "skill-optimize": "skill_optimize",
 }
 
 
 def _run_interactive(builder, args, name, mode=None):
-    """Run an interactive command (skill / skill-launch / skill-optimize).
+    """Run an interactive command (skill / skill-launch).
 
     Returns (prompt, agent) or None (cancelled/quit).
     mode is the wizard-collected Mode field for /aic-skill.
@@ -143,9 +142,8 @@ def main():
             "quarterly",
             "on-demand",
             "launch",
-            "optimize",
         ],
-        help="Execution modifier. re-entry = L3 change re-entry (prepare/spec); weekly/monthly/quarterly/on-demand = maintenance modes (maintain); launch/optimize = skill modes (/aic-skill)"
+        help="Execution modifier. re-entry = L3 change re-entry (prepare/spec); weekly/monthly/quarterly/on-demand = maintenance modes (maintain); launch = skill mode (/aic-skill)"
     )
 
     parser.add_argument(

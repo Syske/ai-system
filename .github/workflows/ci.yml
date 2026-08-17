@@ -35,11 +35,5 @@ jobs:
       - name: check.py (integrity gate)
         run: python tools/check.py
 
-      - name: skill-optimizer unit tests
-        run: python -m unittest discover -s skills/skill-optimizer/scripts/tests -v
-
       - name: CLI service unit tests (C1 base)
         run: python -m unittest discover -s cli/tests -v
-
-      - name: skill-optimizer smoke test
-        run: python skills/skill-optimizer/scripts/smoke_test.py

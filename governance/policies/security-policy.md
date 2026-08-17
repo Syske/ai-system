@@ -18,7 +18,7 @@ This document defines security constraints for all layers of the AI Operating Sy
 ### Secrets
 
 - Use environment variables or a secrets manager; never hardcode secrets.
-- `.env` files are not committed. See `skills/skill-optimizer/.env.example` for shape (example values only).
+- `.env` files are not committed. `.env.example` files hold placement-holder values only and are safe to track.
 - Production error messages avoid leaking internal details (encoding-safe English, per `LANGUAGE_CONVENTION.md`).
 
 ### Code

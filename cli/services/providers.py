@@ -59,8 +59,7 @@ def mode_choices(wizard, values):
 
     if wizard.target_name == "skill":
         return [
-            "launch",
-            "optimize"
+            "launch"
         ]
 
     return ["re-entry"]

@@ -312,3 +312,31 @@ Never optimize based on speculation.
 Never introduce capabilities that are not required by current projects.
 
 Keep the system simple, stable, and continuously evolvable.
+
+---
+
+# Value-Burden Check
+
+Every existing asset must justify its weight by **demonstrated value**, not
+potential. Built-but-unused is not value.
+
+For each existing asset (skill / command / tool / template):
+
+1. **Value evidence** — does the asset show a working loop of
+   actual-use → produced artifact → consumed downstream? Running artifacts,
+   real invocations, or downstream consumers count as evidence. "It would be
+   useful if X" does not.
+2. **Burden accounting** — size (lines / files / scripts) plus maintenance
+   surface (CI wiring, CLI entries, dependents/entrypoints that must be kept
+   in sync).
+3. **Judgement** — if value evidence is missing AND burden is significant
+   (e.g. heavy skills >3000 lines), the asset enters a review / shrink /
+   archive candidate. This is a decision to make, not an automatic delete:
+   the owner chooses archive / shrink / keep, and community the choice.
+4. **Trigger** — the routine maintenance (MAINTENANCE) and quarterly review
+   (QUARTERLY-REVIEW) re-run the check against every overweight skill
+   (>3000 lines), and against any asset whose change is pending.
+5. **Alignment** — consistent with the Evolution Principle: do not retain
+   an asset because "it could be better", and do not expand one because
+   "it might be useful". A retained overweight asset must carry its own
+   value evidence in its OPTIMIZATION_LOG / REAMDE.

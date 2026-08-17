@@ -117,3 +117,41 @@ bootstrap → prepare → spec → dev-setup → develop → review → verify �
 
 - `skills/README.md`: removed the "Experimental / Deprecated" section row
 
+
+---
+
+## 2026-08-17 — skill-optimizer + iterative-optimizer Archival (Value-Burden Check)
+
+**Reason:** The internal "meta-optimizer" cluster (~11.7k lines: skill-optimizer ~10k +
+iterative-optimizer 1.4k, ~25-27% of all skill code) showed no demonstrated value
+evidence after the new Value-Burden Check: no `~/.agent-insight/skill-history/` snapshots,
+no benchmark.json / diff.html / optimized artifacts, zero `OPTIMIZATION_LOG.md`, and no
+record of any skill actually optimized end-to-end. Value evidence missing + significant
+burden → archive candidate per governance/AI_OPERATING_RULES.md (Value-Burden Check).
+
+`iterative-optimizer` archived together (A'): its entire optimization stage drives
+skill-optimizer (default optimize prompt), so archiving only skill-optimizer would leave
+a half-dead "shell with no engine".
+
+See `reports/VALUE-BURDEN-DECISION-skill-optimizer-2026-08-17.md`.
+
+### Moved Files
+
+| Original Path | Reason |
+|---|---|
+| `skills/skill-optimizer/` | Overbuilt meta-optimizer, no value evidence |
+| `skills/iterative-optimizer/` | Same chain, no independent value evidence |
+
+### Consequential Updates
+
+- `.github/workflows/ci.yml`: removed skill-optimizer unit + smoke test steps
+- `skills/README.md`: removed both index rows
+- CLI decoupled `optimize` mode: `cli/services/skill_launcher.py`, `cli/services/providers.py`,
+  `cli/main.py` (mode choices + legacy `skill-optimize` command)
+- Deleted dead code: `templates/prompts/skill-optimize.md`, `cli/services/skill_optimize.py`
+- Tests updated: `cli/tests/test_services.py` (`test_providers_skill_modes`,
+  `test_run_skill_optimize_falls_back`)
+- `cli/commands/aic-skill.md` rewritten launch-only
+- Stale refs cleaned: `governance/policies/security-policy.md`, `config/skill-groups.yaml`,
+  `tools/extensions-init.py`, `tools/path-audit.py` allowlist, `cli/services/wizard/{fields,steps}.py`
+- Removed from archived tree: `.env` (live key, never committed), `__pycache__/`

@@ -164,7 +164,7 @@ class WizardSteps:
 
                 target_name = target[0]
 
-                if target_name in ("skill", "skill-launch", "skill-optimize"):
+                if target_name in ("skill", "skill-launch"):
 
                     self._save_state(
                         project,

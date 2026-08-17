@@ -25,7 +25,7 @@ class WizardFields:
 
             self._field_defaults = {}
 
-            if name in ("skill", "skill-launch", "skill-optimize"):
+            if name in ("skill", "skill-launch"):
                 return []
 
             return self._command_fields(name)

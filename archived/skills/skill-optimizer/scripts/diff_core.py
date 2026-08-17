@@ -7,9 +7,9 @@ highlight, file collapse, synchronized scroll, syntax highlight for free.
 Python side: compute unified diffs + content-addressed dedup.
 Browser side: diff2html renders, custom shell handles version selection.
 
-Usage:
-    python generate_diff_viewer.py --snapshots ./snapshots -o diff.html
-    python generate_diff_viewer.py --base ./v0 --current ./v1 -o diff.html
+Usage (via diff_viewer.py):
+    python diff_viewer.py --snapshots ./snapshots -o diff.html
+    python diff_viewer.py --base ./v0 --current ./v1 -o diff.html
 
 No dependencies beyond the Python stdlib.
 """

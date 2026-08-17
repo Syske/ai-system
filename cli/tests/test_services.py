@@ -154,7 +154,7 @@ class TestSkillModeRouting(unittest.TestCase):
 
         modes = providers.mode_choices(FakeWizard(), {})
         self.assertIn("launch", modes)
-        self.assertIn("optimize", modes)
+        self.assertNotIn("optimize", modes)  # optimize 已归档解绑
 
     def test_providers_maintain_modes_unchanged(self):
         from cli.services import providers
@@ -173,13 +173,12 @@ class TestSkillModeRouting(unittest.TestCase):
             result = skill_launcher.run_skill(None, None, "bogus")
             self.assertEqual(result, ("p", "a"))
 
-    def test_run_skill_optimize_routes(self):
+    def test_run_skill_optimize_falls_back(self):
+        """optimize mode is decoupled after archiving skill-optimizer;
+        it now falls back to run (like any unknown mode)."""
         from unittest.mock import patch
         from cli.services import skill_launcher
 
-        with patch(
-            "cli.services.skill_optimize.run", return_value=("o", "a")
-        ) as mock_run:
+        with patch("cli.services.skill_launcher.run", return_value=("p", "a")):
             result = skill_launcher.run_skill(None, None, "optimize")
-            self.assertEqual(result, ("o", "a"))
-            mock_run.assert_called_once()
+            self.assertEqual(result, ("p", "a"))

@@ -18,9 +18,7 @@ locale: zh
 # 后追加一条记录（顶部为最新），字段：触发场景 / 问题清单与根因 / 改动内容 /
 # 验证结果 / 影响评估 / 复现与回归建议。参考示例：
 #   extensions/hotfix-test-doc/OPTIMIZATION_LOG.md
-# 该日志与 skill 同生命周期随行；与 skill-optimizer 的 opt.sh 快照
-# （~/.agent-insight/skill-history/）定位不同：前者记录实战优化，后者为
-# 自动化工具产物，两者可并存。
+# 该日志与 skill 同生命周期随行。
 
 groups:
   - title: skill_group_hotfix

@@ -49,11 +49,7 @@ EXAMPLE_ONLY = {
     "cli/clis/twitter/lists.yaml",
     # skills/bugfix/feedback-loop.md："逐一切除 inputs/callers/ata" prose
     "config/data",
-    # skills/iterative-optimizer/examples/*：模板占位符
     "skills/my-skill",
-    # skills/skill-optimizer/workflow.md：/Users/xxx 示例命令d
-    "skills/offline-disk-fault-diagnosis",
-    # skills/iterative-optimizer/workflow.md：用户提示示例 skill
     "skills/openeuler-docker-fault",
     # skills/index-project/SKILL.md：$HOME/.claude 工具路径（运行时环境）ime env)
     "tools/code-indexer/reindex_cli.py",

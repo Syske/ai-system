@@ -53,12 +53,8 @@ These skills are for internal AI system optimization. They are NOT part of the d
 
 | Skill | Purpose |
 |---|---|
-| skill-optimizer | Iterative skill optimization with evaluation |
 | skill-sync | Sync skills between environments |
-| skill-benchmark-generator | Generate benchmarks for skill evaluation |
-| iterative-optimizer | Iterative prompt/skill optimization |
-| outcome-benchmark-generator | Generate outcome-based benchmarks |
-| routing-benchmark-generator | Generate routing evaluation benchmarks |
+| skill-benchmark-generator | Generate routing + outcome benchmarks (merged from routing-/outcome-generators) |
 
 ## Skill Creation (1)
 

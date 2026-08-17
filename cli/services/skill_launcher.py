@@ -368,17 +368,7 @@ def run(wizard, agent=None):
 
 
 def run_skill(wizard, agent=None, mode=None):
-    """Unified /aic-skill entry: mode=launch (default) or mode=optimize.
-
-    Routes to the existing launchers so the unified command reuses the
-    battle-tested step machines instead of duplicating them.
-    """
-
-    if mode and str(mode).strip().lower() == "optimize":
-
-        from cli.services.skill_optimize import run as run_optimize
-
-        return run_optimize(wizard, agent)
+    """Unified /aic-skill entry: mode=launch (default)."""
 
     if mode and str(mode).strip().lower() not in ("launch", ""):
 
