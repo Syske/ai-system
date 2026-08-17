@@ -1,6 +1,6 @@
 # Java Coding Memory
 
-Java 通用编码经验。
+General Java coding experience.
 
 
 ## [Java] Strategy Pattern Over BizType Branching
@@ -66,8 +66,8 @@ Scope:
 
 ## Category Files
 
-按主题拆分的独立文件：
+Category files, split by topic:
 
-- `java/mq.md` — MQ 相关经验
-- `java/integration.md` — 集成（WeCom 等）相关经验
-- `java/spring.md` — Spring 相关经验
+- `java/mq.md` — MQ-related experience
+- `java/integration.md` — integration (WeCom, etc.) experience
+- `java/spring.md` — Spring experience

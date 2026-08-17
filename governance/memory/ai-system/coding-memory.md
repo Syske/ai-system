@@ -5,9 +5,9 @@ Lessons learned for the AI System itself (workflows, runtimes, governance, promp
 
 ## Category Files
 
-按主题拆分的独立文件：
+Category files, split by topic:
 
-- `governance/memory/ai-system/workflow-chain.md` — 主链 / 工作流关系单一来源
-- `governance/memory/ai-system/language-boundary.md` — 控制流英文 / 用户交互系统语言
-- `governance/memory/ai-system/file-contract.md` — 文件名与内容一致（改名纪律）
-- `governance/memory/ai-system/archive-discipline.md` — 归档清理引用纪律
+- `governance/memory/ai-system/workflow-chain.md` — single source of truth for main chain / workflow relationships
+- `governance/memory/ai-system/language-boundary.md` — English for control flow / system language for user interaction
+- `governance/memory/ai-system/file-contract.md` — file name matches content (rename discipline)
+- `governance/memory/ai-system/archive-discipline.md` — archive / cleanup reference discipline
