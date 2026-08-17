@@ -22,6 +22,12 @@ FALSE_POSITIVES = {
     "ai-system/config/environments/context.yaml",
     # metrics/ 被 gitignore（运行时快照）；CI checkout 中不存在ckouts
     "ai-system/metrics",
+    # logs/ 被 gitignore（运行时诊断产物）；CI checkout 中不存在，但
+    # workflow/command 运行时生存在该目录，引用合法（与 metrics/ 同类）
+    "ai-system/logs/",
+    "ai-system/logs",
+    "logs/",
+    "logs",
     # governance/DIRECTORY-RESPONSIBILITY.md 中的故意反例BILITY.md
     "ai-system/skills/foo/report.md",
     "config/governance/",
