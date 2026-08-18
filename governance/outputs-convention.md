@@ -1,6 +1,6 @@
 # Outputs Directory Convention
 
-Version: 1.0
+Version: 1.1
 
 Defines how project-less (non-operational) commands and workflows organize
 their generated artifacts. Operational maintenance artifacts belong in
@@ -17,7 +17,7 @@ LANGUAGE_CONVENTION).
 ```
 <workspace-root>/outputs/
 └── <domain>/                       # fixed per command/workflow (kebab-case)
-    └── {YYYY-MM-DD}-{descriptor}[-N]/   # per-session directory
+    └── {yyMMdd}-{descriptor}[-N]/   # per-session directory
         ├── <domain>-report.md      # main report (mandatory)
         └── <domain>-report.json    # optional: machine-readable result
 ```
@@ -44,7 +44,7 @@ LANGUAGE_CONVENTION).
 Every main report starts with this header:
 
 ```
-# <Domain> Report — {YYYY-MM-DD}
+# <Domain> Report — {yyMMdd}
 
 - 日期 / Date: ...
 - 范围 / Scope: ...                 # session theme (= descriptor)
@@ -70,9 +70,28 @@ Chinese.
 |--------|---------------------|
 | scan / trace / bugfix | this file (command/workflow docs) |
 | change-impact / code-review / proposal | already aligned; this file standardizes wording |
+| skill | `outputs/skill/{yyMMdd}-{descriptor}/skill-launch-report.md` (2026-08-18) |
 
 Operational maintenance (maintain / analysis / extensions-init /
 extensions-lint) records to `ai-system/reports/`, NOT `outputs/`.
 `skill-source` (third-party skill source assessment) is also operational —
 it records to `reports/skill-source-{date}-{descriptor}/` under the
 ai-system root, aligned with `analysis` (NOT `outputs/`).
+
+## 6. Mandatory for new workflows / commands
+
+Every **new or modified** business-facing workflow or command that
+produces artifacts MUST follow this convention:
+
+- Directory: `outputs/{domain}/{yyMMdd}-{descriptor}/` (yyMMdd = 2-digit year
+  + zero-padded month/day, e.g. `260818`; descriptor = kebab-case theme
+  ≤ 30 chars).
+- The command/workflow doc's `Outputs` section MUST state this path and
+  reference this file (doc-as-contract, ADR-0009).
+- The `yyMMdd` format is binding — `YYYY-MM-DD` / `%Y-%m-%d` / timestamp
+  prefixed names (`scan-20260817-113519`) are NOT acceptable for new
+  business-facing outputs.
+- Scaffolds (`tools/workflow-scaffold.py`, `tools/command-scaffold.py`)
+  pre-fill this convention so new assets comply by default.
+- Operational artifacts (maintain / analysis / skill-source) remain in
+  `ai-system/reports/`, not `outputs/`.

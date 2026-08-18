@@ -8,6 +8,7 @@ from .misc import (
     check_commands,
     check_compile,
     check_imports,
+    check_outputs_convention,
     check_path_audit,
     check_cli_tests,
     check_proposal_audit,
@@ -41,6 +42,7 @@ def run_all():
     check_next_sections(c, workflows)
     check_workflow_size(c)
     check_commands(c)
+    check_outputs_convention(c)
     check_build(c, workflows, commands)
     check_wizard_dry_run(c, workflows, commands)
     check_repo_lint(c)

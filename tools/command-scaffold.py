@@ -44,7 +44,11 @@ description: {description}
 
 ## {Title} Report
 
-- TBD
+- 范围 / 描述
+- 结论
+
+（按 outputs-convention：`outputs/{lower}/{yyMMdd}-{descriptor}/`，
+  descriptor 为主题 kebab-case ≤30 字符；同日重跑追加 -N）
 
 **Guardrails**
 

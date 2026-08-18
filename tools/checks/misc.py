@@ -368,3 +368,53 @@ def check_cli_tests(c):
     out = result.stdout + result.stderr
     if result.returncode != 0:
         c.error("cli tests failed:\n" + out[-2000:])
+
+
+def check_outputs_convention(c):
+    """输出产物路径规范门禁（outputs-convention §6）。
+
+    Business-facing workflow/command docs that reference `outputs/` MUST use
+    the `{yyMMdd}` date format (e.g. 260818). The legacy `{YYYY-MM-DD}` /
+    timestamp-prefixed (`scan-20260817...`) forms are banned for new outputs
+    (drifted from code, which uniformly uses yyMMdd since 2026-08-18).
+    """
+
+    import re
+
+    LEGACY = [
+        (r"outputs/\{[Yy]{4}[^}]*\}", "{{YYYY-MM-DD}} old format"),
+        (r"outputs/[A-Za-z-]+/\{[Yy]{2,4}-[^}]*\}", "legacy date placeholder"),
+        (r"outputs/\{[Yy]{4}-", "{{YYYY-...}} old format"),
+        (r"outputs/[A-Za-z-]+/\{[Yy]{2}\}", "{{YY}} placeholder missing descriptor"),
+    ]
+
+    # 扫描 business-facing 文档（workflows + 命令 + 脚手架模板）
+    targets = []
+
+    for base in ("workflows", "cli/commands"):
+        d = ROOT / base
+        if d.exists():
+            targets.extend(sorted(d.glob("*.md")))
+
+    targets.extend([
+        ROOT / "tools" / "workflow-scaffold.py",
+        ROOT / "tools" / "command-scaffold.py",
+    ])
+
+    for p in targets:
+
+        try:
+
+            text = p.read_text(encoding="utf-8", errors="replace")
+
+        except OSError:
+            continue
+
+        for pattern, label in LEGACY:
+
+            if re.search(pattern, text):
+
+                c.error(
+                    f"{p.relative_to(ROOT)}: legacy outputs date format ({label}); "
+                    f"use {{yyMMdd}} per outputs-convention (§6)"
+                )

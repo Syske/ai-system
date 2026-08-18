@@ -343,7 +343,79 @@ class SkillLauncher(InteractiveCommand):
         if confirm and confirm.strip().lower() in ("no", "n", "cancel", "取消"):
             return BACK_
 
+        # 落盘 Skill Launch Report（统一产物路径 outputs/skill/{yyMMdd}-{desc}/）
+        self._write_launch_report(
+            skills,
+            agent,
+            task
+        )
+
         return ("done", prompt, agent)
+
+    def _write_launch_report(self, skills, agent, task):
+        """把 Skill Launch Report 落盘到统一路径。
+
+        路径：outputs/skill/{yyMMdd}-{descriptor}/skill-launch-report.md
+        descriptor 取首个 skill 名（≤30 字符），对齐其他一次性任务产物规范。
+        """
+
+        from datetime import datetime
+
+        try:
+
+            outputs_root = self.wizard.outputs_root
+
+            if outputs_root is None:
+                return
+
+            now = datetime.now()
+
+            descriptor = (
+                skills[0]["name"]
+                if skills
+                else "skill"
+            )[:30]
+
+            report_dir = (
+                outputs_root
+                / "skill"
+                / f"{now.strftime('%y%m%d')}-{descriptor}"
+            )
+
+            report_dir.mkdir(parents=True, exist_ok=True)
+
+            skill_lines = "\n".join(
+                f"- {s['name']} ({s['path']}) [{s['source']}]"
+                for s in skills
+            )
+
+            report = (
+                f"# Skill Launch Report\n\n"
+                f"- 日期: {now.isoformat(timespec='seconds')}\n"
+                f"- Agent: {agent or '(none)'}\n"
+                f"- 模式: launch\n\n"
+                f"## Skills\n\n{skill_lines}\n\n"
+                f"## Task\n\n{task or '(none)'}\n"
+            )
+
+            from cli.utils.file import write_text
+
+            write_text(
+                report_dir / "skill-launch-report.md",
+                report
+            )
+
+            print()
+            print(
+                f"{e('💾 ')}Skill Launch Report saved: "
+                f"{report_dir / 'skill-launch-report.md'}"
+            )
+
+        except Exception as exc:
+
+            print(
+                f"{e('⚠️ ')}无法落盘 Skill Launch Report: {exc}"
+            )
 
     steps = [
         _step_pick_skills,

@@ -64,7 +64,10 @@ Never load the entire repository tree into context.
 
 ## Outputs
 
-- TBD
+- {lower}-report.md
+
+  (按 outputs-convention：`outputs/{lower}/{yyMMdd}-{descriptor}/`，
+  descriptor 为本次会话主题 kebab-case ≤30 字符；同日重跑追加 -N)
 
 ## Exit Criteria
 

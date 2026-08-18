@@ -51,6 +51,10 @@ removed; this command is launch-only.)
 - 任务描述（launch）
 - 提示词已复制、agent 已启动
 
+产物写入 `outputs/skill/{yyMMdd}-{descriptor}/skill-launch-report.md`（workspace 根，
+对齐其他一次性任务产物规范）。`descriptor` 取首个 skill 名（≤30 字符），
+同日同 skill 重跑追加 `-N`；本报告记录启动上下文，供追溯 skill 使用。
+
 **Guardrails**
 
 - The generated prompt references skills by name + location only, never
