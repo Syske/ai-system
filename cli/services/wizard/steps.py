@@ -207,7 +207,7 @@ class WizardSteps:
                         values
                     )
 
-                    return target_name, values, "copy", None
+                    return target_name, values, "copy", None, []
 
                 hooks = get_hooks(target_name)
 
