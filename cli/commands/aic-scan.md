@@ -11,6 +11,8 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
 - Branch (optional, default master)
 - Code Reference: keywords (comma-separated) or a code block; for manual, the user's analysis instruction
 - Compare With (diff only: the second code block to compare)
+- Logs (optional; manual bug analysis): log excerpts to analyze
+- Stack Trace (optional; manual bug analysis): exception stack trace to analyze
 - Keep Results (yes = keep results in scans/ dir; no = session-only output)
 - Scan Directory (target dir when keeping results)
 
@@ -27,7 +29,7 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
    - **search**: search Code Reference in scope (keywords split by comma, each searched; code block matched as exact fragment), collect each hit location and context
    - **diff**: compare logical differences between Code Reference and Compare With (inputs/outputs, branch conditions, boundary handling, error paths), produce a difference list
    - **chain**: trace the call/dependency chain of Code Reference (call chains, data flow, dependent modules), mark breakpoints and dead ends
-   - **manual**: execute the user's instruction in Code Reference as an analysis task; within scope/branch if provided, otherwise self-contained
+   - **manual**: execute the user's instruction in Code Reference as an analysis task; within scope/branch if provided, otherwise self-contained. For **bug analysis without a project** (e.g. diagnose a defect from logs/stack trace against a baseline branch): put the analysis instruction in Code Reference, paste the log excerpt in Logs and the exception trace in Stack Trace; Branch selects the baseline to inspect (default master).
 
    > **Boundary (2026-08-18)**: impact analysis is NOT part of `scan`.
    > To assess the impact, risks, and modification plan of a code target

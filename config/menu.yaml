@@ -155,6 +155,10 @@ command_fields:
       - false
     - - "Compare With"
       - false
+    - - "Logs"
+      - false
+    - - "Stack Trace"
+      - false
     - - "Keep Results"
       - false
   skill-source:
