@@ -18,17 +18,30 @@ Required:
 
 - Projects
 
-  (one-time task, no project container required) 用户直接提供仓库路径/URL
-  （可多个，逗号分隔）；有项目容器时也可从 workspace.yaml 映射选择。
+  (one-time task: user provides repo path/URL(s), comma-separated; or selects
+  from workspace.yaml mapping)
 
 Optional:
 
+- Target Theme
 - Branch Mapping
 - Base Branch (default: master)
 - Review Focus
 - Output Directory
-- Confluence Spec Page Id (external spec to compare the diff against, e.g. a
-  HotFix one-pager; enables Spec-Comparison Review Mode below)
+- Confluence Spec Page Id
+
+## Target Branch Resolution
+
+(Contract: resolve each project's target branch per runtime Phase 1; ASK the
+user rather than guessing when a branch is missing/ambiguous.)
+
+1. `Target Theme` (e.g. `wecom_live`) → fuzzy-match each repo's `dev_branch`
+   + local git branches by theme; present real-`cc{date}` candidates, user picks.
+2. `Branch Mapping` → explicit per-project override.
+3. No match → ASK the user; do not guess.
+4. Base Branch defaults to `master` (override via environments/config).
+5. Validate target & base exist before reviewing; else stop that project.
+
 
 ## Context
 
@@ -37,11 +50,6 @@ Load only:
 - The selected projects on their target branches
 - The resolved base branch for each project (default: master)
 - Applied standards relevant to the review
-
-For every project, resolve and record:
-
-- Base Branch
-- Target Branch
 
 Never load the entire repository tree or every branch into context.
 
@@ -61,25 +69,20 @@ When the caller provides a Confluence Spec Page Id (e.g. a HotFix one-pager),
 this workflow runs the spec-comparison variant defined in the `coolreview`
 skill (SKILL.md → Spec-Comparison Review Mode):
 
-1. Fetch the spec page via the `confluence-markdown-publisher` skill
+1. Fetch spec page via `confluence-markdown-publisher`
    (`get_confluence_page.py --page-id <id> --output page.html --json`).
-2. Parse the spec into a claim checklist (changed methods, constants like batch
+2. Parse spec into a claim checklist (changed methods, constants e.g. batch
    size, behaviour guarantees, scope, release branch).
-3. Run the normal baseline sync + diff review (workflow steps above).
-4. Verify every spec claim against code; check "pure optimization, no behaviour
-   change" promises against actual failure/loop semantics.
-5. Report with a spec-vs-code comparison table first, findings by severity,
-   then assumptions/questions, then conclusion.
+3. Normal baseline sync + diff review (steps above).
+4. Verify every spec claim vs code; check "no behaviour change" promises
+   against actual failure/loop semantics.
+5. Report: spec-vs-code comparison table → findings by severity →
+   assumptions/questions → conclusion.
 
-HotFix one-pager workflows additionally close the loop after review fixes:
-
-```text
-fetch wiki → sync branch → diff review → fix → build (idea-build) → commit →
-push → update wiki page (update_confluence_page.py) → report back new version
-```
-
-This loop is documented in the confluence-markdown-publisher skill under
-"HotFix one-pager update workflow (review follow-up)".
+HotFix one-pager workflows close the loop after fixes:
+`fetch wiki → sync branch → diff review → fix → build (idea-build) → commit →
+push → update wiki page (update_confluence_page.py) → report version`
+(see confluence-markdown-publisher skill "HotFix one-pager update workflow").
 
 ## Exit Criteria
 

@@ -66,22 +66,44 @@ Resolved by Code Review Runtime:
 Parse:
 
 - Projects (multi-select list from projects/)
-- Branch Mapping (optional free text: `project-a:branch-x, project-b:branch-y, ...`)
+- Target Theme (需求主题; optional — used to fuzzy-match each project's
+target branch)
+- Branch Mapping (optional explicit override: `project-a:branch-x, ...`)
 - Base Branch (default: master)
 
 For every project, resolve and record two branches:
 
 | Branch | Source | Default |
 |---|---|---|
-| Target Branch | Branch Mapping entry for the project | Base Branch |
+| Target Branch | Target Theme fuzzy match → Branch Mapping override → ask user | Base Branch |
 | Base Branch | Base Branch input | master |
+
+### Target Branch by theme (rules)
+
+When a Target Theme is given, resolve each project's target branch by fuzzy
+matching the theme against `workspace.yaml → repository.available[].dev_branch`
+and local git branches, then PRESENT the matches for user selection:
+
+- For each selected project, collect candidate branches containing the theme
+  (case-insensitive substring). Candidates come from (in order): the project's
+  `workspace.yaml dev_branch`, then `git -C <repo> branch --format=%(refname:short)`.
+- Show the matched branches grouped by project; let the user pick per project.
+  The `cc{date}` prefix is taken from the REAL matched branch — do not invent a
+  date. If several date variants exist, list them and let the user choose.
+- Single project also uses this flow (theme → its own branch candidates).
+- If a project has NO match for the theme, and no Branch Mapping override,
+  ASK the user for that project's branch name — never guess.
+- Branch Mapping explicitly overrides the theme match for the named projects.
+- Validate both target and base exist in the repo before review; otherwise
+  report and stop that project's review.
 
 Rules:
 
 - Every declared project resolves to a repository directory under projects/
-- Projects absent from Branch Mapping get Target Branch = Base Branch
-- Validate that both the target branch and the base branch exist for every project before review
-- Record the resolved {project: target branch, base branch} pair in the review context and the report
+- Multi-project reviews share one theme but resolve branch per project; never
+  reuse one project's branch for another.
+- Record the resolved {project: target branch, base branch} pair in the review
+  context and the report.
 
 Generate:
 
