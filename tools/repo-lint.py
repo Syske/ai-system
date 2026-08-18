@@ -290,7 +290,15 @@ def check_language(root, results):
                 seg = text[m.end():]
                 seg = re.split(r"\n\s*\*\*[A-Z]", seg)[0]
                 lines = [ln for ln in seg.splitlines() if ln.strip()]
-                cjk_lines = [ln for ln in lines if CJK_RE.search(ln) and len(ln.strip()) > 2]
+                # 表格行是“以系统语言呈现给用户”的选项（如 skill-source 的
+                # 吸收决策表），属用户可见内容，豁免（LANGUAGE_CONVENTION
+                # 仅约束 AI 流程控制指令，不约束用户面向展示）。
+                cjk_lines = [
+                    ln for ln in lines
+                    if CJK_RE.search(ln)
+                    and len(ln.strip()) > 2
+                    and not ln.lstrip().startswith("|")
+                ]
                 if len(cjk_lines) >= 2:
                     results.warning(
                         f"{p.name} {section_name} contains Chinese (LANGUAGE_CONVENTION: "

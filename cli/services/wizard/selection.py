@@ -131,7 +131,8 @@ class WizardSelection:
             "Project — select the working project",
             options,
             default,
-            header=header
+            header=header,
+            max_visible=10
         )
 
         if idx is BACK:
@@ -482,20 +483,23 @@ class WizardSelection:
 
             lowered = stripped.lower()
 
+            # `- None` 明确表示无下游
+            if lowered.startswith("- none"):
+                return None
+
             tokens = re.findall(
                 r"[a-z][a-z0-9-]*",
                 lowered
             )
 
-            if not tokens:
-                continue
+            # 遍历全部 token（不只首 token）：`- run prepare`、
+            # `- 下一步：develop`、`- then change-impact` 均能命中
+            for token in tokens:
 
-            first = tokens[0]
-
-            if (
-                first in workflows
-                and first != name
-            ):
-                return first
+                if (
+                    token in workflows
+                    and token != name
+                ):
+                    return token
 
         return None

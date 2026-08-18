@@ -63,6 +63,29 @@ class WizardFields:
 
         return workflow_reader.parse_inputs(text)
 
+    @staticmethod
+    def _invalidate_dependents(
+        values,
+        field
+    ):
+        """Drop stale downstream values when an upstream field changes.
+
+        Field candidates depend on earlier values: Branch is derived from
+        Projects; Change ID / Task ID are derived from the project choice.
+        When the user goes BACK and changes such an upstream field, the
+        downstream values collected under the old choice are no longer
+        valid and must be cleared (otherwise the prompt ships stale data).
+        """
+
+        upstream = {
+            "Projects": {"Branch"},
+            "Project ID": {"Change ID", "Task ID"},
+            "Workspace ID": {"Change ID", "Task ID"},
+        }
+
+        for stale in upstream.get(field, set()):
+            values.pop(stale, None)
+
     def _apply_field_defaults(
         self,
         fields,

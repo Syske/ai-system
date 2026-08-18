@@ -213,15 +213,28 @@ class WizardIntake:
             "报错": "issue-investigation",
         }
 
+        # 否定/反义前缀：命中则跳过该关键词（"没有问题"不触发问题排查）
+        negation = ("没有", "无", "不", "非", "别")
+
         for kw, intent_name in kw_map.items():
 
-            if kw in low:
+            if kw not in low:
+                continue
 
-                for intent in self._all_intents():
+            # 关键词前是否定词 → 跳过
+            pos = low.find(kw)
 
-                    if intent.get("name") == intent_name:
+            if (
+                pos > 0
+                and low[pos - 1] in negation
+            ):
+                continue
 
-                        return intent
+            for intent in self._all_intents():
+
+                if intent.get("name") == intent_name:
+
+                    return intent
 
         return None
 

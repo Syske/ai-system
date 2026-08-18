@@ -63,7 +63,25 @@ class WizardSteps:
                     self.active_intent = intent_name
                     self.chain_commands = commands[1:]
 
-                    target = (commands[0], "command")
+                    first = commands[0]
+
+                    # 意图命令可能是 workflow（如 change-impact/bugfix）
+                    # 或 command（aic-*.md）。按真实注册类型分派，避免
+                    # workflow 走 command_fields 导致字段错配（M8）。
+                    command_path = (
+                        self.root
+                        / "cli"
+                        / "commands"
+                        / f"aic-{first}.md"
+                    )
+
+                    first_kind = (
+                        "command"
+                        if command_path.exists()
+                        else "workflow"
+                    )
+
+                    target = (first, first_kind)
 
                     fields = self._fields_for(target)
 
@@ -160,6 +178,13 @@ class WizardSteps:
 
                 if result is not None:
                     values[field] = result
+
+                    # 上游字段变更 → 使依赖它的下游字段值失效
+                    # （Branch 依赖 Projects；Change/Task ID 依赖项目选择）
+                    self._invalidate_dependents(
+                        values,
+                        field
+                    )
 
                 step += 1
 

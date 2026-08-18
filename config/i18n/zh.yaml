@@ -31,6 +31,7 @@ field_notes:
   "Projects": "选择 projects/ 下代码仓库（多选，空格切换）；skip=在所有项目中梳理"
   "Branch": "选择代码分支（支持输入过滤）；不选默认 master"
   "Code Reference": "关键词（逗号分隔）/代码块；manual 时填自由分析指令"
+  "Workspace Root": "扩展仓库工作区根目录（默认 workspace）"
   "Compare With": "仅 diff：第二段待对比代码"
   "Keep Results": "yes=结果保留到 scans/ 目录；no=仅会话内输出"
   "Knowledge Operation": "collect=收集沉淀 update=更新 search=检索 review=审核去重 archive=归档过时"

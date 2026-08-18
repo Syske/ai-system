@@ -106,7 +106,8 @@ def choose(
     default=0,
     allow_skip=False,
     header=None,
-    note=None
+    note=None,
+    max_visible=None
 ):
     """Single-select menu.
 
@@ -115,6 +116,8 @@ def choose(
       Backspace/Esc clear the filter, Enter selects.
     - Sections (Section items) are non-selectable headers.
     - `note` renders a dim hint line under the title.
+    - `max_visible` truncates the initial (no-filter) list; typing a filter
+      searches the FULL list so every option stays reachable.
 
     Returns the selected raw index, `None` when skipped, or BACK.
     """
@@ -129,7 +132,8 @@ def choose(
             options,
             default,
             allow_skip,
-            note
+            note,
+            max_visible
         )
 
     return _interactive(
@@ -138,7 +142,8 @@ def choose(
         default,
         allow_skip,
         header or [],
-        note
+        note,
+        max_visible
     )
 
 
@@ -149,7 +154,7 @@ def _is_tty():
     return is_tty()
 
 
-def _interactive(title, options, default, allow_skip, header, note=None):
+def _interactive(title, options, default, allow_skip, header, note=None, max_visible=None):
 
     idx = default
 
@@ -172,7 +177,8 @@ def _interactive(title, options, default, allow_skip, header, note=None):
         visible = _visible_indices(
             options,
             selectable,
-            filter_buf
+            filter_buf,
+            max_visible
         )
 
         if not visible:
@@ -303,7 +309,7 @@ def _interactive(title, options, default, allow_skip, header, note=None):
                 filter_buf += key
 
 
-def _fallback(title, options, default, allow_skip, note=None):
+def _fallback(title, options, default, allow_skip, note=None, max_visible=None):
 
     selectable = [
         i
@@ -332,9 +338,26 @@ def _fallback(title, options, default, allow_skip, note=None):
 
         else:
 
+            num = selectable.index(i) + 1
+
+            if (
+                max_visible is not None
+                and num > max_visible
+            ):
+                continue
+
             print(
-                f"  {selectable.index(i) + 1}. {opt}"
+                f"  {num}. {opt}"
             )
+
+    if (
+        max_visible is not None
+        and len(selectable) > max_visible
+    ):
+
+        print(
+            f"… 共 {len(selectable)} 个，可输入 1-{len(selectable)} 任意编号"
+        )
 
     hint = (
         _t('menu.fallback_hint_skip', '输入编号 [Enter=跳过, b=返回]')

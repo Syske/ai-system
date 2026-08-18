@@ -14,7 +14,9 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
 - Logs (optional; manual bug analysis): log excerpts to analyze
 - Stack Trace (optional; manual bug analysis): exception stack trace to analyze
 - Keep Results (yes = keep results in scans/ dir; no = session-only output)
-- Scan Directory (target dir when keeping results)
+
+> `Scan Directory` 由 CLI 自动填充（Keep Results=yes 时指向
+> `outputs/scan/{yyMMdd}-{descriptor}/`），用户无需输入。
 
 **Steps**
 
@@ -55,10 +57,10 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
 
    Use the **AskUserQuestion tool** to let the user choose the next step, presenting options in the system language:
 
-   - **fix**（推荐，发现可修复问题时）：按问题定位启动修复流程——加载 `workflows/develop.md`（或 `bugfix` 契约），为每个问题推导变更并生成任务卡
-   - **review**（需要质量复核时）：加载 review 契约执行，之后可 verify
-   - **verify**（需验证改动正确性时）：加载 `workflows/verify.md` 与 `templates/runtime/runtime-verify.md`
-   - **finish**：仅保留 Scan Report 结束
+   - **fix** (recommended when fixable issues found): load `workflows/develop.md` (or the bugfix contract), derive changes per issue and generate task cards
+   - **review** (when quality review needed): load the review contract, then verify
+   - **verify** (when change correctness needs validation): load `workflows/verify.md` and `templates/runtime/runtime-verify.md`
+   - **finish**: keep the Scan Report only
 
    Execute the chosen action immediately; do not decide on your own.
 

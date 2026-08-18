@@ -146,6 +146,8 @@ command_fields:
       - false
     - - "Committer Name"
       - false
+    - - "Workspace Root"
+      - false
   pack:
     - - "Output Directory"
       - false

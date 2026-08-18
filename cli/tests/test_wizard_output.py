@@ -19,6 +19,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from cli.services.state_store import StateStore  # noqa: E402
 from cli.services.wizard.output import WizardOutput  # noqa: E402
+from cli.services.wizard.fields import WizardFields  # noqa: E402
 
 # 无项目命令集合（用于测试 record_usage 白名单；与 intake 保持一致）
 _PROJECTLESS = {"maintain", "scan", "extensions-init", "skill-source",
@@ -208,6 +209,28 @@ class TestSaveStateGuard(unittest.TestCase):
             w.state["projectless_usage"].get("maintain"),
             1,
         )
+
+class TestInvalidateDependents(unittest.TestCase):
+    """H6: upstream field change clears stale downstream values."""
+
+    def test_projects_change_clears_branch(self):
+        w = WizardFields()
+        values = {"Projects": "a,b", "Branch": "main"}
+        w._invalidate_dependents(values, "Projects")
+        self.assertNotIn("Branch", values)
+
+    def test_project_change_clears_task_and_change(self):
+        w = WizardFields()
+        values = {"Project ID": "p1", "Task ID": "t1", "Change ID": "c1"}
+        w._invalidate_dependents(values, "Project ID")
+        self.assertNotIn("Task ID", values)
+        self.assertNotIn("Change ID", values)
+
+    def test_unrelated_field_untouched(self):
+        w = WizardFields()
+        values = {"Projects": "a", "Branch": "main"}
+        w._invalidate_dependents(values, "Code Reference")
+        self.assertIn("Branch", values)
 
 
 if __name__ == "__main__":
