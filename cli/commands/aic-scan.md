@@ -5,7 +5,7 @@ description: 梳理分析 - 在指定范围（workspace/projects/分支）内检
 Analyze keywords or code blocks within a specified scope. Scope is limited by Workspace, Projects, Branch; the analysis method is chosen by Operation; results may be kept in the scans/ directory, and can feed into develop/fix flows when issues are found.
 
 **Inputs**:
-- Operation (optional, default search): `search` keyword scan / `diff` logical compare / `chain` call-chain / `impact` impact scope / `manual` custom instructions
+- Operation (optional, default search): `search` keyword scan / `diff` logical compare / `chain` call-chain / `manual` custom instructions
 - Workspace (optional, skip = do not search in workspace)
 - Projects (optional, multi-select, skip = scan across all projects)
 - Branch (optional, default master)
@@ -27,20 +27,20 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
    - **search**: search Code Reference in scope (keywords split by comma, each searched; code block matched as exact fragment), collect each hit location and context
    - **diff**: compare logical differences between Code Reference and Compare With (inputs/outputs, branch conditions, boundary handling, error paths), produce a difference list
    - **chain**: trace the call/dependency chain of Code Reference (call chains, data flow, dependent modules), mark breakpoints and dead ends
-   - **impact**: analyze modules, interfaces, contracts, and callers affected by Code Reference changes/references, graded by blast radius
    - **manual**: execute the user's instruction in Code Reference as an analysis task; within scope/branch if provided, otherwise self-contained
 
-   > **Delegation (binding)**: `chain` and `impact` operations are deep
-   > impact/risk analysis — run the **change-impact workflow**
-   > (`workflows/change-impact.md`) for these, which produces the full
-   > impact report (blast radius, risks, modification plan). `scan` keeps
-   > `search` / `diff` / `manual` for lightweight keyword and comparison
-   > scans; `chain` / `impact` here are thin triggers that hand off to the
-   > workflow rather than re-implementing impact analysis in the command.
+   > **Boundary (2026-08-18)**: impact analysis is NOT part of `scan`.
+   > To assess the impact, risks, and modification plan of a code target
+   > before changing it, run the **change-impact workflow**
+   > (`workflows/change-impact.md`, 「代码分析」menu group), which produces
+   > the full impact report (blast radius, risks, modification plan).
+   > `scan` keeps `search` / `diff` / `chain` / `manual` for lightweight
+   > locating and comparison; `chain` here is a call-chain locator, not an
+   > impact assessment.
 
 3. **Conclude**
    - Hit list: location (file:line), code excerpt, context note
-   - Analysis conclusion: per operation (search results / differences / chain / impact / instruction result)
+   - Analysis conclusion: per operation (search results / differences / chain / instruction result)
 
 4. **Persist results (when Keep Results=yes)**
    - Write to Scan Directory:

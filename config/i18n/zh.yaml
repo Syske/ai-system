@@ -26,7 +26,7 @@ field_notes:
   "Change ID": "from openspec/changes/"
   "Task ID": "from openspec/changes/*/tasks/cards/"
   "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain"
-  "Operation": "search=梳理检索 diff=逻辑对比 chain=逻辑链路 impact=影响范围 manual=手动自定义"
+  "Operation": "search=梳理检索 diff=逻辑对比 chain=逻辑链路 manual=手动自定义（影响评估请用 change-impact 工作流）"
   "Workspace": "选择 workspaces/ 下工作区；skip=不在workspace中搜索"
   "Projects": "选择 projects/ 下代码仓库（多选，空格切换）；skip=在所有项目中梳理"
   "Branch": "选择代码分支（支持输入过滤）；不选默认 master"
@@ -77,7 +77,6 @@ option_descriptions:
     search: 梳理检索
     diff: 逻辑对比
     chain: 逻辑链路
-    impact: 影响范围
     manual: 手动自定义
   Keep Results:
     "yes": 保留到 scans/ 目录

@@ -283,7 +283,6 @@ field_choices:
     - search
     - diff
     - chain
-    - impact
     - manual
   "Keep Results":
     - "yes"
