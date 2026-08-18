@@ -299,10 +299,11 @@ titles are user-facing (Chinese); the item `kind` (workflow/command) is internal
   * `开发主链`: the numbered chain `prepare → spec → dev-setup → develop → review → verify → release` (1-7).
   * `修复流程`: parallel entry `bugfix`.
   * `初始化`: `extensions-init` (AI-driven bootstrap/extensions init; 4-word group name).
-  * `代码分析`: standalone business-analysis workflows `code-review`, `change-impact`, `proposal` (review/impact/solution for business code, symmetrical to the `代码分析` command group).
+  * `代码分析`: standalone business-analysis workflows `code-review`, `change-impact` (review/impact for business code; the command `scan`'s chain/impact operations delegate to `change-impact`).
+  * `变更管理`: change-lifecycle workflows `proposal` (idea → solution document; AI-triggered `propose`/`apply`/`archive` commands also belong here but are hidden).
   * `其他流程`: discovered but ungrouped workflows (automatic).
 * **Commands**
-  * `代码分析`: `scan`, `trace`.
+  * `代码检索`: `scan`, `trace` (lightweight keyword scan / branch-diff reconciliation; heavy impact analysis delegates to `change-impact` workflow).
   * `技能管理`: `skill`, `skill-source` (skill usage + third-party skill assessment).
   * `系统维护`: `maintain`, `workflow`, `command`, `pack`, `extensions-init` (system health, asset scaffolding, packaging, environment onboarding).
   * `其他命令`: discovered but ungrouped commands (automatic).

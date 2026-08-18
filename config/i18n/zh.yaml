@@ -8,7 +8,7 @@ sections:
   flow_capability: "系统能力"
   flow_analysis: "代码分析"
   commands_changes: "变更管理"
-  commands_analysis: "代码分析"
+  commands_analysis: "代码检索"
   commands_skills: "技能管理"
   commands_maintenance: "系统维护"
   flow_other: "其他流程"

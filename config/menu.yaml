@@ -75,6 +75,8 @@ sections:
       - name: change-impact
         kind: workflow
         icon: "🧨 "
+  - title: commands_changes
+    items:
       - name: proposal
         kind: workflow
         icon: "💡 "
