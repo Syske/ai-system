@@ -13,6 +13,7 @@ from .misc import (
     check_proposal_audit,
     check_repo_lint,
     check_tools_readme,
+    check_tuple_return_arity,
     check_workflow_command_audit,
 )
 from .menu import check_menu, check_wizard_dry_run
@@ -33,6 +34,7 @@ def run_all():
 
     check_compile(c)
     check_imports(c)
+    check_tuple_return_arity(c)
     check_cli_tests(c)
     check_menu(c, workflows, commands)
     check_registry(c)

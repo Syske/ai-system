@@ -29,6 +29,59 @@ def check_compile(c):
             )
 
 
+def check_tuple_return_arity(c):
+    """静态检查：同一函数的所有 tuple-return 元数必须一致。
+
+    防止多返回值签名变更时只改部分 return 导致 UnpackingError
+    （曾发生：wizard skill 目录 return 4 元组、意图链路径 5 元组，
+    启动即 'ValueError: not enough values to unpack'）。
+    """
+
+    import ast
+
+    def tuple_arity(node):
+        if not isinstance(node, ast.Tuple):
+            return None
+        return len(node.elts)
+
+    for p in py_files():
+
+        try:
+
+            tree = ast.parse(
+                p.read_text(encoding="utf-8")
+            )
+
+        except SyntaxError:
+            # check_compile 已单独报
+            continue
+
+        for fn in ast.walk(tree):
+
+            if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+
+            arities = []
+
+            for n in ast.walk(fn):
+
+                if not isinstance(n, ast.Return) or not n.value:
+                    continue
+
+                arity = tuple_arity(n.value)
+
+                if arity is not None:
+                    arities.append(arity)
+
+            if len(set(arities)) > 1:
+
+                c.error(
+                    f"{p.relative_to(ROOT)}::{fn.name}: inconsistent tuple "
+                    f"return arity {sorted(set(arities))} "
+                    f"(expected a single arity)"
+                )
+
+
 def check_imports(c):
     try:
         import cli.main  # noqa: F401
