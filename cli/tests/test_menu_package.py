@@ -88,6 +88,21 @@ class TestMenuFallbacks(unittest.TestCase):
         p = self._run_no_tty(code, "1,3\n")
         self.assertIn("RESULT [0, 2]", p.stdout)
 
+    def test_choose_many_max_visible_truncates_display(self):
+        # max_visible：初始仅显示前 N 个，但仍可输入任意编号选中
+        code = (
+            "import sys; sys.path.insert(0, '.')\n"
+            "from cli.utils.menu import choose_many\n"
+            "opts = ['r%d' % i for i in range(15)]\n"
+            "r = choose_many('pick', opts, max_visible=5)\n"
+            "print('RESULT', r)\n"
+        )
+        # 选中第 12 个（编号 12 > max_visible 5）——仍可选
+        p = self._run_no_tty(code, "12\n")
+        self.assertIn("RESULT [11]", p.stdout)
+        # 渲染截断提示存在
+        self.assertIn("共 15 个", p.stdout)
+
     def test_ask_text_fallback(self):
         code = (
             "import sys; sys.path.insert(0, '.')\n"

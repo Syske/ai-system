@@ -47,7 +47,8 @@ def choose_many(
     options,
     header=None,
     note=None,
-    enter_selects_current=False
+    enter_selects_current=False,
+    max_visible=None
 ):
     """Multi-select menu (checkbox).
 
@@ -57,6 +58,10 @@ def choose_many(
     When `enter_selects_current` is True and nothing is marked, pressing
     Enter selects the currently highlighted item (instead of returning
     None / skip). This lets a launcher treat Enter as "pick this one".
+
+    `max_visible` limits how many options are shown at once when there is
+    no active filter (e.g. 82 repos → show 10 + hint). Typing a filter
+    searches the FULL option list, so every option stays reachable.
 
     Returns a list of selected raw indices, `None` when skipped, or BACK.
     """
@@ -72,7 +77,8 @@ def choose_many(
             title,
             options,
             note,
-            enter_selects_current
+            enter_selects_current,
+            max_visible
         )
 
     return _interactive_many(
@@ -80,7 +86,8 @@ def choose_many(
         options,
         header or [],
         note,
-        enter_selects_current
+        enter_selects_current,
+        max_visible
     )
 
 
@@ -89,7 +96,8 @@ def _interactive_many(
     options,
     header,
     note=None,
-    enter_selects_current=False
+    enter_selects_current=False,
+    max_visible=None
 ):
 
     selectable = [
@@ -109,7 +117,8 @@ def _interactive_many(
         visible = _visible_indices(
             options,
             selectable,
-            filter_buf
+            filter_buf,
+            max_visible
         )
 
         if not visible:
@@ -162,6 +171,13 @@ def _interactive_many(
                 )
 
         body.append("")
+
+        # max_visible 截断提示：无过滤时显示“…共 N 个，输入关键字搜索全部”
+        if max_visible and not filter_buf and len(selectable) > max_visible:
+
+            body.append(
+                f"… 共 {len(selectable)} 个，输入关键字搜索全部"
+            )
 
         if filter_buf:
 
@@ -247,7 +263,8 @@ def _fallback_many(
     title,
     options,
     note=None,
-    enter_selects_current=False
+    enter_selects_current=False,
+    max_visible=None
 ):
 
     print()
@@ -273,7 +290,22 @@ def _fallback_many(
 
             num = selectable.index(i) + 1
 
+            if (
+                max_visible is not None
+                and num > max_visible
+            ):
+                continue
+
             print(f"  {num}. {opt}")
+
+    if (
+        max_visible is not None
+        and len(selectable) > max_visible
+    ):
+
+        print(
+            f"… 共 {len(selectable)} 个，可输入 1-{len(selectable)} 任意编号"
+        )
 
     print(_t('menu.fallback_many', '输入编号（逗号分隔多个），空=跳过全部，b=返回'))
 

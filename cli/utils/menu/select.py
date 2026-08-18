@@ -9,15 +9,23 @@ from cli.utils.menu.render import _frame, _paint
 from cli.utils.menu.theme import get as _theme
 
 
-def _visible_indices(options, selectable, filter_buf):
+def _visible_indices(options, selectable, filter_buf, max_visible=None):
     """Base capability — type-to-filter.
 
     Return option indices (from `selectable`) whose text contains the filter
     (case-insensitive substring). Any menu built on choose/choose_many gets
     incremental filtering for free.
+
+    `max_visible` truncates the initial (no-filter) list for display; a
+    non-empty filter searches the FULL selectable list so every option
+    stays reachable.
     """
 
     if not filter_buf:
+
+        if max_visible is not None:
+            return list(selectable)[:max_visible]
+
         return list(selectable)
 
     lowered = filter_buf.lower()

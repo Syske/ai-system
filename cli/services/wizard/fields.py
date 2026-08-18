@@ -146,7 +146,12 @@ class WizardFields:
                     title,
                     options,
                     header=header,
-                    note=note
+                    note=note,
+                    max_visible=(
+                        10
+                        if field == "Projects"
+                        else None
+                    )
                 )
 
                 if picked is BACK:
