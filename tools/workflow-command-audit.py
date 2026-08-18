@@ -28,6 +28,11 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
+
 WORKFLOW_SECTIONS = [
     "Purpose",
     "Runtime",
@@ -136,6 +141,88 @@ def audit_command(p, menu_cmds, all_cmd_names, results):
             )
 
 
+def audit_command_fields(root, results):
+    """三方字段一致性：命令文档 **Inputs** ↔ menu.yaml command_fields.
+
+    A command's documented Inputs lines should be collectable by the wizard
+    (present in command_fields, or the default command_fields for
+    unregistered commands). Fields a command documents but the wizard cannot
+    collect are reported as warnings (drift between doc and config).
+    """
+
+    command_dir = root / "cli" / "commands"
+
+    if not command_dir.exists():
+        return
+
+    if yaml is None:
+        results["warnings"].append(
+            "field-consistency: PyYAML unavailable, skipped"
+        )
+        return
+
+    menu = root / "config" / "menu.yaml"
+
+    if not menu.exists():
+        return
+
+    try:
+        menu_cfg = yaml.safe_load(menu.read_text(encoding="utf-8")) or {}
+    except Exception:
+        results["warnings"].append(
+            "field-consistency: menu.yaml parse failed, skipped"
+        )
+        return
+
+    default_fields = {
+        str(f[0])
+        for f in menu_cfg.get("default_command_fields", [])
+    }
+
+    for p in sorted(command_dir.glob("aic-*.md")):
+
+        name = p.name.replace("aic-", "").replace(".md", "")
+
+        text = p.read_text(encoding="utf-8", errors="replace")
+
+        m = re.search(
+            r"\*\*Inputs\*\*:(.*?)\n\n",
+            text,
+            re.DOTALL
+        )
+
+        if not m:
+            continue
+
+        declared = (menu_cfg.get("command_fields") or {}).get(name)
+
+        collectable = (
+            {str(f[0]) for f in declared}
+            if declared is not None
+            else default_fields
+        )
+
+        # 从文档 Inputs 行提取字段名（- xxx）或（- xxx (annotation)）
+        for line in m.group(1).splitlines():
+
+            mm = re.match(
+                r"\s*-\s*([A-Za-z][A-Za-z ]+?)(?:\(.*\))?\s*$",
+                line
+            )
+
+            if not mm:
+                continue
+
+            field = mm.group(1).strip()
+
+            if field not in collectable and field not in ("Scan Directory",):
+
+                results["warnings"].append(
+                    f"{name}: documented Inputs field '{field}' not in command_fields "
+                    f"(wizard cannot collect it)"
+                )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Workflow & command health auditor")
     parser.add_argument("--repo-root", required=True, help="Repository root (ai-system)")
@@ -158,6 +245,8 @@ def main():
     }
     for p in find_commands(root):
         audit_command(p, menu_cmds, all_cmd_names, results)
+
+    audit_command_fields(root, results)
 
     if args.json:
         import json

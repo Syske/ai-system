@@ -63,10 +63,16 @@ def _text_bindings():
 
     @kb.add(Keys.Escape)
     def _quit(event):
-        event.app.exit(
-            exception=KeyboardInterrupt,
-            style="class:aborting"
-        )
+
+        buf = event.current_buffer
+
+        # 与 Backspace 语义一致：有输入时 Esc 清空当前字段内容
+        # （重新编辑），无输入时才退出向导（返回 BACK）。
+        if buf.text:
+            buf.delete_before_cursor()
+            return
+
+        event.app.exit(BACK)
 
     @kb.add(Keys.Backspace)
     def _back(event):

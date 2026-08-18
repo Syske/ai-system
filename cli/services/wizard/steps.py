@@ -275,14 +275,18 @@ class WizardSteps:
                 values
             )
 
-            if getattr(self, "chain_commands", []):
+            chain_remaining = list(
+                getattr(self, "chain_commands", [])
+            )
 
-                next_cmd = self.chain_commands[0]
+            if chain_remaining:
 
                 print(
-                    f"\n▶ 意图链下一步: {next_cmd}\n"
-                    f"  （当前意图 {getattr(self, 'active_intent', '')} 关联多个命令，"
-                    f"主命令 {target[0]} 完成后继续 {next_cmd}）\n"
+                    f"\n▶ 意图链关联 {len(chain_remaining) + 1} 个命令，"
+                    f"当前完成 {target[0]}，后续: "
+                    f"{', '.join(chain_remaining)}。\n"
+                    f"（各命令将依次构建提示词；主命令 {target[0]} 执行后"
+                    f"继续生成 {chain_remaining[0]}）\n"
                 )
 
-            return target[0], values, output, result
+            return target[0], values, output, result, chain_remaining

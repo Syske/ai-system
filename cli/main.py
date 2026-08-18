@@ -232,7 +232,7 @@ def main():
 
             try:
 
-                name, context, output, launch = (
+                name, context, output, launch, chain = (
                     Wizard(
                         builder.root,
                         args.environment
@@ -285,6 +285,31 @@ def main():
 
             break
 
+        # 意图链：主命令 prompt 构建后，为链上后续命令构建 prompt
+        # （各命令以空上下文构建，字段由 AI 在对话中向用户收集）
+        chain_prompts = []
+
+        if chain:
+
+            print()
+            print(
+                f"▶ 意图链后续命令: {', '.join(chain)}"
+            )
+
+            for cmd in chain:
+
+                try:
+
+                    chain_prompts.append(
+                        builder.build(cmd, {})
+                    )
+
+                except Exception as exc:
+
+                    print(
+                        f"  ⚠ 链命令 {cmd} 构建失败: {exc}"
+                    )
+
         if output == "copy":
 
             copy(prompt)
@@ -320,6 +345,27 @@ def main():
         else:
 
             print(prompt)
+
+        # 链 prompt：逐一输出（多命令意图的后续命令提示词）
+        if chain_prompts:
+
+            print()
+            print("═" * 40)
+            print("意图链后续命令提示词:")
+            print("═" * 40)
+
+            for i, cp in enumerate(chain_prompts):
+
+                print()
+                print(f"--- 链命令 {i + 1}/{len(chain_prompts)} ---")
+                print()
+                print(cp)
+
+            if output == "copy":
+
+                print(
+                    "\n（链提示词已在上方输出；如需复制请分别复制）"
+                )
 
         if launch:
 
