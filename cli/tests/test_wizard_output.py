@@ -135,6 +135,38 @@ class TestSaveStateGuard(unittest.TestCase):
         )
         self.assertEqual(w.state, {})
 
+    def test_save_command_without_project_records_last_target(self):
+        # 无项目 command：记录 last_target（一级菜单 recency）+ 使用计数
+        w = FakeWizard(self.workspaces, projects_root=self.projects)
+        w._save_state(
+            None,
+            ("scan", "command"),
+            {}
+        )
+        self.assertEqual(
+            w.state["last_target"],
+            {"name": "scan", "kind": "command"}
+        )
+        self.assertEqual(
+            w.state["projectless_usage"]["scan"],
+            1
+        )
+
+    def test_save_workflow_without_project_records_last_target(self):
+        # 无项目 workflow：记录 last_target（一级菜单 recency）；
+        # 不记 usage（计数仅针对命令集合）
+        w = FakeWizard(self.workspaces, projects_root=self.projects)
+        w._save_state(
+            None,
+            ("maintain", "workflow"),
+            {}
+        )
+        self.assertEqual(
+            w.state["last_target"],
+            {"name": "maintain", "kind": "workflow"}
+        )
+        self.assertNotIn("projectless_usage", w.state)
+
     def test_save_written_for_valid_project(self):
         w = FakeWizard(self.workspaces, projects_root=self.projects)
         w._save_state(
@@ -149,13 +181,20 @@ class TestSaveStateGuard(unittest.TestCase):
         )
 
     def test_save_skipped_for_empty_project(self):
+        # 旧语义：空项目 → 无 last_target。新行为（2026-08-18）：
+        # 无项目也记录一级菜单 recency（last_target），仅不记 usage 计数
+        # （trace 不在无项目命令白名单）。
         w = FakeWizard(self.workspaces, projects_root=self.projects)
         w._save_state(
             None,
             ("trace", "command"),
             {}
         )
-        self.assertEqual(w.state, {})
+        self.assertEqual(
+            w.state.get("last_target"),
+            {"name": "trace", "kind": "command"}
+        )
+        self.assertNotIn("projectless_usage", w.state)
 
     def test_usage_recorded_for_projectless_command(self):
         w = FakeWizard(self.workspaces, projects_root=self.projects)
@@ -208,3 +247,27 @@ class TestSelectProjectListsAll(unittest.TestCase):
             # 仅工作区项目状态持久化（2026-08-08 修复）
             w._save_state("alpha", ("develop", "workflow"), {})
             self.assertIn("alpha", w.state.get("projects", {}))
+
+    def test_last_project_heals_from_stale_null(self):
+        # 自愈：遗留显式 `last_project: null`（08-06 清空产物）在加载时
+        # 回填最近活跃项目，恢复项目列表默认高亮（2026-08-18）。
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            state_path = root / "workspaces" / ".aic-state.yaml"
+            state_path.parent.mkdir(parents=True)
+            state_path.write_text(
+                "last_project: null\n"
+                "projects:\n"
+                "  alpha:\n"
+                "    last_workflow: develop\n"
+                "  beta:\n"
+                "    last_workflow: verify\n",
+                encoding="utf-8",
+            )
+            w = self._make_wizard(tmp)
+            self.assertEqual(w.state["last_project"], "beta")
+            # 自愈已持久化
+            reloaded = StateStore(state_path).data
+            self.assertEqual(reloaded["last_project"], "beta")

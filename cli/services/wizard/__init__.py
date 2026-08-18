@@ -91,6 +91,22 @@ class Wizard(
 
         self.state = self.store.data
 
+        # 状态自愈：历史遗留的显式 `last_project: null`（08-06 清空产物，
+        # 被每次读-改-存往返保留）会压制项目默认高亮。当值为空但项目
+        # 历史存在时，回填最近写入的活跃项目。
+        if (
+            not self.state.get("last_project")
+            and self.state.get("projects")
+        ):
+
+            projects = self.state["projects"]
+
+            last_active = list(projects)[-1]
+
+            self.state["last_project"] = last_active
+
+            self.store.save()
+
         self.history = {}
 
         self._field_defaults = {}

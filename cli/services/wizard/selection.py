@@ -302,6 +302,24 @@ class WizardSelection:
             workflows
         )
 
+        # 无项目：last_target 提供 recency 默认（🕘），与有项目的
+        # projects[p].last_* 对称；command 目标可用配置驱动 command_next
+        # 推导下一步推荐（当无项目且有明确后继时）。
+        last_target = None
+
+        if not project:
+            last_target = self.state.get("last_target")
+
+            if last_target:
+
+                key = (
+                    last_target.get("name"),
+                    last_target.get("kind")
+                )
+
+                if key in targets:
+                    default = targets.index(key)
+
         if recommended in workflows:
 
             try:
@@ -317,6 +335,20 @@ class WizardSelection:
             labels[default] = (
                 f"{_e('⭐ ')}{labels[default]}"
             )
+
+        elif last_target and recommended is None:
+
+            # 无项目且无 Next 推荐时，用 🕘 标记上次目标（recency）
+            # 🕘 与 ⭐（Next 链推荐）语义区分：⭐=系统建议，🕘=用户最近使用
+            key = (
+                last_target.get("name"),
+                last_target.get("kind")
+            )
+
+            if key in targets:
+                labels[default] = (
+                    f"{_e('🕘 ')}{labels[default]}"
+                )
 
         idx = choose(
             "Select a workflow or command",
