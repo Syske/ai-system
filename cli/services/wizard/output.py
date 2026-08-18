@@ -32,13 +32,26 @@ class WizardOutput:
         header
     ):
 
+        save_label = (
+            "save to .ai-system/generated/"
+        )
+
+        try:
+
+            save_label = (
+                f"save to {self.outputs_root / 'generated'}/"
+            )
+
+        except AttributeError:
+            pass
+
         options = [
             f"{_e(self._menu_option('output', 'copy'))}"
             "copy to clipboard",
             f"{_e(self._menu_option('output', 'print'))}"
             "print",
             f"{_e(self._menu_option('output', 'save'))}"
-            "save to .ai-system/generated/"
+            f"{save_label}"
         ]
 
         idx = choose(

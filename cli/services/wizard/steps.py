@@ -148,6 +148,16 @@ class WizardSteps:
                     step -= 1
                     continue
 
+                if result is None and required:
+
+                    # 必填字段留空（None）：重问当前字段，不前进
+                    print(
+                        f"\n⚠ {field} 为必填项，不能跳过。\n"
+                        f"请重新输入 {field}。"
+                    )
+
+                    continue
+
                 if result is not None:
                     values[field] = result
 

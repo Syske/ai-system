@@ -228,6 +228,7 @@ class WizardFields:
                     return BACK
 
                 if not value:
+                    # 必填空输入 → None：steps 对必填字段重问当前字段
                     return None
 
             else:
@@ -254,6 +255,7 @@ class WizardFields:
             return BACK
 
         if not value:
+            # 必填空输入 → None：steps 对必填字段重问当前字段
             return None
 
         self.history[field] = value

@@ -236,6 +236,18 @@ class WizardIntake:
         # 从关键词推断关联命令
         command = self._infer_command(text)
 
+        if not command:
+
+            # 无法推断任何命令：不创建空意图（否则 steps 取 commands[0]
+            # 会 IndexError 崩溃）。提示用户重新描述或描述得更具体。
+            print(
+                "\n⚠ 无法从描述推断关联命令，未创建意图。\n"
+                "请重新描述（提及目标操作，如 检索/评估/打包/巡检），"
+                "或选择「重新描述」。"
+            )
+
+            return None
+
         intent = {
             "name": self._slug(text),
             "label": text[:30],

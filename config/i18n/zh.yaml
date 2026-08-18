@@ -25,7 +25,7 @@ field_notes:
   "Workspace ID": "from workspaces/"
   "Change ID": "from openspec/changes/"
   "Task ID": "from openspec/changes/*/tasks/cards/"
-  "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain"
+  "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain; standard/hotfix = bugfix"
   "Operation": "search=梳理检索 diff=逻辑对比 chain=逻辑链路 manual=手动自定义（影响评估请用 change-impact 工作流）"
   "Workspace": "选择 workspaces/ 下工作区；skip=不在workspace中搜索"
   "Projects": "选择 projects/ 下代码仓库（多选，空格切换）；skip=在所有项目中梳理"
@@ -70,7 +70,6 @@ field_notes:
   "Description": "命令功能的一句话描述"
   "Skill": "所选技能（extensions / global / local 来源）"
   "Task": "让 agent 用该 skill 执行的任务（留空=仅加载并报告就绪）"
-  "Mode": "优化模式：static=静态合规+LLM评估 dynamic=运行日志 trace=运行时数据 feedback=用户反馈"
 
 option_descriptions:
   Operation:

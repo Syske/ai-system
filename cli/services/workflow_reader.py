@@ -119,9 +119,30 @@ def parse_inputs(text):
             item = stripped[2:].strip()
 
             if item and item != "None":
-                bucket.append(item)
+
+                bucket.append(
+                    _norm_field_name(item)
+                )
 
     return required, optional
+
+
+def _norm_field_name(item):
+    """Strip inline annotations from a field name.
+
+    `Base Branch (default: master)` → `Base Branch`
+    `发布内容 (services, clusters, ...)` → `发布内容`
+
+    The md Inputs section is the single semantic source; annotations are
+    metadata, not part of the field identity (wizard/CLI keys use the
+    bare name).
+    """
+
+    return re.sub(
+        r"\s*\([^)]*\)\s*$",
+        "",
+        item
+    ).strip()
 
 
 def field_defaults(text):
@@ -159,9 +180,19 @@ def field_defaults(text):
             item
         )
 
+        if not match:
+
+            # 也支持 `; default X;` 格式（如 bugfix Mode）
+            match = re.search(
+                r";\s*default\s+([^;]+?)\s*(?:;|$)",
+                item
+            )
+
         if match:
 
-            defaults[item] = (
+            defaults[
+                _norm_field_name(item)
+            ] = (
                 match.group(1).strip()
             )
 

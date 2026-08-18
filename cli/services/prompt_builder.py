@@ -43,6 +43,7 @@ class PromptBuilder:
 
             return self._build_workflow(
                 workflows[workflow],
+                workflow,
                 context
             )
 
@@ -77,6 +78,7 @@ class PromptBuilder:
     def _build_workflow(
         self,
         config_path,
+        workflow_name: str,
         context: dict
     ) -> str:
 
@@ -93,6 +95,10 @@ class PromptBuilder:
         runtime_md = read_text(
             self.root
             / config["runtime"]
+        )
+
+        declared = self._workflow_fields(
+            workflow_md
         )
 
         template = read_text(
@@ -112,7 +118,7 @@ class PromptBuilder:
                         runtime_md
                     ),
                 "inputs":
-                    self._inputs(context)
+                    self._inputs(context, declared)
             }
         )
 
@@ -122,6 +128,8 @@ class PromptBuilder:
         command_path,
         context: dict
     ) -> str:
+
+        declared = self._command_fields(name)
 
         template = read_text(
             self.root
@@ -138,13 +146,66 @@ class PromptBuilder:
                 "command_definition":
                     read_text(command_path),
                 "inputs":
-                    self._inputs(context)
+                    self._inputs(context, declared)
             }
         )
 
+    def _workflow_fields(self, workflow_md):
+        """Field names declared by a workflow's ## Inputs section.
+
+        Inline annotations like `(default: master)` are stripped so the
+        contract matches wizard/CLI keys (e.g. `Base Branch` matches
+        `Base Branch (default: master)`).
+        """
+
+        import re
+
+        from cli.services.workflow_reader import parse_inputs
+
+        required, optional = parse_inputs(workflow_md)
+
+        def norm(name):
+            return re.sub(
+                r"\s*\(default:[^)]*\)\s*$",
+                "",
+                name
+            ).strip()
+
+        return {
+            norm(f)
+            for f in (required + optional)
+        }
+
+    def _command_fields(self, name):
+        """Field names declared in menu.yaml command_fields (or default)."""
+
+        menu = load_yaml(
+            self.root
+            / "config"
+            / "menu.yaml"
+        ) or {}
+
+        fields = (
+            menu
+            .get("command_fields", {})
+            .get(name)
+        )
+
+        if fields is None:
+            fields = menu.get(
+                "default_command_fields",
+                []
+            )
+
+        return {
+            str(f[0])
+            for f in fields
+        }
+
     @staticmethod
     def _inputs(
-        context: dict
+        context: dict,
+        declared=None
     ):
 
         ignore = {
@@ -152,7 +213,24 @@ class PromptBuilder:
             "copy",
             "save",
             "output",
-            "environment"
+            "environment",
+            "agent",
+            "provider",
+            "mode",
+            "operation",
+            "keep_results",
+            "compare",
+            "projects",
+            "base",
+            "code",
+            "task",
+            "change",
+            "workspace",
+            "project",
+            "request",
+            "issue",
+            "version",
+            "scope"
         }
 
         labels = PromptBuilder._labels()
@@ -164,7 +242,11 @@ class PromptBuilder:
             if k in ignore:
                 continue
 
-            if v is None:
+            if v is None or v is False or v == "":
+                continue
+
+            if declared is not None and k not in declared:
+                # 字段契约过滤：只输出当前目标声明的字段
                 continue
 
             lines.append(

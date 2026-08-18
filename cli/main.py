@@ -295,8 +295,15 @@ def main():
 
         elif output == "save":
 
+            from cli.services import environment as env
+
+            outputs_root = env.paths(
+                builder.root,
+                args.environment
+            )["outputs_root"]
+
             path = (
-                Path(".ai-system")
+                outputs_root
                 / "generated"
                 / f"{name}.md"
             )
@@ -344,8 +351,15 @@ def main():
 
     if args.save:
 
+        from cli.services import environment as env
+
+        outputs_root = env.paths(
+            builder.root,
+            args.environment
+        )["outputs_root"]
+
         path = (
-            Path(".ai-system")
+            outputs_root
             / "generated"
             / f"{args.workflow}.md"
         )

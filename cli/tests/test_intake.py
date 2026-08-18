@@ -97,6 +97,14 @@ class TestIntents(unittest.TestCase):
         self.assertEqual(w._infer_command("初始化扩展"), "extensions-init")
         self.assertIsNone(w._infer_command("随便聊聊"))
 
+    def test_create_intent_without_command_returns_none(self):
+        # B1 回归：无法推断命令时不得创建空意图（否则 steps 取
+        # commands[0] 会 IndexError）——返回 None 且不写 state。
+        w = FakeWizard()
+        result = w._create_ai_intent("随便聊聊")
+        self.assertIsNone(result)
+        self.assertNotIn("ai_intents", w.state)
+
     def test_record_usage_whitelist(self):
         w = FakeWizard()
         w.record_usage("maintain")
