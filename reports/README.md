@@ -71,6 +71,7 @@
 | Assessment | 架构评估 | 2026-07 | `ARCHITECTURE-ASSESSMENT-2026-07.md` | — |
 | Assessment | 三方 Skill 参考价值 | 2026-08-01 | `THIRD-PARTY-SKILL-ASSESSMENT-2026-08-01.md` | — |
 | Assessment | Skill 来源评估: mattpocock wayfinder（吸收为 skills/wayfinder, On-Demand） | 2026-08-17 | `skill-source-2026-08-17-wayfinder/skill-source-report.md` | M2: 等待真实大块模糊构想用例验证决策图层 |
+| Assessment | aic 交互与提示词链路专项优化（B1/H1-H6/M1-M8 等 16 项） | 2026-08-18 | `CLI-INTERACTION-OPTIMIZATION-2026-08-18.md` | 意图链连续执行/P22 阶段二待后续 |
 | Assessment | 运行诊断日志机制（logs/ 每运行落盘, 模板 + governance 契约） | 2026-08-17 | `templates/runtime/runtime-diagnostic-log.md`（经 AI_OPERATING_RULES §Completion、REFLECTION_RULES 落盘条目登记） | 待随一次实际 command/workflow 跑一轮验证字段/拆分阈值 |
 | Decision | Value-Burden Check: 归档 skill-optimizer + iterative-optimizer（无价值证据的 10k 行 meta 工具） | 2026-08-17 | `VALUE-BURDEN-DECISION-skill-optimizer-2026-08-17.md` | 归档联动清理已执行；后续 MAINTENANCE/QUARTERLY 对 >3000 行技能强制检查 |
 | Assessment | Value-Burden: implement skill 保留（已兑现价值 + 健康负担，最大活跃技能 2368 行） | 2026-08-17 | `VALUE-BURDEN-ASSESSMENT-implement-2026-08-17.md` | — |
