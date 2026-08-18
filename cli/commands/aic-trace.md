@@ -68,11 +68,11 @@ Compare the code differences between the current feature branch and the baseline
 
 对账矩阵 + 每个非 MATCHED 项的修复方案与执行结果（或待确认状态）。
 
-产出写入 `outputs/trace/{date}-{descriptor}/`（workspace 根），
+产出写入 `outputs/trace/{yyMMdd}-{descriptor}/`（workspace 根），
 `descriptor` 为本次对账主题（kebab-case，如 `live-audit-mq`），同日重跑追加 `-N`：
 
 ```
-outputs/trace/2026-08-13-live-audit-mq/
+outputs/trace/260813-live-audit-mq/
   └── trace-report.md       # 主报告（含 日期/范围/结论/建议）
 ```
 

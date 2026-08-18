@@ -199,6 +199,20 @@ class MenuConfig:
             self.get("hidden_commands")
         )
 
+    def project_required(self):
+        """Targets that require a project container (开发主链).
+        Returns (workflow_names, command_names) sets. Hidden when the user
+        selects "system (no project)" — only prepare stays as the entry
+        into the project lifecycle.
+        """
+
+        cfg = self.get("project_required") or {}
+
+        return (
+            set(cfg.get("workflows") or []),
+            set(cfg.get("commands") or [])
+        )
+
     def menu_option(self, menu, key):
 
         return (

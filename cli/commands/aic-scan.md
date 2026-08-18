@@ -71,12 +71,12 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
 - 分析结论（按 operation）
 - 发现问题清单与建议下一步
 
-产出写入 `outputs/scan/{date}-{descriptor}/`（workspace 根），
+产出写入 `outputs/scan/{yyMMdd}-{descriptor}/`（workspace 根），
 `descriptor` 为本次扫描主题（kebab-case，≤30 字符，如 `thread-leak`），
 同日同主题重跑追加 `-N` 后缀：
 
 ```
-outputs/scan/2026-08-13-thread-leak/
+outputs/scan/260813-thread-leak/
   └── scan-report.md        # 主报告（含 日期/范围/结论/建议）
   └── scan-report.json      # 可选：机器可读命中清单
 ```

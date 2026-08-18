@@ -152,10 +152,9 @@ def main():
             "search",
             "diff",
             "chain",
-            "impact",
             "manual"
         ],
-        help="Scan operation type: search/diff/chain/impact/manual"
+        help="Scan operation type: search/diff/chain/manual"
     )
 
     parser.add_argument(

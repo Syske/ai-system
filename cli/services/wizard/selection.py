@@ -217,6 +217,15 @@ class WizardSelection:
             "command": set()
         }
 
+        # 开发主链目标：无项目时隐藏（仅保留 prepare 作为项目创建入口）
+        req_wf, req_cmd = (
+            self.config.project_required()
+            if hasattr(self.config, "project_required")
+            else (set(), set())
+        )
+
+        no_project = project is None
+
         for sec in self._menu("sections"):
 
             present = []
@@ -225,6 +234,12 @@ class WizardSelection:
 
                 name = item.get("name")
                 kind = item.get("kind", "workflow")
+
+                if no_project and kind == "workflow" and name in req_wf:
+                    continue
+
+                if no_project and kind == "command" and name in req_cmd:
+                    continue
 
                 if (
                     kind == "workflow"
@@ -262,6 +277,7 @@ class WizardSelection:
             for w in workflows
             if w not in configured["workflow"]
             and w not in self.hidden_workflows()
+            and not (no_project and w in req_wf)
         ]
 
         if remaining:
@@ -281,6 +297,7 @@ class WizardSelection:
             for c in commands
             if c not in configured["command"]
             and c not in self.hidden_commands()
+            and not (no_project and c in req_cmd)
         ]
 
         if remaining_commands:

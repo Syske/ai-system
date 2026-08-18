@@ -19,6 +19,23 @@ hidden_workflows:
   - bootstrap      # 环境首启/缺失时 AI 触发（状态驱动）
   - analysis       # maintain 内部环节（系统健康）
   - knowledge      # maintain 内部环节（知识生命周期）
+  - bugfix         # 无独立入口：有项目场景由 trace/change-impact 分析后触发，
+                   # 无项目场景由其他链路 Next 选择（AI 主导修复生命周期）
+  - hotfix-test-doc  # 无独立入口：hotfix 修复链 doc 阶段由 bugfix-modes 触发
+                   # （仅需 Branch Name，一次性产物任务）
+
+# 强依赖项目容器（开发主链）的目标：无项目选择时隐藏，仅保留 prepare 作为
+# 项目创建入口（开发链生命周期开始）。这些目标由 AI 在项目上下文内触发。
+project_required:
+  workflows:
+    - spec
+    - dev-setup
+    - develop
+    - review
+    - verify
+    - release
+  commands:
+    - trace
 
 # AI 内部命令：不在用户菜单显示（不落“其他命令”），由 AI 按需触发
 # （ADR-0009: AI 主导变更生命周期）。已注册但隐藏 = AI 可调用、用户菜单不可见。
@@ -59,14 +76,6 @@ sections:
         kind: workflow
         icon: "🚀 "
         number: 7
-  - title: flow_fix
-    items:
-      - name: bugfix
-        kind: workflow
-        icon: "🐛 "
-      - name: hotfix-test-doc
-        kind: workflow
-        icon: "📋 "
   - title: flow_analysis
     items:
       - name: code-review

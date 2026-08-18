@@ -109,12 +109,12 @@ class ScanHooks(CommandHooks):
 
 
 class ChangeImpactHooks(CommandHooks):
-    """Change-impact workflow: requires a real project to analyse.
+    """Change-impact workflow: requires at least one reviewable repo.
 
-    The change-impact workflow's Inputs declare Projects as Required, but the
-    workflow has no command hook (Preconditions: None), so the requirement was
-    documentation-only. This hook enforces it at the CLI so a project-less
-    "system" run cannot start and dump artifacts into the workspace.
+    Projects is Required: from the workspace.yaml mapping (project context)
+    or directly supplied by the user as repo path/URL (one-time task,
+    no project container needed). This hook enforces a non-empty Projects
+    at the CLI so a run without any repo cannot start.
     """
 
     def validate(self, wizard, values):
@@ -124,9 +124,9 @@ class ChangeImpactHooks(CommandHooks):
         if not projects:
 
             return False, (
-                "\n⚠ change-impact 需要至少一个项目（含代码仓库/范围）。\n"
-                "请选择 Projects；若确需无项目分析，改用 aic-scan（不写产物到 "
-                "项目工作区）。"
+                "\n⚠ change-impact 需要至少一个代码仓库（Projects）。\n"
+                "有项目容器时从 workspace.yaml 映射选择；无项目时请直接提供"
+                "仓库路径/URL（逗号分隔）。"
             )
 
         return True, None
