@@ -176,8 +176,11 @@ def main():
             cmd_exec(port, project, args.rest[0], args.rest[1:])
     except Exception as e:
         print(f"错误: {e}", file=sys.stderr)
-        print("回退: CLI 离线编译 mvnw -s <settings> -pl <mod> -am compile -o"
-              "(见 ai-system/skills/java-maven/build-speed.md)", file=sys.stderr)
+        print("回退: 使用环境配置 build.java_home / build.maven_home 执行 CLI 离线编译 "
+              "(JAVA_HOME=<java_home> <maven_home>/bin/mvn -s <settings> -pl <mod> -am compile -o; "
+              "配置来源: 由 AI_SYSTEM_ROOT/上溯定位 ai-system 后, 读取 "
+              "config/environments/{env}.yaml 的 build.*; 见 "
+              "ai-system/skills/idea-build/SKILL.md 的 Configuration/JDK-Maven compatibility)", file=sys.stderr)
         sys.exit(1)
 
 

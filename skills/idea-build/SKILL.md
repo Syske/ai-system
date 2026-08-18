@@ -50,6 +50,23 @@ One-time GUI on the IDEA side:
 - Settings → Tools → MCP Server → check **Enable MCP Server**
 - Open the target project (MCP `build_project` only compiles open projects)
 
+## Configuration
+
+- Reads: `build.backend`, `build.java_home`, `build.maven_home`, `build.idea.*`
+  from `ai-system/config/environments/{env}.yaml`.
+- Resolve (standalone, without the aic wizard):
+  `AI_SYSTEM_ROOT` env → walk up from CWD/SKILL.md to the ancestor holding
+  `config/environments/`; then
+  `cli/services/environment.py::resolve_environment()` returns `build`/`paths`.
+  Portable one-liner (run from the ai-system root or with `AI_SYSTEM_ROOT` set):
+  ```
+  python -c "from cli.services.environment import resolve_environment; \
+    print(resolve_environment().get('build'))"
+  ```
+- **Missing/ambiguous config → ASK the user.** Never guess a JDK/Maven/IDEA
+  path (e.g. `C:\Program Files\Java\...`) — machine-specific values come
+  from the environment config, not from the skill.
+
 ## Commands
 
 ```bash
@@ -95,5 +112,33 @@ empty until then).
 ## Fallback
 
 Any failure (IDEA not running, MCP unreachable, project not open) → return a
-clear message and fall back to `java-maven` CLI offline:
-`mvnw -s <settings> -pl <mod> -am compile -o`.
+clear message and fall back to the `java-maven` CLI skill, using the JDK and
+Maven configured in `ai-system/config/environments/{env}.yaml` (`build.java_home` /
+`build.maven_home`), NOT bare `mvn` / `mvnw` (often not on PATH):
+
+```bash
+JAVA_HOME="$build.java_home" "$build.maven_home/bin/mvn" -s <settings> -pl <mod> -am compile -o
+```
+
+## JDK / Maven compatibility (verified 2026-08-18)
+
+| Project target | JDK | Maven | Notes |
+|---|---|---|---|
+| `java.version=1.8` (user-center-api etc.) | `{build.java_home}` | `{build.maven_home}` | JDK 8 must be a real JDK 8 (Maven 3.6.3 bundles compiler plugin 2.8.4, which **fails on JDK 17+** — `class com.sun.tools.javac.api.JavacTool` error); concrete paths come from `ai-system/config/environments/{env}.yaml → build.java_home` |
+| Newer JDK-17+ projects | JDK 17+ (per project) | same Maven | only if project's compiler plugin version supports it |
+
+Rules:
+- Match the JDK to the project's `<java.version>`; Java 8 projects MUST use a
+  JDK 8 (or newer JDK only if the project's maven-compiler-plugin is new enough).
+- Read the concrete JDK/Maven paths from the environment config
+  `ai-system/config/environments/{env}.yaml` (`build.java_home` / `build.maven_home`)—
+  never hard-code machine-specific absolute paths in this skill. Those are
+  environment configuration, not part of the skill's portable contract.
+
+## Caveats (learned 2026-08-18)
+
+- IDEA `build_project` problems are almost all pre-existing "deprecated API"
+  WARNINGs across the whole repo; check only `kind == "ERROR"` and files you
+  modified. `isSuccess` + zero ERRORs is a pass even with hundreds of WARNINGs.
+- With `backend: idea`, prefer IDEA for compile verification; it is seconds
+  vs 60-70s CLI cold start and avoids the JDK/Maven matrix entirely.

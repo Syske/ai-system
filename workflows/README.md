@@ -26,7 +26,7 @@ Execution lifecycle (phases, checkpoints, recovery, persistence) is owned by the
 | Generate a HotFix test document (转测文档) | hotfix-test-doc.md |
 | Analyze AI System health | analysis.md |
 | Manage knowledge assets | knowledge.md |
-| Review arbitrary code and produce a review result | code-review.md |
+| Review arbitrary code and produce a review result | code-review.md (supports optional Confluence spec-comparison review + HotFix one-pager update loop) |
 | Analyze impact, risks, and modification plan for a code target | change-impact.md |
 | Discuss an optimization and produce a solution document | proposal.md |
 | Requirement change on an in-flight change | prepare.md → spec.md (scoped re-entry) |

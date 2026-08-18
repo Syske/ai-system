@@ -32,6 +32,19 @@ FALSE_POSITIVES = {
     "ai-system/skills/foo/report.md",
     "config/governance/",
     "reports/foo-skill/",
+    # skills/idea-build 文档引用的本机 JDK/Maven 路径（外部绝对路径的
+    # 目录尾匹配，非仓库内缺失文件；环境运行时引用）
+    "tools/java/jdk-17",
+    "tools/java/jdk8",
+    # idea-build SKILL.md 文档化的本机绝对工具路径（环境配置引用，
+    # 非仓库断链；与 local.yaml 的 java_home/maven_home 同类）
+    r"D:\tools\java\jdk8",
+    r"D:\tools\java\jdk-17",
+    r"D:\tools\apache-maven-3.6.3",
+    # skill-author 约定示例/代码片段的 token（resolve_environment 的
+    # paths 键、反例 "C:\Program Files\Java\..."）——非真实依赖
+    "config/paths",
+    r"C:\Program",
 }
 
 # 仅示例引用（T2/Batch 2）：出现在文档示例中的路径de doc examples,

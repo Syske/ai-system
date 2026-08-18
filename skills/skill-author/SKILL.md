@@ -74,6 +74,50 @@ entrypoint.
 | What structure? | SKILL.md + opt-in references/ and/or scripts/ |
 | Overlap detected? | Refuse; point to existing Skill |
 | Skill too large? | Split into sub-Skills with clear dependency graph |
+| Needs config/paths? | Reference environment config keys, never hardcode absolute paths |
+
+---
+
+## Environment & Configuration Reference (mandatory convention)
+
+Every skill that reads a path, URL, credential, or machine-specific value
+MUST declare how it obtains configuration and MUST NOT guess.
+
+### Rules
+
+1. **Never hardcode machine-specific absolute paths** in a skill (e.g.
+   `D:\tools\java\jdk8`). Those belong in
+   `ai-system/config/environments/{env}.yaml` (or equivalent env config),
+   keyed by role (`build.java_home`, `build.maven_home`, ...).
+2. **Always include a `## Configuration` section** in the skill's SKILL.md
+   that states:
+   - which config keys it reads (e.g. `build.java_home`, `build.backend`);
+   - where the config lives (path to the environments yaml);
+   - a portable resolution snippet using `resolve_environment` (from
+     `cli/services/environment.py`) when run standalone;
+   - **if a required config value is missing or ambiguous, ASK the user to
+     provide it — never infer/guess a path.**
+3. **Resolution order** for the ai-system root (so config can be found):
+   `$AI_SYSTEM_ROOT` → walk up from a given start to the first ancestor
+   holding `config/environments/` → package fallback. See
+   `cli/services/environment.py::ai_system_root` / `resolve_environment`.
+4. Scripts/skills that run standalone (outside the aic wizard) use
+   `resolve_environment()` to get `build`/`paths`/`config` instead of
+   assuming CWD or embedding absolute paths.
+
+Example `## Configuration` block:
+
+```
+## Configuration
+
+- Reads: `build.java_home`, `build.maven_home` (from
+  `config/environments/{env}.yaml`).
+- Resolve: `python -c "from cli.services.environment import resolve_environment;\
+  print(resolve_environment().get('build'))"` (run from the ai-system root,
+  or with `AI_SYSTEM_ROOT` set).
+- If `build.java_home` is absent → ASK the user for the JDK path; do NOT
+  guess `C:\Program Files\Java\...`.
+```
 
 ---
 

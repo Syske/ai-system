@@ -169,3 +169,100 @@ def skills_root(
         root,
         name
     )["skills_root"]
+
+
+# --------------------------------------------------------------------------
+# ai-system 根定位 + skill 环境上下文
+# (2026-08-18) — skill 被独立调用时（agent 直接执行 SKILL.md，不经 aic 向导）
+# 也必须能定位 ai-system 根并读取环境配置，而非硬编码路径或依赖 CWD。
+# --------------------------------------------------------------------------
+
+
+def ai_system_root(start=None):
+    """Locate the ai-system root (directory holding config/environments/).
+
+    Resolution priority:
+      1. $AI_SYSTEM_ROOT — the machine/environment anchor, most reliable for
+         standalone skill invocation (injected by the agent or shell).
+      2. `start` (a file or dir inside the ai-system tree) walked upward to
+         the first ancestor containing config/environments/local.yaml.
+      3. Fallback to the default layout: the ai-system dir is the parent of
+         the caller's package when running in-tree.
+
+    Returns a Path, or None when unresolvable.
+    """
+
+    import os
+
+    env_anchor = os.environ.get("AI_SYSTEM_ROOT")
+
+    if env_anchor:
+
+        p = Path(env_anchor).resolve()
+
+        if p.is_dir() and (p / "config" / "environments").is_dir():
+            return p
+
+    if start is not None:
+
+        cur = Path(start)
+
+        if not cur.is_dir():
+            cur = cur.parent
+
+        for ancestor in [cur, *cur.parents]:
+
+            if (
+                (ancestor / "config" / "environments").is_dir()
+                and (ancestor / "governance").is_dir()
+            ):
+                return ancestor
+
+    # 最终兜底：包内位置（树内运行）
+    return Path(__file__).resolve().parents[2]
+
+
+def resolve_environment(start=None, environment=None):
+    """Resolve a skill's runtime environment context.
+
+    Returns a dict:
+
+        {
+          "root": ai-system root (Path or None),
+          "environment": env name or None,
+          "paths": paths() result or None,
+          "config": raw environment config dict or None,
+          "build": build config (java_home/maven_home/backend/...) or None,
+        }
+
+    Standalone skills should read paths/config from here — never hardcode
+    machine-specific absolute paths (see outputs-convention / skill-author).
+    """
+
+    root = ai_system_root(start)
+
+    if root is None:
+        return {
+            "root": None,
+            "environment": None,
+            "paths": None,
+            "config": None,
+            "build": None,
+        }
+
+    name = environment or DEFAULT_ENV
+
+    config = load_environment(root, name) or {}
+
+    try:
+        p = paths(root, name)
+    except Exception:
+        p = None
+
+    return {
+        "root": root,
+        "environment": name,
+        "paths": p,
+        "config": config,
+        "build": config.get("build"),
+    }
