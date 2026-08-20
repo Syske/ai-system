@@ -77,6 +77,18 @@ class TestWorkflowReaderInputs(unittest.TestCase):
         self.assertIsInstance(optional, list)
         self.assertTrue(required or optional)
 
+    def test_output_base(self):
+        self.assertEqual(
+            workflow_reader.output_base(ROOT, "bugfix"),
+            "outputs/bugfix/{yyMMdd}-{descriptor}/",
+        )
+        self.assertEqual(
+            workflow_reader.output_base(ROOT, "prepare"),
+            "workspaces/<change-id>/",
+        )
+        # 无 outputs 字段 → 空
+        self.assertEqual(workflow_reader.output_base(ROOT, "proposal"), "")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,6 +5,8 @@ workflow:
   inputs:
     required: [Workspace ID, Project ID, Task ID]
   next: [develop]
+  outputs:
+    base: "workspaces/<project-id>/"
 ---
 # Workflow: Dev Setup
 

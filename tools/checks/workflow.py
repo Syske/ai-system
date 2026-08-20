@@ -271,9 +271,10 @@ def check_workflow_size(c):
 
 
 def check_frontmatter_consistency(c):
-    """单一来源硬化：frontmatter workflow.inputs 必须与正文 ## Inputs 一致。
+    """单一来源硬化：frontmatter 契约须与正文一致。
 
-    防止双源漂移（P25）。略过无 frontmatter 或 frontmatter 无 inputs 的工作流。
+    1) workflow.inputs（required/optional）== 正文 ## Inputs；
+    2) workflow.outputs.base 字符串须出现在正文（产物落位可机器读取、不漂移）。
     """
 
     from cli.services.frontmatter import read_frontmatter
@@ -295,14 +296,29 @@ def check_frontmatter_consistency(c):
 
         wf = data.get("workflow")
 
-        if not isinstance(wf, dict) or not wf.get("inputs"):
+        if not isinstance(wf, dict):
             continue
 
-        req_fm, opt_fm = parse_inputs(text)
-        req_body, opt_body = parse_inputs(body)
+        if wf.get("inputs"):
 
-        if set(req_fm) != set(req_body) or set(opt_fm) != set(opt_body):
+            req_fm, opt_fm = parse_inputs(text)
+            req_body, opt_body = parse_inputs(body)
 
-            c.error(
-                f"workflows/{p.name}: frontmatter workflow.inputs 与正文 ## Inputs 不一致"
-            )
+            if set(req_fm) != set(req_body) or set(opt_fm) != set(opt_body):
+
+                c.error(
+                    f"workflows/{p.name}: frontmatter workflow.inputs 与正文 ## Inputs 不一致"
+                )
+
+        outputs = wf.get("outputs")
+
+        if isinstance(outputs, dict) and outputs.get("base"):
+
+            base = str(outputs["base"])
+
+            if base not in body:
+
+                c.error(
+                    f"workflows/{p.name}: frontmatter workflow.outputs.base "
+                    f"未在正文 Outputs 中出现（{base}）"
+                )

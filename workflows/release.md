@@ -7,6 +7,8 @@ workflow:
     optional:
       - name: Environment
   next: [deployment, develop]
+  outputs:
+    base: "workspaces/<project-id>/"
 ---
 # Workflow: Release
 

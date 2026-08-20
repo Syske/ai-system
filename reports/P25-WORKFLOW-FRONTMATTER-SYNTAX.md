@@ -65,7 +65,7 @@ workflow:                       # 机器契约（结构化）
 - [x] `prompt_builder` inputs 经 frontmatter 渲染（经 workflow_reader 透传，正文嵌入不变）
 - [x] **单一来源硬化**：check.py 新增 `check_frontmatter_consistency`（frontmatter inputs == 正文 ## Inputs），防双源漂移
 - [x] 文档：`workflows/README.md` 注明 frontmatter 资产语法；不新增 `config/workflows/*.yaml` 内容
-- [ ] **可选残留（outputs 结构化字段）**：（item6 产物目录已在各 workflow/runtime Outputs 正文显式声明；是否进一步把 `outputs` 提为 frontmatter 结构化字段，后续评估）
+- [x] **outputs 结构化字段（部分）**：9 个清晰单目标 workflow（7 主链 + bugfix + code-review）在 frontmatter 增 `workflow.outputs.base`（机器可读，经 `workflow_reader.output_base` 暴露，供 chain-manifest / 外部 skill 定位产物），并纳入 check_frontmatter_consistency（base 须出现在正文防漂移）。其余 6 个（change-impact/proposal/hotfix-test-doc/analysis/knowledge/bootstrap）为多目标/内存/按需生成，保持正文声明、不引入人为根目录。
 
 ## 6. Validation Plan
 

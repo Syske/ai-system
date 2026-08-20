@@ -9,6 +9,8 @@ workflow:
       - name: Existing Design
       - name: Mode
   next: [dev-setup]
+  outputs:
+    base: "workspaces/<project-id>"
 ---
 # Workflow: Spec
 

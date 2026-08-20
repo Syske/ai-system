@@ -5,6 +5,8 @@ workflow:
   inputs:
     required: [Project ID, Task ID]
   next: [verify, develop]
+  outputs:
+    base: "workspaces/<project-id>/"
 ---
 # Workflow: Review
 

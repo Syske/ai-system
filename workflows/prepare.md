@@ -11,6 +11,8 @@ workflow:
       - name: Existing Specifications
       - name: Mode
   next: [spec]
+  outputs:
+    base: "workspaces/<change-id>/"
 ---
 # Workflow: Prepare
 

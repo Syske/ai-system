@@ -13,6 +13,8 @@ workflow:
       - name: Output Directory
       - name: Confluence Spec Page Id
   next: [None]
+  outputs:
+    base: "outputs/code-review/{yyMMdd}-{target}/"
 ---
 # Workflow: Code Review
 

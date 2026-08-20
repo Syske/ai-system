@@ -15,6 +15,8 @@ workflow:
   next:
     - review
     - hotfix-test-doc
+  outputs:
+    base: "outputs/bugfix/{yyMMdd}-{descriptor}/"
 ---
 # Workflow: BugFix
 

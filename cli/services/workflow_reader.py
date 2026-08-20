@@ -293,3 +293,37 @@ def field_defaults(text):
             )
 
     return defaults
+
+
+def output_base(root, name):
+    """Artifact base dir for a workflow from `workflow.outputs.base` in frontmatter.
+
+    Machine-readable location so chain-manifest / external skills can find a
+    workflow's artifacts deterministically. Returns "" when absent.
+    """
+
+    try:
+
+        text = read_text(
+            root
+            / "workflows"
+            / f"{name}.md"
+        )
+
+    except OSError:
+
+        return ""
+
+    data, _ = read_frontmatter(text)
+
+    wf = data.get("workflow") or {}
+
+    if isinstance(wf, dict):
+
+        outputs = wf.get("outputs")
+
+        if isinstance(outputs, dict):
+
+            return str(outputs.get("base") or "")
+
+    return ""

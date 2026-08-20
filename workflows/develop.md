@@ -7,6 +7,8 @@ workflow:
     optional:
       - name: Related Issue
   next: [review]
+  outputs:
+    base: "workspaces/<project-id>/"
 ---
 # Workflow: Develop
 
