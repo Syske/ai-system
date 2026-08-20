@@ -39,7 +39,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | index-project | Rebuild code semantic index | Manual |
 | open-cli | Web API → CLI adapter generation | Manual |
 | wayfinder | 大块模糊构想 → 决策图（规划，非执行） | Manual |
-| deepseek-share-to-md | DeepSeek 分享会话 → Markdown（stdout 供 AI 读取 / 导出为文件+附件内嵌） | Manual |
+| deepseek-share-to-md | DeepSeek 分享会话 → Markdown（stdout 供 AI 读取 / 导出为文件+附件内嵌）。触发词：`deepseek 分享转 md`、`导出 deepseek 对话`、`分享链接转 markdown`、`存档 AI 对话`（`chat.deepseek.com/share/<id>`）。外部 AI 结论进入消息流时优先路由至此拉取文本再核验（配合 P3 外部结论核查）。 | Manual |
 | idea-build | Optional IDEA MCP compile backend (`build.backend=idea`) | Config-driven (bugfix), manual |
 | handoff | Session handoff summary (compaction / task switch / cross-tool), per CONTEXT_RETENTION Keep/Drop | Manual (before /compact or new session) |
 | explore | OpenSpec-aware exploration support (loaded by aic-explore) | Command-loaded (aic-explore) |

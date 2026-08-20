@@ -62,6 +62,18 @@ Code comment convention (per `governance/standards/common/documentation.md`):
 - Commit messages → Chinese (Conventional Commits)
 - Production error messages → English (encoding safety)
 
+### 简体要求 (Simplified Chinese Only)
+
+All Chinese output — report bodies and tables, code comments/Javadoc, command-line
+(CLI/bash) explanations, interactive prompts, commit messages, and in-session process
+notes — MUST use **Simplified Chinese (简体)**. Traditional/variant wording (繁体) is
+not permitted in any Chinese output, including transient bash comments and process
+captions; it breaks convention consistency (e.g. `检查/脚本/传参/转义`, not
+`檢查/腳本/傳參/轉義`) and can leak into final deliverables.
+
+Self-check: treat "all Chinese output in Simplified Chinese" as a mandatory language
+self-check item at report/completion time (per AI_OPERATING_RULES gate function).
+
 ---
 
 ## Hybrid (Bilingual Headings)

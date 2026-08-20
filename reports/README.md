@@ -52,6 +52,7 @@
 | 2026-08-14 | on-demand | 巡检当前提案 + 治理一致性抽查 | `MAINTENANCE-2026-08-14.md` | P22 已 approve（阶段二 defer 至新提案）；F2/F3 已修复 |
 | 2026-08-14 | on-demand | 跨平台治理落地（P23 批次：gitattributes/hook/lint） | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` | —（P23 已 Implemented） |
 | 2026-08-17 | on-demand | 工具校验/周度巡检/一致性抽查 | `MAINTENANCE-2026-08-17.md` | R1: check.py 回归（FakeWizard 缺 projects_root）→ 已立提案 P24 待评审；其余全 PASS |
+| 2026-08-20 | on-demand | openapi-gateway OOM 流程提案（P1–P7 评估） | `MAINTENANCE-2026-08-20.md` | P7 简体规范已就地修（LANGUAGE_CONVENTION）；P4 技能触发词已登记 skills/README；P1/P2/P3/P5/P6 结构建议待变更管理立项 |
 
 ---
 
