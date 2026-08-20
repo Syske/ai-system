@@ -123,6 +123,10 @@ Execution modifiers:
 
 Every workflow file must contain these sections, in this order:
 
+0. **YAML frontmatter (P25 asset syntax, shared with SKILL.md)** — `name`, `description`, and
+   `workflow: {inputs: {required, optional}, next}`. The frontmatter `workflow.inputs` is the
+   **machine contract** (authoritative); the Markdown body below carries the readable narrative.
+
 1. Purpose — one responsibility, one sentence
 2. Runtime — runtime template path
 3. Preconditions — what must exist before start

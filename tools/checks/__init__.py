@@ -20,6 +20,7 @@ from .misc import (
 from .menu import check_menu, check_wizard_dry_run
 from .memory import check_memory
 from .workflow import (
+    check_frontmatter_consistency,
     check_next_sections,
     check_registry,
     check_workflow_size,
@@ -41,6 +42,7 @@ def run_all():
     check_registry(c)
     check_next_sections(c, workflows)
     check_workflow_size(c)
+    check_frontmatter_consistency(c)
     check_commands(c)
     check_outputs_convention(c)
     check_build(c, workflows, commands)

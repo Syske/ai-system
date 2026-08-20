@@ -268,3 +268,41 @@ def check_workflow_size(c):
                 f"workflows/{p.name} exceeds RFC-0003 limit: "
                 f"{n} body lines (max 100)"
             )
+
+
+def check_frontmatter_consistency(c):
+    """单一来源硬化：frontmatter workflow.inputs 必须与正文 ## Inputs 一致。
+
+    防止双源漂移（P25）。略过无 frontmatter 或 frontmatter 无 inputs 的工作流。
+    """
+
+    from cli.services.frontmatter import read_frontmatter
+    from cli.services.workflow_reader import parse_inputs
+
+    wf_dir = ROOT / "workflows"
+
+    if not wf_dir.exists():
+        return
+
+    for p in sorted(wf_dir.glob("*.md")):
+
+        if p.name == "README.md":
+            continue
+
+        text = p.read_text(encoding="utf-8", errors="replace")
+
+        data, body = read_frontmatter(text)
+
+        wf = data.get("workflow")
+
+        if not isinstance(wf, dict) or not wf.get("inputs"):
+            continue
+
+        req_fm, opt_fm = parse_inputs(text)
+        req_body, opt_body = parse_inputs(body)
+
+        if set(req_fm) != set(req_body) or set(opt_fm) != set(opt_body):
+
+            c.error(
+                f"workflows/{p.name}: frontmatter workflow.inputs 与正文 ## Inputs 不一致"
+            )

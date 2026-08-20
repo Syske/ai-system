@@ -30,7 +30,16 @@ ROOT = HERE.parent
 
 NAME_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 
-WORKFLOW_TEMPLATE = """# Workflow: {Title}
+WORKFLOW_TEMPLATE = """---
+name: {name}
+description: \"{purpose}\"
+workflow:
+  inputs:
+    required: [TBD]
+    optional: [TBD]
+  next: [None]
+---
+# Workflow: {Title}
 
 ## Purpose
 
