@@ -74,6 +74,26 @@ def block_names(chain):
     ]
 
 
+def project_requirement(chain):
+    """The chain's project need: 'required' | 'optional' | 'none'.
+
+    Explicit `project:` wins; otherwise inferred — any workflow/command block
+    (repo context) → 'required', else 'none'.
+    """
+
+    explicit = (chain.get("project") or "").strip().lower()
+
+    if explicit in ("required", "optional", "none"):
+        return explicit
+
+    for b in chain.get("blocks", []):
+
+        if b.get("type") in ("workflow", "command"):
+            return "required"
+
+    return "none"
+
+
 def create_chain_run(root, chain, outputs_root=None, desc=None):
     """Create a per-run context dir + chain-manifest.yaml.
 

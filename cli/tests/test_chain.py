@@ -117,6 +117,27 @@ class TestChain(unittest.TestCase):
             chain.record_artifact(manifest_path, "nope", "anything")
         )
 
+    def test_project_requirement_explicit(self):
+        chains = chain.load_chains(self.root)
+        for c in chains:
+            c["project"] = "required"
+        self.assertEqual(
+            chain.project_requirement(chains[0]), "required"
+        )
+
+    def test_project_requirement_inferred_from_workflow_block(self):
+        # 无 project 字段，但含 workflow 块 → required
+        c = {"blocks": [{"type": "workflow", "name": "bugfix"}]}
+        self.assertEqual(chain.project_requirement(c), "required")
+
+    def test_project_requirement_none_when_skill_only(self):
+        c = {"blocks": [{"type": "skill", "name": "publish"}]}
+        self.assertEqual(chain.project_requirement(c), "none")
+
+    def test_project_requirement_none_overrides(self):
+        c = {"project": "none", "blocks": [{"type": "workflow", "name": "bugfix"}]}
+        self.assertEqual(chain.project_requirement(c), "none")
+
 
 if __name__ == "__main__":
     unittest.main()

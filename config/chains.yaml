@@ -8,6 +8,9 @@ version: 1
 #   避免块之间互相找不到产物。
 # - 产物落点沿现有约定 outputs/<block>/<yyMMdd>-<desc>/（如 scan → outputs/scan/...，
 #   bugfix → outputs/bugfix/...）。
+# - project: required | optional | none —— 该链是否需要项目上下文。
+#   入口（chain_launcher）按此解析：required 且当前无项目时向用户索取，
+#   none/optional 跳过（不强制选项目）。
 # - 内置链路 + AI 维护（.aic-state.yaml → ai_chains，按使用频率可进化）。
 
 chains:
@@ -15,6 +18,7 @@ chains:
     label: 分析并发布到wiki
     icon: "🧬"
     scenario: 分析代码并把结果发到 wiki
+    project: required
     blocks:
       - type: command
         name: scan
@@ -32,6 +36,7 @@ chains:
     label: 改bugfix并出转测文档
     icon: "🔧"
     scenario: 改 bug 并出转测文档 + MR
+    project: required
     blocks:
       - type: workflow
         name: bugfix
@@ -39,4 +44,24 @@ chains:
           # hotfix 模式已自动绑定 codeup-submit-mr + hotfix-test-doc（见
           # config/workflows/bugfix-modes.yaml）
           mode: hotfix
+    builtin: true
+
+  - name: hotfix-doc-publish
+    label: bugfix转测并发布
+    icon: "🔧"
+    scenario: 修 bug 并出转测文档并发布到 wiki
+    project: required
+    blocks:
+      - type: workflow
+        name: bugfix
+        args:
+          mode: hotfix
+      - type: skill
+        name: hotfix-test-doc
+        args:
+          task: 编写发布转测文档
+      - type: skill
+        name: confluence-markdown-publisher
+        args:
+          task: 发布转测文档（含 MR/页面）到 Confluence wiki
     builtin: true

@@ -96,6 +96,32 @@ def run(wizard, agent=None):
 
         chain = chains[idx]
 
+    # 按链解析项目需求（required 才要求项目，none/optional 跳过 —— 不再一刀切）
+    project_req = chain_util.project_requirement(chain)
+
+    project = getattr(wizard, "project", None) or None
+
+    if project_req == "required" and not project:
+
+        project = ask_text(
+            "该链路需要项目上下文，请输入 Project ID / 仓库路径（Enter 跳过，由 AI 从仓库解析）: ",
+        )
+
+        if project is not None:
+            project = project.strip()
+
+    if project_req in ("required", "optional") and project:
+
+        print(
+            f"  · {e('📦 ')}project 上下文: {project}"
+        )
+
+    elif project_req == "none":
+
+        print(
+            f"  · {e('🧬 ')}该链路无需项目上下文（project=none）"
+        )
+
     # 建运行上下文 + 交接清单
     run_dir, manifest_path = chain_util.create_chain_run(
         root,
@@ -119,7 +145,17 @@ def run(wizard, agent=None):
 
         btype = b.get("type")
         bname = b.get("name")
-        bargs = b.get("args") or {}
+        bargs = {
+            **(b.get("args") or {})
+        }
+
+        # 项目上下文注入（仅被块声明的字段过滤后可见）
+        if project and btype in ("workflow", "command"):
+
+            for key in ("Project ID", "Project", "Projects", "Workspace"):
+
+                if key not in bargs:
+                    bargs[key] = project
 
         parts.append(f"===== 块 {i + 1}/{len(chain.get('blocks', []))} [{btype}] {bname} =====")
 

@@ -207,6 +207,9 @@ class WizardIntake:
             "工作流": "create-workflow",
             "命令": "create-command",
             "技能": "launch-skill",
+            "链路": "compose-chain",
+            "积木": "compose-chain",
+            "链合": "compose-chain",
             "排查": "issue-investigation",
             "问题": "issue-investigation",
             "超时": "issue-investigation",
@@ -295,6 +298,7 @@ class WizardIntake:
 
         for cmd, keywords in (
             ("maintain", ("巡检", "维护", "健康", "maintain")),
+            ("chain", ("链路", "积木", "搭积木", "链合", "chain", "组合")),
             ("scan", ("扫描", "检索", "查", "search", "scan")),
             ("extensions-init", ("扩展", "初始化", "init", "extensions")),
             ("skill-source", ("评估", "三方", "skill-source")),
