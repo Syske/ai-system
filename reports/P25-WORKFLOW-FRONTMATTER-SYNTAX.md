@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (资产语法/契约层) |
 | Author | AI Maintainer |
 | Created | 2026-08-20 |

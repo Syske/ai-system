@@ -28,7 +28,7 @@
 | Approved | WSL 环境集成与初始化能力 | 2026-08-14 | `P22-WSL-ENVIRONMENT-INTEGRATION.md` |
 | Implemented | 跨平台（Linux/WSL + Windows）混合维护治理约定 | 2026-08-14 | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` |
 | Implemented | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归） | 2026-08-17 | `P24-PROVIDER-CONTRACT-TEST-FIX.md` |
-| Proposed | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定（必填项结构化 + skill/workflow 同构） | 2026-08-20 | `P25-WORKFLOW-FRONTMATTER-SYNTAX.md` |
+| Implemented | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定（必填项结构化 + skill/workflow 同构） | 2026-08-20 | `P25-WORKFLOW-FRONTMATTER-SYNTAX.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
