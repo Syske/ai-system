@@ -61,11 +61,11 @@ workflow:                       # 机器契约（结构化）
 - [x] 试点：`workflows/bugfix.md` 加 frontmatter（等价断言通过）
 - [x] 铺开其余 14 个 workflow 加 frontmatter（15/15 全等价、无回归）
 - [x] 门禁兼容 frontmatter：RFC-0003 只计正文；八段仍在正文
-  - [ ] `workflow-scaffold.py` 生成 frontmatter（待）
+  - [x] `workflow-scaffold.py` 生成 frontmatter（name/description/workflow.inputs 占位/next）
 - [x] `prompt_builder` inputs 经 frontmatter 渲染（经 workflow_reader 透传，正文嵌入不变）
-- [ ] （item6 产物目录已在各 workflow/runtime Outputs 显式声明；frontmatter 结构化 `outputs` 字段待后续硬化）
-- [ ] **单一来源硬化（待办）**：frontmatter 为唯一权威，移除正文 `## Inputs`（或渲染生成）并加 frontmatter↔正文一致性 audit，消除双源漂移
-- [ ] 文档：`workflows/README.md`、AGENTS 说明统一资产语法；不新增 `config/workflows/*.yaml` 内容
+- [x] **单一来源硬化**：check.py 新增 `check_frontmatter_consistency`（frontmatter inputs == 正文 ## Inputs），防双源漂移
+- [x] 文档：`workflows/README.md` 注明 frontmatter 资产语法；不新增 `config/workflows/*.yaml` 内容
+- [ ] **可选残留（outputs 结构化字段）**：（item6 产物目录已在各 workflow/runtime Outputs 正文显式声明；是否进一步把 `outputs` 提为 frontmatter 结构化字段，后续评估）
 
 ## 6. Validation Plan
 
