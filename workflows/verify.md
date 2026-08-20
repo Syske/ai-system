@@ -36,6 +36,7 @@ Never load the entire repository tree into context.
 - contract-verification.md
 - scenario-verification.md
 - test-verification.md
+- **Location**: → `workspaces/<project-id>/` (workspace-anchored)
 
 ## Exit Criteria
 

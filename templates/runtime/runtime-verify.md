@@ -240,6 +240,7 @@ Generate:
 - contract-verification.md
 - scenario-verification.md
 - test-verification.md
+- **Location**: → `workspaces/<project-id>/` (workspace-anchored)
 
 # Reflection
 

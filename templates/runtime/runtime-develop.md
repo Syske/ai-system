@@ -170,6 +170,8 @@ Generate:
 - Updated Task Card (Completion Definition + Code Quality Checks + Acceptance Criteria all [x])
 - Updated Workspace Context
 - Completion Report
+- **Location**: code → `projects/<service-id>/`; Completion Report + Test results + updated
+  Workspace Context → `workspaces/<project-id>/`; Task Card → `workspaces/<project-id>/openspec/tasks/`
 
 ## Phase 4 — Completion
 

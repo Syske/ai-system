@@ -362,6 +362,7 @@ Generate:
 - Project Knowledge Context
 - Workspace Context
 - Workspace State
+- **Location**: → `workspaces/<project-id>/` (workspace context/state); applied standards per `loaders/standards-loader.md`
 
 # Reflection
 

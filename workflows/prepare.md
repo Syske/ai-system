@@ -48,6 +48,8 @@ Never load the entire repository tree into context.
 - Impact Report
 - Risk Report
 - Preparation Report
+- **Location**: Preparation Report → `workspaces/<change-id>/openspec/changes/<change-id>/proposal.md`;
+  sub-reports → `outputs/prepare/{yyMMdd}-{desc}/`; captured/temp sources → `workspaces/<change-id>/temp/`
 
 ## Exit Criteria
 

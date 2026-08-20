@@ -419,6 +419,7 @@ Typical artifacts may include:
 - Scenarios
 - Global Plan
 - Task Cards
+- **Location**: → `workspaces/<project-id>/openspec/{changes,specs,tasks}/` (workspace-anchored)
 
 The exact artifact structure is determined by the active Specification Framework.
 

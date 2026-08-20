@@ -43,6 +43,7 @@ Never load the entire repository tree into context.
 - Scenarios
 - Global Plan
 - Task Cards
+- **Location**: → `workspaces/<project-id>/openspec/{changes,specs,tasks}/`
 
 ## Exit Criteria
 

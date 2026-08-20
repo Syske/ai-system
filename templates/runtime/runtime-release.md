@@ -599,6 +599,7 @@ Generate:
 - configuration-canal.md            # Canal/binlog config changes for new/renamed fields
 - dependency-checklist.md           # Service dependencies, RPC, MQ, deploy order
 - risk-report.md                    # Risk registry with severity and mitigation
+- **Location**: → `workspaces/<project-id>/` (workspace-anchored; sql/ + checklists + reports co-located)
 
 # Reflection
 
