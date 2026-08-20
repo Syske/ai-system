@@ -219,6 +219,7 @@ hotfix-test-doc`=改 bug 并出转测文档）。经讨论确认 3 点后实现*
    - **真实实证**：`ai-system/logs/prepare-20260820-163844.md`（prepare 完整运行，17:05 更新）暴露 P1/P2——① run 误把 Preparation Report 投到 `outputs/proposal/202610-…/`（沿既有惯例），被纠正归入 `workspaces/…/openspec/changes/…/proposal.md`；根因：`runtime-prepare.md` Outputs 只列产物名、未绑定目标路径，与 AGENTS.md「主链产物→workspaces/openspec」脱节；② `outputs/proposal/` 下 4 个既有 proposal 用 `solution.md` 与 AGENTS.md 相悖，形成事实漂移、无 gating。该 run 还确立「项目临时产物→`workspaces/<id>/temp/`、跨项目→工作区根 `temp/`」约定，建议随 item6 一并固化（写入 AGENTS.md Workspace Conventions + runtime-prepare）。
    - **G 系列补强（日志更新后）**：G1【高】prepare Exit Criteria 升为「可交付清单+路径+clarification 登记」而非布尔（含产出落盘路径——直接支撑产物目录显式化）；G3【中】spec 运行时做 pre-flight 存在性校验（`workspaces/<change-id>/openspec/changes/<change-id>/proposal.md` 存在），防 P1/P2 落位漂移导致 spec 找错文件。G1/G3 与 item6 目标一致，可并入同一批次。
 7. **wayfinder 临时引入开发主链（trial，评估后增量吸纳）**：把 wayfinder 作为**临时外部能力**接入 prepare/spec/develop 阶段（prepare 主：检测「大块模糊构想」时前置生成决策图 `.wayfinder/`；spec/develop 可选），全部可选、默认关。评估：记录 ≥1 次真实案例（产物=决策图/决策工单 + 被 spec/develop 消费）验证 M2；有效 → 直接吸收（绑定 prepare/spec 阶段）或派生扩展（并入 prepare/task-splitter）；无效 → 移除临时登记。治理：临时接入点标注、最小化可回退、独立提交、default 不改变主链行为。联动 item5（外部 skill 注册）+ item6/P25（产物目录/结构化）。
+   - **[已接线] 2026-08-20**：经 item5 机制在 `config/main-chain-capabilities.yaml` 注册为 **TRIAL** 外部能力（prepare/spec/develop，desc 含触发条件与「非此场景勿用」）；`core_skills` 已有 wayfinder 临时登记（可达）。待 ≥1 次真实「大块模糊构想」案例评估 M2 后定去留。
 
 **明确不做**（架构红线）：workflows/*.md → *.yaml 全替换；把 workflow 定义回胀进 `config/workflows/*.yaml`（AI_DEVELOPMENT_CONTRACT §2 Registry-only + A1）。
 

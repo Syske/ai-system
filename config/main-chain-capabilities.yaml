@@ -1,14 +1,18 @@
 version: 1
 
-# 开发主链各阶段可用的可选外部技能（来自 extensions/）。
+# 开发主链各阶段可用的可选外部技能。
 #
 # - 默认全空（无外部能力）；追加条目即可扩展，置空即关闭。
-# - 每条：skill 名 / path（extensions 相对路径）/ desc（提示语，供 runtime 知晓何时用）/
-#   enabled（默认 true）。
+# - 每条：skill 名 / path / desc（提示语，供 runtime 知晓何时用）/ enabled（默认 true）。
 # - prompt_builder 在构建主链工作流 prompt 时，把该阶段已启用的外部能力作为「可选外部能力」
 #   附注注入，运行时/agent 按需加载（如 prepare 用 confluence-markdown-publisher 摄取内网 wiki 需求）。
 # - 与 config/chains.yaml（积木链路）、config/skill-groups.yaml core_skills 互补：本注册表
 #   面向「开发主链各阶段」的可选能力，链与分组面向任意任务组合/技能启动。
+#
+# > TRIAL(临时)：wayfinder 为主链 prepare/spec/develop 的**临时外部能力**（item7），便于评估
+# > 其决策图方法论。触发条件：检测到「大块模糊构想 / 迷雾 / 路线未知 / 远超单会话」时才前置
+# > 生成 .wayfinder/ 决策图；非此场景勿用，不改变常规主链行为。评估后定去留
+# > （直接吸收 / 派生扩展 / 移除），对应 core_skills 里 wayfinder 的临时登记。
 
 capabilities:
   prepare:
@@ -16,9 +20,21 @@ capabilities:
       path: extensions/confluence-markdown-publisher
       desc: 获取内网 wiki 需求文档内容（如 pageId 页面、tr3/tr4 产品/架构设计）
       enabled: true
-  spec: []
+    - skill: wayfinder
+      path: skills/wayfinder
+      desc: "[TRIAL] 大块模糊构想/迷雾 → 生成 .wayfinder/ 决策图再进 spec；非此场景勿用"
+      enabled: true
+  spec:
+    - skill: wayfinder
+      path: skills/wayfinder
+      desc: "[TRIAL] 需求仍模糊时，用决策工单澄清设计路线；可选"
+      enabled: true
   dev-setup: []
-  develop: []
+  develop:
+    - skill: wayfinder
+      path: skills/wayfinder
+      desc: "[TRIAL] 大改动前用 .wayfinder/ 决策图对齐边界；可选"
+      enabled: true
   review: []
   verify: []
   release: []
