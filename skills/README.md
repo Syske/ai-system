@@ -39,6 +39,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | index-project | Rebuild code semantic index | Manual |
 | open-cli | Web API → CLI adapter generation | Manual |
 | wayfinder | 大块模糊构想 → 决策图（规划，非执行） | Manual |
+| deepseek-share-to-md | DeepSeek 分享会话 → Markdown（stdout 供 AI 读取 / 导出为文件+附件内嵌） | Manual |
 | idea-build | Optional IDEA MCP compile backend (`build.backend=idea`) | Config-driven (bugfix), manual |
 | handoff | Session handoff summary (compaction / task switch / cross-tool), per CONTEXT_RETENTION Keep/Drop | Manual (before /compact or new session) |
 | explore | OpenSpec-aware exploration support (loaded by aic-explore) | Command-loaded (aic-explore) |
