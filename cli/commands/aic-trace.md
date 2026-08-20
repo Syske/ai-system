@@ -25,7 +25,12 @@ Compare the code differences between the current feature branch and the baseline
    - Current branch equals baseline → report "no branch diff" and stop
 
 3. **Trace each changed file**
-   - Git clues: branch name `task/{T-xxx}`, T-xxx in commit messages → Task ID
+   - Git clues: parse the branch name with the main-chain branch parser
+     (`cli/services/branch_parser.py`, contract `parse(name) ->
+     ParsedBranch{date,type,desc,service}`) to get date/desc/service
+     (e.g. `cc20260820_ipd_italent-sync-plus_user-center-api`); Task ID (T-xxx)
+     still comes from commit messages and the Task Card `branch`/desc matching.
+     Bugfix/hotfix branches use their own parser (extensions hotfix-branch-parser).
    - Artifact search: grep task cards (tasks/cards/*.md), per-service splits ({service}-tasks.md), spec scenarios (specs/*/spec.md), contracts (contracts/interop_contract.yml)
 
 4. **Trace Report (reconciliation matrix)**

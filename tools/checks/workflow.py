@@ -270,6 +270,32 @@ def check_workflow_size(c):
             )
 
 
+def check_branch_parser(c):
+    """主链分支解析器契约自检（B3 简单 CI 强制，后续可增强为 git 分支保护）。
+
+    Contract: parse(cc{date}_ipd_{desc}_{service}) -> ParsedBranch；
+    坏输入必须返回 None（never raise）。
+    """
+
+    from cli.services.branch_parser import parse
+
+    sample = "cc20260820_ipd_italent-sync-plus_user-center-api"
+
+    p = parse(sample)
+
+    if (
+        p is None
+        or p.date != "20260820"
+        or p.type != "ipd"
+        or p.desc != "italent-sync-plus"
+        or p.service != "user-center-api"
+    ):
+        c.error("main-chain branch_parser: 样例解析不符契约")
+
+    if parse("definitely-not-a-branch") is not None:
+        c.error("main-chain branch_parser: 非法分支名未被拒绝")
+
+
 def check_frontmatter_consistency(c):
     """单一来源硬化：frontmatter 契约须与正文一致。
 

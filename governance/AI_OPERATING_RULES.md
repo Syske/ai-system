@@ -238,6 +238,24 @@ Urgent new requests during an active task are L3 by default.
 
 One task, one branch: task/{task-id} or bugfix/{issue-id}.
 
+**Branch naming & immutability (开发主链, 格式暂定 cc{date}_ipd_{desc}_{service})**:
+- The branch naming RULE lives in the Task Card `branch` field (template with
+  `{date}` / `{desc}` / `{service}` placeholders; default
+  `cc{date}_ipd_{desc}_{service}`, e.g. `cc20260820_ipd_italent-sync-plus_user-center-api`);
+  the common/static part is fixed at requirement-confirmation time and must NOT
+  change afterwards. The rule itself may be specified/adjusted by the user then.
+- Each service gets its own branch (independent per service; `{service}` in the
+  name); apart from the branch name everything else is identical.
+- Dev-setup validates against the workspace project config
+  (`project-context.yaml branches`); when a branch is empty it is created via the
+  branch rule and backfilled.
+- A created/confirmed branch is **immutable**: do NOT rename it or change
+  `project-context.branches` afterwards. The only exception is a newly added
+  project, which requires explicit authorization (L3).
+- Branch rule selection depends on the chain/flow: main chain uses the Task Card
+  `branch` template (`cc{date}_ipd_{desc}_{service}`); bugfix hotfix uses its own
+  `cc{date}_{type}{desc}_{service}` template + parser.
+
 Experimental code never enters the task branch.
 Use a separate branch or stash. Discard or promote explicitly.
 

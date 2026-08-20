@@ -32,7 +32,8 @@
 | [P21](P21-HOTFIX-TEST-DOC-RENDER-FIX.md) | hotfix-test-doc 模板标题渲染缺陷修复与回填工具 | 2026-08-12 |
 | [P22](P22-WSL-ENVIRONMENT-INTEGRATION.md) | WSL 环境集成与初始化能力 | 2026-08-14 |
 | [P24](P24-PROVIDER-CONTRACT-TEST-FIX.md) | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归，已实施 exit 0） | 2026-08-17 |
-| [P25](P25-WORKFLOW-FRONTMATTER-SYNTAX.md) | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定（Proposed） | 2026-08-20 |
+| [P25](P25-WORKFLOW-FRONTMATTER-SYNTAX.md) | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定（Implemented） | 2026-08-20 |
+| [P26](P26-MAIN-CHAIN-BRANCH-RULE.md) | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service} 暂定）+ 不可变（Proposed） | 2026-08-20 |
 
 ---
 

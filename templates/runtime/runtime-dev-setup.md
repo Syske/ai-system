@@ -264,19 +264,35 @@ For available services:
 
 - git branch --show-current
 - Verify branch matches project-context branches
-- Validate branch naming against conventions
+- Validate branch naming against the Task Card `branch` rule (parse via the
+  main-chain branch parser; see below)
 - git status
 
-## Branch Naming Convention
+## Branch Naming & Immutability (开发主链, 格式暂定 cc{date}_ipd_{desc}_{service})
 
-Verify each active branch name satisfies:
+- The branch naming RULE comes from the Task Card `branch` field (template with
+  `{date}` / `{desc}` / `{service}` placeholders; default
+  `cc{date}_ipd_{desc}_{service}`), fixed at requirement-confirmation time. The
+  rule may be user-specified/adjusted then; a created branch name must NOT change
+  afterwards.
+- Each service gets an independent branch (`{service}` in the name); apart from
+  the branch name everything else is identical.
+- **Validate**: parse the active branch via the main-chain branch parser
+  (`cli/services/branch_parser.py`, or a provider resolved from
+  `branch.parser` logic name → `extensions/<name>/scripts/branch_parser.py`,
+  mirroring the bugfix contract): `parse(name)` must not return None and must
+  carry the expected date/desc/service. Unparseable → report and stop.
+- **Create & backfill**: if `project-context.yaml branches` is empty for a
+  service, create the branch name from the Task Card `branch` template
+  (`render(template, date, desc, service)`) and backfill it into
+  `project-context.yaml branches`.
+- **Freeze (immutable)**: after create/confirm, the branch name and
+  `project-context.branches` are frozen. If a previously confirmed branch is
+  detected as changed (rename / rebase away / config edit), **STOP** and report;
+  the only allowed change is a newly added project with explicit authorization.
 
-- **Type prefix**: One of `feat/`, `fix/`, `bugfix/`, `hotfix/`, `release/`, `refactor/`, `perf/`, `docs/`, `test/`, `chore/`, `ci/`, `revert/`
-- **Lowercase with hyphens**: All lowercase, words separated by `-` (no underscores or CamelCase)
-- **Descriptive**: Can infer purpose from name alone
-
-Non-conforming branches are flagged with a warning.
-The warning does NOT block setup but is reported for the user to decide.
+Non-conforming branches are flagged and block setup per the rule above
+(no silent accept of arbitrary branch names).
 
 Generate:
 
