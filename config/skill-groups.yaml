@@ -1,6 +1,12 @@
 version: 1
 locale: zh
 
+# ai-system/skills 中需在 aic-skill 菜单暴露的 on-demand 技能（core 源）。
+# launcher 默认只扫 extensions/global/local；此处显式登记 core 技能供菜单可达。
+# 已登记的技能须在 ai-system/skills/<name>/ 下有 skill.md 或 SKILL.md。
+core_skills:
+  - deepseek-share-to-md
+
 # skill 分组/组合配置（配置驱动，模式对齐 config/menu.yaml）。
 # - 本文件只存结构 + key；用户可见分组标题在 config/i18n/{locale}.yaml 的
 #   skill_groups.*。
@@ -27,6 +33,9 @@ groups:
     skills:
       - codeup-submit-mr
       - hotfix-test-doc
+  - title: skill_group_core
+    type: source
+    value: core
   - title: skill_group_company
     type: source
     value: extensions

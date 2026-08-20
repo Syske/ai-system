@@ -136,6 +136,44 @@ def _skills_in(root):
         yield meta["name"], meta, str(skill_md)
 
 
+def _core_skills(root):
+    """Yield core on-demand skills registered in config/skill-groups.yaml
+    `core_skills` (ai-system/skills/<name>/skill.md|SKILL.md).
+
+    Yields (name, meta, path) consistent with `_skills_in`.
+    """
+
+    try:
+
+        from cli.utils.yaml import load_yaml
+
+        cfg = load_yaml(
+            Path(root) / "config" / "skill-groups.yaml"
+        ) or {}
+
+    except Exception:
+
+        return
+
+    names = cfg.get("core_skills") or []
+
+    skills_root = Path(root) / "skills"
+
+    for name in names:
+
+        for md_name in ("skill.md", "SKILL.md"):
+
+            p = skills_root / str(name) / md_name
+
+            if p.exists():
+
+                meta = _read_frontmatter(p)
+
+                yield meta.get("name") or str(name), meta, str(p)
+
+                break
+
+
 def _git_root(start):
     """Return the git worktree root for CWD (or None)."""
 
@@ -198,6 +236,12 @@ def scan(root, environment=None, include_local=True):
 
     for name, meta, path in _skills_in(skills_root):
         add(meta, path, "extensions")
+
+    # core: ai-system/skills 中登记给 launcher 的 on-demand 技能
+    #（config/skill-groups.yaml `core_skills`）。core 技能不被 agent 自动扫描；
+    # 在此登记后可从 aic-skill 菜单列出，与 extensions/global/local 并列。
+    for name, meta, path in _core_skills(root):
+        add(meta, path, "core")
 
     home = Path.home()
 

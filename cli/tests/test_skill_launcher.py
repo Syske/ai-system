@@ -30,6 +30,7 @@ class TestSourceMark(unittest.TestCase):
         self.assertIn("ext", sl._source_mark("extensions"))
         self.assertIn("g", sl._source_mark("global"))
         self.assertIn("proj", sl._source_mark("local"))
+        self.assertIn("core", sl._source_mark("core"))
 
     def test_unknown_source_passthrough(self):
         self.assertEqual(sl._source_mark("custom"), "custom")
@@ -86,6 +87,26 @@ class TestGroupSkills(unittest.TestCase):
         # every skill appears exactly once in by_index
         names = {by_index[i]["name"] for i in by_index}
         self.assertEqual(names, {"a", "b", "c"})
+
+    def test_groups_by_config_includes_core_source(self):
+        skills = [
+            {"name": "ds", "source": "core", "description": "DeepSeek md"},
+        ]
+
+        class FakeConfig:
+            def skill_groups(self):
+                return [
+                    {"type": "source", "value": "core", "title": "core"},
+                ]
+
+            def skill_group_title(self, key):
+                return key
+
+        options, by_index = sl._group_skills(FakeConfig(), skills)
+
+        self.assertTrue(by_index)
+        names = {by_index[i]["name"] for i in by_index}
+        self.assertEqual(names, {"ds"})
 
 
 class TestRenderPrompt(unittest.TestCase):

@@ -31,6 +31,7 @@ def _source_mark(source):
         "extensions": f"{e('🧩 ')}ext",
         "global": f"{e('🌍 ')}g",
         "local": f"{e('📁 ')}proj",
+        "core": f"{e('🧬 ')}core",
     }
 
     return marks.get(source, source)
