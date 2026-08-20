@@ -1,3 +1,15 @@
+---
+name: spec
+description: Create specification artifacts.
+workflow:
+  inputs:
+    required: [Change ID]
+    optional:
+      - name: Requirement Documents
+      - name: Existing Design
+      - name: Mode
+  next: [dev-setup]
+---
 # Workflow: Spec
 
 ## Purpose

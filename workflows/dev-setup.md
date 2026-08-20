@@ -1,3 +1,11 @@
+---
+name: dev-setup
+description: Bind a project and prepare the workspace.
+workflow:
+  inputs:
+    required: [Workspace ID, Project ID, Task ID]
+  next: [develop]
+---
 # Workflow: Dev Setup
 
 ## Purpose

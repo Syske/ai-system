@@ -1,3 +1,17 @@
+---
+name: prepare
+description: Prepare context for a new change.
+workflow:
+  inputs:
+    required: [Change ID, Change Request]
+    optional:
+      - name: Requirement Documents
+      - name: Existing Design
+      - name: Related Issues
+      - name: Existing Specifications
+      - name: Mode
+  next: [spec]
+---
 # Workflow: Prepare
 
 ## Purpose

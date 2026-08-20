@@ -1,3 +1,13 @@
+---
+name: release
+description: Prepare release readiness.
+workflow:
+  inputs:
+    required: [Workspace ID, Release Version]
+    optional:
+      - name: Environment
+  next: [deployment, develop]
+---
 # Workflow: Release
 
 ## Purpose

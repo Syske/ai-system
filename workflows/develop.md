@@ -1,3 +1,13 @@
+---
+name: develop
+description: Implement one task.
+workflow:
+  inputs:
+    required: [Project ID, Task ID]
+    optional:
+      - name: Related Issue
+  next: [review]
+---
 # Workflow: Develop
 
 ## Purpose

@@ -1,3 +1,11 @@
+---
+name: verify
+description: Verify against specification and contract.
+workflow:
+  inputs:
+    required: [Project ID, Task ID, Specification Reference]
+  next: [release, develop]
+---
 # Workflow: Verify
 
 ## Purpose
