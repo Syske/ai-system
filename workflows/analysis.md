@@ -1,3 +1,14 @@
+---
+name: analysis
+description: Analyze AI System health.
+workflow:
+  inputs:
+    required: [Analysis Target]
+    optional:
+      - name: Analysis Scope
+      - name: Existing Reports
+  next: [knowledge, prepare]
+---
 # Workflow: Analysis
 
 ## Purpose

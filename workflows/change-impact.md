@@ -1,3 +1,17 @@
+---
+name: change-impact
+description: Analyze impact, risks, and modification plan for a code target.
+workflow:
+  inputs:
+    required: [Projects, Code Reference]
+    optional:
+      - name: Branch Mapping
+      - name: Base Branch
+        default: master
+      - name: Change ID
+      - name: Output Directory
+  next: [prepare, develop, None]
+---
 # Workflow: Change Impact
 
 ## Purpose

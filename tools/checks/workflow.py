@@ -245,7 +245,11 @@ def check_next_sections(c, workflows):
 
 
 def check_workflow_size(c):
-    """RFC-0003 gate: workflow definition files must be <= 100 lines."""
+    """RFC-0003 gate: workflow definition files must be <= 100 body lines.
+
+    YAML frontmatter (the machine contract) is not counted — only the
+    executable/readable Markdown body (P25: contract moved to frontmatter).
+    """
 
     wf_dir = ROOT / "workflows"
     if not wf_dir.exists():
@@ -254,9 +258,13 @@ def check_workflow_size(c):
     for p in sorted(wf_dir.glob("*.md")):
         if p.name == "README.md":
             continue
-        n = len(p.read_text(encoding="utf-8", errors="replace").splitlines())
+        text = p.read_text(encoding="utf-8", errors="replace")
+        fm = re.match(r"\A---[ \t]*\n.*?\n---[ \t]*\n", text, re.DOTALL)
+        if fm:
+            text = text[fm.end():]
+        n = len(text.splitlines())
         if n > 100:
             c.error(
                 f"workflows/{p.name} exceeds RFC-0003 limit: "
-                f"{n} lines (max 100)"
+                f"{n} body lines (max 100)"
             )

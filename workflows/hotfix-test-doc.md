@@ -1,3 +1,15 @@
+---
+name: hotfix-test-doc
+description: Generate a HotFix test document (转测文档).
+workflow:
+  inputs:
+    required: [Branch Name]
+    optional:
+      - name: Project ID
+      - name: Document Title
+      - name: 发布内容
+  next: [None]
+---
 # Workflow: HotFix Test Doc
 
 ## Purpose

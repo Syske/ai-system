@@ -96,10 +96,19 @@ def registered_workflows(root):
 
 def audit_workflow(p, workflows, results):
     text = p.read_text(encoding="utf-8", errors="replace")
-    lines = text.splitlines()
+
+    # RFC-0003 thin gate 只对可执行正文计数；前导 YAML frontmatter 属机器契约，不计入。
+    body = text
+
+    fm = re.match(r"\A---[ \t]*\n.*?\n---[ \t]*\n", body, re.DOTALL)
+
+    if fm:
+        body = body[fm.end():]
+
+    lines = body.splitlines()
     n = len(lines)
     if n > 100:
-        results["warnings"].append(f"{p.name}: {n} lines (>100, RFC-0003)")
+        results["warnings"].append(f"{p.name}: {n} body lines (>100, RFC-0003)")
 
     # 必备章节检查
     for sec in WORKFLOW_SECTIONS:

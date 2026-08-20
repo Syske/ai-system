@@ -1,3 +1,16 @@
+---
+name: proposal
+description: Discuss an optimization and produce a solution document.
+workflow:
+  inputs:
+    required: [Topic]
+    optional:
+      - name: Projects
+      - name: Branch Mapping
+      - name: Related Materials
+      - name: Output Directory
+  next: [None]
+---
 # Workflow: Proposal
 
 ## Purpose

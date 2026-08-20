@@ -1,3 +1,14 @@
+---
+name: bootstrap
+description: Initialize environment.
+workflow:
+  inputs:
+    required: []
+    optional:
+      - name: Environment
+        default: local
+  next: [prepare]
+---
 # Workflow: Bootstrap
 
 ## Purpose

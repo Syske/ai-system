@@ -1,3 +1,14 @@
+---
+name: knowledge
+description: Manage knowledge assets.
+workflow:
+  inputs:
+    required: [Knowledge Operation]
+    optional:
+      - name: Knowledge Scope
+      - name: Source
+  next: [None]
+---
 # Workflow: Knowledge
 
 ## Purpose

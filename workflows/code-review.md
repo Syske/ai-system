@@ -1,3 +1,19 @@
+---
+name: code-review
+description: Review arbitrary code and produce a review result.
+workflow:
+  inputs:
+    required: [Projects]
+    optional:
+      - name: Target Theme
+      - name: Branch Mapping
+      - name: Base Branch
+        default: master
+      - name: Review Focus
+      - name: Output Directory
+      - name: Confluence Spec Page Id
+  next: [None]
+---
 # Workflow: Code Review
 
 ## Purpose
