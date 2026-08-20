@@ -203,3 +203,37 @@ hotfix-test-doc`=改 bug 并出转测文档）。经讨论确认 3 点后实现*
 - **入口**：新增轻量命令 `aic-chain`（`cli/services/chain.py` 注册表/上下文 + `chain_launcher.py` 选/描述→建上下文→组装各块 prompt）复用 skill-launch 模板。
 - 配套：`cli/commands/aic-chain.md`、menu.yaml 注册（commands_analysis）、`_INTERACTIVE_COMMANDS` 接入、`cli/tests/test_chain.py`（8 用例）。
 - 验证：check.py PASS 0（15 workflows / 14 commands）/ repo-lint 25 WARN 无新增 / workflow-audit 0 / path-audit 0 / **CLI 96 测试全过**（含 chain）。
+
+---
+
+## 十、待办（18:00 后批次，分批执行）
+
+> 经用户讨论确认的方向，待 18:00 后执行；多为结构性变更，按变更管理/试点推进。
+
+1. **P25 试点 → 铺开**（提案已建 `reports/P25-WORKFLOW-FRONTMATTER-SYNTAX.md`，Status: Proposed）：统一 workflow 资产语法为 SKILL.md frontmatter 约定（必填项结构化 + skill/workflow 同构）。流程 = 评审批准 → 试点 bugfix.md → 铺开其余 14 + 泛化共享解析器 + audit/scaffold/prompt 对齐。
+2. **chain：hotfix-test-doc 显式 skill 块组合**：在 `config/chains.yaml` 的 `bugfix-release-doc` 之外，新增含 `{type: skill, name: hotfix-test-doc}` 的显式块链路（如「bugfix 转测：bugfix(hotfix) → hotfix-test-doc →（可选）codeup/confluence 发布」），让该技能作为独立积木可复用。
+3. **chain：按链项目/必填参数解析**：`chains.yaml` 每链声明 `project: required|optional|none`（或按块类型推断）；`chain` 入口按配置解析——仅 `required` 且当前无项目时才要求选项目，`none/optional` 跳过，不再一刀切强制。
+4. **compose-chain 自由文本命中修复**：`intents.yaml` 的 `_match_intent_label` kw_map 补 `链路`/`积木` 等，让「搭积木/链路组合」一句话直达。
+5. **开发主链入口：外部 skill 注册能力**：开发主链（prepare→spec→dev-setup→develop→review→verify→release）增加从 `extensions/`（`D:\workspace\ai-workspace\extensions`）**按配置注册可选外部技能**的能力，可配置、按需扩展、**允许为空（默认无外部能力）**。例：`extensions/confluence-markdown-publisher`（获取 wiki 内容）。后续可按需扩充其它扩展。
+6. **产物目录显式化（并入 P25）**：开发主链各工作流 Outputs 目前只列产物名、未声明目录（仅 bugfix 写了 `outputs/bugfix/{yyMMdd}-{desc}/`）。统一并显式声明：生成报告 → `outputs/<workflow>/{yyMMdd}-{desc}/`；OpenSpec 工件 → `workspaces/<project_id>/openspec/{changes,specs}/`（保持）。在 P25 frontmatter 增结构化 `outputs`（基路径约定），使其可被 chain-manifest 登记与外部 skill（item5）读写解析（呼应 P6 归档约定）。
+   - **真实实证**：`ai-system/logs/prepare-20260820-163844.md`（prepare 完整运行，17:05 更新）暴露 P1/P2——① run 误把 Preparation Report 投到 `outputs/proposal/202610-…/`（沿既有惯例），被纠正归入 `workspaces/…/openspec/changes/…/proposal.md`；根因：`runtime-prepare.md` Outputs 只列产物名、未绑定目标路径，与 AGENTS.md「主链产物→workspaces/openspec」脱节；② `outputs/proposal/` 下 4 个既有 proposal 用 `solution.md` 与 AGENTS.md 相悖，形成事实漂移、无 gating。该 run 还确立「项目临时产物→`workspaces/<id>/temp/`、跨项目→工作区根 `temp/`」约定，建议随 item6 一并固化（写入 AGENTS.md Workspace Conventions + runtime-prepare）。
+   - **G 系列补强（日志更新后）**：G1【高】prepare Exit Criteria 升为「可交付清单+路径+clarification 登记」而非布尔（含产出落盘路径——直接支撑产物目录显式化）；G3【中】spec 运行时做 pre-flight 存在性校验（`workspaces/<change-id>/openspec/changes/<change-id>/proposal.md` 存在），防 P1/P2 落位漂移导致 spec 找错文件。G1/G3 与 item6 目标一致，可并入同一批次。
+7. **wayfinder 临时引入开发主链（trial，评估后增量吸纳）**：把 wayfinder 作为**临时外部能力**接入 prepare/spec/develop 阶段（prepare 主：检测「大块模糊构想」时前置生成决策图 `.wayfinder/`；spec/develop 可选），全部可选、默认关。评估：记录 ≥1 次真实案例（产物=决策图/决策工单 + 被 spec/develop 消费）验证 M2；有效 → 直接吸收（绑定 prepare/spec 阶段）或派生扩展（并入 prepare/task-splitter）；无效 → 移除临时登记。治理：临时接入点标注、最小化可回退、独立提交、default 不改变主链行为。联动 item5（外部 skill 注册）+ item6/P25（产物目录/结构化）。
+
+**明确不做**（架构红线）：workflows/*.md → *.yaml 全替换；把 workflow 定义回胀进 `config/workflows/*.yaml`（AI_DEVELOPMENT_CONTRACT §2 Registry-only + A1）。
+
+---
+
+## 十一、prepare→spec 转换判定发现（G1–G5，由 prepare-20260820-163844 更新日志路由）
+
+> 日志更新（17:05）新增「prepare→spec 转换判定：系统现状 + 反馈建议」。按 Evolution 原则仅记录，作为后续 MAINTENANCE/QUARTERLY-REVIEW 的候选提案输入。来源：`logs/prepare-20260820-163844.md`。
+
+| # | 级别 | 发现 | 目标层 |
+|---|------|------|--------|
+| G1 | 高 | prepare Exit Criteria 为单布尔（Ready），应升为「可交付清单 + 落盘路径 + clarification 登记（resolved/deferred-to-spec/block）」 | workflows/prepare.md + runtime-prepare Phase 7 |
+| G2 | 高 | Phase 1 Discovery Gate 未区分「discovery-resolvable」与「external-confirmation-required」两类歧义；后者应显式 deferred-to-spec 登记放行，spec gate 复核 | governance / runtime-prepare Phase 1 |
+| G3 | 中 | spec 运行时缺 pre-flight 存在性校验（proposal.md 路径），结合 P1/P2 落位漂移易找错文件 | runtime-spec.md |
+| G4 | 中 | Phase 7 五项 ✓ 为布尔易自评通过，应附证据指针（✓→报告具体段落） | runtime-prepare Phase 7 |
+| G5 | 低 | 「gates」命名歧义：quality-gates.md 是资产 lint 门，非运行时 readiness gate；顶部注明或更名 | governance/policies/quality-gates.md |
+
+**关联**：G1/G3 并入 item6（产物目录显式化）批次；G2 属主链 gate 治理，G4/G5 低优先可顺带。均在 18:00 批次外另行评估路由。
