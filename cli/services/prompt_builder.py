@@ -105,7 +105,7 @@ class PromptBuilder:
             self.template
         )
 
-        return self._render(
+        prompt = self._render(
             template,
             {
                 "workflow_name":
@@ -121,6 +121,52 @@ class PromptBuilder:
                     self._inputs(context, declared)
             }
         )
+
+        return self._append_main_chain_caps(
+            prompt,
+            workflow_name
+        )
+
+    def _append_main_chain_caps(
+        self,
+        prompt: str,
+        workflow_name: str
+    ) -> str:
+        """Append registered optional external skills for a main-chain stage.
+
+        Only stages with enabled entries get an attached note; default is no
+        change (config/main-chain-capabilities.yaml is empty by default).
+        """
+
+        from cli.services import main_chain_caps
+
+        caps = main_chain_caps.external_capabilities(
+            self.root,
+            workflow_name
+        )
+
+        if not caps:
+
+            return prompt
+
+        lines = [
+            "",
+            "## Optional External Capabilities",
+            "You may use these registered external skills (extensions/) on "
+            "demand for this stage:",
+            "",
+        ]
+
+        for c in caps:
+
+            desc = c.get("desc") or ""
+            path = c.get("path") or ""
+
+            lines.append(
+                f"- {c.get('skill', '')} ({path}) — {desc}"
+            )
+
+        return prompt + "\n" + "\n".join(lines) + "\n"
 
     def _build_command(
         self,
