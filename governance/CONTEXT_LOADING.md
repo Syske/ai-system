@@ -105,6 +105,30 @@ Do not reload the same context unless it has changed.
 
 ---
 
+## Problem Input Delivery Path (External Inputs)
+
+To keep problem inputs locatable and verifiable (esp. for bugfix / change-impact), use
+a **standard delivery path** instead of letting inputs arrive via scattered external
+channels:
+
+1. **Logs / captures land in a convention-able place.** A live/pod capture or watchdog
+   log should be saved under a known directory with a predictable name (see OPERATIONS
+   diagnostic naming convention), not an ad-hoc Downloads path — so the AI can locate
+   it without guessing.
+2. **URLs enter the message flow as plain text.** A share link / external page URL must
+   appear verbatim in the conversation (not only in a paste or external context), so it
+   is reproducible and traceable.
+3. **External share links favour a controlled reader.** For DeepSeek share links use
+   `skills/deepseek-share-to-md` to pull the exact text; fetch from the share API rather
+   than scraping JS-rendered pages (avoids WAF/rate-limiting and rendering gaps).
+4. **External AI conclusions go through verification** — see
+   `templates/prompts/external-ai-review.md` + `SOURCE_OF_TRUTH.md` Rule 0.
+
+If an input can only arrive through an unstable/non-reproducible channel, say so and
+ask the user to provide it via the standard path before proceeding.
+
+---
+
 ## Context Budget Discipline
 
 Context is a finite budget. Long sessions, verbose tool output, and MCP tool

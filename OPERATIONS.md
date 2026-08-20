@@ -248,6 +248,23 @@ Used for:
   记录在各次维护报告（reports/MAINTENANCE-*/CACHE-OPTIMIZATION-*）与
   `reports/` 索引中，按需查阅。
 
+### 1.8.2 现场诊断数据命名与归档（Diagnostic Data Naming & Archive）
+
+Live diagnostic captures (watchdog / capture / JMX dumps) must carry a service identity
+and follow a traceable, convention-able name so multi-service environments do not mix
+files and cross-person trace-back is possible:
+
+- **Name**: embed `{service}-{pod}-{timestamp}` in the filename / header (e.g.
+  `openapi-gateway-pod-a-20260820T1130.log`), not a bare timestamp.
+- **Keep the raw source with the analysis**: archive the capture under the workflow's
+  conventioned output dir, e.g. `outputs/bugfix/{yyMMdd}-{desc}/…`, alongside the root
+  cause report, so evidence stays with its conclusion.
+- **Reference, don't re-collect**: point the analysis to the archived capture path;
+  do not rely on a Downloads path that may move.
+
+This is guidance for the external capture tooling + the debug diagnosis skill
+(`skills/agent-debug-diagnosis`); it is not a structural change to ai-system.
+
 ---
 
 ## 1.9 Cross-Cutting Discipline

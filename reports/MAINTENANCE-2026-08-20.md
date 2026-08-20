@@ -167,3 +167,25 @@ language 提示等；本巡检不处理（跟踪项）。
 - 范围提案: `outputs/proposal/260820-openapi-gateway-oom-flow-issues/巡检记录提案-流程问题.md`
 - 根因分析: `outputs/bugfix/260820-openapi-gateway-oom-jmx/根因分析报告-内存OOM重启.md`
 - 本报告: `reports/MAINTENANCE-2026-08-20.md`
+
+---
+
+## 八、后续修复批次（用户授权继续修复后执行，2026-08-20）
+
+### 已落地（低风险/直改，门禁与测试全绿）
+
+| 项 | 改动 | 文件 | 验证 |
+|---|---|---|---|
+| P1 | 链命令透传已收集 context（`{}`→`context`，字段按契约自动过滤填充，如 Project ID）；workflow-trigger 缺输入提示改为“列出缺失必填字段并向用户确认，无法补齐才 BLOCKED” | `cli/main.py`、`templates/prompts/workflow-trigger.md` | 实测 bugfix/develop 透传 Project ID 成功；change-impact/scan 按契约过滤正确不下漏；空 context 向后兼容；unchanged 其余行为；**CLI 87 测试全过** |
+| P3 | 新增外部 AI 结论核查模板（证据逐条 KEEP/REVISE/REJECT/UNVERIFIABLE）；SOURCE_OF_TRUTH 增 Rule 0（外部结论为未验证输入，须先过核查，冲突由用户仲裁） | `templates/prompts/external-ai-review.md`、`governance/SOURCE_OF_TRUTH.md` | check.py PASS 0 |
+| P2 | CONTEXT_LOADING 增“问题输入标准交付路径”（日志落约定目录、URL 明文入消息流、share 用 deepseek-share-to-md、外部结论先核查） | `governance/CONTEXT_LOADING.md` | check.py PASS 0 |
+| P6 | OPERATIONS 1.8.2 增现场诊断数据命名/归档约定（service-pod-timestamp、随产物归档） | `OPERATIONS.md` | check.py PASS 0 |
+
+### 结论
+
+- 门禁：check.py PASS 0 warning / repo-lint 25 WARN（无新增）/ path-audit 0 broken；CLI 87 项测试全过。
+
+### 未直改（结构性 / 项目接入，登记为后续项）
+
+- **P4 完整技能自动路由**：属架构特性（任务特征→技能语义匹配），需提案 + 评审，非本批次直改。已落地的最小部分 = 触发词登记（skills/README）+ 外部结论路由到核查工具。
+- **P5 openapi-gateway workspace 容器**：属项目 onboarding（prepare / dev-setup），且空容器违反 Evolution Principle（built-but-unused）。待真实 request→spec→develop 需求出现时创建。

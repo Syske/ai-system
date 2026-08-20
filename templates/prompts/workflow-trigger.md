@@ -48,7 +48,10 @@ You must:
 4. Let Runtime execute domain-specific logic.
 5. Do not skip validation steps.
 6. Do not invent missing information.
-7. Stop when required information is unavailable.
+7. When a required `## Inputs` field is still missing, enumerate each missing field
+   and ask the user to provide it (or confirm it is intentionally absent), then
+   continue; only report `BLOCKED` and stop if a required field cannot be supplied
+   and blocks the Workflow's Exit Criteria.
 8. Report outputs defined by Workflow.
 
 ---

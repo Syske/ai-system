@@ -286,7 +286,8 @@ def main():
             break
 
         # 意图链：主命令 prompt 构建后，为链上后续命令构建 prompt
-        # （各命令以空上下文构建，字段由 AI 在对话中向用户收集）
+        # （透传已收集的 context，字段按各链命令契约自动过滤填充，如 project；
+        #   剩余缺项由 AI 依各命令 ## Inputs 在对话中向用户收集）
         chain_prompts = []
 
         if chain:
@@ -301,7 +302,7 @@ def main():
                 try:
 
                     chain_prompts.append(
-                        builder.build(cmd, {})
+                        builder.build(cmd, context)
                     )
 
                 except Exception as exc:

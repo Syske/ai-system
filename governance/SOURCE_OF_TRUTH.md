@@ -34,6 +34,18 @@ When two sources conflict, the higher source always wins.
 
 ## Rules
 
+### 0. External Inputs are Unverified (External AI Conclusions)
+
+Conclusions produced by an **external AI / analyst / share link** are **unverified
+inputs**, NOT sources of truth. They do not sit anywhere in the hierarchy above and
+never override Contract / Specification / Task Card / repository evidence.
+
+Before any external conclusion may enter reports, memory, or deliverables, it must
+pass the checkpoint in `templates/prompts/external-ai-review.md` (claim-by-claim
+KEEP / REVISE / REJECT / UNVERIFIABLE with evidence). Conflicts between an external
+conclusion and internal evidence are arbitrated by the user
+(`AI_USER_RESPONSIBILITY_CONTRACT` D10 / E2).
+
 ### 1. Contract is Supreme
 
 A Contract defines the exact interface between systems.
