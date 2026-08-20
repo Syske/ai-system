@@ -1,0 +1,42 @@
+version: 1
+
+# 链路（积木组合）注册：场景 → 有序块链。
+#
+# - 块 type ∈ workflow | command | skill。
+# - 运行会为每次运行建运行上下文 outputs/chain/{yyMMdd}-{desc}/chain-manifest.yaml，
+#   并把每个块产出的产物路径登记进去，供下游块读取 —— 松耦合 + 显式交接，
+#   避免块之间互相找不到产物。
+# - 产物落点沿现有约定 outputs/<block>/<yyMMdd>-<desc>/（如 scan → outputs/scan/...，
+#   bugfix → outputs/bugfix/...）。
+# - 内置链路 + AI 维护（.aic-state.yaml → ai_chains，按使用频率可进化）。
+
+chains:
+  - name: analyze-and-publish
+    label: 分析并发布到wiki
+    icon: "🧬"
+    scenario: 分析代码并把结果发到 wiki
+    blocks:
+      - type: command
+        name: scan
+        args:
+          operation: manual
+          keep_results: true
+      - type: skill
+        name: confluence-markdown-publisher
+        args:
+          # source 从 chain-manifest.yaml 读上一步 scan 产出的报告（交接记录）
+          source: from_manifest.scan
+    builtin: true
+
+  - name: bugfix-release-doc
+    label: 改bugfix并出转测文档
+    icon: "🔧"
+    scenario: 改 bug 并出转测文档 + MR
+    blocks:
+      - type: workflow
+        name: bugfix
+        args:
+          # hotfix 模式已自动绑定 codeup-submit-mr + hotfix-test-doc（见
+          # config/workflows/bugfix-modes.yaml）
+          mode: hotfix
+    builtin: true

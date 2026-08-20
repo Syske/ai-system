@@ -190,3 +190,16 @@ language 提示等；本巡检不处理（跟踪项）。
 
 - **P4 完整技能自动路由**：属架构特性（任务特征→技能语义匹配），需提案 + 评审，非本批次直改。已落地的最小部分 = 触发词登记（skills/README）+ 外部结论路由到核查工具 + **launcher core 源**（deepseek-share-to-md 从 aic-skill 菜单可达）。
 - **P5 openapi-gateway workspace 容器**：属项目 onboarding（prepare / dev-setup），且空容器违反 Evolution Principle（built-but-unused）。待真实 request→spec→develop 需求出现时创建。
+
+## 九、链路（积木组合）能力（用户新增需求，2026-08-20 后续）
+
+用户提出：从**场景**出发，把工作流/命令/技能当**积木**自由组合成**链路**运行（如
+`scan + confluence-markdown-publisher`=分析并发布到 wiki；`bugfix + codeup-submit-mr +
+hotfix-test-doc`=改 bug 并出转测文档）。经讨论确认 3 点后实现**最小可用**：
+
+- **块**：type ∈ workflow / command / skill。
+- **松耦合 + 显式交接**：每次运行建 `outputs/chain/{yyMMdd}-{desc}/chain-manifest.yaml`，登记每块产物路径，下游块从 manifest 读上游产物（不硬编码路径）。
+- **可复用 + 可进化**：内置 `config/chains.yaml`（analyze-and-publish / bugfix-release-doc）；AI 维护链存入 `.aic-state.yaml → ai_chains`（对齐 ai_intents），按使用可调整。
+- **入口**：新增轻量命令 `aic-chain`（`cli/services/chain.py` 注册表/上下文 + `chain_launcher.py` 选/描述→建上下文→组装各块 prompt）复用 skill-launch 模板。
+- 配套：`cli/commands/aic-chain.md`、menu.yaml 注册（commands_analysis）、`_INTERACTIVE_COMMANDS` 接入、`cli/tests/test_chain.py`（8 用例）。
+- 验证：check.py PASS 0（15 workflows / 14 commands）/ repo-lint 25 WARN 无新增 / workflow-audit 0 / path-audit 0 / **CLI 96 测试全过**（含 chain）。

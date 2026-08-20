@@ -97,6 +97,9 @@ sections:
       - name: trace
         kind: command
         icon: "🧵 "
+      - name: chain
+        kind: command
+        icon: "🧬 "
   - title: commands_skills
     items:
       - name: skill

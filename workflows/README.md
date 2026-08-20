@@ -31,6 +31,26 @@ Execution lifecycle (phases, checkpoints, recovery, persistence) is owned by the
 | Discuss an optimization and produce a solution document | proposal.md |
 | Requirement change on an in-flight change | prepare.md → spec.md (scoped re-entry) |
 
+### Symptom-Led Entry: select a codebase + logs, analyse the root cause
+
+Scenario: you have a **codebase + logs / stack trace** and want to understand why a
+problem happened. Enter via the **`issue-investigation` intent** (AI 引导菜单,
+「线上问题排查」) or directly via `scan` / `bugfix` / `change-impact`. Make clear to the
+AI what you need so it routes to the minimal path (it does not blindly run
+scan→change-impact→bugfix):
+
+| Your intent (say it to the AI) | Route | Provide |
+|---|---|---|
+| Just locate the code region / first-pass read of logs vs a baseline | `scan` (operation=manual) | Logs, Stack Trace, baseline Branch |
+| Confirm a real defect and get root cause + fix | `bugfix` | Project ID, Bug Description, Logs |
+| Code target already known — impact/risk/plan before editing | `change-impact` | Project ID, Code Reference |
+| Production/现网 hotfix on master | `bugfix` (mode=hotfix) | Project ID, Bug Description, Logs |
+
+Use `bugfix` when you already know it's a defect you intend to fix; use `scan`(manual)
+first when the code region is still unknown and you only want to read logs against a
+baseline. `trace` is for branch-diff→task-card/spec/contract reconciliation, not for
+diagnosing runtime defects.
+
 ---
 
 ## Entry & Main Chain

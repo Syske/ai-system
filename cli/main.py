@@ -33,6 +33,8 @@ def _launch(
 _INTERACTIVE_COMMANDS = {
     "skill": "skill_launcher",
     "skill-launch": "skill_launcher",
+    "chain": "chain_launcher",
+    "chain-launch": "chain_launcher",
 }
 
 
