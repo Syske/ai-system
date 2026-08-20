@@ -56,13 +56,15 @@ workflow:                       # 机器契约（结构化）
 
 ## 5. Proposed Changes
 
-- [ ] 泛化共享 frontmatter 解析器（基于 `skill_scan._read_frontmatter`，供 skill 与 workflow 共用）
-- [ ] `workflow_reader.py` 支持读 frontmatter（inputs/required/optional/defaults），回退旧解析
-- [ ] 试点：`workflows/bugfix.md` 加 frontmatter，跑通 reader + `workflow-command-audit` + CLI 测试
-- [ ] 试点通过后铺开其余 14 个 workflow 加 frontmatter
-- [ ] `workflow-command-audit.py` / `workflow-scaffold.py` 兼容 frontmatter（八段合规演变为「frontmatter 契约 + 正文段」双校验）
-- [ ] `prompt_builder` inputs 从 frontmatter 渲染（正文嵌入照旧）
-- [ ] `workflow` frontmatter 增 `outputs` 基路径约定（生成报告 → `outputs/<workflow>/{yyMMdd}-<desc>/`；OpenSpec 工件 → `workspaces/<project_id>/openspec/...`），使 main-chain 各工作流产物目录显式、可被 chain-manifest / 外部 skill 解析
+- [x] 泛化共享 frontmatter 解析器（`cli/services/frontmatter.py`，skill 与 workflow 同构语法）
+- [x] `workflow_reader.py` 支持读 frontmatter（inputs/required/optional/defaults），回退旧解析
+- [x] 试点：`workflows/bugfix.md` 加 frontmatter（等价断言通过）
+- [x] 铺开其余 14 个 workflow 加 frontmatter（15/15 全等价、无回归）
+- [x] 门禁兼容 frontmatter：RFC-0003 只计正文；八段仍在正文
+  - [ ] `workflow-scaffold.py` 生成 frontmatter（待）
+- [x] `prompt_builder` inputs 经 frontmatter 渲染（经 workflow_reader 透传，正文嵌入不变）
+- [ ] （item6 产物目录已在各 workflow/runtime Outputs 显式声明；frontmatter 结构化 `outputs` 字段待后续硬化）
+- [ ] **单一来源硬化（待办）**：frontmatter 为唯一权威，移除正文 `## Inputs`（或渲染生成）并加 frontmatter↔正文一致性 audit，消除双源漂移
 - [ ] 文档：`workflows/README.md`、AGENTS 说明统一资产语法；不新增 `config/workflows/*.yaml` 内容
 
 ## 6. Validation Plan
@@ -86,6 +88,12 @@ workflow:                       # 机器契约（结构化）
 | Reviewer | Decision | Date |
 |---|---|---|
 
-## Implementation Record (YYYY-MM-DD)
+## Implementation Record (2026-08-20)
 
-<!-- 实施后追加：改动文件 / 验证结果 / 回归备注 -->
+- 试点 `bugfix.md` + 铺开其余 14：全部 15 个 workflow 顶部加 frontmatter（workflow.inputs + next）；
+  语义与旧 `## Inputs` 全等价（等价断言 15/15），无回归。
+- 共享 `cli/services/frontmatter.py`；`workflow_reader` frontmatter 优先 + 旧解析回退；
+  新增 test_workflow_reader（8 用例，含等价断言）。
+- RFC-0003 行数门禁改为只计正文（排除 frontmatter；workflow-command-audit + check.py 两处同步）。
+- 门禁：check.py PASS / workflow-audit 0 / repo-lint 25 WARN / CLI 111 测试全过。
+- **待办（单一来源硬化）**：移除正文 `## Inputs`（frontmatter 渲染）或加一致性 audit；`workflow-scaffold` 生成 frontmatter；outputs 结构化字段；文档说明。
