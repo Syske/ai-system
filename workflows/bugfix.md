@@ -1,3 +1,21 @@
+---
+name: bugfix
+description: Diagnose and fix software defects.
+workflow:
+  inputs:
+    required:
+      - Project ID
+      - Bug Description
+    optional:
+      - name: Issue ID
+      - name: Logs
+      - name: Stack Trace
+      - name: Mode
+        default: standard
+  next:
+    - review
+    - hotfix-test-doc
+---
 # Workflow: BugFix
 
 ## Purpose

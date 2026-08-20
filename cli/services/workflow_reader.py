@@ -1,7 +1,14 @@
-"""Read workflow / command markdown metadata (purpose, description, inputs)."""
+"""Read workflow / command markdown metadata (purpose, description, inputs).
+
+Workflow assets use the shared skill/workflow syntax (P25): an optional
+YAML frontmatter carrying the machine contract (workflow.inputs) followed by
+a Markdown body. Input parsing is frontmatter-first with a fallback to the
+legacy inline `## Inputs` parsing, so pre-P25 workflow files behave the same.
+"""
 
 import re
 
+from cli.services.frontmatter import read_frontmatter
 from cli.utils.file import read_text
 
 
@@ -83,8 +90,107 @@ def short(text, limit=58):
     return text[: limit - 1] + "…"
 
 
-def parse_inputs(text):
+def _norm_field_name(item):
+    """Strip inline annotations from a field name.
 
+    `Base Branch (default: master)` → `Base Branch`
+    `发布内容 (services, clusters, ...)` → `发布内容`
+
+    Annotations are metadata, not part of the field identity.
+    """
+
+    return re.sub(
+        r"\s*\([^)]*\)\s*$",
+        "",
+        item
+    ).strip()
+
+
+def _inputs_struct(inputs):
+    """Normalize a structured workflow.inputs ({required:[], optional:[...]} or list).
+
+    Returns (required, optional) lists of field names.
+    """
+
+    required = []
+    optional = []
+
+    if isinstance(inputs, dict):
+
+        for name in (inputs.get("required") or []):
+            required.append(_norm_field_name(str(name)))
+
+        for it in (inputs.get("optional") or []):
+            if isinstance(it, dict):
+                optional.append(_norm_field_name(str(it.get("name") or "")))
+            else:
+                optional.append(_norm_field_name(str(it)))
+
+    elif isinstance(inputs, list):
+
+        for it in inputs:
+
+            if isinstance(it, dict):
+
+                name = str(it.get("name") or "")
+
+                if it.get("required"):
+                    required.append(_norm_field_name(name))
+                else:
+                    optional.append(_norm_field_name(name))
+
+            else:
+
+                optional.append(_norm_field_name(str(it)))
+
+    return required, optional
+
+
+def _frontmatter_defaults(inputs):
+    """Collect defaults from a structured workflow.inputs."""
+
+    defaults = {}
+
+    def collect(it):
+
+        if isinstance(it, dict):
+
+            name = _norm_field_name(str(it.get("name") or ""))
+
+            if "default" in it and name:
+                defaults[name] = it.get("default")
+
+    if isinstance(inputs, dict):
+
+        for entry in (inputs.get("required") or []):
+            collect(entry)
+
+        for entry in (inputs.get("optional") or []):
+            collect(entry)
+
+    elif isinstance(inputs, list):
+
+        for entry in inputs:
+            collect(entry)
+
+    return defaults
+
+
+def parse_inputs(text):
+    """Required/optional field names, frontmatter-first, fallback to inline.
+
+    Returns (required, optional).
+    """
+
+    # 1) frontmatter 权威（若有 workflow.inputs）
+    data, _ = read_frontmatter(text)
+
+    wf = data.get("workflow") or {}
+
+    if isinstance(wf, dict) and wf.get("inputs"):
+        return _inputs_struct(wf["inputs"])
+
+    # 2) 回退：旧内联 ## Inputs 解析
     required = []
     optional = []
 
@@ -127,31 +233,21 @@ def parse_inputs(text):
     return required, optional
 
 
-def _norm_field_name(item):
-    """Strip inline annotations from a field name.
-
-    `Base Branch (default: master)` → `Base Branch`
-    `发布内容 (services, clusters, ...)` → `发布内容`
-
-    The md Inputs section is the single semantic source; annotations are
-    metadata, not part of the field identity (wizard/CLI keys use the
-    bare name).
-    """
-
-    return re.sub(
-        r"\s*\([^)]*\)\s*$",
-        "",
-        item
-    ).strip()
-
-
 def field_defaults(text):
-    """Extract inline "(default: X)" from the Inputs field names.
+    """Extract field defaults, frontmatter-first then inline `(default: X)`.
 
-    Returns {field_name: default}. The md Inputs section is the single
-    semantic source for input metadata (name, required, default).
+    Returns {field_name: default}.
     """
 
+    # 1) frontmatter 权威
+    data, _ = read_frontmatter(text)
+
+    wf = data.get("workflow") or {}
+
+    if isinstance(wf, dict) and wf.get("inputs"):
+        return _frontmatter_defaults(wf["inputs"])
+
+    # 2) 回退：旧内联 (default: X)
     defaults = {}
 
     section = None
