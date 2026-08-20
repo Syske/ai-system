@@ -208,6 +208,11 @@ Verify:
 
 ✓ Impact Identified
 
+Each ✓ MUST cite the specific Preparation Report section it is based on
+(e.g. ✓Requirement→§1, ✓Architecture→§3, ✓Dependencies→§4, ✓Risks→§6,
+✓Impact→§5). A ✓ with no evidence pointer is treated as Not Ready — supply
+it before declaring ready.
+
 If complete:
 
 Status = Ready for Specification

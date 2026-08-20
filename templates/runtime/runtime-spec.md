@@ -77,6 +77,21 @@ Resolved by Specification Runtime:
 
 ---
 
+## Pre-flight (Spec precondition check)
+
+Before Phase 1, verify the prepare deliverable is at the expected location and
+non-empty:
+
+- Check that `workspaces/<change-id>/openspec/changes/<change-id>/proposal.md`
+  (or the current change's Preparation Report) exists and is non-empty.
+- If missing or misplaced (e.g. mistargeted to `outputs/proposal/…`) → **Stop**:
+  report that the precondition isn't met / path is wrong, reconcile the artifact
+  to the AGENTS.md main-chain convention
+  (`workspaces/<project-id>/openspec/…`) first, then continue. Never guess the
+  wrong file to start spec work (addresses prepare run P1/P2 artifact drift).
+
+---
+
 # Phase 1 — Requirement Discovery
 
 Objective:

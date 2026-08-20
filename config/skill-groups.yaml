@@ -6,6 +6,7 @@ locale: zh
 # 已登记的技能须在 ai-system/skills/<name>/ 下有 skill.md 或 SKILL.md。
 core_skills:
   - deepseek-share-to-md
+  - wayfinder   # 临时登记（item7 trial）：让 launcher 可达、供主链 prepare/spec 试用；评估后定去留
 
 # skill 分组/组合配置（配置驱动，模式对齐 config/menu.yaml）。
 # - 本文件只存结构 + key；用户可见分组标题在 config/i18n/{locale}.yaml 的

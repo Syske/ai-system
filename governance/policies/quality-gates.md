@@ -4,6 +4,13 @@ This document defines the quality gates that every component in the
 repository must pass. These gates are enforced by `tools/repo-lint.py`
 and by the repository-governor Skill.
 
+> **Naming disambiguation (G5)**: this file governs the **asset-repo lint
+gates** (skill.md structure / duplication / dependencies, enforced by
+repo-lint.py). It is **NOT** the workflow runtime readiness gate — that one
+lives in each `workflows/*.md` Exit Criteria and the runtime phase gates
+(e.g. prepare Phase 7 Readiness Assessment). Same word, different meaning;
+do not conflate them.
+
 ---
 
 ## Gate 1: Structural Integrity
