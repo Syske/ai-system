@@ -244,7 +244,11 @@ class WizardFields:
                 value = ask_text(
                     f"{icon}{field}: ",
                     header,
-                    note=note
+                    note=note,
+                    default=self._manual_default(
+                        field,
+                        values
+                    )
                 )
 
                 if value is BACK:
@@ -311,6 +315,25 @@ class WizardFields:
             return pstate.get("last_change")
 
         return None
+
+    def _manual_default(
+        self,
+        field,
+        values
+    ):
+        """手动输入时的建议默认：仅新建 Change ID（无已有值）给 {YYYYMM}- 前缀。
+
+        已有 last_change / 重入场景不建议（走既有值或已有 change 菜单）。
+        """
+        if field != "Change ID":
+            return None
+
+        if self._previous_value(field):
+            return None
+
+        from cli.services import change_resume
+
+        return change_resume.suggest_change_id()
 
     def _choices_for(
         self,

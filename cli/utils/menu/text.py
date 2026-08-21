@@ -101,7 +101,8 @@ def _text_bindings():
 def ask_text(
     prompt,
     header=None,
-    note=None
+    note=None,
+    default=None
 ):
 
     if (
@@ -109,10 +110,16 @@ def ask_text(
         or PromptSession is None
     ):
 
+        if default:
+            prompt = f"{prompt} [{default}] "
+
         raw = input(prompt)
 
         if raw.strip() == "<":
             return BACK
+
+        if not raw.strip() and default:
+            return default
 
         return raw.strip()
 
@@ -155,6 +162,7 @@ def ask_text(
             key_bindings=_text_bindings(),
             style=_INPUT_STYLE,
             bottom_toolbar=_input_toolbar(),
+            default=default or "",
         )
 
     finally:

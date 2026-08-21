@@ -7,6 +7,7 @@ from pathlib import Path
 from cli.services.change_resume import (
     change_artifact_path,
     read_change_artifact,
+    suggest_change_id,
 )
 
 _FIXTURE = (
@@ -96,6 +97,10 @@ class ChangeResumeTest(unittest.TestCase):
         self.assertEqual(result["open_questions"], [])
         self.assertEqual(result["change_request"], "")
         tmp.cleanup()
+    def test_suggest_change_id_format(self):
+        suggested = suggest_change_id()
+        # {YYYYMM}- 前缀，便于用户补描述
+        self.assertRegex(suggested, r"^\d{6}-$")
 
 
 if __name__ == "__main__":
