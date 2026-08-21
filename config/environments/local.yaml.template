@@ -1,30 +1,31 @@
+# 本地环境配置模板（平台无关：wsl / windows / linux 均加载本配置）。
+# 复制为 local.yaml 后按本机工具路径填写 build 段即可；工作区布局路径自动推导，无需改。
+
 workspace:
-  root: D:/workspace/ai-workspace
-  repository_root: D:/workspace/ai-workspace/projects
+  # root: 自动推导（ai-system 根的上层）；如确需覆盖可在此显式填写
+  # repository_root: 自动推导（root/projects）
 
 build:
-  java_home: D:/tools/java/jdk8
-  maven_home: D:/tools/apache-maven-3.6.3
-  maven_settings: "D:/tools/apache-maven-3.6.3/conf/settings - coolcollege.xml"
+  java_home: ""            # 本机 JDK 路径（Windows: D:\tools\java\jdk8；WSL/Linux: /mnt/d/tools/java/jdk8 或 /usr/lib/jvm/...）
+  maven_home: ""           # 本机 Maven 路径
+  maven_settings: ""       # 可选：maven settings.xml 路径
   # 编译后端: maven(默认, CLI) | idea(IDEA MCP 常驻编译, 需本机 IDEA + MCP Server 已启用)
   backend: maven
   # IDEA 编译后端配置(backend=idea 时生效)
   idea:
-    # IDEA 安装路径的 idea64.exe(各人版本/路径不同, 必须按本机配置)
-    executable: 'C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.0.1/bin/idea64.exe'
-    # IDEA MCP Server 端口(内置端口 63342 + 1000)
+    executable: ""         # IDEA idea64.exe 路径（各人版本/路径不同，必须按本机配置）
     port: 64342
+
+bugfix:
+  # bugfix 运行模式: standard(默认, 纯诊断修复) | hotfix(现网问题, master 基线, 走完整发布前链路)
+  mode: hotfix
 
 layers:
   ai_system:
-    path: D:/workspace/ai-workspace/ai-system
     description: AI Operating System core
   projects:
-    path: D:/workspace/ai-workspace/projects
     description: all code repository
   methodologies:
-    path: D:/workspace/ai-workspace/methodologies
     description: governance standards, openspec, specs, contracts
   skills:
-    path: D:/workspace/ai-workspace/extensions
     description: company/platform skill extensions (not auto-scanned by agents)
