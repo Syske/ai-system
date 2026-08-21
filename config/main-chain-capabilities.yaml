@@ -29,6 +29,10 @@ capabilities:
       path: skills/wayfinder
       desc: "[TRIAL] 需求仍模糊时，用决策工单澄清设计路线；可选"
       enabled: true
+    - skill: tr5
+      path: extensions/tr5
+      desc: 后端 TR5 一页纸设计（中台语境 + coolSpec 质量门禁增强版）：TR3/TR4 + 迭代页 ID 入口，正向流水线生成并发布；非后端 TR5 场景勿用
+      enabled: true
   dev-setup: []
   develop:
     - skill: wayfinder
