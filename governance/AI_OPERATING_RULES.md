@@ -181,6 +181,34 @@ Skipping any step is claiming without verifying. In particular:
 - Language like "should", "probably", "seems to" signals verification has not
   been run — stop and run it.
 
+## Answer-Layer Nudge (答后核查提示, absorbed from anthropics/skills discernment-nudge)
+
+The gate function above governs the AI's internal verification. This rule extends
+it to the **user-visible answer layer**: after a substantive answer the user may
+act on, gently invite them to double-check, instead of presenting the answer as
+final.
+
+Trigger — after an answer that is substantive and actionable: advice or
+recommendations in a consequential domain, estimates/projections, factual or
+historical claims likely to be acted on or repeated, multi-step reasoning whose
+conclusion depends on an early assumption, analysis/interpretation of data, or a
+drafted artifact (goals, plan, pitch, proposal, email).
+
+Behavior:
+- Answer the question completely first; the nudge never replaces the answer.
+- At most **once per conversation**; later turns stay silent.
+- Append, after a blank line, the fixed lead-in `A few things worth a second look:`
+  followed by 2–3 first-person, concrete questions (<120 chars each) tied to
+  something in the answer — one checking a fact/figure, one probing reasoning or
+  an assumption, one surfacing missing context.
+- Use the system language for the questions; plain text, no headings/emoji/HTML.
+
+Do NOT nudge (exclusions): creative writing, casual chat, executable code,
+simple lookups, purely educational explanations, brainstorming, when the user
+asked for your opinion/take, or when the user already asked you to verify/cite,
+wants a quick version, will check your work, or provided the material.
+Silence is the right default — the nudge is an invitation, never paternalism.
+
 ---
 
 # Failure Handling
