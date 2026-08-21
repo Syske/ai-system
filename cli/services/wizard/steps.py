@@ -21,6 +21,8 @@ class WizardSteps:
         # AI 引导意图链（多命令意图的后续命令，主命令执行后衔接）
         self.active_intent = None
         self.chain_commands = []
+        # 重入预填字段（如 Change Request）：跳过重收
+        self._skip_fields = set()
 
         step = 0
 
@@ -62,6 +64,7 @@ class WizardSteps:
                     # 多命令意图：首个命令为主目标，其余存入链（执行后衔接）
                     self.active_intent = intent_name
                     self.chain_commands = commands[1:]
+                    self._skip_fields = set()
 
                     first = commands[0]
 
@@ -146,6 +149,11 @@ class WizardSteps:
 
                 field, required = fields[index]
 
+                if field in self._skip_fields:
+                    # 重入预填字段（如 Change Request）：跳过重收
+                    step += 1
+                    continue
+
                 values.pop(field, None)
 
                 result = self._ask_field(
@@ -185,6 +193,13 @@ class WizardSteps:
                         values,
                         field
                     )
+
+                    # Change ID 已收集：检测已有 prepare 产物（重入）
+                    if field == "Change ID":
+                        self._resume_change(
+                            project,
+                            values
+                        )
 
                 step += 1
 
@@ -290,3 +305,55 @@ class WizardSteps:
                 )
 
             return target[0], values, output, result, chain_remaining
+
+    def _resume_change(
+        self,
+        project,
+        values
+    ):
+        """Change ID 已收集：检测已有 prepare 产物 → 预填 + 提示未决澄清。
+
+        重入语义：选已有 change 时承接已有分析（proposal.md），而非重新
+        收集必填项。首次运行（无产物）不干预；用户 BACK 改 Change ID 后
+        重新检测。
+        """
+        from cli.services import change_resume
+
+        # 先清掉上次的重入状态（换 Change ID 后重新检测）
+        self._skip_fields.discard("Change Request")
+        values.pop("Change Request", None)
+
+        change_id = values.get("Change ID")
+        if not (project and change_id):
+            return
+
+        resume = change_resume.read_change_artifact(
+            self.workspaces,
+            project,
+            change_id
+        )
+        if not resume:
+            return
+
+        if resume["change_request"]:
+            values["Change Request"] = resume["change_request"]
+            self._skip_fields.add("Change Request")
+
+        print(
+            f"\n✅ 检测到已有 prepare 产物：{resume['path']}"
+        )
+        if resume["readiness"]:
+            print(f"   Readiness: {resume['readiness']}")
+
+        open_qs = resume["open_questions"]
+        if open_qs:
+            print(f"   未决澄清 {len(open_qs)} 条：")
+            for q in open_qs[:6]:
+                print(f"     • {q}")
+            if len(open_qs) > 6:
+                print(f"     … 共 {len(open_qs)} 条")
+
+        if resume["change_request"]:
+            print(
+                "   Change Request 已从产物预填，跳过必填重收。\n"
+            )
