@@ -83,6 +83,11 @@ drop exploration noise).
 - **Normal runs are one page**: a summary + reference, not a full dump.
 - **Evidence first**: only record fresh output of actually-run commands (exit code,
   diff, grep count); forbidden to write "should succeed" claims.
+- **Runtime-file reads (R1)**: if the run's prompt skeleton referenced a full runtime
+  template (`Full runtime template: <path>`), note in one line whether the agent
+  actually read the referenced file per phase — this feeds the skeletonization
+  cost/benefit measurement (prompt-metrics / Q2-R1). Absence of the line means
+  "not read".
 - **Gradual field growth**: only add fields when a real "cannot trace back this run"
   case shows up (Evolution Principle) — do not pre-inflate.
 

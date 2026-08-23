@@ -387,7 +387,15 @@ class PromptBuilder:
 
         The agent reads the referenced file when it reaches a phase.
         Determinism: phase names/order are preserved verbatim.
+
+        R3 强制全量开关（Q2）：设置环境变量 AIC_FULL_RUNTIME=1 时内嵌全量
+        runtime（用于 agent 无文件读取能力 / 需要完整指令的场景）。
         """
+
+        import os
+
+        if os.environ.get("AIC_FULL_RUNTIME") == "1":
+            return runtime_md
 
         import re
 

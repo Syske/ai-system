@@ -20,6 +20,7 @@ Automated governance tooling for the AI repository.
 | `extensions-init.py` | Extensions directory bootstrap — standalone git repo init (.gitignore/README/example skill/remote/committer identity), idempotent |
 | `extensions-lint.py` | Extensions domain linter — checks the separate extensions repo (SKILL.md / OPTIMIZATION_LOG.md conventions, no sensitive/compiled artifacts tracked); --fix-missing-log scaffolds logs |
 | `quick-check.py` | Read-only quick health check (repo-lint + path-audit + extensions-lint) — seconds, safe at every session; records findings to metrics/quick-check-{date}.json for trend tracking |
+| `prompt-metrics.py` | 提示词体积/缓存友好性实测（Q2/R1-R2）——构建全部 workflow+command，记录体积（chars/token）与前缀稳定性到 metrics/prompt-{date}.json；`AIC_FULL_RUNTIME=1` 时 prompt_builder 内嵌全量 runtime（R3 开关） |
 | `maintain-delta.py` | 巡检增量感知（Q1-1）——对比上次完整巡检后的 git HEAD，判定 FIRST_RUN / NO_CHANGES / CHANGED(受影响区域+建议工具子集)；`--record` 在完整巡检后记录状态（metrics/maintain-delta-state.json，gitignored） |
 | `maintain-report.py` | 巡检报告骨架自动生成（Q1-3）——从 quick-check/指标快照/proposal-audit 自动拼装 MAINTENANCE-{date}.md 的校验/对比/趋势/提案四节；非破坏（已存在不覆盖），叙事节留给 AI |
 | `pack.py` | AI System packaging (output dir, zip) |

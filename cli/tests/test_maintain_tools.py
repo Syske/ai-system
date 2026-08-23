@@ -128,5 +128,45 @@ class TestMaintainReport(unittest.TestCase):
         self.assertIn("工具校验结果", target.read_text(encoding="utf-8"))
 
 
+class TestPromptMetrics(unittest.TestCase):
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.pm = _load("prompt-metrics")
+        self._orig_metrics = self.pm.METRICS
+        self.pm.METRICS = Path(self._tmp.name)
+
+    def tearDown(self):
+        self.pm.METRICS = self._orig_metrics
+        self._tmp.cleanup()
+
+    def test_measure_returns_summary(self):
+        import yaml
+
+        registry = yaml.safe_load(
+            (REPO_ROOT / "config" / "workflow-registry.yaml")
+            .read_text(encoding="utf-8")
+        )["workflows"]
+        data = self.pm.measure(registry, [])
+        s = data["summary"]
+        self.assertGreater(s["prompts"], 0)
+        self.assertGreater(s["total_chars"], 0)
+        # 前缀稳定：同工作流不同输入静态前缀一致
+        self.assertEqual(
+            s["prefix_stable_count"],
+            len(registry),
+        )
+
+    def test_main_records_json(self):
+        sys.argv = ["prompt-metrics.py", "--date", "2099-01-01"]
+        rc = self.pm.main()
+        self.assertEqual(rc, 0)
+        target = self.pm.METRICS / "prompt-2099-01-01.json"
+        self.assertTrue(target.exists())
+        data = json.loads(target.read_text(encoding="utf-8"))
+        self.assertIn("summary", data)
+        self.assertIn("rows", data)
+
+
 if __name__ == "__main__":
     unittest.main()

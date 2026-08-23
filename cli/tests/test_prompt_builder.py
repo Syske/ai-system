@@ -135,6 +135,23 @@ class TestFieldContract(unittest.TestCase):
         finally:
             env_mod.paths = orig
 
+    def test_r3_full_runtime_switch(self):
+        # Q2/R3：AIC_FULL_RUNTIME=1 → 内嵌全量 runtime；默认骨架
+        import os
+
+        skel = self.builder.build("release", {})
+        self.assertIn("Full runtime template", skel)
+
+        os.environ["AIC_FULL_RUNTIME"] = "1"
+        try:
+            full = self.builder.build("release", {})
+        finally:
+            del os.environ["AIC_FULL_RUNTIME"]
+
+        self.assertNotIn("Full runtime template", full)
+        self.assertGreater(len(full), len(skel))
+        self.assertIn("# Phase 1", full)
+
 
 if __name__ == "__main__":
     unittest.main()
