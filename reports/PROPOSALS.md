@@ -28,9 +28,9 @@
 | Approved | WSL 环境集成与初始化能力 | 2026-08-14 | `P22-WSL-ENVIRONMENT-INTEGRATION.md` |
 | Implemented | 跨平台（Linux/WSL + Windows）混合维护治理约定 | 2026-08-14 | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` |
 | Implemented | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归） | 2026-08-17 | `P24-PROVIDER-CONTRACT-TEST-FIX.md` |
-| Implemented | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定（必填项结构化 + skill/workflow 同构） | 2026-08-20 | `P25-WORKFLOW-FRONTMATTER-SYNTAX.md` |
-| Proposed | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service} 暂定）+ 创建后不可变（A+B） | 2026-08-20 | `P26-MAIN-CHAIN-BRANCH-RULE.md` |
-| Proposed | Change ID 自动生成（规则默认已落地；slug 派生 B / AI 可选 D 待触发） | 2026-08-21 | `P28-CHANGE-ID-GENERATION.md` |
+| Implemented | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定 | 2026-08-20 | `P25-WORKFLOW-FRONTMATTER-SYNTAX.md` |
+| Proposed | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service}，暂定）+ 创建后不可变 | 2026-08-20 | `P26-MAIN-CHAIN-BRANCH-RULE.md` |
+| Proposed | Change ID 自动生成（规则 slug 派生优先，AI 可选后续） | 2026-08-21 | `P28-CHANGE-ID-GENERATION.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
