@@ -42,7 +42,7 @@ intents:
 
   - name: init-env
     label: 环境初始化（配置生成/校验）
-    icon: "⚙️"
+    icon: "🔧"
     commands: [env-init]
     prompt: 首次运行/环境配置丢失时初始化（workspace + 机器层 ~/.config）
     builtin: true
