@@ -104,8 +104,12 @@ class TestLoadMerged(unittest.TestCase):
         )
         self._old = os.environ.get("AI_HOME_CONFIG")
         os.environ["AI_HOME_CONFIG"] = str(self.home_file)
+        # home 层仅对安装根生效 —— 模拟本测试临时根为安装根
+        self._orig_ai_system_root = environment.ai_system_root
+        environment.ai_system_root = lambda: self.root
 
     def tearDown(self):
+        environment.ai_system_root = self._orig_ai_system_root
         if self._old is None:
             os.environ.pop("AI_HOME_CONFIG", None)
         else:
@@ -135,6 +139,13 @@ class TestLoadMerged(unittest.TestCase):
         ps = environment.paths(self.root)
         # home 的 workspace.root 生效 → workspace_root 随之
         self.assertEqual(str(ps["workspace_root"]), "/ws/home-anchor")
+
+    def test_home_not_merged_for_foreign_root(self):
+        # 非安装根（测试/备用克隆传任意 root）→ home 层不生效，保持隔离
+        environment.ai_system_root = self._orig_ai_system_root
+        merged = load_merged_environment(self.root)
+        self.assertEqual(merged["build"]["java_home"], "ws-java")
+        self.assertEqual(merged["workspace"]["root"], "/ws/derived")
 
 
 class TestGenerateHomeEnv(unittest.TestCase):
@@ -176,6 +187,72 @@ class TestGenerateHomeEnv(unittest.TestCase):
         # 非破坏：再次调用跳过
         created2 = mod.generate_home_env(ws, interactive=False)
         self.assertFalse(created2)
+
+
+class TestEnvInitMode(unittest.TestCase):
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.home_file = Path(self._tmp.name) / "home" / "env.yaml"
+        self.home_file.parent.mkdir(parents=True)
+        self._old = os.environ.get("AI_HOME_CONFIG")
+        os.environ["AI_HOME_CONFIG"] = str(self.home_file)
+
+    def tearDown(self):
+        if self._old is None:
+            os.environ.pop("AI_HOME_CONFIG", None)
+        else:
+            os.environ["AI_HOME_CONFIG"] = self._old
+        self._tmp.cleanup()
+
+    def test_env_init_generates_both_layers(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "setup_mod",
+            REPO_ROOT / "tools" / "setup.py",
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        ws = Path(self._tmp.name) / "ws"
+        ws.mkdir()
+        # generate_env 以模块级 ROOT 定位 config/environments —— 测试指向临时根
+        mod.ROOT = ws / "ai-system"
+        (mod.ROOT / "config" / "environments").mkdir(parents=True)
+        env_dir = mod.ROOT / "config" / "environments"
+
+        changed = mod.env_init(ws, "local", interactive=False)
+        self.assertTrue(changed)
+        # workspace 层
+        self.assertTrue((env_dir / "local.yaml").exists())
+        # 机器层（AI_HOME_CONFIG 指向临时路径）
+        self.assertTrue(self.home_file.exists())
+
+        # 非破坏：再次调用不重建、不覆盖
+        before = (env_dir / "local.yaml").read_text(encoding="utf-8")
+        changed2 = mod.env_init(ws, "local", interactive=False)
+        self.assertFalse(changed2)
+        self.assertEqual(
+            (env_dir / "local.yaml").read_text(encoding="utf-8"),
+            before,
+        )
+
+    def test_env_init_flag_parsing(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "setup_mod",
+            REPO_ROOT / "tools" / "setup.py",
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        sys.argv = ["setup.py", "--env-init", "--non-interactive"]
+        interactive, workspace, environment, env_init_only = mod._parse_args()
+        self.assertTrue(env_init_only)
+        self.assertFalse(interactive)
+        self.assertEqual(environment, "local")
 
 
 if __name__ == "__main__":

@@ -125,6 +125,9 @@ sections:
       - name: extensions-init
         kind: command
         icon: "🧰 "
+      - name: env-init
+        kind: command
+        icon: "⚙️ "
 
 # 各命令的字段定义（[[字段名, 是否必填], ...]）；未注册的命令用 default。
 command_fields:
@@ -148,6 +151,11 @@ command_fields:
     - - "Committer Email"
       - false
     - - "Committer Name"
+      - false
+  env-init:
+    - - "Environment"
+      - false
+    - - "Workspace Root"
       - false
     - - "Workspace Root"
       - false

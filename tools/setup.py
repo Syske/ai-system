@@ -3,11 +3,17 @@ r"""Initialize the AI system environment.
 Usage:
     python tools/setup.py                       # interactive, with defaults
     python tools/setup.py --non-interactive     # use defaults, no prompts
+    python tools/setup.py --env-init            # config-focused init (aic env-init backend)
     python tools/setup.py --workspace /path     # explicit workspace root
     python tools/setup.py --environment test    # environment name (default: local)
 
 Non-destructive: creates missing directories and repository links only.
 Never deletes or overwrites existing config, directories, or links.
+
+--env-init mode: generates ONLY the two config layers (workspace
+config/environments/{env}.yaml + machine-layer ~/.config/ai-system/env.yaml
+with platform detection) and prints merged resolution; skips scaffold /
+repo links / baseline / audit (those belong to the full setup flow).
 
 Steps:
 1. Generate config/environments/{environment}.yaml from template structure (if missing)
@@ -85,8 +91,13 @@ def _parse_args():
     interactive = True
     workspace = None
     environment = "local"
+    env_init_only = False
 
     args = list(sys.argv[1:])
+
+    if "--env-init" in args:
+        env_init_only = True
+        args.remove("--env-init")
 
     if "--non-interactive" in args:
         interactive = False
@@ -100,7 +111,7 @@ def _parse_args():
         index = args.index("--environment")
         environment = args[index + 1]
 
-    return interactive, workspace, environment
+    return interactive, workspace, environment, env_init_only
 
 
 def _ask(label, default=None):
@@ -392,6 +403,62 @@ def generate_home_env(
     return True
 
 
+def env_init(
+    workspace_root,
+    environment,
+    interactive
+):
+    """配置聚焦初始化（aic env-init 的后端，非破坏）。
+
+    只生成两份配置，不碰 scaffold/链接/基线/审计（那些属于完整 setup）：
+    1. workspace 层 config/environments/{environment}.yaml（缺失才生成）
+    2. 机器层 ~/.config/ai-system/env.yaml（缺失才生成，按系统检测+探测）
+    最后打印合并解析冒烟（workspace_root / build）供确认。
+    """
+
+    changed = False
+
+    changed |= generate_env(
+        workspace_root,
+        environment,
+        interactive
+    )
+
+    changed |= generate_home_env(
+        workspace_root,
+        interactive
+    )
+
+    print()
+    print("merged resolution:")
+
+    try:
+
+        from cli.services.environment import resolve_environment
+
+        r = resolve_environment()
+
+        ws = r["paths"]["workspace_root"]
+
+        print(
+            f"  workspace_root : {ws} "
+            f"({'exists' if ws.exists() else 'MISSING'})"
+        )
+
+        b = r.get("build") or {}
+
+        print(
+            f"  build          : java_home={b.get('java_home')!r} "
+            f"backend={b.get('backend')!r}"
+        )
+
+    except Exception as exc:
+
+        print(f"  resolution FAILED: {exc}")
+
+    return changed
+
+
 def scaffold(workspace_root):
 
     created = 0
@@ -592,7 +659,7 @@ def run_audit():
 
 def main():
 
-    interactive, workspace, environment = _parse_args()
+    interactive, workspace, environment, env_init_only = _parse_args()
 
     workspace_root = workspace or ROOT.parent
 
@@ -600,6 +667,16 @@ def main():
 
     print(f"workspace root: {workspace_root}")
     print(f"environment:    {environment}")
+
+    if env_init_only:
+
+        env_init(
+            workspace_root,
+            environment,
+            interactive
+        )
+
+        return
 
     generate_env(
         workspace_root,

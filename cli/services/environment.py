@@ -110,6 +110,25 @@ def load_environment(
     return data
 
 
+def _is_installed_root(root):
+    """home 机器层只对「本机已安装的 ai-system 根」生效。
+
+    测试/备用克隆会以任意 root 调用 paths()——此时跳过 home 合并保持隔离；
+    生产路径（paths()/resolve_environment 的 root 即安装根）正常合并。
+    """
+
+    try:
+
+        return (
+            Path(root).resolve()
+            == ai_system_root().resolve()
+        )
+
+    except Exception:
+
+        return False
+
+
 def load_merged_environment(
     root,
     name=DEFAULT_ENV
@@ -118,13 +137,19 @@ def load_merged_environment(
 
     home（~/.config/ai-system/env.yaml，按平台生成/用户可改）覆盖
     workspace config/environments/{name}.yaml 的对应键；两者均缺失时
-    由调用方回退到默认推导（见 paths()）。
+    由调用方回退到默认推导（见 paths()）。仅安装根应用 home 层。
     """
 
-    return _deep_merge(
-        load_environment(root, name),
-        load_home_environment()
-    )
+    env = load_environment(root, name)
+
+    if _is_installed_root(root):
+
+        env = _deep_merge(
+            env,
+            load_home_environment()
+        )
+
+    return env
 
 
 def _normalize_path(value):

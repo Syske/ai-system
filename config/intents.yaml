@@ -40,6 +40,13 @@ intents:
     prompt: 提供远程仓库地址与提交者信息
     builtin: true
 
+  - name: init-env
+    label: 环境初始化（配置生成/校验）
+    icon: "⚙️"
+    commands: [env-init]
+    prompt: 首次运行/环境配置丢失时初始化（workspace + 机器层 ~/.config）
+    builtin: true
+
   - name: skill-source-assessment
     label: 三方技能评估
     icon: "🌐"

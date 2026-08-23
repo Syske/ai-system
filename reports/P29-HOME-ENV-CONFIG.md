@@ -72,9 +72,10 @@ local.yaml 注明"工作区级共享项留 workspace 层"；home 覆盖为显式
 
 ## 7. 后续（未实施，触发再说）
 
-- 当前机器（WSL）尚未生成 home 配置——现有 workspace local.yaml（backend=idea 等）继续生效为 fallback；
-  用户下次运行 `tools/setup.py` 时首启生成（非破坏），或手动创建 `~/.config/ai-system/env.yaml` 接管
-- `aic env-init` 子命令化（P22 Option C 完整形态）——视实际使用频率再评估
+- ~~`aic env-init` 子命令化（P22 Option C 完整形态）~~ **已完成（2026-08-23）**：
+  薄命令 `cli/commands/aic-env-init.md` + `tools/setup.py --env-init` 模式（复用 generate_env /
+  generate_home_env，仅配置聚焦，非破坏）+ menu.yaml/intents.yaml 注册（init-env 意图）
+- Windows 侧机器层配置：下次在 Windows 运行 `aic env-init` 或 `setup.py` 时按需生成（D:\\... 形式）
 
 ## Review Log
 

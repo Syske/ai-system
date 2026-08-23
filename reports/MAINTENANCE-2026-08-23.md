@@ -176,6 +176,18 @@ Templates +1 已核对：`templates/prompts/external-ai-review.md`（P3 外部 A
 - 当前机器未生成 home 配置（避免静默把 backend=idea 换成探测默认）——现有 workspace local.yaml 继续生效为 fallback，
   用户下次运行 setup.py 时首启生成（非破坏）；提案记录 `reports/P29-HOME-ENV-CONFIG.md`（Approved）
 
+**P29 批次补充（用户决策 1+2）——`aic env-init` 子命令化 + setup.py/AI 引导保留**
+- `cli/commands/aic-env-init.md` 薄命令（Steps/Guardrails 英文，description 中文）+ `config/menu.yaml`（命令+字段）
+  + `config/intents.yaml`（init-env 意图，builtin）
+- `tools/setup.py --env-init`：配置聚焦初始化（复用 generate_env/generate_home_env，仅生成两份配置 + 解析冒烟，
+  不碰 scaffold/链接/基线/审计）
+- 合并语义修正：home 机器层**仅对安装根生效**（`_is_installed_root` 守卫）——测试/备用克隆传任意 root 时
+  跳过 home 合并，保持隔离（修复 test_wizard_output 2 例回归）
+- 本机已生成 `/home/syske/.config/ai-system/env.yaml`（jdk8/idea 保留，WSL 路径形式）；`env-init --non-interactive`
+  真机冒烟：两份配置均 exists 跳过、解析正确
+- 验证：CLI 135 测试 OK（+2 env-init +1 隔离性）/ repo-lint 25 WARN / check.py PASS(3 既有) /
+  path-audit 0 broken / workflow-command-audit 0/0（命令 14→15）
+
 **待确认小修（Change Control：确认后落）**
 1. `reports/README.md` 提案索引补 P28 行（L1，doc drift，一行）
 2. P26 状态 Proposed → Implemented（P26 文件 Status 字段 + PROPOSALS.md 同步；实现已 git 实证）
