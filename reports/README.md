@@ -34,6 +34,7 @@
 | [P24](P24-PROVIDER-CONTRACT-TEST-FIX.md) | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归，已实施 exit 0） | 2026-08-17 |
 | [P25](P25-WORKFLOW-FRONTMATTER-SYNTAX.md) | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定（Implemented） | 2026-08-20 |
 | [P26](P26-MAIN-CHAIN-BRANCH-RULE.md) | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service} 暂定）+ 不可变（Proposed） | 2026-08-20 |
+| [P29](P29-HOME-ENV-CONFIG.md) | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 |
 
 ---
 

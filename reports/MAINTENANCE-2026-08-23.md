@@ -162,6 +162,20 @@ Templates +1 已核对：`templates/prompts/external-ai-review.md`（P3 外部 A
 - 验证：dev-setup/maintain/prepare 提示词重建后路径全部绝对化（含 caps 路径）；`D:\workspace\x`→`/mnt/d/workspace/x`；
   repo-lint 25 WARN 无新增 / check.py PASS / CLI 123 测试 OK
 
+**P29 批次已落地（用户决策：机器层环境配置迁至 ~/.config，跨平台原生，首启按系统生成）**
+- `cli/services/environment.py`：`home_config_path()`（`~/.config/ai-system/env.yaml`，`AI_HOME_CONFIG` 可覆盖）、
+  `load_home_environment()`、`_deep_merge()`（home 优先递归合并）、`load_merged_environment()`；
+  `paths()` / `resolve_environment()` 改读合并配置——单点实现，全部消费者（idea-build 等技能）零改动
+- `tools/setup.py`：`detect_platform()`（windows/wsl/linux）+ `_probe_build_paths()`（常见 JDK/Maven 探测）+
+  `generate_home_env()`（首启非破坏生成，已存在即跳过）；main() 接入
+- `config/environments/local.yaml`（+template）、`runtime-bootstrap.md` Phase 2、`skill-author/SKILL.md`：
+  配置源顺序（机器层 home 优先 → workspace 层兑底 → 自动推导）文档化
+- `tools/path-audit.py`：`~/.config/ai-system/env.yaml` 入豁免（机器层运行时路径，与 $HOME/.claude 同类）
+- 新测试 `cli/tests/test_home_env.py`（9 用例：路径/合并/合并读取/生成非破坏）；
+  验证：CLI 132 测试 OK（123+9）/ repo-lint 25 WARN 无新增 / check.py PASS(3 既有) / path-audit 0 broken
+- 当前机器未生成 home 配置（避免静默把 backend=idea 换成探测默认）——现有 workspace local.yaml 继续生效为 fallback，
+  用户下次运行 setup.py 时首启生成（非破坏）；提案记录 `reports/P29-HOME-ENV-CONFIG.md`（Approved）
+
 **待确认小修（Change Control：确认后落）**
 1. `reports/README.md` 提案索引补 P28 行（L1，doc drift，一行）
 2. P26 状态 Proposed → Implemented（P26 文件 Status 字段 + PROPOSALS.md 同步；实现已 git 实证）
