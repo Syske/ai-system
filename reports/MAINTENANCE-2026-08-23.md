@@ -192,6 +192,11 @@ Templates +1 已核对：`templates/prompts/external-ai-review.md`（P3 外部 A
 1. `reports/README.md` 提案索引补 P28 行（L1，doc drift，一行）
 2. P26 状态 Proposed → Implemented（P26 文件 Status 字段 + PROPOSALS.md 同步；实现已 git 实证）
 
+→ **批次 A 已全部执行（用户确认 2026-08-23）**：P26 置 Implemented（补 Review Log + Implementation
+  Record，P25 惯例）；P28 补 README 提案索引；`templates/prompts/workflow-trigger.md` 死模板归档至
+  `archived/templates/`（+ ARCHIVE.md 记录）；AGENTS.md 运行目录表清理（删 ai-system_bak_260803、补
+  .qoder）。check.py 警告 3→2（P28 索引 warn 消失）。
+
 **建议（不改，跟踪/走各自流程）**
 - 25 WARN 既有债：技能缺 workflow.md 属技能架构口径，随技能维护流程处理；英文注释随相关文件改动顺手转中文
 - `skills/implement/examples.md` 内部重复示例：下次技能优化时去重

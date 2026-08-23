@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (workflow/runtime/纪律 + 分支契约) |
 | Author | AI Maintainer |
 | Created | 2026-08-20 |
@@ -70,7 +70,14 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
+| User (AI Maintainer operator) | **Approved** | 2026-08-20 |
 
-## Implementation Record (2026-08-20)
+## Implementation Record (2026-08-23)
 
-<!-- 实施后追加 -->
+- 实现已 git 实证（main 分支 cc96a7b 等提交）：`cli/services/branch_parser.py`（parse/render，never
+  raise，ParsedBranch{date,type,desc,service}）+ `cli/tests/test_branch_parser.py`（5 用例 OK）+
+  `tools/checks/__init__.py`/`workflow.py` check_branch_parser 门禁 + AI_OPERATING_RULES Workspace
+  Discipline 分支纪律 + `runtime-spec.md` Task Card `branch` 字段 + `aic-trace.md` 解析复用
+- 验证：CLI 135 测试 OK / check.py PASS / repo-lint 25 WARN 无新增
+- 开放项（defer，触发再评估）：分支扩展 provider（extensions/ 提供者，按需；契约已预留）、
+  CI 增强（git 分支保护，后续）——2026-08-23 maintain 巡检核验后维持 defer

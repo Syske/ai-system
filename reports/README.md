@@ -34,6 +34,7 @@
 | [P24](P24-PROVIDER-CONTRACT-TEST-FIX.md) | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归，已实施 exit 0） | 2026-08-17 |
 | [P25](P25-WORKFLOW-FRONTMATTER-SYNTAX.md) | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定（Implemented） | 2026-08-20 |
 | [P26](P26-MAIN-CHAIN-BRANCH-RULE.md) | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service} 暂定）+ 不可变（Proposed） | 2026-08-20 |
+| [P28](P28-CHANGE-ID-GENERATION.md) | Change ID 自动生成（规则 slug 派生优先，AI 可选后续） | 2026-08-21 |
 | [P29](P29-HOME-ENV-CONFIG.md) | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 |
 
 ---
@@ -56,7 +57,7 @@
 | 2026-08-14 | on-demand | 跨平台治理落地（P23 批次：gitattributes/hook/lint） | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` | —（P23 已 Implemented） |
 | 2026-08-17 | on-demand | 工具校验/周度巡检/一致性抽查 | `MAINTENANCE-2026-08-17.md` | R1: check.py 回归（FakeWizard 缺 projects_root）→ 已立提案 P24 待评审；其余全 PASS |
 | 2026-08-20 | on-demand | openapi-gateway OOM 流程提案（P1–P7 评估） | `MAINTENANCE-2026-08-20.md` | P7 简体规范已就地修（LANGUAGE_CONVENTION）；P4 技能触发词已登记 skills/README；P1/P2/P3/P5/P6 结构建议待变更管理立项 |
-| 2026-08-23 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次（提示词路径绝对化 + Windows 路径归一化） | `MAINTENANCE-2026-08-23.md` | 待确认：P26 状态置 Implemented；P28 补 README 提案索引；方案 3（根占位符填充）/方案 4（workflow-trigger 死模板）待立项 |
+| 2026-08-23 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次（提示词路径绝对化 + Windows 路径归一化 + env-init） | `MAINTENANCE-2026-08-23.md` | 批次 A 已落地：P26 置 Implemented；P28 已补 README 索引；workflow-trigger 死模板已归档；方案 3（根占位符填充）待立项 |
 
 ---
 

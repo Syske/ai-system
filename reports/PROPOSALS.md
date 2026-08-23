@@ -29,7 +29,7 @@
 | Implemented | 跨平台（Linux/WSL + Windows）混合维护治理约定 | 2026-08-14 | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` |
 | Implemented | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归） | 2026-08-17 | `P24-PROVIDER-CONTRACT-TEST-FIX.md` |
 | Implemented | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定 | 2026-08-20 | `P25-WORKFLOW-FRONTMATTER-SYNTAX.md` |
-| Proposed | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service}，暂定）+ 创建后不可变 | 2026-08-20 | `P26-MAIN-CHAIN-BRANCH-RULE.md` |
+| Implemented | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service}，暂定）+ 创建后不可变 | 2026-08-20 | `P26-MAIN-CHAIN-BRANCH-RULE.md` |
 | Proposed | Change ID 自动生成（规则 slug 派生优先，AI 可选后续） | 2026-08-21 | `P28-CHANGE-ID-GENERATION.md` |
 | Approved | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 | `P29-HOME-ENV-CONFIG.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |

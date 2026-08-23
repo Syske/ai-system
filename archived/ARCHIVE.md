@@ -155,3 +155,18 @@ See `reports/VALUE-BURDEN-DECISION-skill-optimizer-2026-08-17.md`.
 - Stale refs cleaned: `governance/policies/security-policy.md`, `config/skill-groups.yaml`,
   `tools/extensions-init.py`, `tools/path-audit.py` allowlist, `cli/services/wizard/{fields,steps}.py`
 - Removed from archived tree: `.env` (live key, never committed), `__pycache__/`
+
+---
+
+## 2026-08-23 — 死模板归档：workflow-trigger.md
+
+**Reason:** `templates/prompts/workflow-trigger.md` 无任何代码消费（prompt_builder 仅读
+workflow.md/command.md；chain/skill launcher 仅读 skill-launch.md），其 `{{workflow_path}}`
+占位符无填充方。08-20 P1 修复批次曾随 main.py 一并编辑该文件，但实际修复在 main.py
+（context 透传）；模板为死代码维护，归档保留历史。
+
+### Moved Files
+
+| Original Path | Reason |
+|---|---|
+| `templates/prompts/workflow-trigger.md` | 死模板（零代码引用），归档保留 |
