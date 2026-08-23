@@ -215,7 +215,13 @@ def main():
             candidates = [AIS / tok, WS / tok]
 
             if tok.startswith("ai-system/"):
-                candidates = [WS / tok]
+                # `ai-system/X` 双形态解析：workspace 部署（WS/ai-system/X）与
+                # CI checkout（仓库根即 ai-system → AIS/X）都可达；
+                # 裸 `ai-system/`（目录引用）→ AIS 自身。
+                candidates = [
+                    AIS / tok[len("ai-system/"):],
+                    WS / tok,
+                ]
 
             if not any(c.exists() for c in candidates):
                 if is_runtime_reference(tok):
