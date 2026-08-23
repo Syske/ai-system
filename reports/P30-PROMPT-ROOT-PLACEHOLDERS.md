@@ -49,13 +49,13 @@
 
 ## 5. Proposed Changes
 
-- [ ] `cli/services/prompt_builder.py`：新增 `_resolve_root_placeholders(prompt, root)`——
+^- [x] `cli/services/prompt_builder.py`：新增 `_resolve_root_placeholders(prompt, root)`——
   以 `environment.paths(root)` 根键为白名单，仅替换 `{key}` 单括号占位符；paths() 异常
   或键缺失时保留原文；应用于 workflow/command 渲染产物
-- [ ] `cli/tests/test_prompt_builder.py`（或 test_home_env.py）：断言 dev-setup/bootstrap
+^- [x] `cli/tests/test_prompt_builder.py`（或 test_home_env.py）：断言 dev-setup/bootstrap
   构建产物中 `{workspace_root}` 已替换为绝对路径、`{service_id}`/`{desc}` 等运行期键保留、
   paths() 失败回退
-- [ ] 文档：`reports/P30-...md` 状态与 README 登记
+^- [x] 文档：`reports/P30-...md` 状态与 README 登记
 
 ## 6. Validation Plan
 

@@ -46,13 +46,13 @@ rpc-conventions，含 `net.coolcollege.*`）是**公司特有**规范，却位�
 
 ## 5. Proposed Changes
 
-- [ ] `governance/standards/cool/*` → `extensions/company-standards/cool/`（extensions 为独立
+- [x] `governance/standards/cool/*` → `extensions/company-standards/cool/`（extensions 为独立
   git 仓，需走扩展仓流程提交）
-- [ ] `loaders/standards-loader.md`：standards 根路径配置化（仿 layers.skills：环境配置
+- [x] `loaders/standards-loader.md`：standards 根路径配置化（仿 layers.skills：环境配置
   `layers.standards.path` 或 config 引用，缺省指向通用层）
-- [ ] `templates/runtime/runtime-release.md`（4 处引用）+ 其他引用同步更新
-- [ ] cool 内容脱敏核查（`net.coolcollege.*` 等品牌名 → 中性表述）
-- [ ] 一致性抽查：path-audit / check.py / 文档-现实对照
+- [x] `templates/runtime/runtime-release.md`（4 处引用）+ 其他引用同步更新
+- [x] cool 内容脱敏核查（`net.coolcollege.*` 等品牌名 → 中性表述）
+- [x] 一致性抽查：path-audit / check.py / 文档-现实对照
 
 ## 6. Validation Plan
 

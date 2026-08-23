@@ -21,7 +21,13 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    ```bash
    python tools/quick-check.py            # lint + path + extensions, records findings
    python tools/quick-check.py --history  # recent snapshots (trend for report)
+   python tools/maintain-delta.py --check # delta verdict: NO_CHANGES -> skip full audits
    ```
+
+   - `maintain-delta.py --check` verdicts: FIRST_RUN → full audit; NO_CHANGES
+     (no commits since the last full run) → skip the heavy audits in Step 1/2,
+     keep only quick-check + state hygiene + report; CHANGED → run only the
+     affected-area tool subset (see the `suggested` line)
 
 1. **Tool checks** (run in the ai-system directory)
 
@@ -32,6 +38,11 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    ```
 
    Do not proceed to later steps until BLOCKER / ERROR are fixed (report only, do not fix on your own).
+   After the full run completes, record the delta baseline:
+
+   ```bash
+   python tools/maintain-delta.py --record   # record current HEAD as the next delta baseline
+   ```
 
 2. **Mode-based inspection** (per skills/repository-maintainer and OPERATIONS.md section 9)
    - weekly: duplication report, dependency graph, orphan assets, health score
@@ -62,6 +73,14 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    - **Proposal leftovers**: run `python tools/proposal-audit.py` — evaluate open proposals (Status ≠ Implemented/Approved/Rejected/Archived) and unclosed `- [ ]` action items in reports/; refresh the index (`--refresh-index`) and report each leftover's disposition (approve / implement / reject / defer)
 
 4. **Persist report**
+   - Generate the report skeleton first (auto sections: tool checks / metric diff / trend / proposals):
+
+     ```bash
+     python tools/maintain-report.py --date {date}
+     ```
+
+     Then the AI fills the narrative sections (findings by severity / consistency
+     spot-check results / fix list). Non-destructive: existing file is not overwritten.
    - Write to ai-system/reports/MAINTENANCE-{date}.md: findings list (by severity), fix suggestions, metric comparison (vs previous snapshot)
    - Minor issues (typos, broken links, doc drift) may be fixed in place after confirmation and recorded
    - Structural changes (directory adjustments, module merges, contract modifications) **output suggestions only**, go through the OPERATIONS section 11 change management flow (Analyze → Propose → Review → Approve)

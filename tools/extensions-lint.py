@@ -46,6 +46,7 @@ DEFAULT_RULES = {
     "require_skill_md": [],
     "require_opt_log": [],
     "parser_providers": [],
+    "non_skill_domains": [],
     "forbidden_artifacts": [],
     "forbidden_suffixes": [],
     "kebab_case": False,
@@ -171,13 +172,15 @@ def check_extension(ext_dir: Path, rules: dict, res: Results, verbose: bool):
 
     is_parser = _matches(name, rules["parser_providers"])
 
+    is_non_skill = _matches(name, rules["non_skill_domains"])
+
     if rules.get("kebab_case") and not KUBE_RE.match(name):
         res.error(f"{name}: directory name must be kebab-case (got '{name}')")
 
     has_skill = (ext_dir / "SKILL.md").exists()
 
-    # 1. required files (parser providers exempt)
-    if not is_parser:
+    # 1. required files (parser providers + non-skill domains exempt)
+    if not is_parser and not is_non_skill:
         if _matches(name, rules["require_skill_md"]) and not has_skill:
             res.warn(
                 f"{name}: missing SKILL.md (required by "
@@ -212,6 +215,8 @@ def scaffold_missing_logs(ext_root: Path, rules: dict) -> int:
             continue
         name = ext_dir.name
         if _matches(name, rules["parser_providers"]):
+            continue
+        if _matches(name, rules.get("non_skill_domains", [])):
             continue
         if _matches(name, rules["require_opt_log"]) and \
                 not (ext_dir / "OPTIMIZATION_LOG.md").exists():
