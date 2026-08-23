@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (L3，ADR-0009 两层分离) |
 | Author | AI Maintainer |
 | Created | 2026-08-23 |
@@ -72,3 +72,22 @@ rpc-conventions，含 `net.coolcollege.*`）是**公司特有**规范，却位�
 
 | Reviewer | Decision | Date |
 |---|---|---|
+| User (AI Maintainer operator) | **Approved**（确认即实施） | 2026-08-23 |
+
+## Implementation Record (2026-08-23)
+
+Applied per approval:
+1. `governance/standards/cool/*`（5 文件）迁至 `extensions/company-standards/cool/`（extensions 独立仓提交
+   a08011b）；原位置 git rm（历史保留于 ai-system git）
+2. 脱敏：`net.coolcollege.*` → `com.coolspec.*`（rpc-conventions，与 tr5 全量脱敏先例一致）；
+   extensions/company-standards/README.md 定位与加载说明
+3. 加载配置化：`cli/services/environment.py::paths()` 新增 `company_standards_root`
+   （`layers.company_standards.path` 可配置，缺省 `{workspace_root}/extensions/company-standards`）；
+   local.yaml + template 登记 layers.company_standards
+4. 引用同步：standards-loader.md（Cool College Project 段 → `{company_standards_root}/cool/...` +
+   配置说明）、runtime-release.md（9 处）、governance/standards/mq/rocketmq.md（1 处）
+5. 测试：test_home_env +2（company_standards_root 缺省/可配置覆盖）
+
+验证：CLI 138 测试 OK（+2）；path-audit 0 broken（extensions/ 引用不在 PATH_RE 扫描面，CI 无
+ extensions 仓零影响，符合既有 guardrail）；check.py PASS（2 提案跟踪 warn）/ repo-lint 25 WARN
+ 无新增；活引用残留扫描干净（logs/reports/archived 历史记录除外）

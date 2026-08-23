@@ -164,7 +164,7 @@ For each completed Task Card:
   - MQ Producer → producer config declared?
   - RPC Facade → method declared in interface with version?
   - Apollo key → appears in configuration checklist?
-- Standards: `governance/standards/cool/rpc-conventions.md` + `governance/standards/cool/rocketmq-conventions.md`
+- Standards: `extensions/company-standards/cool/rpc-conventions.md` + `extensions/company-standards/cool/rocketmq-conventions.md`
 
 **4. Quality baseline**
 - Lightweight scan of the task's changed files:
@@ -200,7 +200,7 @@ Generate one report per task:
 |---|---|
 | 范围一致性 | governance/SOURCE_OF_TRUTH.md |
 | 迭代残留 | governance/standards/common/task-quality-checklist.md |
-| 注册完整性 | governance/standards/cool/rpc-conventions.md / rocketmq-conventions.md |
+| 注册完整性 | extensions/company-standards/cool/rpc-conventions.md / rocketmq-conventions.md |
 | 代码质量基线 | governance/standards/common/task-quality-checklist.md |
 | 跨服务一致性 | governance/standards/common/cross-project-sync.md |
 
@@ -306,7 +306,7 @@ After all tasks reviewed, generate `release-branch-review.md`:
 |---|---|
 | 范围一致性 | governance/SOURCE_OF_TRUTH.md |
 | 迭代残留 + 基线质量 | governance/standards/common/task-quality-checklist.md + clean-code.md |
-| 注册完整性 | governance/standards/cool/rpc-conventions.md + rocketmq-conventions.md |
+| 注册完整性 | extensions/company-standards/cool/rpc-conventions.md + rocketmq-conventions.md |
 | 跨服务一致性 | governance/standards/common/cross-project-sync.md |
 | 发现分级 | governance/policies/quality-gates.md |
 
@@ -342,8 +342,8 @@ Check:
 - Enum Value Naming (validate against naming convention)
 
 Check against:
-- governance/standards/cool/enum-naming.md
-- governance/standards/cool/enum-dml.md
+- extensions/company-standards/cool/enum-naming.md
+- extensions/company-standards/cool/enum-dml.md
 
 Generate:
 
@@ -426,7 +426,7 @@ Check:
 - Runtime Parameters
 
 MQ configuration changes MUST follow the RocketMQ Convention:
-- governance/standards/cool/rocketmq-conventions.md
+- extensions/company-standards/cool/rocketmq-conventions.md
 
 Check: producer/consumer channel naming, Consumer 4-field spec, group-id prefix, environment isolation, message body documentation.
 
@@ -483,7 +483,7 @@ Verify:
 □ Downstream dependency impact evaluated
 
 Check against RPC Convention:
-- governance/standards/cool/rpc-conventions.md
+- extensions/company-standards/cool/rpc-conventions.md
 
 # Phase 6 — Dependency Analysis
 

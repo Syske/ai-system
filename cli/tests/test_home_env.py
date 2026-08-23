@@ -139,6 +139,28 @@ class TestLoadMerged(unittest.TestCase):
         ps = environment.paths(self.root)
         # home 的 workspace.root 生效 → workspace_root 随之
         self.assertEqual(str(ps["workspace_root"]), "/ws/home-anchor")
+        # P31：company_standards_root 缺省 = workspace/extensions/company-standards
+        self.assertEqual(
+            str(ps["company_standards_root"]),
+            "/ws/home-anchor/extensions/company-standards",
+        )
+
+    def test_company_standards_root_configurable(self):
+        # P31：layers.company_standards.path 可覆盖（loader 配置化）
+        (self.root / "config" / "environments" / "local.yaml").write_text(
+            "workspace:\n"
+            "  root: /ws/derived\n"
+            "layers:\n"
+            "  company_standards:\n"
+            "    path: /custom/standards\n",
+            encoding="utf-8",
+        )
+        environment.ai_system_root = lambda: self.root
+        try:
+            ps = environment.paths(self.root)
+            self.assertEqual(str(ps["company_standards_root"]), "/custom/standards")
+        finally:
+            environment.ai_system_root = self._orig_ai_system_root
 
     def test_home_not_merged_for_foreign_root(self):
         # 非安装根（测试/备用克隆传任意 root）→ home 层不生效，保持隔离

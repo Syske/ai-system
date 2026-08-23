@@ -126,11 +126,13 @@ Purpose
 
 ### Cool College Project
 
-* governance/standards/cool/enum-naming.md
+* {company_standards_root}/cool/enum-naming.md
+* {company_standards_root}/cool/i18n.md
+* {company_standards_root}/cool/enum-dml.md
 
-* governance/standards/cool/i18n.md
-
-* governance/standards/cool/enum-dml.md
+> 公司特有规范根（P31）：`company_standards_root` 由环境配置
+> `layers.company_standards.path` 解析（缺省 `{workspace_root}/extensions/company-standards`）；
+> 缺 extensions 仓时该组规范不加载（可选）。
 
 ### Task-Type Standards
 

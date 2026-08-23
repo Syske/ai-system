@@ -225,6 +225,10 @@ def paths(
         layers.get("skills") or {}
     )
 
+    company_standards = (
+        layers.get("company_standards") or {}
+    )
+
     outputs_root = (
         workspace.get("outputs_root")
         or workspace_root / "outputs"
@@ -246,6 +250,10 @@ def paths(
         "skills_root": (
             _path(skills.get("path"))
             or workspace_root / "extensions"
+        ),
+        "company_standards_root": (
+            _path(company_standards.get("path"))
+            or workspace_root / "extensions" / "company-standards"
         ),
         "outputs_root": _path(outputs_root),
     }

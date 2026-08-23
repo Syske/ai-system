@@ -37,7 +37,7 @@
 | [P28](P28-CHANGE-ID-GENERATION.md) | Change ID 自动生成（规则 slug 派生优先，AI 可选后续） | 2026-08-21 |
 | [P29](P29-HOME-ENV-CONFIG.md) | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 |
 | [P30](P30-PROMPT-ROOT-PLACEHOLDERS.md) | 提示词渲染期解析根路径占位符（{workspace_root} 等，模板零改动）— **Implemented** | 2026-08-23 |
-| [P31](P31-STANDARDS-COOL-MIGRATION.md) | standards/cool 公司规范迁出通用层（extensions + loader 可配置） | 2026-08-23 |
+| [P31](P31-STANDARDS-COOL-MIGRATION.md) | standards/cool 公司规范迁出通用层（extensions + loader 可配置）— **Implemented** | 2026-08-23 |
 
 ---
 

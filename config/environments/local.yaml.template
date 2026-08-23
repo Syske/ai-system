@@ -34,3 +34,7 @@ layers:
     description: governance standards, openspec, specs, contracts
   skills:
     description: company/platform skill extensions (not auto-scanned by agents)
+  company_standards:
+    # 公司特有规范根（P31）——缺省 workspace/extensions/company-standards；
+    # 需覆盖时填写绝对路径
+    # path: ""
