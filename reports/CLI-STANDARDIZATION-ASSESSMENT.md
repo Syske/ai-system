@@ -34,7 +34,7 @@
 | # | 缺口 | 证据 | 影响 |
 |---|------|------|------|
 | C3 | **悬空命令引用** | `/aic-continue`（aic-apply.md:30）、`/aic-new`、`/aic-ff`（aic-explore.md:7）无对应文件 | 文档与命令体系脱节；check.py 不查文档内命令引用 |
-| C4 | **大文件 + 职责混杂** | wizard.py 1235 / menu.py 1264（i18n+终端+输入组件+模块级全局态） | 修改风险高、测试难写 |
+| C4 | **大文件 + 职责混杂** | wizard.py 1235 / menu.py 1264（i18n+终端+输入组件+模块级全局态） | ✅ **已解决（2026-08-18 拆包）**：wizard → `cli/services/wizard/` 包（__init__ 131 / fields 401 / steps 359 / selection 505 / analysis+base+intake+output）；menu → `menu_config.py`（353）；无 >1000 行服务文件 |
 | C5 | **"实验性"标记未收尾** | aic-apply.md / aic-archive.md description 标 experimental | 规范化程度不一 |
 
 ### 🟢 低优先级

@@ -35,6 +35,8 @@
 - #1-3: 命令 Steps 中的中文为参数说明,**属用户面向内容**,可接受(与 LANGUAGE_CONVENTION 交互提示用中文一致);或改英文待定
 - #4: 低风险,可顺手改为中文注释
 - #5-7: memory 索引条目,需按 LANGUAGE_CONVENTION 的 Coding Memory → English 要求翻译,属独立工作项
+  → ✅ **已完成（2026-08-23 核验）**：`governance/memory/` 全部文件实测 0 中文字符（coding-memory 45行/0、
+    ai-system/coding-memory 13/0、workflow-chain 36/0、java/spring 90/0 等）
 
 **决策:本次仅补全检查规则(防止新增违规),存量债登记不批量修**(最小改动原则)。后续单独处理。
 

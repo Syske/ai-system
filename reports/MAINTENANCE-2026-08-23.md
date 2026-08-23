@@ -197,6 +197,12 @@ Templates +1 已核对：`templates/prompts/external-ai-review.md`（P3 外部 A
   `archived/templates/`（+ ARCHIVE.md 记录）；AGENTS.md 运行目录表清理（删 ai-system_bak_260803、补
   .qoder）。check.py 警告 3→2（P28 索引 warn 消失）。
 
+**待立项 → 已立提案（用户确认 2026-08-23，逐项讨论后）**
+- **P30**（方案 3）：提示词渲染期解析根路径占位符——白名单替换（仅 paths() 根键），模板零改动，P25 单一来源保持
+- **P31**（ADR-0009 P1）：standards/cool 公司规范迁出通用层——extensions + loader 可配置；实施时机按 Evolution 门控（等真实触发或立即排期，评审后定）
+- **C4 大文件拆分 → 已解决关闭**：08-18 已拆包（wizard/ 包 + menu_config.py 353 行），CLI-STANDARDIZATION-ASSESSMENT 已标记 ✅
+- **memory 英文翻译 #5-7 → 已解决关闭**：governance/memory/ 全部 0 中文字符实测，语言债报告已标记 ✅
+
 **建议（不改，跟踪/走各自流程）**
 - 25 WARN 既有债：技能缺 workflow.md 属技能架构口径，随技能维护流程处理；英文注释随相关文件改动顺手转中文
 - `skills/implement/examples.md` 内部重复示例：下次技能优化时去重

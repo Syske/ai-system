@@ -32,6 +32,8 @@
 | Implemented | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service}，暂定）+ 创建后不可变 | 2026-08-20 | `P26-MAIN-CHAIN-BRANCH-RULE.md` |
 | Proposed | Change ID 自动生成（规则 slug 派生优先，AI 可选后续） | 2026-08-21 | `P28-CHANGE-ID-GENERATION.md` |
 | Approved | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 | `P29-HOME-ENV-CONFIG.md` |
+| Proposed | 提示词渲染期解析根路径占位符（{workspace_root} 等，模板零改动） | 2026-08-23 | `P30-PROMPT-ROOT-PLACEHOLDERS.md` |
+| Proposed | standards/cool 公司规范迁出通用层（extensions + loader 可配置） | 2026-08-23 | `P31-STANDARDS-COOL-MIGRATION.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
