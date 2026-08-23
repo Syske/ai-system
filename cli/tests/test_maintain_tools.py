@@ -57,20 +57,14 @@ class TestMaintainDelta(unittest.TestCase):
         self.assertEqual(v["verdict"], "NO_CHANGES")
 
     def test_changed_detects_areas(self):
-        # 伪造旧 HEAD（根提交）→ diff 全量 → CHANGED + 区域非空
-        import subprocess
-
-        root_commit = subprocess.run(
-            ["git", "rev-list", "--max-parents=0", "HEAD"],
-            cwd=str(REPO_ROOT),
-            capture_output=True,
-            text=True,
-        ).stdout.strip()
-        self.assertTrue(root_commit)
-        self.delta.save_state(root_commit, "2026-08-22")
+        # 打桩判定逻辑（不依赖 git 历史深度——CI 为 shallow checkout，
+        # rev-list --max-parents=0 会返回浅边界=HEAD 自身，无法取真实根提交）
+        self.delta.save_state("old-head", "2026-08-22")
+        self.delta.current_head = lambda: "new-head"
+        self.delta.changed_areas = lambda old, new: (["cli", "tools"], ["cli/a.py"])
         v = self.delta.check_verdict()
         self.assertEqual(v["verdict"], "CHANGED")
-        self.assertTrue(v["areas"])
+        self.assertEqual(v["areas"], ["cli", "tools"])
         self.assertTrue(v["suggested_tools"])
 
     def test_state_roundtrip(self):
