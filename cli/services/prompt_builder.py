@@ -118,7 +118,11 @@ class PromptBuilder:
                         runtime_md
                     ),
                 "inputs":
-                    self._inputs(context, declared)
+                    self._inputs(context, declared),
+                "ai_system_root":
+                    str(self.root),
+                "workspace_root":
+                    str(self.root.parent),
             }
         )
 
@@ -160,7 +164,7 @@ class PromptBuilder:
         for c in caps:
 
             desc = c.get("desc") or ""
-            path = c.get("path") or ""
+            path = self._resolve_ref(c.get("path") or "")
 
             lines.append(
                 f"- {c.get('skill', '')} ({path}) — {desc}"
@@ -192,9 +196,37 @@ class PromptBuilder:
                 "command_definition":
                     read_text(command_path),
                 "inputs":
-                    self._inputs(context, declared)
+                    self._inputs(context, declared),
+                "ai_system_root":
+                    str(self.root),
+                "workspace_root":
+                    str(self.root.parent),
             }
         )
+
+    def _resolve_ref(self, p: str) -> str:
+        """把能力引用路径解析为绝对路径（存在性优先）。
+
+        约定：skills/... 相对 ai-system 根，extensions/... 相对 workspace 根；
+        目标存在才绝对化，不存在时保留原样（不臆造），避免生成不可解析路径。
+        """
+
+        if not p:
+            return ""
+
+        cand = Path(p)
+
+        if cand.is_absolute():
+            return str(cand)
+
+        for base in (self.root, self.root.parent):
+
+            probe = base / p
+
+            if probe.exists():
+                return str(probe)
+
+        return p
 
     def _workflow_fields(self, workflow_md):
         """Field names declared by a workflow's ## Inputs section.
@@ -301,8 +333,8 @@ class PromptBuilder:
 
         return "\n".join(lines)
 
-    @staticmethod
     def _skeletonize_runtime(
+        self,
         runtime_path: str,
         runtime_md: str
     ) -> str:
@@ -352,7 +384,7 @@ class PromptBuilder:
             f""
         )
         skeleton.append(
-            f"Full runtime template: ai-system/{runtime_path} "
+            f"Full runtime template: {self.root / runtime_path} "
             "(read the phase's section when executing it)"
         )
 

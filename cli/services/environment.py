@@ -58,12 +58,31 @@ def load_environment(
     return data
 
 
+def _normalize_path(value):
+    """Windows 风格绝对路径（D:\\...）归一化为 WSL 路径（/mnt/d/...）。
+
+    防止 PosixPath 把反斜杠路径当作相对路径而伪造目录
+    （如 /home/.../D:\\workspace\\...）。与 providers._linux_path 同构。
+    """
+
+    s = str(value)
+
+    if len(s) < 3 or s[1] != ":" or s[2] not in ("\\", "/"):
+        return s
+
+    s = s.replace("\\", "/")
+
+    drive = s[0].lower()
+
+    return f"/mnt/{drive}{s[2:]}"
+
+
 def _path(value):
 
     if not value:
         return None
 
-    return Path(value)
+    return Path(_normalize_path(value))
 
 
 def paths(
@@ -198,7 +217,7 @@ def ai_system_root(start=None):
 
     if env_anchor:
 
-        p = Path(env_anchor).resolve()
+        p = Path(_normalize_path(env_anchor)).resolve()
 
         if p.is_dir() and (p / "config" / "environments").is_dir():
             return p
