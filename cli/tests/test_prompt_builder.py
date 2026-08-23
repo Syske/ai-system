@@ -109,6 +109,32 @@ class TestFieldContract(unittest.TestCase):
         self.assertIn("Release Version: 1.0", inputs)
         self.assertNotIn("totally_unrelated", inputs)
 
+    def test_root_placeholders_resolved_at_render(self):
+        # P30：根路径占位符渲染期白名单替换（仅 paths() 根键）
+        prompt = self.builder.build("dev-setup", {})
+        # 根键被替换为绝对路径
+        self.assertNotIn("{workspace_root}", prompt)
+        self.assertNotIn("{repository_root}", prompt)
+        # 运行期键保持符号（白名单外）
+        self.assertIn("{project_id}", prompt)
+        self.assertIn("{service_id}", prompt)
+
+    def test_root_placeholders_fallback_on_paths_failure(self):
+        # P30：paths() 解析失败 → 保留原文（与现状一致）
+        import cli.services.environment as env_mod
+
+        orig = env_mod.paths
+
+        def boom(root, name="local"):
+            raise RuntimeError("env broken")
+
+        env_mod.paths = boom
+        try:
+            prompt = self.builder.build("bootstrap", {})
+            self.assertIn("config/environments", prompt)
+        finally:
+            env_mod.paths = orig
+
 
 if __name__ == "__main__":
     unittest.main()

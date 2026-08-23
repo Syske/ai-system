@@ -126,9 +126,11 @@ class PromptBuilder:
             }
         )
 
-        return self._append_main_chain_caps(
-            prompt,
-            workflow_name
+        return self._resolve_root_placeholders(
+            self._append_main_chain_caps(
+                prompt,
+                workflow_name
+            )
         )
 
     def _append_main_chain_caps(
@@ -188,21 +190,57 @@ class PromptBuilder:
             / "command.md"
         )
 
-        return self._render(
-            template,
-            {
-                "command_name":
-                    name,
-                "command_definition":
-                    read_text(command_path),
-                "inputs":
-                    self._inputs(context, declared),
-                "ai_system_root":
-                    str(self.root),
-                "workspace_root":
-                    str(self.root.parent),
-            }
+        return self._resolve_root_placeholders(
+            self._render(
+                template,
+                {
+                    "command_name":
+                        name,
+                    "command_definition":
+                        read_text(command_path),
+                    "inputs":
+                        self._inputs(context, declared),
+                    "ai_system_root":
+                        str(self.root),
+                    "workspace_root":
+                        str(self.root.parent),
+                }
+            )
         )
+
+    def _resolve_root_placeholders(self, prompt: str) -> str:
+        """渲染期解析根路径占位符（P30，白名单）。
+
+        仅替换 environment.paths() 返回的键（{workspace_root}/{repository_root}/
+        {workspaces_root}/{outputs_root}/{environment} 等）的单括号占位符；
+        运行期键（{desc}/{date}/{service_id}/{project_id} 等）不在白名单，保持符号。
+        模板文件零改动（P25 单一来源）；paths() 解析失败或键缺失时保留原文。
+        """
+
+        try:
+
+            from cli.services.environment import paths
+
+            resolved = {
+                k: str(v)
+                for k, v in paths(self.root).items()
+                if v
+            }
+
+        except Exception:
+
+            return prompt
+
+        result = prompt
+
+        for key, value in resolved.items():
+
+            result = result.replace(
+                "{" + key + "}",
+                value
+            )
+
+        return result
 
     def _resolve_ref(self, p: str) -> str:
         """把能力引用路径解析为绝对路径（存在性优先）。

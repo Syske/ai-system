@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Fix (prompt 渲染层，模板文件零改动) |
 | Author | AI Maintainer |
 | Created | 2026-08-23 |
@@ -77,3 +77,18 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
+| User (AI Maintainer operator) | **Approved**（确认即实施） | 2026-08-23 |
+
+## Implementation Record (2026-08-23)
+
+Applied per approval:
+1. `cli/services/prompt_builder.py`：新增 `_resolve_root_placeholders(prompt)`——白名单 =
+   `environment.paths(root)` 全部键（workspace_root / repository_root / workspaces_root /
+   outputs_root / ai_system_root / methodologies_root / skills_root / environment 等），
+   仅替换单括号 `{key}`；paths() 异常或键缺失保留原文；应用于 workflow 与 command 渲染产物
+2. 模板文件**零改动**（P25 单一来源保持；替换仅存在于渲染产物）
+3. `cli/tests/test_prompt_builder.py`：+2 用例（dev-setup 根键替换/运行期键保留；paths 失败回退）
+
+验证：dev-setup/bootstrap/release 构建产物根键残留 0、`{project_id}`/`{service_id}` 等运行期键
+保留；异常回退原文；CLI 137 测试 OK（+2）；check.py PASS（2 提案跟踪 warn）/ repo-lint 25 WARN
+无新增 / path-audit 0 broken
