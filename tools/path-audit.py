@@ -41,6 +41,10 @@ FALSE_POSITIVES = {
     r"D:\tools\java\jdk8",
     r"D:\tools\java\jdk-17",
     r"D:\tools\apache-maven-3.6.3",
+    # 机器层环境配置 ~/.config/ai-system/env.yaml（P29：首启生成，运行时环境，
+    # 非仓库内路径；~ 被剥离后呈 config/... 相对形，实为 home 引用）
+    "config/ai-system/env.yaml",
+    ".config/ai-system/env.yaml",
     # skill-author 约定示例/代码片段的 token（resolve_environment 的
     # paths 键、反例 "C:\Program Files\Java\..."）——非真实依赖
     "config/paths",

@@ -229,6 +229,169 @@ def generate_env(
     return True
 
 
+def detect_platform():
+    """平台检测：windows / wsl / linux（供首启生成机器层配置）。"""
+
+    import platform
+
+    if sys.platform == "win32":
+        return "windows"
+
+    if sys.platform.startswith("linux"):
+
+        release = platform.release().lower()
+
+        if "microsoft" in release or "wsl" in release:
+            return "wsl"
+
+        return "linux"
+
+    return sys.platform
+
+
+def _probe_build_paths(platform_name):
+    """按平台探测常见 JDK/Maven 位置（找不到返回空串，用户自行填写）。"""
+
+    java_home = ""
+    maven_home = ""
+
+    candidates = {
+        "windows": [
+            ("JAVA_HOME", "JAVA_HOME"),
+            ("D:/tools/java", "D:/tools/java"),
+            ("C:/Program Files/Java", "C:/Program Files/Java"),
+        ],
+        "wsl": [
+            ("/usr/lib/jvm", "/usr/lib/jvm"),
+            ("/opt/java", "/opt/java"),
+            ("/mnt/d/tools/java", "/mnt/d/tools/java"),
+        ],
+        "linux": [
+            ("/usr/lib/jvm", "/usr/lib/jvm"),
+            ("/opt/java", "/opt/java"),
+        ],
+    }[platform_name]
+
+    env_candidates = [c for c in candidates if c[0] == "JAVA_HOME"]
+
+    for env_name, _ in env_candidates:
+
+        val = os.environ.get(env_name)
+
+        if val:
+            java_home = val
+            break
+
+    if not java_home:
+
+        for env_name, base in candidates:
+
+            if env_name == "JAVA_HOME":
+                continue
+
+            if os.path.isdir(base):
+
+                entries = sorted(os.listdir(base))
+
+                jdk = next(
+                    (e for e in entries if e.lower().startswith("jdk") or "java" in e.lower()),
+                    None
+                )
+
+                if jdk:
+                    java_home = os.path.join(base, jdk)
+                    break
+
+    for env_name, base in candidates:
+
+        if env_name == "JAVA_HOME":
+            continue
+
+        maven = os.path.join(base, "..", "apache-maven-3.6.3")
+
+        maven = os.path.normpath(maven)
+
+        if os.path.isdir(maven):
+            maven_home = maven
+            break
+
+    return java_home, maven_home
+
+
+def generate_home_env(
+    workspace_root,
+    interactive
+):
+    """首启生成机器层配置 ~/.config/ai-system/env.yaml（非破坏，存在即跳过）。
+
+    默认全部走 ~/.config：跨平台原生（Path.home()/.config 各平台一致）；
+    按系统检测生成；特殊情况（如 WSL 下 /mnt/d/...）用户自行编辑本文件。
+    """
+
+    from cli.services.environment import home_config_path
+
+    target = home_config_path()
+
+    if target.exists():
+        print(f"home config exists, skipping: {target}")
+        return False
+
+    platform_name = detect_platform()
+
+    java_home, maven_home = _probe_build_paths(platform_name)
+
+    if interactive and not java_home:
+
+        java_home = _ask_path(
+            "Java home (build.java_home, 留空跳过)",
+            "",
+            only_directories=True
+        )
+
+    if interactive and not maven_home:
+
+        maven_home = _ask_path(
+            "Maven home (build.maven_home, 留空跳过)",
+            "",
+            only_directories=True
+        )
+
+    data = {
+        "workspace": {
+            "root": str(workspace_root),
+        },
+        "build": {
+            "java_home": java_home,
+            "maven_home": maven_home,
+            "maven_settings": "",
+            "backend": "maven",
+        },
+    }
+
+    import yaml
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    target.write_text(
+        "# 机器层环境配置（首启按系统检测生成，可自行编辑）。\n"
+        "# 平台: " + platform_name + "\n"
+        "# 跨平台原生：默认全部走 ~/.config；WSL/Linux 用 /mnt/d/... 或 /usr/...，"
+        "Windows 用 D:\\...，各平台各有一份，互不覆盖。\n"
+        "# 特殊情况（如 WSL 工作区在 /mnt/d/...）：直接修改本文件对应路径即可。\n"
+        + yaml.safe_dump(
+            data,
+            allow_unicode=True,
+            sort_keys=False
+        ),
+        encoding="utf-8"
+    )
+
+    print(f"generated: {target} (平台: {platform_name})")
+    print("  -> 如需调整（如 WSL 路径 /mnt/d/...），直接编辑该文件")
+
+    return True
+
+
 def scaffold(workspace_root):
 
     created = 0
@@ -441,6 +604,11 @@ def main():
     generate_env(
         workspace_root,
         environment,
+        interactive
+    )
+
+    generate_home_env(
+        workspace_root,
         interactive
     )
 

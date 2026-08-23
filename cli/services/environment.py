@@ -6,11 +6,63 @@ unparsable. The derivation mirrors runtime-bootstrap.md Phase 2 so the CLI
 and the bootstrap runtime share one source of truth.
 """
 
+import os
 from pathlib import Path
 
 from cli.utils.yaml import load_yaml
 
 DEFAULT_ENV = "local"
+
+
+def home_config_path():
+    """机器层环境配置：~/.config/ai-system/env.yaml。
+
+    跨平台原生（Windows 下即 C:\\Users\\<user>\\.config\\...），
+    首启由 setup.py 按系统检测生成，特殊情况（如 WSL 路径）用户自行编辑。
+    可用环境变量 AI_HOME_CONFIG 覆盖（测试/多配置场景）。
+    """
+
+    override = os.environ.get("AI_HOME_CONFIG")
+
+    if override:
+        return Path(override)
+
+    return (
+        Path.home()
+        / ".config"
+        / "ai-system"
+        / "env.yaml"
+    )
+
+
+def load_home_environment():
+
+    try:
+
+        data = load_yaml(
+            home_config_path()
+        ) or {}
+
+    except Exception:
+
+        data = {}
+
+    return data
+
+
+def _deep_merge(base, override):
+    """递归合并，override 优先；仅 dict 键递归，其余直接覆盖。"""
+
+    out = dict(base)
+
+    for k, v in override.items():
+
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge(out[k], v)
+        else:
+            out[k] = v
+
+    return out
 
 
 def env_path(
@@ -58,6 +110,23 @@ def load_environment(
     return data
 
 
+def load_merged_environment(
+    root,
+    name=DEFAULT_ENV
+):
+    """合并后的环境配置：home 机器层优先，workspace 层兜底。
+
+    home（~/.config/ai-system/env.yaml，按平台生成/用户可改）覆盖
+    workspace config/environments/{name}.yaml 的对应键；两者均缺失时
+    由调用方回退到默认推导（见 paths()）。
+    """
+
+    return _deep_merge(
+        load_environment(root, name),
+        load_home_environment()
+    )
+
+
 def _normalize_path(value):
     """Windows 风格绝对路径（D:\\...）归一化为 WSL 路径（/mnt/d/...）。
 
@@ -96,7 +165,7 @@ def paths(
     otherwise derived from the default directory layout.
     """
 
-    env = load_environment(
+    env = load_merged_environment(
         root,
         name
     )
@@ -271,7 +340,7 @@ def resolve_environment(start=None, environment=None):
 
     name = environment or DEFAULT_ENV
 
-    config = load_environment(root, name) or {}
+    config = load_merged_environment(root, name) or {}
 
     try:
         p = paths(root, name)

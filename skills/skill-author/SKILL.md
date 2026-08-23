@@ -86,13 +86,16 @@ MUST declare how it obtains configuration and MUST NOT guess.
 ### Rules
 
 1. **Never hardcode machine-specific absolute paths** in a skill (e.g.
-   `D:\tools\java\jdk8`). Those belong in
-   `ai-system/config/environments/{env}.yaml` (or equivalent env config),
-   keyed by role (`build.java_home`, `build.maven_home`, ...).
+   `D:\tools\java\jdk8`). Those belong in the machine-layer config
+   `~/.config/ai-system/env.yaml` (首启由 setup.py 按系统生成；fallback 为
+   `ai-system/config/environments/{env}.yaml` 的 build 段), keyed by role
+   (`build.java_home`, `build.maven_home`, ...).
 2. **Always include a `## Configuration` section** in the skill's SKILL.md
    that states:
    - which config keys it reads (e.g. `build.java_home`, `build.backend`);
-   - where the config lives (path to the environments yaml);
+   - where the config lives (machine layer `~/.config/ai-system/env.yaml`
+     with `config/environments/{env}.yaml` fallback; merged by
+     `resolve_environment`);
    - a portable resolution snippet using `resolve_environment` (from
      `cli/services/environment.py`) when run standalone;
    - **if a required config value is missing or ambiguous, ASK the user to
@@ -110,8 +113,8 @@ Example `## Configuration` block:
 ```
 ## Configuration
 
-- Reads: `build.java_home`, `build.maven_home` (from
-  `config/environments/{env}.yaml`).
+- Reads: `build.java_home`, `build.maven_home` (machine layer
+  `~/.config/ai-system/env.yaml`, merged over `config/environments/{env}.yaml`).
 - Resolve: `python -c "from cli.services.environment import resolve_environment;\
   print(resolve_environment().get('build'))"` (run from the ai-system root,
   or with `AI_SYSTEM_ROOT` set).
