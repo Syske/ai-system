@@ -191,7 +191,7 @@ AI-operation-first health flow (ADR-0009):
 
 - Session start: AI runs `python tools/quick-check.py` (read-only, seconds);
   findings recorded to `metrics/quick-check-{date}.json` (traceable).
-- Due maintenance: AI checks `workspaces/.aic-state.yaml → maintenance.
+- Due maintenance: AI checks `ai-system/config/maintenance.yaml →
   next_maintenance`; when due, prompts the user for authorization.
 - The user decides only whether to run and which Mode/Scope.
 

@@ -1,0 +1,28 @@
+# Maintenance state (system-level, committed).
+#
+# Travels with ai-system in git so any machine/CI can see when the system
+# was last maintained and what was found (cross-machine continuity).
+#
+# Scope: SYSTEM-LEVEL ONLY (metrics / tool gates / proposals / fixes).
+# Machine / environment observations go to the per-run diagnostic log
+# (logs/, gitignored), NOT here. Triage rule + trigger keywords live in
+# cli/commands/aic-maintain.md (Outputs / state-update section).
+#
+# Write path (AI-manual): read next_maintenance at session start (ADR-0009);
+# write last_run / mode / next_maintenance / last_findings at run end.
+
+last_run: 2026-08-24
+mode: on-demand
+scope: prepare
+next_maintenance: '2026-08-30'   # scheduled weekly unchanged (this was an ad-hoc on-demand run)
+last_findings:
+- 增量基线：maintain-delta CHANGED（自 08-23 起 4 提交/13 文件，涉及区域: cli, reports, templates, tools）→ 跑对应子集
+- 工具全绿：quick-check OK(0)；repo-lint BLOCKER/ERROR 0 / WARN 25（既有，无新增）；path-audit 0 broken（664 refs）；
+  CLI 单测 OK（test_maintain_tools 9 + test_prompt_builder 7 = 16 PASS）；proposal-audit 0 gate error
+- 指标：skills 31/workflows 15/rfc 14 不变；governance 61→56 / templates 23→22（P31 standards/cool 迁出
+  + P30 根路径占位符）；frontmatter 30 valid/1 missing（恒定：architecture/ 父分组非回归）
+- scope=prepare 一致性抽查：8 项全部通过（P32 方案 A 本轮已实施：prepare.md:68 对齐 workspace-anchored）
+- 开放提案：P28（Change ID 增强，A 已落地、B/D defer）；P32 已闭环（Implemented，复验全绿）；P26 开放项 2 条 defer
+- 修复批次：P32 方案 A + P33 方案 B 均已实施（P32 prepare.md Outputs 对齐；P33 AI_OPERATING_RULES 加 Issue Capture
+  触发条款 + proposal-policy 补 Sizing Triage 小节，均英文符合 LANGUAGE_CONVENTION），repo-lint/path-audit/quick-check/proposal-audit
+  全绿；P33 初稿中文致 lint +1 已自纠回 25

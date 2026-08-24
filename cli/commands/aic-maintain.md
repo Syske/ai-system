@@ -10,7 +10,7 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 - At session start the AI runs `python tools/quick-check.py` (read-only,
   seconds); issues are reported and recorded to
   metrics/quick-check-{date}.json.
-- The AI checks workspaces/.aic-state.yaml → maintenance.next_maintenance;
+- The AI checks `config/maintenance.yaml → next_maintenance`;
   when due, it prompts the user for authorization before running this command.
 - The user decides only whether to run and which Mode/Scope.
 
@@ -95,15 +95,19 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 - 修复动作与建议清单
 - quick-check 趋势（近 N 日快照对比）
 
-完成后更新 workspaces/.aic-state.yaml:
+完成后更新 `ai-system/config/maintenance.yaml`（提交态，系统级；跨机维护连续性）：
 
 ```yaml
-maintenance:
-  last_run: {date}
-  mode: {mode}
-  next_maintenance: {date + interval}   # weekly:+7d monthly:+30d quarterly:+90d
-  last_findings: [...]                    # 本次问题摘要
+last_run: {date}
+mode: {mode}
+next_maintenance: {date + interval}   # weekly:+7d monthly:+30d quarterly:+90d
+last_findings: [...]                    # 本次问题摘要（系统级 only）
 ```
+
+**last_findings 纪律**：只放系统级（指标/工具门禁/提案/修复）。机器/环境观察
+（如本机 python shim、extensions 仓未提交、本机是否生成 ~/.config）**只进 per-run
+diagnostic-log（logs/，本地）**，不写入此提交态文件。判定触发词：含
+`当前机器` / `WSL` / `shim` / `extensions 仓...未提交` → 机器级 → 排除。
 
 **Guardrails**
 
