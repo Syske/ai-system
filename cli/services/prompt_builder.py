@@ -111,12 +111,14 @@ class PromptBuilder:
                 "workflow_name":
                     config["name"],
                 "workflow_definition":
-                    workflow_md,
+                    self._strip_frontmatter(workflow_md),
                 "runtime_definition":
                     self._skeletonize_runtime(
                         config["runtime"],
                         runtime_md
                     ),
+                "external_capabilities":
+                    self._capabilities_section(workflow_name),
                 "inputs":
                     self._inputs(context, declared),
                 "ai_system_root":
@@ -126,25 +128,19 @@ class PromptBuilder:
             }
         )
 
-        return self._resolve_root_placeholders(
-            self._append_main_chain_caps(
-                prompt,
-                workflow_name
-            )
-        )
+        return self._resolve_root_placeholders(prompt)
 
-    def _append_main_chain_caps(
+    def _capabilities_section(
         self,
-        prompt: str,
         workflow_name: str
     ) -> str:
-        """Append registered optional external skills for a main-chain stage.
+        """Build the optional-external-capabilities note for a main-chain stage.
 
-        Only stages with enabled entries get an attached note; default is no
-        change (config/main-chain-capabilities.yaml is empty by default).
-        Entries whose referenced path does not exist are skipped — a missing
-        extensions/ repo must NOT leak a dangling relative path into the
-        generated prompt (machine/environment-level fact, not a capability).
+        Injected at the `{{external_capabilities}}` anchor (before `# Task`),
+        so the agent sees it before execution starts. Returns an empty string
+        when the stage has no enabled entry or none of its paths resolve — a
+        missing extensions/ repo must NOT leak a dangling relative path into
+        the generated prompt (machine/environment-level fact, not a capability).
         """
 
         from cli.services import main_chain_caps
@@ -156,7 +152,7 @@ class PromptBuilder:
 
         if not caps:
 
-            return prompt
+            return ""
 
         resolved = []
 
@@ -175,10 +171,9 @@ class PromptBuilder:
 
         if not resolved:
 
-            return prompt
+            return ""
 
         lines = [
-            "",
             "## Optional External Capabilities",
             "You may use these registered external skills (extensions/) on "
             "demand for this stage:",
@@ -186,7 +181,7 @@ class PromptBuilder:
             *resolved,
         ]
 
-        return prompt + "\n" + "\n".join(lines) + "\n"
+        return "\n".join(lines)
 
     def _build_command(
         self,
@@ -211,7 +206,9 @@ class PromptBuilder:
                     "command_name":
                         name,
                     "command_definition":
-                        read_text(command_path),
+                        self._strip_frontmatter(
+                            read_text(command_path)
+                        ),
                     "inputs":
                         self._inputs(context, declared),
                     "ai_system_root":
@@ -282,6 +279,25 @@ class PromptBuilder:
                 return str(probe)
 
         return None
+
+    @staticmethod
+    def _strip_frontmatter(md: str) -> str:
+        """Strip the YAML frontmatter block (P25 asset syntax).
+
+        The frontmatter is the machine contract (name/description/workflow);
+        its inputs/next/outputs are repeated by the eight Markdown sections
+        below it, so embedding it whole is redundant noise for the agent.
+        Returns the body unchanged when no frontmatter is present.
+        """
+
+        import re
+
+        m = re.match(r"^---\n.*?\n---\n?", md, re.S)
+
+        if not m:
+            return md
+
+        return md[m.end():].lstrip("\n")
 
     def _workflow_fields(self, workflow_md):
         """Field names declared by a workflow's ## Inputs section.
@@ -420,11 +436,14 @@ class PromptBuilder:
         skeleton = []
         current_phase = None
 
+        # Phase headings may be level-1 (`# Phase N — …`, dev-setup) or
+        # level-2 (`## Phase N — …`, prepare); match both, preserving the
+        # original heading text verbatim.
         for line in lines:
 
             s = line.strip()
 
-            m = re.match(r"^# Phase (\d+[^—]*—?.+)$", s)
+            m = re.match(r"^#{1,2} Phase (\d+[^—]*—?.+)$", s)
 
             if m:
 

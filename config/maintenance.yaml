@@ -26,5 +26,6 @@ last_findings:
 - 开放提案：P28（B/D defer 维持）；P26（2 条开放项 defer 维持）；P35（Proposed，python→python3 多文件，待用户决策）；P36（Proposed，setup.py 初始化完善，待用户决策）
 - 修复批次：用户确认后实施 ① workflows/README.md 补 release BLOCKED→develop（L1）② 工作区根重建 AGENTS.md 简写版（L2，
   覆盖结构图/运行目录表/关键设计决策/单任务工时/主链 workspace-anchored）③ Path Anchor 英文化（LANGUAGE_CONVENTION）
-  ④ 提示词不注入悬空 extensions 路径（_resolve_ref None + caps 跳过，用户澄清后实施）；复验全绿（repo-lint 0/0/25、
-  path-audit 0 broken、CLI 152 测试 OK）；P35/P36 仍待用户决策
+  ④ 提示词不注入悬空 extensions 路径（_resolve_ref None + caps 跳过，用户澄清后实施）⑤ 提示词优化 5 项
+  （caps 段移到 Task 前 / frontmatter 剥离 / 二级 Phase 骨架 / prepare.md 空行 / desc 英文化）；复验全绿
+  （repo-lint 0/0/25、path-audit 0 broken、CLI 156 测试 OK）；P35/P36 仍待用户决策

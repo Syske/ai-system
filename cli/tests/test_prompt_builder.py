@@ -152,6 +152,39 @@ class TestFieldContract(unittest.TestCase):
         self.assertGreater(len(full), len(skel))
         self.assertIn("# Phase 1", full)
 
+    def test_frontmatter_stripped_from_definition(self):
+        # 2026-08-25 优化：workflow frontmatter（机器契约）不整段嵌入提示词
+        prompt = self.builder.build("prepare", {})
+        head = prompt.split("Begin execution", 1)[0]
+        self.assertNotIn("name: prepare", head)
+        self.assertNotIn("workflow:\n", head)
+        # 正文八节保留
+        self.assertIn("## Purpose", head)
+        self.assertIn("## Exit Criteria", head)
+
+    def test_capabilities_before_task_anchor(self):
+        # 2026-08-25 优化：能力段注入到 # Task 之前（执行前须知）
+        prompt = self.builder.build("prepare", {})
+        task_idx = prompt.find("# Task")
+        caps_idx = prompt.find("## Optional External Capabilities")
+        self.assertNotEqual(caps_idx, -1)
+        self.assertLess(caps_idx, task_idx)
+
+    def test_runtime_skeleton_matches_level2_phase(self):
+        # 2026-08-25 优化：runtime-prepare 用 ## Phase N 二级标题，
+        # 骨架化必须匹配（此前仅一级 # Phase，prepare 骨架为空）
+        prompt = self.builder.build("prepare", {})
+        self.assertIn("## Phase 1 — Requirement Collection", prompt)
+        self.assertIn("Full runtime template:", prompt)
+
+    def test_command_definition_strips_frontmatter(self):
+        # command 定义同样剥离 frontmatter（name/description 机器契约）
+        prompt = self.builder.build("maintain", {})
+        head = prompt.split("Begin execution", 1)[0]
+        self.assertNotIn("description: 初始化", head)
+        # 中文 desc 不在 command 定义区（被 frontmatter 剥离）
+        self.assertNotIn("初始化/校验环境配置", head)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -154,3 +154,19 @@
 - repo-lint 0/0/25（无新增）；path-audit 0 broken；workflow-command-audit 0 blocker/1 WARN
 - `python -m unittest discover -s cli/tests`：**152 OK**（+4 新增）
 - check.py PASS：5 WARN（P28/P35/P36 开放提案 + extensions 缺失 hotfix 降级，均既有/预期）
+
+### 提示词优化批次（2026-08-25，用户确认实施）
+
+针对生成的 prepare 提示词评审，实施 5 项优化：
+
+| # | 优化 | 改动 | 验证 |
+|---|---|---|---|
+| 1 | **能力段移到 `# Task` 前** | `_append_main_chain_caps` → `_capabilities_section`（返回段而非 append 末尾）；模板加 `{{external_capabilities}}` 锚点（Task 前） | caps 位于 Task 前（断言通过） |
+| 2 | **剥离 workflow/command frontmatter** | 新增 `_strip_frontmatter()`，`_build_workflow`/`_build_command` 双路径应用（机器契约不整段嵌入，八节正文保留） | `name: prepare` 不出现于提示词；Purpose/Exit Criteria 保留 |
+| 3 | **runtime 骨架匹配二级 Phase 标题** | `_skeletonize_runtime` 正则 `^# Phase` → `^#{1,2} Phase`（runtime-prepare 用 `## Phase N —`，此前骨架为空仅剩引用行） | prepare 骨架现含 7 个 Phase + 首行要求 + 引用行 |
+| 4 | **prepare.md Exit Criteria/Next 空行** | 源文件补空行（渲染粘连根因在源文件） | cat -A 验证 |
+| 5 | **capabilities desc 英文化** | config/main-chain-capabilities.yaml 5 条 desc 中文 → 英文（LANGUAGE_CONVENTION AI 内部层）；tr5 desc 含 `&` 加引号修 YAML | yaml.safe_load OK |
+
+Gate：CLI 测试 **156 OK**（+4：frontmatter 剥离 / caps 位置 / 二级 Phase 骨架 / command frontmatter 剥离）；repo-lint 0/0/25；path-audit 0 broken；workflow-command-audit 0 blocker/1 WARN。
+
+> 说明：优化 6（TRIAL 能力注入策略）与 7（Inputs 格式提示）未实施，需用户另行决策。

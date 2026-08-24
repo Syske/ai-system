@@ -18,26 +18,26 @@ capabilities:
   prepare:
     - skill: confluence-markdown-publisher
       path: extensions/confluence-markdown-publisher
-      desc: 获取内网 wiki 需求文档内容（如 pageId 页面、tr3/tr4 产品/架构设计）
+      desc: Fetch intranet wiki requirement documents (e.g. pageId pages, tr3/tr4 product/architecture designs)
       enabled: true
     - skill: wayfinder
       path: skills/wayfinder
-      desc: "[TRIAL] 大块模糊构想/迷雾 → 生成 .wayfinder/ 决策图再进 spec；非此场景勿用"
+      desc: "[TRIAL] Vague large-scale idea/fog → generate .wayfinder/ decision map before spec; skip outside this scenario"
       enabled: true
   spec:
     - skill: wayfinder
       path: skills/wayfinder
-      desc: "[TRIAL] 需求仍模糊时，用决策工单澄清设计路线；可选"
+      desc: "[TRIAL] Requirements still vague → clarify design route with a decision ticket; optional"
       enabled: true
     - skill: tr5
       path: extensions/tr5
-      desc: 后端 TR5 一页纸设计（中台语境 + coolSpec 质量门禁增强版）：TR3/TR4 + 迭代页 ID 入口，正向流水线生成并发布；非后端 TR5 场景勿用
+      desc: "Backend TR5 one-pager design (mid-platform context + enhanced coolSpec quality gate): TR3/TR4 + iteration-page ID entry, forward-pipeline generation & publish; skip for non-backend-TR5 scenarios"
       enabled: true
   dev-setup: []
   develop:
     - skill: wayfinder
       path: skills/wayfinder
-      desc: "[TRIAL] 大改动前用 .wayfinder/ 决策图对齐边界；可选"
+      desc: "[TRIAL] Align boundaries with a .wayfinder/ decision map before large changes; optional"
       enabled: true
   review: []
   verify: []
