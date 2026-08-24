@@ -142,6 +142,9 @@ class PromptBuilder:
 
         Only stages with enabled entries get an attached note; default is no
         change (config/main-chain-capabilities.yaml is empty by default).
+        Entries whose referenced path does not exist are skipped — a missing
+        extensions/ repo must NOT leak a dangling relative path into the
+        generated prompt (machine/environment-level fact, not a capability).
         """
 
         from cli.services import main_chain_caps
@@ -155,22 +158,33 @@ class PromptBuilder:
 
             return prompt
 
+        resolved = []
+
+        for c in caps:
+
+            path = self._resolve_ref(c.get("path") or "")
+
+            if not path:
+                continue
+
+            desc = c.get("desc") or ""
+
+            resolved.append(
+                f"- {c.get('skill', '')} ({path}) — {desc}"
+            )
+
+        if not resolved:
+
+            return prompt
+
         lines = [
             "",
             "## Optional External Capabilities",
             "You may use these registered external skills (extensions/) on "
             "demand for this stage:",
             "",
+            *resolved,
         ]
-
-        for c in caps:
-
-            desc = c.get("desc") or ""
-            path = self._resolve_ref(c.get("path") or "")
-
-            lines.append(
-                f"- {c.get('skill', '')} ({path}) — {desc}"
-            )
 
         return prompt + "\n" + "\n".join(lines) + "\n"
 
@@ -242,15 +256,18 @@ class PromptBuilder:
 
         return result
 
-    def _resolve_ref(self, p: str) -> str:
-        """把能力引用路径解析为绝对路径（存在性优先）。
+    def _resolve_ref(self, p: str):
+        """Resolve a capability reference to an absolute path, existence-first.
 
-        约定：skills/... 相对 ai-system 根，extensions/... 相对 workspace 根；
-        目标存在才绝对化，不存在时保留原样（不臆造），避免生成不可解析路径。
+        Convention: `skills/...` resolves against the ai-system root,
+        `extensions/...` against the workspace root. Returns the resolved
+        absolute path when the target exists; `None` when it does NOT — a
+        missing target (e.g. an extensions/ repo absent on this machine) must
+        never be injected as a dangling relative path into the prompt.
         """
 
         if not p:
-            return ""
+            return None
 
         cand = Path(p)
 
@@ -264,7 +281,7 @@ class PromptBuilder:
             if probe.exists():
                 return str(probe)
 
-        return p
+        return None
 
     def _workflow_fields(self, workflow_md):
         """Field names declared by a workflow's ## Inputs section.

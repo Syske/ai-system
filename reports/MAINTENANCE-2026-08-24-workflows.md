@@ -129,3 +129,28 @@
 - **P26（Implemented）**：2 条 open action（分支扩展 provider / CI 分支保护）均为后续增强 → **defer**（与上轮一致）。
 - **P35（Proposed）**：python 解释器鲁棒性（python→python3 文档统一 + 工具鲁棒化），触及多文件、需用户批准 → **待用户决策（approve/implement/reject/defer）**，本轮仅报告不实施（Change Control）。
 - 无新增遗留、无「未登记 README 索引」类门禁问题（08-24/prepare 已补登记）。
+
+---
+
+## 七、巡检发现问题的后续处置（2026-08-25 追加）
+
+### 新增提案
+
+- **P36（Proposed）** — 初始化脚本完善（`tools/setup.py --env-init` 补齐目录骨架 + 引导指定外部代码仓库）。
+  来源：用户反馈（未创建必要文件夹 / 未引导指定代码仓库 / 未生成 workspaces、repositories 等目录）。
+  记录仅，不实施（待用户决策）。已登记 PROPOSALS.md + reports/README.md。
+
+### 已实施修复（用户确认）
+
+| # | 修复 | 验证 |
+|---|---|---|
+| A | **Path Anchor 英文化**（LANGUAGE_CONVENTION：AI 内部层英文）——templates/prompts/command.md + workflow.md 的 Path Anchor 段中文 → 英文；渲染验证：`All relative references ... resolve against these two absolute roots` | 生成 maintain/command 提示词确认英文；无旧中文残留 |
+| B' | **提示词不注入悬空 extensions 路径**（用户澄清诉求：不是 lint 不报错，而是提示词内容不含缺失路径）——`_resolve_ref` 对不存在目标返回 None；`_append_main_chain_caps` 跳过不可解析条目；全部不可解析则整段不输出。实测 prepare/spec/develop 中 `extensions/confluence-markdown-publisher` 被跳过、`skills/wayfinder` 保留绝对路径 | +4 测试（dangling skipped / existing resolved / resolve_ref None / absolute），152 全 PASS |
+
+> 说明：B（extensions-lint 缺失根降级 WARN）与 C（extensions-lint 配置化）曾按初判实施，后经用户澄清真实诉求为提示词层面，已**回退** tools/extensions-lint.py 至原状（缺失根仍报 ERROR）；Guardrails「CI 无 extensions 仓 → 降级 WARN」由既有 `bugfix_modes.py::_extensions_available()` 承担，非 extensions-lint。
+
+### Gate（fresh）
+
+- repo-lint 0/0/25（无新增）；path-audit 0 broken；workflow-command-audit 0 blocker/1 WARN
+- `python -m unittest discover -s cli/tests`：**152 OK**（+4 新增）
+- check.py PASS：5 WARN（P28/P35/P36 开放提案 + extensions 缺失 hotfix 降级，均既有/预期）

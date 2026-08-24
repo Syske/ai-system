@@ -14,8 +14,8 @@ normal runs keep a one-page summary, splitting out detail on demand). Filename:
 
 # Path Anchor
 
-文内所有相对引用（`ai-system/...`、`extensions/...`、`workspaces/...`、`outputs/...`）
-以这两个绝对根为基准解析：
+All relative references in the body below (`ai-system/...`, `extensions/...`,
+`workspaces/...`, `outputs/...`) resolve against these two absolute roots:
 
 - AI System root: `{{ai_system_root}}`
 - Workspace root: `{{workspace_root}}`

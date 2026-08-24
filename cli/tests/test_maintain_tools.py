@@ -162,5 +162,69 @@ class TestPromptMetrics(unittest.TestCase):
         self.assertIn("rows", data)
 
 
+class TestPromptNoDanglingExtensionPaths(unittest.TestCase):
+    """提示词不注入悬空 extensions 路径（2026-08-25 用户诉求）。
+
+    extensions 仓缺失时，生成提示词不得包含 `extensions/<name>` 悬空引用；
+    存在的能力（skills/...）正常保留绝对路径。
+    """
+
+    def setUp(self):
+        self.builder = _load_prompt_builder()
+
+    def test_dangling_extension_caps_skipped(self):
+        import re
+
+        for wf in ("prepare", "spec", "develop"):
+            prompt = self.builder.build(wf, {})
+            # 悬空路径形态：extensions/<具体名>（排除模板示例 'extensions/...'
+            # 与语义句 'extensions/'）
+            dangling = re.findall(
+                r"extensions/[a-zA-Z0-9_-]+",
+                prompt,
+            )
+            self.assertEqual(
+                dangling,
+                [],
+                f"{wf}: dangling extensions refs injected: {dangling}",
+            )
+
+    def test_existing_skill_path_resolved_absolute(self):
+        # wayfinder 注册于 skills/（ai-system 内，存在）→ 保留绝对路径
+        prompt = self.builder.build("prepare", {})
+        self.assertIn(
+            "/skills/wayfinder",
+            prompt,
+        )
+
+    def test_resolve_ref_none_when_missing(self):
+        # _resolve_ref 对不存在的引用返回 None（不返回悬空相对路径）
+        missing = self.builder._resolve_ref(
+            "extensions/no-such-extension-dir"
+        )
+        self.assertIsNone(missing)
+
+    def test_resolve_ref_absolute_when_exists(self):
+        existing = self.builder._resolve_ref(
+            "skills/wayfinder"
+        )
+        self.assertTrue(existing)
+        self.assertNotIn("extensions/", existing)
+        self.assertTrue(existing.startswith("/"))
+
+
+def _load_prompt_builder():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "prompt_builder",
+        REPO_ROOT / "cli" / "services" / "prompt_builder.py",
+    )
+    mod = importlib.util.module_from_spec(spec)
+    sys.path.insert(0, str(REPO_ROOT / "cli"))
+    spec.loader.exec_module(mod)
+    return mod.PromptBuilder()
+
+
 if __name__ == "__main__":
     unittest.main()
