@@ -111,7 +111,9 @@ class PromptBuilder:
                 "workflow_name":
                     config["name"],
                 "workflow_definition":
-                    self._strip_frontmatter(workflow_md),
+                    self._dedupe_runtime_section(
+                        self._strip_frontmatter(workflow_md)
+                    ),
                 "runtime_definition":
                     self._skeletonize_runtime(
                         config["runtime"],
@@ -299,6 +301,35 @@ class PromptBuilder:
 
         return md[m.end():].lstrip("\n")
 
+    @staticmethod
+    def _dedupe_runtime_section(md: str) -> str:
+        """Point the workflow body's `## Runtime` section at the skeleton.
+
+        The workflow body carries `## Runtime` with a relative path
+        (`templates/runtime/runtime-<wf>.md`); the embedded runtime skeleton
+        (below) already lists the same file with an absolute path. Replacing
+        the section body with a pointer avoids the duplicated reference while
+        keeping the eight-section structure intact (render-layer only — the
+        source workflow file is untouched, P25 / single source).
+        """
+
+        import re
+
+        m = re.search(
+            r"(?ms)^## Runtime\n.*?\n(?=## )",
+            md,
+        )
+
+        if not m:
+            return md
+
+        return (
+            md[:m.start()]
+            + "## Runtime\n\n- See the Runtime Skeleton below (full "
+            "template path listed there).\n\n"
+            + md[m.end():]
+        )
+
     def _workflow_fields(self, workflow_md):
         """Field names declared by a workflow's ## Inputs section.
 
@@ -435,6 +466,7 @@ class PromptBuilder:
         lines = runtime_md.splitlines()
         skeleton = []
         current_phase = None
+        intro_seen = False
 
         # Phase headings may be level-1 (`# Phase N — …`, dev-setup) or
         # level-2 (`## Phase N — …`, prepare); match both, preserving the
@@ -451,6 +483,7 @@ class PromptBuilder:
                     skeleton.append("")
 
                 current_phase = s
+                intro_seen = False
 
                 skeleton.append(s)
 
@@ -458,7 +491,22 @@ class PromptBuilder:
 
             if current_phase and s and not s.startswith(("#", "-", "|", "`")):
 
-                skeleton.append(f"  {s[:120]}")
+                # 引言行（Collect:/Generate:/Identify: 等，后跟列表项）单独取
+                # 会丢失宾语；尝试合并首个列表项，否则取原文。
+                snippet = f"  {s[:120]}"
+
+                for nxt in lines[lines.index(line) + 1:]:
+
+                    ns = nxt.strip()
+
+                    if ns.startswith("-") and ns[1:].strip():
+                        snippet += f"\n    {ns[:120]}"
+                        break
+
+                    if ns and not ns.startswith(("-", "#", "|", "`", ":")):
+                        break
+
+                skeleton.append(snippet)
 
                 current_phase = None  # 只取每阶段第一句要求
 
@@ -470,7 +518,14 @@ class PromptBuilder:
             "(read the phase's section when executing it)"
         )
 
-        return "\n".join(skeleton)
+        body = "\n".join(skeleton)
+
+        return (
+            "## Runtime Skeleton\n\n"
+            "Phases of the full runtime template (read the referenced file "
+            "when executing a phase):\n\n"
+            + body
+        )
 
     @staticmethod
     def _labels():

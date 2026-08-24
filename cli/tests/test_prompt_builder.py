@@ -185,6 +185,29 @@ class TestFieldContract(unittest.TestCase):
         # 中文 desc 不在 command 定义区（被 frontmatter 剥离）
         self.assertNotIn("初始化/校验环境配置", head)
 
+    def test_runtime_section_points_to_skeleton(self):
+        # 2026-08-25 优化 2：workflow 正文 ## Runtime 节不再重复相对路径，
+        # 改为指向骨架（源文件不动，渲染层去重）
+        prompt = self.builder.build("prepare", {})
+        run_sec = prompt.split("## Preconditions", 1)[0]
+        self.assertIn("See the Runtime Skeleton below", run_sec)
+        # 相对路径不出现（源文件是 templates/runtime/runtime-prepare.md）
+        self.assertNotIn("- templates/runtime/runtime-prepare.md", run_sec)
+
+    def test_skeleton_heading_and_list_item_merge(self):
+        # 2026-08-25 优化 1+3：骨架带 ## Runtime Skeleton 标题；
+        # 引言行（Collect:）合并首个列表项，避免只剩动词
+        prompt = self.builder.build("prepare", {})
+        self.assertIn("## Runtime Skeleton", prompt)
+        self.assertIn("Collect:\n    - User Requirements", prompt)
+
+    def test_command_path_unaffected_by_runtime_dedupe(self):
+        # command 无 ## Runtime 节，去重与骨架逻辑不触碰 command 路径
+        prompt = self.builder.build("maintain", {})
+        self.assertNotIn("## Runtime", prompt)
+        self.assertNotIn("Runtime Skeleton", prompt)
+
+
 
 if __name__ == "__main__":
     unittest.main()
