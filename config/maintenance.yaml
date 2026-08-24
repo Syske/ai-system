@@ -27,5 +27,6 @@ last_findings:
 - 修复批次：用户确认后实施 ① workflows/README.md 补 release BLOCKED→develop（L1）② 工作区根重建 AGENTS.md 简写版（L2，
   覆盖结构图/运行目录表/关键设计决策/单任务工时/主链 workspace-anchored）③ Path Anchor 英文化（LANGUAGE_CONVENTION）
   ④ 提示词不注入悬空 extensions 路径（_resolve_ref None + caps 跳过，用户澄清后实施）⑤ 提示词优化 5 项
-  （caps 段移到 Task 前 / frontmatter 剥离 / 二级 Phase 骨架 / prepare.md 空行 / desc 英文化）；复验全绿
+  （caps 段移到 Task 前 / frontmatter 剥离 / 二级 Phase 骨架 / prepare.md 空行 / desc 英文化）⑤-2 wayfinder TRIAL
+  评估机制（方案 A：OPTIMIZATION_LOG 采集 + desc 强化跳过/必记录 + 08-30 截止）；复验全绿
   （repo-lint 0/0/25、path-audit 0 broken、CLI 156 测试 OK）；P35/P36 仍待用户决策

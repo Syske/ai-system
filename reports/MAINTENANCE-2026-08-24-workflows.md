@@ -170,3 +170,15 @@
 Gate：CLI 测试 **156 OK**（+4：frontmatter 剥离 / caps 位置 / 二级 Phase 骨架 / command frontmatter 剥离）；repo-lint 0/0/25；path-audit 0 broken；workflow-command-audit 0 blocker/1 WARN。
 
 > 说明：优化 6（TRIAL 能力注入策略）与 7（Inputs 格式提示）未实施，需用户另行决策。
+
+### wayfinder TRIAL 评估机制落地（2026-08-25，方案 A）
+
+用户评估结论：wayfinder 静态高分（08-17 吸收决策）、实战零证据（全盘 0 `.wayfinder/` 产物 / 0 OPTIMIZATION_LOG / 0 消费记录）、预绑定过早（TRIAL 登记先于真实案例）。按用户选择**方案 A** 落地评估管道：
+
+| 项 | 动作 |
+|---|---|
+| 采集机制 | 新建 `skills/wayfinder/OPTIMIZATION_LOG.md`（TRIAL 评估期强制；含触发场景/命中/决策图产物/工单/被 spec-develop 消费/验证/影响/复现字段） |
+| 注入策略 | 保持 main-chain TRIAL 注入（enabled: true），3 处 desc 强化：未命中触发条件（大块模糊构想/迷雾/超单会话）→ **明确跳过**；实际触发 → **必须写 OPTIMIZATION_LOG** |
+| 评估截止 | **提前评估优先，08-30 weekly 为硬截止**：近期将频繁使用（用户 08-25 确认），一旦积累 ≥1 被 spec/develop 消费的真实案例即提前评估；08-30 若无 ≥1 案例或未被消费 → 移除临时登记（main-chain-capabilities + core_skills 撤销，skill 保留 On-Demand）；有效 → 吸收绑定 prepare/spec |
+| 覆盖阶段 | prepare / spec（用户明确要的两阶段）+ develop（既有登记保留，评估时一并判定） |
+| 判定标准 | 沿用 08-20 M2：案例存在 + 决策图/决策工单产物 + ≥1 决策被后续 spec/develop 实际引用消费 |
