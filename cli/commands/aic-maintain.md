@@ -62,6 +62,12 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 2.6 **Knowledge lifecycle (internal)** — per OPERATIONS 1.7: collect (after
    release/retrospective), review (monthly: de-dup/contradiction/stale),
    archive (quarterly). Managed by AI as part of the maintenance cycle.
+   - **logs recycle**: during review, also scan `logs/` for **recurring (≥2x)**
+     observations never captured to Coding Memory / env.yaml / a proposal →
+     decide capture (memory-capture) / machine-config (~/.config env.yaml,
+     only if a consumer exists) / proposal (per Issue Capture triage). Skip
+     single-shot transient observations (avoid turning logs into a second
+     pending-review queue).
 
 3. **Governance consistency spot check** (always, to prevent recurrence of past issues)
    - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches workflows/README.md selection table; Runtime reference files exist; Preconditions/Next chain closes

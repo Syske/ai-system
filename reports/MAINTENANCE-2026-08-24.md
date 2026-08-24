@@ -76,13 +76,15 @@
 
 ### 建议（后续）
 
-1. **P32/P33 均已闭环**，无后续动作。
+1. **P32/P33/P34 均已闭环**，无后续动作。
 
-2. **行为回归待验证**（P33 生效后）：下一次日常运行发现 doc drift 时应走就地小修旁路（diagnostic-log + 报告），不再立 P 提案；发现结构级缺口时应 JIT 加载 proposal-policy 后按 §1 立案并登记索引。
+2. **行为回归待验证**：doc drift 走就地小修旁路（P33）；maintain 读写 config/maintenance.yaml 且 last_findings 只留系统级（P34）；logs recycle 月度扫描重复未捕获观察（Step 2.6 激活）。
 
-3. **P28 开放项维持 defer** — B/D 触发条件未到，按 Evolution Principle 不预引入；保持现状，无需动作。
+3. **P35（python 解释器鲁棒性）Proposed** — 待 Review/Approve；logs recycle 测试用例。
 
-3. **P26 开放项维持 defer** — 分支扩展 provider / CI 分支保护均为后续增强，触发后再评估。
+4. **P28 开放项维持 defer** — B/D 触发条件未到，按 Evolution Principle 不预引入。
+
+5. **P26 开放项维持 defer** — 分支扩展 provider / CI 分支保护均为后续增强，触发后再评估。
 
 ### 结构性变更
 

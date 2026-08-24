@@ -37,6 +37,7 @@
 | Implemented | prepare 工作流子报告输出位置与 AGENTS.md 约定对齐 | 2026-08-24 | `P32-PREPARE-OUTPUTS-LOCATION.md` |
 | Implemented | 日常运行中发现变更时的上下文加载触发规则（Issue Capture） | 2026-08-24 | `P33-ISSUE-CAPTURE-CONTEXT-LOADING.md` |
 | Implemented | maintenance 状态纳入 ai-system 提交（拆分：系统级入 git / 机器级留本地） | 2026-08-24 | `P34-MAINTENANCE-STATE-INTO-GIT.md` |
+| Proposed | python 解释器鲁棒性（`python` shim 在 WSL 不可用，scripts/docs 用法不一） | 2026-08-24 | `P35-PYTHON-INTERPRETER-ROBUSTNESS.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |

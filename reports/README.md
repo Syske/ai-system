@@ -41,6 +41,7 @@
 | [P32](P32-PREPARE-OUTPUTS-LOCATION.md) | prepare 工作流子报告输出位置与 AGENTS.md 约定对齐（outputs/prepare→workspace-anchored）— **Implemented** | 2026-08-24 |
 | [P33](P33-ISSUE-CAPTURE-CONTEXT-LOADING.md) | 日常运行中发现变更时的上下文加载触发规则（Issue Capture：JIT 加载 proposal-policy + OPERATIONS §12 + 尺寸分流）— **Implemented** | 2026-08-24 |
 | [P34](P34-MAINTENANCE-STATE-INTO-GIT.md) | maintenance 状态纳入 ai-system 提交（拆分：系统级 maintenance 块 → config/maintenance.yaml 入 git，机器级留 workspaces 本地）— **Implemented** | 2026-08-24 |
+| [P35](P35-PYTHON-INTERPRETER-ROBUSTNESS.md) | python 解释器鲁棒性（python shim 在 WSL 不可用，命令文档统一 python3 + 工具调用鲁棒化）— **Proposed** | 2026-08-24 |
 
 ---
 

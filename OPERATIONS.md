@@ -179,7 +179,10 @@ Knowledge lifecycle triggers (matching `knowledge` workflow operations):
 
 ```text
 collect   — after each release or retrospective
-review    — monthly: de-duplicate, check contradiction, check stale entries
+review    — monthly: de-duplicate, check contradiction, check stale entries;
+             also scan logs/ for recurring (≥2x) observations never captured
+             to Coding Memory / env.yaml / a proposal → triage (capture /
+             machine-config / proposal); skip single-shot transient entries
 archive   — quarterly: archive outdated entries, update the index
 ```
 
