@@ -65,6 +65,7 @@
 | 2026-08-20 | on-demand | openapi-gateway OOM 流程提案（P1–P7 评估） | `MAINTENANCE-2026-08-20.md` | P7 简体规范已就地修（LANGUAGE_CONVENTION）；P4 技能触发词已登记 skills/README；P1/P2/P3/P5/P6 结构建议待变更管理立项 |
 | 2026-08-23 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次（提示词路径绝对化 + Windows 路径归一化 + env-init） | `MAINTENANCE-2026-08-23.md` | 批次 A 已落地：P26 置 Implemented；P28 已补 README 索引；workflow-trigger 死模板已归档；方案 3（根占位符填充）待立项 |
 | 2026-08-24 | on-demand/prepare | 增量基线 CHANGED→对应子集；scope=prepare 一致性抽查（8 项 7 过/1 失败）+ 实施 P32 方案 A | `MAINTENANCE-2026-08-24.md` | P32 已闭环（prepare.md Outputs 位置对齐 workspace-anchored）；P28/P26 开放项 defer |
+| 2026-08-24 | on-demand/workflows | 全量审计（delta FIRST_RUN→record）；workflows 域结构/注册表/引用链/Next 链全绿；AGENTS.md 缺失（doc-vs-reality 对象） | `MAINTENANCE-2026-08-24-workflows.md` | AGENTS.md 决策（重建/检查项降级，L2）；README 条件转移表补 release BLOCKED 行（L1 待确认）；P35 待用户决策 |
 
 ---
 

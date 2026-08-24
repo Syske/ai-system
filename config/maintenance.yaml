@@ -13,16 +13,15 @@
 
 last_run: 2026-08-24
 mode: on-demand
-scope: prepare
+scope: workflows
 next_maintenance: '2026-08-30'   # scheduled weekly unchanged (this was an ad-hoc on-demand run)
 last_findings:
-- 增量基线：maintain-delta CHANGED（自 08-23 起 4 提交/13 文件，涉及区域: cli, reports, templates, tools）→ 跑对应子集
-- 工具全绿：quick-check OK(0)；repo-lint BLOCKER/ERROR 0 / WARN 25（既有，无新增）；path-audit 0 broken（664 refs）；
-  CLI 单测 OK（test_maintain_tools 9 + test_prompt_builder 7 = 16 PASS）；proposal-audit 0 gate error
-- 指标：skills 31/workflows 15/rfc 14 不变；governance 61→56 / templates 23→22（P31 standards/cool 迁出
-  + P30 根路径占位符）；frontmatter 30 valid/1 missing（恒定：architecture/ 父分组非回归）
-- scope=prepare 一致性抽查：8 项全部通过（P32 方案 A 本轮已实施：prepare.md:68 对齐 workspace-anchored）
-- 开放提案：P28（Change ID 增强，A 已落地、B/D defer）；P32 已闭环（Implemented，复验全绿）；P26 开放项 2 条 defer
-- 修复批次：P32 方案 A + P33 方案 B 均已实施（P32 prepare.md Outputs 对齐；P33 AI_OPERATING_RULES 加 Issue Capture
-  触发条款 + proposal-policy 补 Sizing Triage 小节，均英文符合 LANGUAGE_CONVENTION），repo-lint/path-audit/quick-check/proposal-audit
-  全绿；P33 初稿中文致 lint +1 已自纠回 25
+- 增量基线：maintain-delta FIRST_RUN → 全量审计；已 --record 基线 head=3237f8d（下次起增量判定生效）
+- 工具：quick-check ISSUES(1)（详情见 per-run diagnostic-log，机器级不入此文件）；repo-lint BLOCKER/ERROR 0 / WARN 25（既有无新增）；
+  path-audit 0 broken（665 refs）；workflow-command-audit 0 blocker/1 WARN（aic-maintain 125 行既有）；CLI 单测 OK
+- 指标：skills 31/workflows 15/rfc 14/governance 56/templates 22 全不变；frontmatter 30 valid/1 missing（恒定）
+- scope=workflows 一致性抽查：11 项 10 过/1 ⚠️（AGENTS.md 缺失——doc-vs-reality 检查对象不存在，L2 需用户决策：
+  重建或检查项降级）；README 条件转移表缺 release BLOCKED→develop 行（L1 待确认）；workflows 域结构/注册表/
+  引用链/Next 链全绿；3 个条件重入环均文档化
+- 开放提案：P28（B/D defer 维持）；P26（2 条开放项 defer 维持）；P35（Proposed，python→python3 多文件，待用户决策）
+- 修复批次：无（本轮无 BLOCKER/ERROR，建议项均未实施，走 Change Control）
