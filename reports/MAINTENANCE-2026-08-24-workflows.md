@@ -85,12 +85,19 @@
 - `maintain-delta.py --record` 记录基线 head=3237f8d。
 - 指标快照 `metrics/maintain-2026-08-24.json`。
 
+**修复批次（用户确认后已实施）：**
+
+| # | 动作 | 级别 | 状态 |
+|---|---|---|---|
+| 1 | README Conditional transitions 补 `release: BLOCKED → develop` | L1 | ✅ 已实施（workflows/README.md:77） |
+| 2 | 重建工作区根 AGENTS.md（简写版） | L2 | ✅ 已实施（workspace 根 AGENTS.md，覆盖结构图/运行目录表/关键设计决策/单任务工时/主链 workspace-anchored） |
+
 **建议（未实施，待确认——Change Control）：**
 
 | # | 动作 | 级别 | 说明 |
 |---|---|---|---|
-| 1 | README Conditional transitions 补 `release: BLOCKED → develop` | L1（确认后即可就地修） | 与 release.md Next 对齐 |
-| 2 | AGENTS.md 重建 或 aic-maintain Step 3 检查项降级为可选 | L2（需用户决策） | 修复 doc-vs-reality 检查对象缺失 |
+| 1 | ~~README Conditional transitions 补 `release: BLOCKED → develop`~~ | L1 | 已实施（见上） |
+| 2 | ~~AGENTS.md 重建 或 aic-maintain Step 3 检查项降级为可选~~ | L2 | 已实施（重建简写版） |
 
 **输出建议（结构性，走 OPERATIONS §11 变更管理，不直接实施）：**
 

@@ -24,4 +24,6 @@ last_findings:
   重建或检查项降级）；README 条件转移表缺 release BLOCKED→develop 行（L1 待确认）；workflows 域结构/注册表/
   引用链/Next 链全绿；3 个条件重入环均文档化
 - 开放提案：P28（B/D defer 维持）；P26（2 条开放项 defer 维持）；P35（Proposed，python→python3 多文件，待用户决策）
-- 修复批次：无（本轮无 BLOCKER/ERROR，建议项均未实施，走 Change Control）
+- 修复批次：用户确认后实施 ① workflows/README.md 补 release BLOCKED→develop（L1）② 工作区根重建 AGENTS.md 简写版（L2，
+  覆盖结构图/运行目录表/关键设计决策/单任务工时/主链 workspace-anchored）；复验全绿（repo-lint 0/0/25、path-audit 0 broken、
+  workflow-command-audit 0 blocker）；P35 仍待用户决策

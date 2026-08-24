@@ -74,6 +74,7 @@ Conditional transitions:
 - review: Changes Required → develop
 - verify: FAIL → develop
 - release: READY → deployment (outside this workflow set)
+- release: BLOCKED → develop (Branch Diff Review BLOCKER: fix findings then re-run verify + release)
 - develop: L3 requirement change → suspend task → prepare (scoped) → spec (update change set) → resume develop
 
 Independent entry:
