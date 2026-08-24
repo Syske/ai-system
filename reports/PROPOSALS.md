@@ -39,6 +39,7 @@
 | Implemented | maintenance 状态纳入 ai-system 提交（拆分：系统级入 git / 机器级留本地） | 2026-08-24 | `P34-MAINTENANCE-STATE-INTO-GIT.md` |
 | Proposed | python 解释器鲁棒性（`python` shim 在 WSL 不可用，scripts/docs 用法不一） | 2026-08-24 | `P35-PYTHON-INTERPRETER-ROBUSTNESS.md` |
 | Proposed | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库） | 2026-08-25 | `P36-SETUP-ENV-INIT-SCAFFOLD.md` |
+| Proposed | 工作流必填参数必要性评估（降可选/自动推导/保持，提升使用效率） | 2026-08-25 | `P37-REQUIRED-INPUTS-TRIAGE.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |

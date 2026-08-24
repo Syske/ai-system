@@ -22,11 +22,11 @@ sections:
   task_combos: "常用任务"
 
 field_notes:
-  "Project ID": "from workspaces/"
-  "Workspace ID": "from workspaces/"
-  "Change ID": "from openspec/changes/"
-  "Task ID": "from openspec/changes/*/tasks/cards/"
-  "Mode": "re-entry = L3 change (prepare/spec); weekly/monthly/quarterly/on-demand = maintain; standard/hotfix = bugfix"
+  "Project ID": "项目标识（workspaces/ 下的目录名）"
+  "Workspace ID": "工作区标识（workspaces/ 下目录名）"
+  "Change ID": "变更目录名（如 202608-xxx），存于 workspaces/<项目>/openspec/changes/"
+  "Task ID": "任务卡标识（openspec/changes/*/tasks/cards/ 下）"
+  "Mode": "re-entry = L3 需求变更（prepare/spec）；weekly/monthly/quarterly/on-demand = maintain；standard/hotfix = bugfix"
   "Operation": "search=梳理检索 diff=逻辑对比 chain=逻辑链路 manual=手动自定义（影响评估请用 change-impact 工作流）"
   "Workspace": "选择 workspaces/ 下工作区；skip=不在workspace中搜索"
   "Projects": "选择 projects/ 下代码仓库（多选，空格切换）；skip=在所有项目中梳理"

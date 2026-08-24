@@ -198,3 +198,22 @@ Gate：CLI 测试 **159 OK**（+3：runtime 节指向骨架 / 骨架标题+列�
 `_capabilities_section` 引导句去掉写死的 `(extensions/)` 来源括号（与实际注入内容解耦——本机注入 wayfinder 来自 skills/ 内置，extensions 存在时段落混含两来源，括号恒失准）；来源由每条能力自带绝对路径表达。文案：`You may use these registered external skills on demand for this stage:`。
 
 Gate：CLI 159 OK；repo-lint 0/0/25；渲染验证 prepare/spec/develop 三阶段引导句已中性化。
+
+### 输入界面中文化（2026-08-25，用户确认；追加至 P28 §6）
+
+用户反馈 Change ID 输入界面（`from openspec/changes/` + `🔀 Change ID (required):`）交互不够友好。按 LANGUAGE_CONVENTION「Interactive prompts → 中文」，全工作流字段统一中文化：
+
+| 项 | 前 | 后 |
+|---|---|---|
+| suffix（fields.py） | `(required)` / `(optional)` | `(必填)` / `(可选)`；可选字段 prompt `，回车跳过`（原 Enter to skip） |
+| field_notes（i18n/zh.yaml） | Project/Workspace/Change/Task ID 的 `from workspaces/`/`from openspec/changes/` 纯英文路径 | 中文说明（如「变更目录名（如 202608-xxx），存于 workspaces/<项目>/openspec/changes/」）；Mode/Operation 英文指令中文化 |
+| 字段名 | Change ID / Task ID 等 | **保留英文**（机器契约标识符，输入值即英文，避免中文标签+英文值错位） |
+
+Gate：CLI 159 OK；repo-lint 0/0/25；path-audit 0 broken。文案变更已同步 P28 §6（追加节，非新提案）。
+
+### 新提案：P37 必填参数必要性评估（2026-08-25）
+
+用户需求「后续评估各工作流必填参数必要性，省掉不必要的参数」→ 记录 **P37（Proposed）**：
+- 现状盘点：dev-setup/develop/review/verify 重复必填 Project ID+Task ID；verify 的 Specification Reference、release 的 Workspace ID 属可推导参数却强制必填
+- 方案 A+C：立原则（主链可推导标识不设必填）+ 逐 workflow 三分类（降可选 / wizard 自动推导 / 保持必填）
+- 已登记 PROPOSALS.md + reports/README.md；待用户决策

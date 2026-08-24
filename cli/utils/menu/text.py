@@ -47,9 +47,37 @@ _INPUT_TOOLBAR_TEXT = (
 )
 
 
+def _prompt_html(prompt: str):
+    """Highlight the prompt text (bold cyan) with HTML-safe escaping.
+
+    prompt_toolkit HTML treats `<`/`&` as markup; field labels / prompts may
+    contain them, so escape the text before wrapping in the `prompt` class
+    (mapped to `prompt` style in _INPUT_STYLE, config-driven via ui.yaml).
+    Falls back to the plain prompt string when prompt_toolkit is absent.
+    """
+
+    if HTML is None:
+        return prompt
+
+    try:
+
+        from prompt_toolkit.formatted_text.html import html_escape
+
+        return HTML(f"<prompt>{html_escape(prompt)}</prompt> ")
+
+    except Exception:
+
+        return prompt
+
+
 def _input_toolbar():
     """底部提示条内容（颜色由 _INPUT_STYLE 控制, 纯文本避免双源冲突）。"""
     return _INPUT_TOOLBAR_TEXT
+
+
+def _path_toolbar():
+    """路径输入专属底部提示条（含 Tab 补齐，ask_path 专用）。"""
+    return "  ⏎ Enter 提交 · Tab 补齐 · 退格返回 · Esc/Ctrl+C 退出  "
 
 
 def _input_divider():
@@ -125,9 +153,6 @@ def ask_text(
 
     body = [
         _input_divider(),
-        "",
-        _t('menu.hint_text', 'Enter 提交，Alt+Enter 换行，空行退格返回，Esc/Ctrl+C 退出'),
-        "",
     ]
 
     if note:
@@ -137,7 +162,7 @@ def ask_text(
             f"{_theme('note')}{note}{_theme('reset')}"
         )
 
-        body.insert(1, "")
+    body.append("")
 
     _frame(
         header or [],
@@ -157,7 +182,7 @@ def ask_text(
     try:
 
         raw = session.prompt(
-            prompt,
+            _prompt_html(prompt),
             multiline=True,
             key_bindings=_text_bindings(),
             style=_INPUT_STYLE,
@@ -210,8 +235,7 @@ def ask_path(
         PathCompleter = None
 
     body = [
-        _t('menu.hint_path', '输入路径，Tab 补齐，Enter 提交，退格返回，Esc/Ctrl+C 退出'),
-        ""
+        _input_divider(),
     ]
 
     if note:
@@ -221,7 +245,7 @@ def ask_path(
             f"{_theme('note')}{note}{_theme('reset')}"
         )
 
-        body.insert(1, "")
+    body.append("")
 
     _frame(
         header or [],
@@ -250,10 +274,10 @@ def ask_path(
     try:
 
         raw = session.prompt(
-            prompt,
+            _prompt_html(prompt),
             key_bindings=_text_bindings(),
             style=_INPUT_STYLE,
-            bottom_toolbar=_input_toolbar(),
+            bottom_toolbar=_path_toolbar(),
         )
 
     finally:

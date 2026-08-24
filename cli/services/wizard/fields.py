@@ -135,9 +135,9 @@ class WizardFields:
         )
 
         suffix = (
-            "required"
+            "必填"
             if required
-            else "optional"
+            else "可选"
         )
 
         title = f"{field} ({suffix}) [{position}/{total}]"
@@ -269,7 +269,7 @@ class WizardFields:
         prompt = (
             f"{icon}{field} ({suffix}): "
             if required
-            else f"{icon}{field} ({suffix}, Enter to skip): "
+            else f"{icon}{field} ({suffix}，回车跳过): "
         )
 
         value = ask_text(

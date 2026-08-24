@@ -42,3 +42,21 @@
 
 - [ ] B：规则 slug 派生（Change Request 前置收集 + 完整 id 建议）——触发条件未到
 - [ ] D：AI 可选生成（skill 层落点）——触发条件未到
+
+## 6. 追加：输入界面中文化（2026-08-25，用户确认实施）
+
+**背景**：用户反馈 Change ID 输入界面（`from openspec/changes/` + `🔀 Change ID (required):`）交互不够友好——
+英文 required 标记 + 英文技术路径 note，提示与输入框间隔感强。LANGUAGE_CONVENTION 明确
+「Interactive prompts → 中文（跟随 config/menu.yaml locale）」，属用户可见交互层，应中文。
+
+**范围**：全部工作流字段（不只 Change ID）——`required`/`optional` 标记、`field_notes` 说明统一中文化；
+字段名本身（Change ID / Task ID 等）**保留英文**（机器契约标识符，输入值即英文，避免「中文标签 + 英文值」错位）。
+
+**实施**（2026-08-25，用户确认后）：
+- `cli/services/wizard/fields.py`：suffix `required/optional` → `必填/可选`（title 与 ask_text prompt 同步）
+- `config/i18n/zh.yaml` field_notes：Project ID / Workspace ID / Change ID / Task ID / Mode / Operation /
+  Workspace / Projects / Branch / Code Reference / Workspace Root 全量中文化（技术路径保留在括号内作参考）
+- 验证：CLI 全量测试 OK；渲染确认 title/prompt 中文、字段值仍英文
+
+> 关联：Prompt Anchor 英文化（AI 内部层）与输入界面中文化（用户交互层）分属 LANGUAGE_CONVENTION
+> 两个方向，互不冲突——本提案第 6 节只覆盖用户可见交互。
