@@ -192,3 +192,9 @@ Gate：CLI 测试 **156 OK**（+4：frontmatter 剥离 / caps 位置 / 二级 Ph
 | 3 | **骨架加标题** | 骨架前置 `## Runtime Skeleton` + 引导行（「Phases of the full runtime template...」） | 渲染确认 |
 
 Gate：CLI 测试 **159 OK**（+3：runtime 节指向骨架 / 骨架标题+列表项合并 / command 路径不受影响）；repo-lint 0/0/25；path-audit 0 broken；workflow-command-audit 0 blocker/1 WARN；command 路径实测不受影响（无 Runtime 节）。
+
+### 能力段引导句优化（2026-08-25）
+
+`_capabilities_section` 引导句去掉写死的 `(extensions/)` 来源括号（与实际注入内容解耦——本机注入 wayfinder 来自 skills/ 内置，extensions 存在时段落混含两来源，括号恒失准）；来源由每条能力自带绝对路径表达。文案：`You may use these registered external skills on demand for this stage:`。
+
+Gate：CLI 159 OK；repo-lint 0/0/25；渲染验证 prepare/spec/develop 三阶段引导句已中性化。

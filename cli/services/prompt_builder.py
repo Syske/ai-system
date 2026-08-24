@@ -177,8 +177,8 @@ class PromptBuilder:
 
         lines = [
             "## Optional External Capabilities",
-            "You may use these registered external skills (extensions/) on "
-            "demand for this stage:",
+            "You may use these registered external skills on demand for "
+            "this stage:",
             "",
             *resolved,
         ]
