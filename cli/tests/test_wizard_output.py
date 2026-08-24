@@ -233,6 +233,48 @@ class TestInvalidateDependents(unittest.TestCase):
         self.assertIn("Branch", values)
 
 
+class TestP37DeriveFields(unittest.TestCase):
+    """P37 批次 1：可推导字段运行期自动填充（三条衡量点）。"""
+
+    def test_change_id_slug_from_change_request(self):
+        from cli.services import change_resume
+        cid = change_resume.suggest_change_id("add support for multi-tenant login flow")
+        self.assertRegex(cid, r"^\d{6}-multi-tenant-login-flow$")
+        cid2 = change_resume.suggest_change_id("接入微信支付")
+        self.assertRegex(cid2, r"^\d{6}-接入微信支付$")
+
+    def test_release_version_fallback(self):
+        from cli.services import git_version
+        import datetime
+        v = git_version.guess_release_version()
+        today = datetime.date.today().strftime("%Y%m%d")
+        self.assertEqual(v, f"0.1.0-{today}")
+
+    def test_spec_reference_path_derived(self):
+        from cli.services import change_resume
+        p = change_resume.spec_reference_path("/ws", "proj", "202608-x")
+        self.assertEqual(str(p), "/ws/proj/openspec/changes/202608-x")
+
+    def test_derive_fields_task_single_card(self):
+        import tempfile
+        from pathlib import Path
+        tmp = Path(tempfile.mkdtemp())
+        card = tmp / "proj" / "openspec" / "changes" / "c1" / "tasks" / "cards"
+        card.mkdir(parents=True)
+        (card / "T-001.md").write_text("# T-001", encoding="utf-8")
+        w = WizardFields()
+        w.workspaces = tmp
+        values = {"Project ID": "proj", "Change ID": "c1"}
+        w._derive_fields([("Task ID", False)], values)
+        self.assertEqual(values.get("Task ID"), "T-001")
+
+    def test_derive_fields_release_version(self):
+        w = WizardFields()
+        values = {}
+        w._derive_fields([("Release Version", False)], values)
+        from cli.services import git_version
+        self.assertEqual(values.get("Release Version"), git_version.guess_release_version())
+
 if __name__ == "__main__":
     unittest.main()
 

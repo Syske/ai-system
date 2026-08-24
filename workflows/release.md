@@ -3,8 +3,10 @@ name: release
 description: Prepare release readiness.
 workflow:
   inputs:
-    required: [Workspace ID, Release Version]
+    required: []
     optional:
+      - name: Workspace ID    # 自动推导（主链已定 project/workspace）
+      - name: Release Version # 自动生成（git tag / 上一版本推导，可编辑）
       - name: Environment
   next: [deployment, develop]
   outputs:
@@ -30,11 +32,12 @@ This workflow does not execute deployment.
 
 Required:
 
-- Workspace ID
-- Release Version
+（无——均由主链上下文自动推导）
 
 Optional:
 
+- Workspace ID
+- Release Version
 - Environment
 
 ## Context

@@ -3,7 +3,11 @@ name: verify
 description: Verify against specification and contract.
 workflow:
   inputs:
-    required: [Project ID, Task ID, Specification Reference]
+    required: []
+    optional:
+      - name: Project ID            # 自动推导（主链前序产物/wizard 已选项目）
+      - name: Task ID               # 自动推导（Task Card 读取）
+      - name: Specification Reference  # 自动推导（change 产物路径）
   next: [release, develop]
   outputs:
     base: "workspaces/<project-id>/"
@@ -25,6 +29,10 @@ Verify implementation correctness against specification and contract.
 ## Inputs
 
 Required:
+
+（无——均由主链上下文自动推导）
+
+Optional:
 
 - Project ID
 - Task ID

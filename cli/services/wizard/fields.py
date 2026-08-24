@@ -86,6 +86,71 @@ class WizardFields:
         for stale in upstream.get(field, set()):
             values.pop(stale, None)
 
+    def _derive_fields(
+        self,
+        fields,
+        values
+    ):
+        """运行期推导未收集的可推导字段（P37 批次 1，零 LLM）。
+
+        三条衡量点：可生成/可推断 → 不让用户填。当前推导集：
+        - Task ID：从 Task Card 读取（task_ids provider，已有）
+        - Specification Reference：从 change 产物路径推导
+        - Release Version：从 git tag / 上一版本推导（无 tag 回退日期版）
+        - Change ID：Change Request 已收集时不显式问（_manual_default 已生成）
+        """
+
+        project = (
+            values.get("Project ID")
+            or values.get("Workspace ID")
+        )
+
+        change_id = values.get("Change ID")
+
+        for field, _ in fields:
+
+            if field in values and values[field]:
+                continue
+
+            if field == "Task ID" and project:
+
+                from cli.services import providers
+
+                tasks = providers.task_ids(
+                    self,
+                    values,
+                    project
+                )
+
+                if len(tasks) == 1:
+                    values["Task ID"] = tasks[0]
+
+                continue
+
+            if field == "Specification Reference" and \
+                    project and change_id:
+
+                from cli.services import change_resume
+
+                values["Specification Reference"] = str(
+                    change_resume.spec_reference_path(
+                        self.workspaces,
+                        project,
+                        change_id
+                    )
+                )
+
+                continue
+
+            if field == "Release Version":
+
+                from cli.services import git_version
+
+                v = git_version.guess_release_version()
+
+                if v:
+                    values["Release Version"] = v
+
     def _apply_field_defaults(
         self,
         fields,
@@ -111,6 +176,11 @@ class WizardFields:
             if default is not None:
 
                 values[field] = default
+
+        self._derive_fields(
+            fields,
+            values
+        )
 
     def _ask_field(
         self,
@@ -321,9 +391,11 @@ class WizardFields:
         field,
         values
     ):
-        """手动输入时的建议默认：仅新建 Change ID（无已有值）给 {YYYYMM}- 前缀。
+        """Change ID 建议默认：从 Change Request 自动生成 slug（P37 批次 1）。
 
-        已有 last_change / 重入场景不建议（走既有值或已有 change 菜单）。
+        Change Request 已收集时派生 `{YYYYMM}-{slug}`（用户可编辑）；
+        无 Change Request 时维持 `{YYYYMM}-` 前缀。已有 last_change /
+        重入场景不建议（走既有值或已有 change 菜单）。
         """
         if field != "Change ID":
             return None
@@ -333,7 +405,12 @@ class WizardFields:
 
         from cli.services import change_resume
 
-        return change_resume.suggest_change_id()
+        change_request = (
+            values.get("Change Request")
+            or ""
+        )
+
+        return change_resume.suggest_change_id(change_request)
 
     def _choices_for(
         self,

@@ -3,8 +3,9 @@ name: prepare
 description: Prepare context for a new change.
 workflow:
   inputs:
-    required: [Change ID, Change Request]
+    required: [Change Request]
     optional:
+      - name: Change ID        # 自动生成（{YYYYMM}-{slug}，从 Change Request 派生，可编辑）
       - name: Requirement Documents
       - name: Existing Design
       - name: Related Issues
@@ -33,11 +34,11 @@ Prepare complete implementation context before specification.
 
 Required:
 
-- Change ID
 - Change Request
 
 Optional:
 
+- Change ID
 - Requirement Documents
 - Existing Design
 - Related Issues

@@ -126,3 +126,23 @@
 ## Implementation Record
 
 （批准并实施后追加：Applied per approval → 评估表 + 改动清单 → Validation 结果 → Status 置 Implemented + 同步 PROPOSALS.md/README）
+
+## Implementation Record (2026-08-25) — 批次 1（收益最大项）
+
+Applied per user approval「先落地收益最大的」：
+
+**契约调整（6 workflow）**：
+- prepare：required `[Change ID, Change Request]` → `[Change Request]`（Change Request 先收集，Change ID 自动生成）
+- verify/dev-setup/develop/review/release：required 清空（Project/Task ID、Specification Reference、Workspace ID、Release Version 全部自动推导/生成）
+- 正文 Inputs 与 frontmatter 逐字一致（check_frontmatter_consistency 通过）
+
+**推导实现（零 LLM，确定性规则）**：
+- `cli/services/change_resume.py`：`_slugify()`（Change Request → kebab slug，停用词过滤、英文按词拆）+ `suggest_change_id(change_request)` → `{YYYYMM}-{slug}` + `spec_reference_path()`（verify 产物路径推导）
+- `cli/services/git_version.py`（新）：`guess_release_version()`（git describe → 版本型 tag → 无 tag 回退 `0.1.0-{YYYYMMDD}`）
+- `cli/services/wizard/fields.py`：`_manual_default` 传 Change Request 生成 slug；新增 `_derive_fields()`（Task ID 单卡读取、Specification Reference 路径推导、Release Version 生成）
+
+**测试**：+5（slug 派生 / release fallback / spec 路径 / 单卡 Task ID / Release Version 推导）；164 全 PASS。
+
+**Validation**：repo-lint 25 WARN（0 新增，语言规范修正后归零）/ path-audit 0 broken / workflow-command-audit 0 blocker / check.py PASS / prepare 提示词 Required 收敛为 Change Request。
+
+> 后续批次（未实施，待评估）：analysis Target、bugfix Project ID、change-impact Projects、code-review Projects、knowledge Operation 的推导；Change ID slug 中文分词增强。

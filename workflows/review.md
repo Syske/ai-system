@@ -3,7 +3,10 @@ name: review
 description: Review engineering quality.
 workflow:
   inputs:
-    required: [Project ID, Task ID]
+    required: []
+    optional:
+      - name: Project ID   # 自动推导（wizard 已选项目）
+      - name: Task ID      # 自动推导（Task Card 读取）
   next: [verify, develop]
   outputs:
     base: "workspaces/<project-id>/"
@@ -38,6 +41,10 @@ Use `review-changes` (skill) instead when:
 ## Inputs
 
 Required:
+
+（无——均由主链上下文自动推导）
+
+Optional:
 
 - Project ID
 - Task ID

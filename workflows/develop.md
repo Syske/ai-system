@@ -3,8 +3,10 @@ name: develop
 description: Implement one task.
 workflow:
   inputs:
-    required: [Project ID, Task ID]
+    required: []
     optional:
+      - name: Project ID     # 自动推导（wizard 已选项目）
+      - name: Task ID        # 自动推导（Task Card 读取）
       - name: Related Issue
   next: [review]
   outputs:
@@ -30,11 +32,12 @@ Implement exactly one task.
 
 Required:
 
-- Project ID
-- Task ID
+（无——均由主链上下文自动推导）
 
 Optional:
 
+- Project ID
+- Task ID
 - Related Issue
 
 ## Context

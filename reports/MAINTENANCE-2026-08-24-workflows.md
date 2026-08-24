@@ -226,3 +226,16 @@ Gate：CLI 159 OK；repo-lint 0/0/25；path-audit 0 broken。文案变更已同�
 3. **优先自动生成**（aic 规则生成 / 运行期 ai 推断+确认；不引入向导层 LLM，维持 P28 结论）
 
 初版评估表（P37 §4.2）：15 workflow 必填参数 23 项中，真·必填收敛到 4 个（bugfix Bug Description、change-impact Code Reference、prepare Change Request、proposal Topic）；其余 19 项自动推导/生成/默认。已核验实现路径：task_ids（Task Card 读取）+ _field_defaults 均已有，零架构改动。
+
+### P37 批次 1 实施（2026-08-25，用户确认「先落地收益最大的」）
+
+**契约调整（6 workflow）**：prepare required 收敛为 `[Change Request]`（Change ID 自动生成）；verify/dev-setup/develop/review/release required 清空（全自动推导）。
+
+**推导实现（零 LLM）**：
+- `change_resume.py`：`_slugify()` + `suggest_change_id(change_request)` → `{YYYYMM}-{slug}`；`spec_reference_path()`（verify 产物路径）
+- `git_version.py`（新）：`guess_release_version()`（git describe → tag → 无 tag 回退 `0.1.0-{YYYYMMDD}`）
+- `fields.py`：`_manual_default` 用 Change Request 生成 slug；`_derive_fields()`（Task ID 单卡、Spec Reference、Release Version）
+
+**语言规范**：git_version.py 初版英文注释 3 条 WARN → 全中文化，repo-lint 28→25（归零新增）。
+
+Gate：164 测试 OK（+5）；repo-lint 25；path-audit 0 broken；check.py PASS；prepare 提示词 Required 收敛为 Change Request。

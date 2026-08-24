@@ -95,3 +95,90 @@ def _open_questions(text):
         summary = re.split(r"[——。；;]", item)[0][:80]
         open_qs.append(summary.strip())
     return open_qs
+
+
+def _slugify(text: str) -> str:
+    """Change Request → kebab-case slug（P37 批次 1：Change ID 自动生成）。
+
+    确定性规则，零 LLM（P28 评估结论）：取 Change Request 首段有意义词 →
+    小写 kebab。保留中文词（不翻译，作为描述主体）；拼音/英文词原样小写。
+    """
+
+    if not text:
+        return ""
+
+    # 首段（按句号/换行切），去掉命令式与噪音词
+    head = re.split(r"[。！？!?\n]", text)[0].strip()
+
+    # 提取中文词块与字母数字词块（英文词块再按空格拆词，便于停用词过滤）
+    tokens = []
+
+    for m in re.finditer(
+        r"[\u4e00-\u9fff]+|[a-zA-Z0-9]+(?:[ -][a-zA-Z0-9]+)*",
+        head
+    ):
+
+        tok = m.group(0)
+
+        if re.fullmatch(r"[\u4e00-\u9fff]+", tok):
+
+            tokens.append(tok)
+
+        else:
+
+            # 英文/数字块按空格拆词逐个过滤
+            for w in re.split(r"[ -]+", tok):
+
+                if w and re.match(r"^[a-z0-9]+$", w, re.I):
+                    tokens.append(w)
+
+    # 停用词（描述性前缀，不进入 slug）
+    stop = {
+        "请", "实现", "完成", "支持", "新增", "添加", "修复", "优化",
+        "重构", "a", "an", "the", "to", "for", "of", "and", "with",
+        "add", "implement", "support", "fix", "optimize",
+    }
+
+    kept = [p for p in tokens if p.lower() not in stop]
+
+    slug = "-".join(kept)[:48].lower()
+
+    return slug.strip("-")
+
+
+def suggest_change_id(change_request: str = "") -> str:
+    """新建 change 的建议默认：`{YYYYMM}-{slug}`（P37 批次 1）。
+
+    有 Change Request 时自动派生 slug（`{YYYYMM}-{slug}`，用户可编辑）；
+    无则仅 `{YYYYMM}-` 前缀（P28 既有行为，用户补描述）。
+    """
+
+    prefix = datetime.now().strftime("%Y%m") + "-"
+
+    slug = _slugify(change_request)
+
+    if not slug:
+        return prefix
+
+    return prefix + slug
+
+
+def spec_reference_path(
+    workspaces_root,
+    project: str,
+    change_id: str
+):
+    """verify 的 Specification Reference 自动推导（P37 批次 1）。
+
+    从主链产物路径推导：`<workspaces_root>/<project>/openspec/changes/<change_id>/`
+    （spec 工作流产物即该 change 目录下的 specs/）。返回目录绝对路径，
+    供 verify 定位 spec 产物；目录不存在时仍返回路径（由运行期判断）。
+    """
+
+    return (
+        Path(workspaces_root)
+        / project
+        / "openspec"
+        / "changes"
+        / change_id
+    )
