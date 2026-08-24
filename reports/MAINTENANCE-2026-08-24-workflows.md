@@ -217,3 +217,12 @@ Gate：CLI 159 OK；repo-lint 0/0/25；path-audit 0 broken。文案变更已同�
 - 现状盘点：dev-setup/develop/review/verify 重复必填 Project ID+Task ID；verify 的 Specification Reference、release 的 Workspace ID 属可推导参数却强制必填
 - 方案 A+C：立原则（主链可推导标识不设必填）+ 逐 workflow 三分类（降可选 / wizard 自动推导 / 保持必填）
 - 已登记 PROPOSALS.md + reports/README.md；待用户决策
+
+### P37 评估标准定案（2026-08-25，用户三条衡量点）
+
+用户定案三条衡量点（写入 P37 §4.1 评估标准）：
+1. **可生成/可推断 → 不让用户填**（自动推导/前序产物复用）
+2. **可填可不填 → 不让用户填**（默认值覆盖，不呈现为输入）
+3. **优先自动生成**（aic 规则生成 / 运行期 ai 推断+确认；不引入向导层 LLM，维持 P28 结论）
+
+初版评估表（P37 §4.2）：15 workflow 必填参数 23 项中，真·必填收敛到 4 个（bugfix Bug Description、change-impact Code Reference、prepare Change Request、proposal Topic）；其余 19 项自动推导/生成/默认。已核验实现路径：task_ids（Task Card 读取）+ _field_defaults 均已有，零架构改动。

@@ -45,6 +45,50 @@
    - 保持必填：prepare 的 Change ID（变更标识，P28 已有默认）、bugfix 的 Bug Description、change-impact 的 Code Reference 等（真·不可推导）
 3. **wizard 支持**：对「自动推导」字段，复用 `_field_defaults`/`_previous_value` 机制预填（既有模式，零架构改动）。
 
+## 4.1 评估标准（用户定案，2026-08-25）
+
+必填参数的三条衡量点（追加为本提案的评估标准，替代宽松的「降可选」表述）：
+
+1. **可生成/可推断 → 不让用户填**：用户可以不填的、或可在运行期生成/推断出的参数，坚决不让用户输入（自动推导或前序产物复用）。
+2. **可填可不填 → 不让用户填**：用户可填可不填的参数，一定不让用户填（默认值/自动推导覆盖，不呈现为必填也不呈现为可选输入）。
+3. **优先自动生成**：优先由 aic 生成（确定性规则/前序产物），或运行期 ai 生成（workflow 运行时按上下文推断）。
+
+> 实现注记（与 P28 评估的关系）：「aic 生成」落地为规则推导 + 前序产物复用（wizard `_field_defaults`，零 LLM 依赖）；
+> 「运行期 ai 生成」落地为 workflow 运行时由 AI 按上下文推断 + 用户确认，**不引入向导层 LLM**（维持 P28 对
+> 「LLM 进 wizard 是架构级改动」的结论，Evolution Principle）。
+
+## 4.2 初版评估表（15 workflow × 必填参数 → 处置）
+
+| Workflow | 必填参数 | 处置 | 依据（衡量点） |
+|---|---|---|---|
+| analysis | Analysis Target | 自动推导 | 默认分析 ai-system 自身（1） |
+| bootstrap | （无） | 保持 | — |
+| bugfix | Project ID | 自动推导 | wizard 已选项目（1） |
+| bugfix | Bug Description | **保持必填** | 真·不可推导（3 不适用） |
+| change-impact | Projects | 自动推导 | wizard 已选项目（1） |
+| change-impact | Code Reference | **保持必填** | 真·不可推导 |
+| code-review | Projects | 自动推导 | wizard 已选项目（1） |
+| dev-setup | Workspace/Project/Task ID | 自动推导 | 前序产物 + 项目选择（1） |
+| develop | Project ID | 自动推导 | 前序产物（1） |
+| develop | Task ID | 自动推导 | Task Card 读取（1） |
+| hotfix-test-doc | Branch Name | 自动推导 | 当前分支/项目分支（1） |
+| knowledge | Knowledge Operation | 保持（默认 collect） | 意图明确但可给默认（2/3） |
+| prepare | Change ID | 自动生成 | P28 默认 + slug 派生（3） |
+| prepare | Change Request | **保持必填** | 核心内容不可推导 |
+| proposal | Topic | **保持必填** | 核心内容不可推导 |
+| release | Workspace ID | 自动推导 | 主链已定 project/workspace（1） |
+| release | Release Version | 自动生成 | git tag/上一版本（3） |
+| review | Project ID | 自动推导 | 前序产物（1） |
+| review | Task ID | 自动推导 | Task Card（1） |
+| spec | Change ID | 自动推导 | prepare 已产出（1） |
+| verify | Project ID | 自动推导 | 前序产物（1） |
+| verify | Task ID | 自动推导 | Task Card（1） |
+| verify | Specification Reference | 自动推导 | spec 产物路径（1） |
+
+> 预期效果：15 个 workflow 中，真·必填收敛到 4 个（bugfix Bug Description、change-impact Code Reference、
+> prepare Change Request、proposal Topic）；其余全部自动推导/生成/默认。评估表为初稿，实施时逐项核对
+> runtime 消费点后定稿。
+
 ## 5. Proposed Changes（具体改动清单，待批准实施）
 
 > 仅记录提案，**不直接修改**；批准后按 OPERATIONS §12 Implement 阶段执行。
