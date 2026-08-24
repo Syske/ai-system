@@ -38,6 +38,8 @@
 | [P29](P29-HOME-ENV-CONFIG.md) | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 |
 | [P30](P30-PROMPT-ROOT-PLACEHOLDERS.md) | 提示词渲染期解析根路径占位符（{workspace_root} 等，模板零改动）— **Implemented** | 2026-08-23 |
 | [P31](P31-STANDARDS-COOL-MIGRATION.md) | standards/cool 公司规范迁出通用层（extensions + loader 可配置）— **Implemented** | 2026-08-23 |
+| [P32](P32-PREPARE-OUTPUTS-LOCATION.md) | prepare 工作流子报告输出位置与 AGENTS.md 约定对齐（outputs/prepare→workspace-anchored）— **Implemented** | 2026-08-24 |
+| [P33](P33-ISSUE-CAPTURE-CONTEXT-LOADING.md) | 日常运行中发现变更时的上下文加载触发规则（Issue Capture：JIT 加载 proposal-policy + OPERATIONS §12 + 尺寸分流）— **Implemented** | 2026-08-24 |
 
 ---
 
@@ -60,6 +62,7 @@
 | 2026-08-17 | on-demand | 工具校验/周度巡检/一致性抽查 | `MAINTENANCE-2026-08-17.md` | R1: check.py 回归（FakeWizard 缺 projects_root）→ 已立提案 P24 待评审；其余全 PASS |
 | 2026-08-20 | on-demand | openapi-gateway OOM 流程提案（P1–P7 评估） | `MAINTENANCE-2026-08-20.md` | P7 简体规范已就地修（LANGUAGE_CONVENTION）；P4 技能触发词已登记 skills/README；P1/P2/P3/P5/P6 结构建议待变更管理立项 |
 | 2026-08-23 | weekly | 工具校验/周度巡检/一致性抽查 + 修复批次（提示词路径绝对化 + Windows 路径归一化 + env-init） | `MAINTENANCE-2026-08-23.md` | 批次 A 已落地：P26 置 Implemented；P28 已补 README 索引；workflow-trigger 死模板已归档；方案 3（根占位符填充）待立项 |
+| 2026-08-24 | on-demand/prepare | 增量基线 CHANGED→对应子集；scope=prepare 一致性抽查（8 项 7 过/1 失败）+ 实施 P32 方案 A | `MAINTENANCE-2026-08-24.md` | P32 已闭环（prepare.md Outputs 位置对齐 workspace-anchored）；P28/P26 开放项 defer |
 
 ---
 

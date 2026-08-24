@@ -50,6 +50,25 @@ Applied per approval (OPERATIONS §12 → Implement → Validate):
 - `Status` 字段、`Review Log`、`Implementation Record` 为机读字段（proposal-audit 解析）。
 - Review Log 决策后必须把 `Status` 更新为对应状态（见 §2），并同步 `reports/PROPOSALS.md` 索引。
 
+### 1.1 Sizing Triage
+
+When a routine run discovers a change worth recording, triage by impact surface
+(trigger rule: see the **Issue Capture** section in `AI_OPERATING_RULES` — before
+recording, JIT-load this file + OPERATIONS §12).
+
+| Category | Criterion | Handling |
+|---|---|---|
+| In-place minor fix (L1, **no P-proposal**) | Single-point doc-drift / typo / broken link / text alignment; does NOT touch structure/contract/multiple files/standards/new capability | Fix in place after confirmation + record in diagnostic-log + the maintenance report "Fix Actions" section |
+| Proposal (via §12) | Touches structure / contract / multiple files / standards / new capability | File a P-proposal per §1 template + register in PROPOSALS.md/README |
+
+> Same threshold as the `maintain` command minor-fix bypass; this section is the
+> single source of truth for it.
+>
+> **Retroactive evidence**: P32 (prepare workflow Outputs location, a single-line text
+> alignment) belonged to the in-place minor-fix path but was filed as a full
+> P-proposal — the typical over-processing that occurs when this triage rule is
+> absent. Future cases of the same kind should take the in-place bypass.
+
 ## 2. 状态机（Lifecycle）
 
 | 状态 | 含义 | 触发 |

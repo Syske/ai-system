@@ -34,6 +34,8 @@
 | Approved | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 | `P29-HOME-ENV-CONFIG.md` |
 | Implemented | 提示词渲染期解析根路径占位符（{workspace_root} 等，模板零改动） | 2026-08-23 | `P30-PROMPT-ROOT-PLACEHOLDERS.md` |
 | Implemented | standards/cool 公司规范迁出通用层（extensions + loader 可配置） | 2026-08-23 | `P31-STANDARDS-COOL-MIGRATION.md` |
+| Implemented | prepare 工作流子报告输出位置与 AGENTS.md 约定对齐 | 2026-08-24 | `P32-PREPARE-OUTPUTS-LOCATION.md` |
+| Implemented | 日常运行中发现变更时的上下文加载触发规则（Issue Capture） | 2026-08-24 | `P33-ISSUE-CAPTURE-CONTEXT-LOADING.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |

@@ -260,6 +260,30 @@ Urgent new requests during an active task are L3 by default.
 - Route the change to prepare / spec.
 - Resume only with an updated Task Card.
 
+## Issue Capture (when a run discovers a change worth recording)
+
+During routine runs (prepare/develop/spec/review/verify), when the AI discovers a
+change worth recording (doc drift, contract inconsistency, a new gap, etc.), it must
+load the rules just-in-time before recording — to avoid ad-hoc, non-conforming
+proposals that raise cleanup cost for the maintenance audit.
+
+- **Load trigger**: before recording any proposal, JIT-load
+  `governance/policies/proposal-policy.md` + `OPERATIONS.md §12` (once, only at that
+  moment; never into runtime-base as a resident dependency — respect CONTEXT_LOADING).
+- **Sizing triage** (threshold aligned with the `maintain` command minor-fix bypass;
+  details in proposal-policy §1):
+  - Single-point doc-drift / typo / broken link / text alignment → fix in place after
+    confirmation + record in diagnostic-log + the maintenance report "Fix Actions"
+    section (**do NOT file a P-proposal**).
+  - Touches structure / contract / multiple files / standards / new capability → file a
+    P-proposal per proposal-policy §1.
+- **Indexing**: after filing, register immediately in `reports/PROPOSALS.md` + the
+  matching table in `reports/README.md`.
+
+> The single source of truth for this trigger is this section; template / lifecycle /
+> gate / triage-threshold details live in proposal-policy and are not restated here
+> (Single Source of Truth).
+
 ---
 
 # Workspace Discipline
