@@ -11,3 +11,4 @@ Category files, split by topic:
 - `governance/memory/ai-system/language-boundary.md` — English for control flow / system language for user interaction
 - `governance/memory/ai-system/file-contract.md` — file name matches content (rename discipline)
 - `governance/memory/ai-system/archive-discipline.md` — archive / cleanup reference discipline
+- `governance/memory/ai-system/cross-machine-test-fragility.md` — env-dependent tests: distinguish resolved absolute paths from dangling relative refs; re-run suite after cross-machine pull
