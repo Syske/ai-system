@@ -177,13 +177,11 @@ class TestPromptNoDanglingExtensionPaths(unittest.TestCase):
 
         for wf in ("prepare", "spec", "develop"):
             prompt = self.builder.build(wf, {})
-            # Design intent (confirmed): present extensions ARE injected as
-            # resolved absolute paths (e.g. /mnt/.../extensions/<name>).
-            # This test guards only against DANGLING RELATIVE refs leaking
-            # (a bare `extensions/<name>` not resolved to an absolute path).
-            # Negative lookbehind on a path sep ensures a resolved absolute
-            # path's `extensions/<name>` substring (preceded by `/` or `\`)
-            # is NOT flagged — only a bare relative ref is.
+            # 设计意图（已确认）：已存在的扩展以解析后的绝对路径形式注入
+            # （如 /mnt/.../extensions/<name>）。本测试只拦截「悬空相对引用」泄漏
+            # （未解析为绝对路径的裸 `extensions/<name>`）。负向后行（路径分隔符）
+            # 确保已解析绝对路径里的 `extensions/<name>` 子串（前面是 `/` 或 `\`）
+            # 不被误判——只有裸相对引用才会命中。
             dangling = re.findall(
                 r"(?<![\\/])extensions/[a-zA-Z0-9_-]+",
                 prompt,
