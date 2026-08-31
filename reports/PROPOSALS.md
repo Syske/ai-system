@@ -40,7 +40,13 @@
 | Proposed | python 解释器鲁棒性（`python` shim 在 WSL 不可用，scripts/docs 用法不一） | 2026-08-24 | `P35-PYTHON-INTERPRETER-ROBUSTNESS.md` |
 | Proposed | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定代码仓库） | 2026-08-25 | `P36-SETUP-ENV-INIT-SCAFFOLD.md` |
 | Proposed | 工作流必填参数必要性评估（省掉不必要的必填项，提升用户使用效率） | 2026-08-25 | `P37-REQUIRED-INPUTS-TRIAGE.md` |
-| Proposed | 逐 aic 工作流用户交互审计（wizard 交互序列/确认节奏/呈现） | 2026-08-25 | `P38-WORKFLOW-INTERACTION-AUDIT.md` |
+| Implemented | 逐 aic 工作流用户交互审计（wizard 交互序列/确认节奏/呈现） | 2026-08-25 | `P38-WORKFLOW-INTERACTION-AUDIT.md` |
+| Implemented | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 污染 .git/.githooks） | 2026-08-25 | `P39-EXTENSIONS-LINT-HIDDEN-DIRS.md` |
+| Implemented | OpenSpec-CN Change Name 字母开头约束与 workspace 命名惯例冲突 | 2026-08-25 | `P40-OPENSPEC-CHANGE-NAME-NAMING.md` |
+| Proposed | tr5 脚本健壮性批次（§1 语义 + 工时校验 + 服务名正则 + tr4_url 条件化） | 2026-08-26 | `P41-TR5-SECTION1-SEMANTICS.md` |
+| Proposed | 新增 tr5_template.md 一页纸骨架模板 | 2026-08-26 | `P42-TR5-TEMPLATE-SKELETON.md` |
+| Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |
+| Implemented | Worktree 约定完善（项目级隔离 + 生命周期管理） | 2026-08-31 | `P44-WORKTREE-CONVENTION.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |

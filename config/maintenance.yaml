@@ -11,26 +11,15 @@
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
 
-last_run: 2026-08-24
-mode: on-demand
-scope: workflows
-next_maintenance: '2026-08-30'   # scheduled weekly unchanged (this was an ad-hoc on-demand run)
+last_run: 2026-08-31
+mode: weekly
+next_maintenance: '2026-09-07'   # weekly +7d
 last_findings:
-- 增量基线：maintain-delta FIRST_RUN → 全量审计；已 --record 基线 head=3237f8d（下次起增量判定生效）
-- 工具：quick-check ISSUES(1)（详情见 per-run diagnostic-log，机器级不入此文件）；repo-lint BLOCKER/ERROR 0 / WARN 25（既有无新增）；
-  path-audit 0 broken（665 refs）；workflow-command-audit 0 blocker/1 WARN（aic-maintain 125 行既有）；CLI 单测 OK
-- 指标：skills 31/workflows 15/rfc 14/governance 56/templates 22 全不变；frontmatter 30 valid/1 missing（恒定）
-- scope=workflows 一致性抽查：11 项 10 过/1 ⚠️（AGENTS.md 缺失——doc-vs-reality 检查对象不存在，L2 需用户决策：
-  重建或检查项降级）；README 条件转移表缺 release BLOCKED→develop 行（L1 待确认）；workflows 域结构/注册表/
-  引用链/Next 链全绿；3 个条件重入环均文档化
-- 开放提案：P28（B/D defer 维持）；P26（2 条开放项 defer 维持）；P35（Proposed，python→python3 多文件，待用户决策）；P36（Proposed，setup.py 初始化完善，待用户决策）
-- 修复批次：用户确认后实施 ① workflows/README.md 补 release BLOCKED→develop（L1）② 工作区根重建 AGENTS.md 简写版（L2，
-  覆盖结构图/运行目录表/关键设计决策/单任务工时/主链 workspace-anchored）③ Path Anchor 英文化（LANGUAGE_CONVENTION）
-  ④ 提示词不注入悬空 extensions 路径（_resolve_ref None + caps 跳过，用户澄清后实施）⑤ 提示词优化 5 项
-  （caps 段移到 Task 前 / frontmatter 剥离 / 二级 Phase 骨架 / prepare.md 空行 / desc 英文化）⑤-2 wayfinder TRIAL
-  评估机制（方案 A：OPTIMIZATION_LOG 采集 + desc 强化跳过/必记录 + 08-30 截止）⑤-3 提示词优化批次 2
-  （骨架引言行合并列表项 / Runtime 节渲染层去重 / Runtime Skeleton 标题）⑤-4 输入界面中文化（追加 P28 §6：
-  （required/optional→必填/可选、field_notes 中文、字段名保留英文）⑤-5 立 P37（必填参数必要性评估）⑤-6 P37 批次 1
-  实施（prepare required 收敛为 Change Request、verify/dev-setup/develop/review/release 全推导：slug 派生/git 版本/
-  Task Card/产物路径，零 LLM）；复验全绿（repo-lint 25 既有、path-audit 0 broken、CLI 164 测试 OK）；
-  P35/P36 仍待用户决策
+- maintain-delta: NO_CHANGES（2026-08-25 后无提交），跳过全量审计
+- quick-check OK(0)，近 7 日趋势稳定（8/25 ISSUES 已修复回落）
+- code-review.md 两个可选节插入必选节之间（Target Branch Resolution / Spec-Comparison Review Mode），需走 OPERATIONS §11 结构调整
+- reports/README.md 缺 MAINTENANCE-2026-08-25.md 和 MAINTENANCE-2026-08-26.md 索引登记
+- 7 项 Proposed 提案开放（P28/P35/P36/P37/P41-P43），季度回顾时集中决策
+- 工具门禁：0 BLOCKER / 0 ERROR / 25 WARN（frontmatter 校验），path-audit OK，extensions-lint OK
+- 代码质量：31 skills / 15 workflows / 14 RFC / 57 governance / 22 templates，指标全部持平
+- 机器级观察（python shim CRLF 问题等）见 logs/ per-run diagnostic-log，不入此文件
