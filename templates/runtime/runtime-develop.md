@@ -102,7 +102,9 @@ Output:
 - Risks
 - Test Strategy
 
-Wait for confirmation. Present the confirmation request in the system language (config/menu.yaml → locale).
+Wait for confirmation. Present the confirmation request in the system language (config/menu.yaml → locale). <!-- @keep -->
+
+Mid-task checkpoint: after every ~3 implementation steps, briefly verify alignment (goal / plan / done-so-far) before continuing; if output degrades or scope drifts, stop and checkpoint first. <!-- @keep -->
 
 After approval, persist the plan to:
 
@@ -114,9 +116,7 @@ Review and Verify compare the approved plan against the actual implementation.
 
 ## Phase 3 — Invoke Implement Skill
 
-Execute:
-
-- skills/implement/workflow.md
+Execute Implement Skill (skills/implement/SKILL.md).
 
 The Implement Skill executes the full 10-stage lifecycle:
 

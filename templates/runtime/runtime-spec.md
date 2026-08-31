@@ -130,9 +130,9 @@ Generate clarification questions.
 
 When requirements are ambiguous or incomplete, apply collaborative discovery:
 
-1. **One question at a time**: Ask a single clarifying question, provide a recommended answer, wait for feedback before asking the next.
+1. **One question at a time**: Ask a single clarifying question, provide a recommended answer, wait for feedback before asking the next. <!-- @keep -->
 2. **Explore context first**: Check existing specs, contracts, and recent changes before asking.
-3. **Multi-approach proposal**: When multiple design options exist, propose 2-3 approaches with trade-offs and a recommendation.
+3. **Multi-approach proposal**: When multiple design options exist, propose 2-3 approaches with trade-offs and a recommendation. <!-- @keep -->
 4. **Gate**: Do NOT proceed to Phase 2 until requirements are unambiguous.
 
 Present every question and choice to the user in the system language (config/menu.yaml → locale).
@@ -179,10 +179,9 @@ Objective:
 
 Stress-test proposed design decisions before writing the Design artifact.
 
-When the user wants to pressure-test a design or plan, or asks to "grill" /
-"stress-test" the approach, invoke the `grilling` skill: walk the decision
+When the user wants to pressure-test a design or plan, or asks to "grill" / "stress-test" the approach, invoke the `grilling` skill: walk the decision <!-- @keep -->
 tree one branch at a time, one question at a time, with a recommended answer,
-and do not proceed until the user confirms a shared understanding.
+and do not proceed until the user confirms a shared understanding. <!-- @keep -->
 
 Look up facts in the environment; only decisions are put to the user.
 
@@ -265,10 +264,16 @@ Objective:
 
 Generate executable development tasks.
 
-Invoke:
+Invoke task-splitter Skill (skills/task-splitter/SKILL.md):
 
-- planning
-- task-planning
+- T1/T2: split tasks per service (service Spec + interop_contract.yml)
+- T3: orchestrate global execution plan (blocking edges, parallel pool, vertical slices)
+- T4: inject contract fragments per task (automatic)
+- T5: generate Given-When-Then acceptance criteria (on demand)
+
+The task-splitter Skill is bound to the spec runtime per skills/README.md. It is
+triggered not by a separate user flow but by AI decision — recommended or autonomously
+decided during Task Planning, once `specs/` and `contracts/interop_contract.yml` are ready.
 
 Generate:
 

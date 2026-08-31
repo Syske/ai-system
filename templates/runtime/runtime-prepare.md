@@ -98,8 +98,8 @@ Clarification Questions
 When requirements are ambiguous, apply collaborative discovery:
 
 1. **Explore context first**: Check existing specs, docs, and recent changes before asking questions.
-2. **One question at a time**: Ask a single clarifying question, provide a recommended answer, wait for feedback.
-3. **Multi-approach**: When multiple interpretation paths exist, propose 2-3 with trade-offs and a recommendation.
+2. **One question at a time**: Ask a single clarifying question, provide a recommended answer, wait for feedback. <!-- @keep -->
+3. **Multi-approach**: When multiple interpretation paths exist, propose 2-3 with trade-offs and a recommendation. <!-- @keep -->
 4. **Gate**: Do NOT proceed to Phase 2 until requirements are unambiguous.
 
 Present every question and choice to the user in the system language (config/menu.yaml → locale).

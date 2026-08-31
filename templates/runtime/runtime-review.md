@@ -106,8 +106,8 @@ For each design decision discovered in the implementation, walk the design tree:
 
 1. **Tree-walk**: Start at the highest-level decision and drill down each branch to its leaf before moving sideways.
 2. **Dependency order**: Resolve dependencies between decisions one by one. Do not skip.
-3. **Single question**: Ask one question at a time. Provide a recommended answer. Wait for feedback before continuing.
-4. **Codebase-first**: If a question can be answered by exploring the codebase, explore instead of asking.
+3. **Single question**: Ask one question at a time. Provide a recommended answer. Wait for feedback before continuing. <!-- @keep -->
+4. **Codebase-first**: If a question can be answered by exploring the codebase, explore instead of asking. <!-- @keep -->
 
 The goal is reaching a shared understanding of every design trade-off, not just passing checklists.
 

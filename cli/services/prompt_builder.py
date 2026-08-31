@@ -462,11 +462,17 @@ class PromptBuilder:
             return runtime_md
 
         import re
-
         lines = runtime_md.splitlines()
         skeleton = []
         current_phase = None
+        last_phase = None
         intro_seen = False
+
+        # Behavior constraints tagged `<!-- @keep -->` survive skeletoning:
+        # they are interaction rules (clarify one-question-at-a-time,
+        # mid-task checkpoints) that must reach the prompt even though the
+        # phase body itself is only referenced on demand.
+        keep_marker = "<!-- @keep -->"
 
         # Phase headings may be level-1 (`# Phase N — …`, dev-setup) or
         # level-2 (`## Phase N — …`, prepare); match both, preserving the
@@ -475,14 +481,29 @@ class PromptBuilder:
 
             s = line.strip()
 
+            if keep_marker in line:
+
+                kept = line.split(keep_marker)[0].rstrip()
+
+                if kept:
+
+                    if last_phase:
+                        skeleton.append(f"  {kept}")
+                    else:
+                        skeleton.append(f"- {kept}")
+
+                continue
+
             m = re.match(r"^#{1,2} Phase (\d+[^—]*—?.+)$", s)
 
             if m:
 
                 if current_phase:
+
                     skeleton.append("")
 
                 current_phase = s
+                last_phase = s
                 intro_seen = False
 
                 skeleton.append(s)

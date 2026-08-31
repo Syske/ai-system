@@ -5,10 +5,19 @@ collect fields → defaults/hooks → select output → launch confirm.
 """
 
 from cli.services.command_hooks import get_hooks
-from cli.utils.menu import BACK, e as _e
+from cli.utils.menu import BACK, choose, e as _e
 
 
 class WizardSteps:
+
+    # P38 批次 2：全推导工作流（字段全可选、可由上下文/Task Card/git 推导）
+    SILENT_DERIVE_WORKFLOWS = {
+        "dev-setup",
+        "develop",
+        "review",
+        "verify",
+        "release",
+    }
 
     def _steps(self):
 
@@ -138,6 +147,12 @@ class WizardSteps:
                         for f, r in fields
                         if f not in self._auto_fields()
                     ]
+
+                if self._try_derive_silent(target, fields, values):
+
+                    step = 2 + len(fields)
+
+                    continue
 
                 step = 2
 
@@ -305,6 +320,61 @@ class WizardSteps:
                 )
 
             return target[0], values, output, result, chain_remaining
+
+    def _try_derive_silent(
+        self,
+        target,
+        fields,
+        values
+    ):
+        """P38 批次 2：全推导工作流跳过逐项提问，静默推导 + 单次 recap 确认。
+
+        适用条件（不满足则回退常规逐项收集）：
+        - workflow 类目标且在 SILENT_DERIVE_WORKFLOWS 白名单
+        - 无必填字段（P37 批次 1 已把五工作流全部降为可选/推导）
+        - 已有项目/工作区锚点（否则无推导来源）
+        用户选「逐项修改」或 BACK 时回退逐项流程，覆盖权保留。
+        """
+
+        name, kind = target
+
+        if kind != "workflow" or name not in self.SILENT_DERIVE_WORKFLOWS:
+            return False
+
+        if not fields or any(required for _, required in fields):
+            return False
+
+        if not (
+            values.get("Project ID")
+            or values.get("Workspace ID")
+        ):
+            return False
+
+        self._apply_field_defaults(fields, values)
+
+        print(
+            f"\n🔎 {name}：已按上下文推导以下输入"
+            "（未列出的可选项留空）："
+        )
+
+        for field, _ in fields:
+
+            value = values.get(field)
+
+            print(
+                f"   {field}: {value if value else '（空）'}"
+            )
+
+        idx = choose(
+            "直接使用推导值继续？",
+            [
+                "✅ 使用推导值，继续",
+                "✏️ 逐项修改",
+            ],
+            0,
+        )
+
+        return idx == 0
 
     def _resume_change(
         self,
