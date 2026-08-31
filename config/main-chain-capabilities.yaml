@@ -26,6 +26,10 @@ capabilities:
       path: skills/wayfinder
       desc: "[TRIAL] Vague large-scale idea/fog → generate .wayfinder/ decision map before spec; if no such scenario detected, SKIP (do not generate); on real use, log to skills/wayfinder/OPTIMIZATION_LOG.md"
       enabled: true
+    - skill: tr5
+      path: extensions/tr5
+      desc: "Backend TR5 pipeline preparation (TR3/TR4 + iteration-page ID entry, openspec requirement ingestion & clarification): forward-pipeline entry for the 4-stage tr5 flow; skip for non-backend-TR5 scenarios"
+      enabled: true
   spec:
     - skill: wayfinder
       path: skills/wayfinder
