@@ -7,7 +7,7 @@ Propose a new change - create the change and generate all artifacts in one step.
 I will create a change containing these artifacts:
 - proposal.md (what and why)
 - design.md (how)
-- tasks.md (implementation steps)
+- tasks/cards/ (task cards: implementation steps)
 
 When ready to implement, run /aic-apply
 

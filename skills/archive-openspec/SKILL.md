@@ -26,10 +26,10 @@ Procedure for archiving a completed OpenSpec change. Loaded by the
 
 3. **Check task completion**
 
-   Read the task file (usually `tasks.md`); count `- [ ]` vs `- [x]`.
+   Read the Task Cards under `tasks/cards/*.md`（若无 cards 目录，回退读 `tasks.md`）；逐卡统计 `- [ ]` vs `- [x]`.
 
    If incomplete tasks: warn with count, prompt to continue.
-   If no task file: continue.
+   If no task file / no cards directory: continue.
 
 4. **Evaluate incremental spec sync**
 
