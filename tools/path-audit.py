@@ -49,6 +49,9 @@ FALSE_POSITIVES = {
     # paths 键、反例 "C:\Program Files\Java\..."）——非真实依赖
     "config/paths",
     r"C:\Program",
+    # config/maintenance.yaml scope 行的 delta 域清单（斜杠分隔的多个
+    # 顶层域，非单一路径）；PATH_RE 将其整体匹配为一个 token 误报断链
+    "cli/config/governance/reports/skills/templates/workflows",
 }
 
 # 仅示例引用（T2/Batch 2）：出现在文档示例中的路径de doc examples,

@@ -213,6 +213,8 @@ def scaffold_missing_logs(ext_root: Path, rules: dict) -> int:
     for ext_dir in sorted(ext_root.iterdir()):
         if not ext_dir.is_dir():
             continue
+        if ext_dir.name.startswith("."):
+            continue
         name = ext_dir.name
         if _matches(name, rules["parser_providers"]):
             continue
