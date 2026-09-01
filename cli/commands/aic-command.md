@@ -15,7 +15,7 @@ Scaffold a new command: **first assess whether the command is necessary** (layer
    b. **Overlap check (skill-policy §2 pattern)**: list existing commands and compare descriptions:
 
       ```bash
-      python tools/command-scaffold.py --list
+      python3 tools/command-scaffold.py --list
       ```
 
       - Overlap > 60% with an existing command → **extend the existing one**, do not create new.
@@ -31,7 +31,7 @@ Scaffold a new command: **first assess whether the command is necessary** (layer
 3. **Run the scaffold**
 
    ```bash
-   python tools/command-scaffold.py "<name>" [--description "<description>"]
+   python3 tools/command-scaffold.py "<name>" [--description "<description>"]
    ```
 
    Creates (non-destructive, never overwrites):
@@ -48,8 +48,8 @@ Scaffold a new command: **first assess whether the command is necessary** (layer
 8. **Validate**
 
    ```bash
-   python tools/check.py
-   python tools/repo-lint.py --repo-root .
+   python3 tools/check.py
+   python3 tools/repo-lint.py --repo-root .
    ```
 
    check.py verifies `aic-` prefix, kebab-case, no `opsx-` remnants, menu referential integrity, i18n keys, prompt build, and wizard field resolution. Exit `0` before finishing.
@@ -70,4 +70,4 @@ Scaffold a new command: **first assess whether the command is necessary** (layer
 - Scaffold is non-destructive: never overwrites existing command files.
 - Commands stay thin prompt-builders (OPERATIONS §1.10); logic belongs to tools or skills, not the command definition.
 - Structural changes to existing commands still require OPERATIONS §12 change management.
-- Run `python tools/check.py` and `python tools/repo-lint.py --repo-root .` before finishing; both must exit 0.
+- Run `python3 tools/check.py` and `python3 tools/repo-lint.py --repo-root .` before finishing; both must exit 0.

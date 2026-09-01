@@ -1,6 +1,6 @@
 # Language Convention
 
-Version: 1.0
+Version: 1.2
 
 ---
 
@@ -18,7 +18,7 @@ This convention ensures:
 
 ```
 AI FLOW CONTROL → ENGLISH
-USER-FACING REPORTS → CHINESE
+USER-FACING OUTPUT → SYSTEM LANGUAGE (config/menu.yaml → locale; currently zh → Simplified Chinese)
 ```
 
 ---
@@ -42,7 +42,8 @@ The following layers MUST use English:
 
 ## Chinese (User-Facing)
 
-The following outputs SHOULD use Chinese:
+The following user-facing outputs MUST follow the system language
+(`config/menu.yaml → locale`; currently Simplified Chinese):
 
 | Output | Scope | Reason |
 |---|---|---|
@@ -54,7 +55,12 @@ The following outputs SHOULD use Chinese:
 | **Interactive prompts** | Questions and choices presented to the user during a Runtime (confirmation requests, clarification questions, branch selection, next-action choices) | Read by the user at the moment of interaction |
 | **Code comments & Javadoc** | Business logic explanations, algorithm notes, field descriptions | Read by Chinese-speaking maintainers |
 
-Rule: interactive prompts follow the system-specified language (`config/menu.yaml → locale`).
+Rule (binding): ALL user-facing text — interactive prompts, completion / review / release /
+verification reports, task cards, menu copy — MUST be presented in the system language
+(`config/menu.yaml → locale`). Repository assets are machine-checked by
+`repo-lint.py check_language`; runtime report output is subject to the completion-time
+language self-check below. AI control flow stays English; only the text shown to the user
+is localized.
 
 Code comment convention (per `governance/standards/common/documentation.md`):
 - Comments, Javadoc, field descriptions → Chinese
@@ -71,10 +77,25 @@ not permitted in any Chinese output, including transient bash comments and proce
 captions; it breaks convention consistency (e.g. `检查/脚本/传参/转义`, not
 `檢查/腳本/傳參/轉義`) and can leak into final deliverables.
 
-Self-check: treat "all Chinese output in Simplified Chinese" as a mandatory language
-self-check item at report/completion time (per AI_OPERATING_RULES gate function).
+Self-check (report/completion time, per AI_OPERATING_RULES gate function):
+1. **Language-selection check (runtime gate, P45)**: BEFORE presenting any
+   user-facing report, run `python3 tools/language-gate.py <report-file>`.
+   PASS → present; WARN → review suspicious lines (`--list-suspicious`), fix or
+   accept with a note; FAIL → rewrite the user-facing text in the system language
+   and re-run the gate. Gate outcome is recorded in the per-run diagnostic log.
+   (Mechanism defined in `templates/runtime/runtime-base.md` 语言自检 steps and
+   proposal P45.)
+2. **Simplified-Chinese check**: all Chinese output MUST use 简体 (no 繁体/变体).
 
 ---
+
+## System Language (Single Source of Truth)
+
+The system language has exactly one source: `config/menu.yaml → locale` (currently `zh`).
+Any component that presents user-facing text (runtimes, commands, wizard, menu, reports)
+resolves the language from this key — never hardcodes it, never derives it elsewhere.
+Exceptions: technical identifiers, file/structure names, and AI control flow stay English
+and are language-independent by definition.
 
 ## Hybrid (Bilingual Headings)
 
@@ -99,3 +120,16 @@ This convention is binding for all Workflows and Runtimes.
 Referenced from:
 - `governance/AI_OPERATING_RULES.md`
 - `loaders/standards-loader.md` (Always Load)
+
+## Changelog
+
+- v1.2 (2026-09-01): language-selection self-check升级为运行门禁（P45 实施）——
+  呈现前运行 `tools/language-gate.py`，PASS/WARN/FAIL 三态闭环；机制定义于
+  runtime-base 语言自检步骤 + P45。
+- v1.1 (2026-09-01): user-facing outputs upgraded SHOULD → MUST (follow the system
+  language, not hardcoded Chinese); explicit single-source-of-truth anchor
+  (`config/menu.yaml → locale`, new section); self-check extended to language-selection;
+  interactive-prompt rule restated as binding for all user-facing text (converges the
+  pilot A interaction-language constraint from ai-commands back into the convention;
+  L1 Language-Boundary batch, confirmed 2026-09-01).
+- v1.0: initial.

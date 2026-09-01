@@ -13,7 +13,7 @@ Pack the current ai-system directory for migration to a new machine. The artifac
 2. **Run packaging**
 
    ```bash
-   python tools/pack.py [--output "<output directory>"] [--zip]
+   python3 tools/pack.py [--output "<output directory>"] [--zip]
    ```
 
    - No Output Directory → omit `--output` (default `../ai-system-pack`)

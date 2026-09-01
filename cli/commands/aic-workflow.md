@@ -15,7 +15,7 @@ Scaffold a new workflow: **first assess whether the workflow is necessary** (lay
    b. **Overlap check (skill-policy §2 pattern)**: list existing workflows and compare purposes:
 
       ```bash
-      python tools/workflow-scaffold.py --list
+      python3 tools/workflow-scaffold.py --list
       ```
 
       - Overlap > 60% with an existing workflow → **extend the existing one**, do not create new.
@@ -31,7 +31,7 @@ Scaffold a new workflow: **first assess whether the workflow is necessary** (lay
 3. **Run the scaffold**
 
    ```bash
-   python tools/workflow-scaffold.py "<name>" [--purpose "<purpose>"] [--next <workflow>]
+   python3 tools/workflow-scaffold.py "<name>" [--purpose "<purpose>"] [--next <workflow>]
    ```
 
    Creates (non-destructive, never overwrites):
@@ -49,8 +49,8 @@ Scaffold a new workflow: **first assess whether the workflow is necessary** (lay
 7. **Validate**
 
    ```bash
-   python tools/check.py
-   python tools/repo-lint.py --repo-root .
+   python3 tools/check.py
+   python3 tools/repo-lint.py --repo-root .
    ```
 
    check.py verifies the registry chain (config → workflow → runtime), 8-section presence, Next convention, and menu referential integrity. Exit `0` before finishing.
@@ -72,4 +72,4 @@ Scaffold a new workflow: **first assess whether the workflow is necessary** (lay
 - Scaffold is non-destructive: never overwrites existing files or registry entries.
 - Workflow files must stay orchestration-only (RFC-0003); runtime owns lifecycle detail.
 - Structural changes to existing workflows still require OPERATIONS §12 change management.
-- Run `python tools/check.py` and `python tools/repo-lint.py --repo-root .` before finishing; both must exit 0.
+- Run `python3 tools/check.py` and `python3 tools/repo-lint.py --repo-root .` before finishing; both must exit 0.

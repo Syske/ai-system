@@ -1,6 +1,6 @@
 # AI Operating Rules
 
-Version: 1.4
+Version: 1.6
 
 This document defines how the AI Runtime behaves.
 
@@ -19,6 +19,18 @@ The following governance documents are binding for all Workflows and Runtimes:
 - **Attention Management**: `governance/ATTENTION_MANAGEMENT.md` — Attention decay signals, mid-task checkpoints, interruption rules
 - **Language Convention**: `governance/LANGUAGE_CONVENTION.md` — English for AI control flow, Chinese for user-facing reports
 - **AI-User Responsibility Contract**: `governance/AI_USER_RESPONSIBILITY_CONTRACT.md` — Division of labor, decision rights matrix (D1-D10), escalation ladder; who decides what (per ADR-0009)
+
+---
+
+# Language Boundary
+
+The system language has a single source of truth: `config/menu.yaml → locale` (currently `zh`).
+
+- **AI control flow** (steps, decisions, reasoning, internal notes) stays English.
+- **ALL text presented to the user** — interactive prompts, questions, choices, confirmations, completion / review / release / verification reports, task cards, menu copy — MUST be in the system language (currently Simplified Chinese).
+- Repository assets are machine-checked by `repo-lint.py check_language` (static, WARN-level); runtime report output is subject to the runtime language gate (`tools/language-gate.py`, P45 — see `templates/runtime/runtime-base.md` language-gate steps): PASS → present, WARN → review, FAIL → rewrite before presenting. Outcome recorded in the per-run diagnostic log.
+
+Details: `governance/LANGUAGE_CONVENTION.md` (Always Load via `loaders/standards-loader.md`).
 
 ---
 

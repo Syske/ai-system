@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Fix（环境/工具鲁棒性，多文件） |
 | Author | AI Maintainer |
 | Created | 2026-08-24 |
@@ -72,10 +72,27 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-08-24 |
+| User (AI Maintainer operator) | **Approved**（2026-09-01 maintain 会话授权「今天可以实施」，方案 A） | 2026-09-01 |
 
 ---
 
-## Implementation Record
+## Implementation Record (2026-09-01)
 
-（批准并实施后追加：Applied per approval → 改动清单 → Validation 结果 → Status 置 Implemented + 同步 PROPOSALS.md/README）
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+1. 全量核查 `python ` 调用点（cli/commands/*.md、OPERATIONS.md、tools/README.md）→ 命中 10+ 处，全部定位。
+2. 9 文件批量替换 `python tools/` → `python3 tools/`、`python -m cli.main` → `python3 -m cli.main`：aic-command / aic-env-init / aic-extensions-init / aic-maintain / aic-pack / aic-trace / aic-workflow / OPERATIONS.md / tools/README.md。描述性文本（aic-maintain 的「本机 python shim」纪律说明）保留。
+3. shebang 核对：tools/*.py 无 shebang 依赖（docstring 开头，以 `python3 tools/x.py` 调用），无包装脚本 → 无需改动（符合方案预期）。
+4. subprocess 硬编码 `'python'` 检查：0 命中 → 无需改动。
+5. 未动 env.yaml（不引入死字段）、未动 pyenv shim（环境层）。
+6. 未建 ADR（方案既定）。
+
+**Validation**（全部 gate 通过，证据）:
+- `grep -rn "\bpython\b" cli/commands/ OPERATIONS.md tools/README.md workflows/ | grep -v python3|pythonic|python shim|Python` → 0 残留
+- `python3 tools/check.py` → PASS 3 提示性 WARN（thin-command + 6 开放提案 + 4 action items，与基线一致）
+- `python3 tools/repo-lint.py --repo-root .` → 0 BLOCKER / 0 ERROR / 25 WARN（持平）
+- `python3 tools/path-audit.py` → OK（688 refs 0 broken）
+- `python3 -m unittest discover -s cli/tests` → Ran 164 tests, **OK**
+- `python3 tools/quick-check.py` → OK 0 findings
+- 行为回归预期：下一轮 WSL 运行直接 `python3 tools/quick-check.py` 不再触发 shim 报错（本机 shim 故障为环境层，保留在 logs/）
+
+已同步 PROPOSALS.md 索引与 reports/README.md 提案表；机器层观察（本机 shim 仍坏）仅入 logs/ per-run diagnostic-log。

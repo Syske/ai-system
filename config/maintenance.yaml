@@ -13,11 +13,13 @@
 
 last_run: 2026-09-01
 mode: on-demand
-next_maintenance: '2026-09-07'   # weekly +7d（考量：本次为 on-demand/语言边界专项，周维护节奏保持）
+next_maintenance: '2026-09-07'   # weekly +7d（考量：今日两次 on-demand（语言边界专项/改动+日志巡检），周维护节奏保持）
 last_findings:
-- 语言边界专项（Scope=workflows）：定位 dev-setup/maintain 交互英文根因为「执行层未按 system language=zh 转换」，非配置回退（locale 仍 zh，配置干净）
-- pilot A 落地：aic-maintain.md 追加「交互语言=系统语言(zh)」强制约束；PromptBuilder 自测通过，交互实测中文呈现
-- 延后项：将「交互按 locale」约束收敛进全局规范（方案 C，走 OPERATIONS §11）；运行时通用机制（B）待 pilot 结论
-- 提案：6 开放（P28/P35/P36/P37/P41/P42），季度回顾集中决策（与上期一致，本轮未决）
-- 工具门禁：0 BLOCKER / 0 ERROR / 25 WARN；path-audit OK；workflow-command-audit 0 blocker（aic-maintain thin-command 1 WARN 提示性）
-- 机器级观察（python shim 用 python3 等）见 logs/ per-run diagnostic-log，不入此文件
+- 最新改动诊断：3580bb0（pilot A）流程规范；孤儿改动 templates/runtime/runtime-base.md 经确认后按用户决策 B3 并入 P45 Phase 1 正式化（完成报告语言声明 + 语言门禁步骤）——流程闭环
+- README 索引 WARN 已修复：MAINTENANCE-2026-09-01.md 与本次报告补登 reports/README.md（proposal-policy §6），check.py WARN 4→3
+- 工具门禁：0 BLOCKER / 0 ERROR / 25 WARN；path-audit 688 refs OK；workflow-command-audit 0 blocker；proposal-audit 0 gate error，索引刷新 38 提案
+- 提案：P35、P45 已 Implemented；开放 5（P28/P36/P37/P41/P42）defer 季度回顾；4 个 action items（P26×2/P28×2）保持开放
+- code-review.md 节顺序违规仍开放（08-31 已知，需 L2 审批）；机器/环境观察见 logs/ per-run diagnostic-log，不入此文件
+- L1 语言声明优化已实施（确认后执行）：LANGUAGE_CONVENTION v1.1（用户面向输出 SHOULD→MUST 跟随系统语言；新增 system language 单一事实源；self-check 扩展语言选择+简体两层；交互约束收敛回约定）+ AI_OPERATING_RULES v1.5（§Language Boundary 入口收敛点）+ aic-maintain pilot A 改引用式；gate 全绿（lint 0/0/25、path OK、check 3 提示 WARN）；机制级语言门禁（L2）仍待 OPERATIONS §11 提案
+- P35 已实施（用户授权）：9 文件命令文档统一 python3、shebang/subprocess 核对零改动、env.yaml 未动；验证全绿（check PASS 3 提示 WARN、lint 0/0/25、path OK、unittest 164 OK、quick-check OK）；状态 → Implemented，PROPOSALS/README 索引已同步
+- P45 已实施（用户批准，B3 并入）：runtime-base 语言门禁步骤（PASS/WARN/FAIL 三步 + diag log 记录）+ 新工具 language-gate.py（启发式 CJK 占比，阈值 20/10，双语标题白名单，exit 0/1/2）+ tools/README.md 登记 + LANGUAGE_CONVENTION v1.2/AI_OPERATING_RULES v1.6（self-check 升级运行门禁）+ aic-maintain 试点链接入；验证：单元样例 3 类通过 + 历史回归 5 文档 PASS（0.28-0.56）+ 全量 gate 绿（lint 0/0/25、path OK、check PASS 3 提示、unittest 164 OK、quick-check OK）

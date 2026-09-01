@@ -6,10 +6,10 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 
 **Inputs**: Mode (weekly / monthly / quarterly / on-demand, default weekly); optional Scope (for on-demand, limits the range, e.g. workflows / runtime / skills / governance / cli).
 
-**Interaction language (mandatory):** Every question, choice, and confirmation presented to the user — including Mode/Scope selection and step confirmations — MUST be in the system language (`config/menu.yaml → locale`, currently `zh`). AI control flow stays English; only the text shown to the user is localized.
+**Interaction language (mandatory):** All user-facing text (questions, choices, confirmations, completion/review reports) MUST follow the system language per `AI_OPERATING_RULES` §Language Boundary + `governance/LANGUAGE_CONVENTION.md` (current `config/menu.yaml → locale` = `zh`). AI control flow stays English; only the text shown to the user is localized.
 
 **AI scheduling** (ADR-0009):
-- At session start the AI runs `python tools/quick-check.py` (read-only,
+- At session start the AI runs `python3 tools/quick-check.py` (read-only,
   seconds); issues are reported and recorded to
   metrics/quick-check-{date}.json.
 - The AI checks `config/maintenance.yaml → next_maintenance`;
@@ -21,9 +21,9 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 0. **Pre-check (AI auto, read-only)**
 
    ```bash
-   python tools/quick-check.py            # lint + path + extensions, records findings
-   python tools/quick-check.py --history  # recent snapshots (trend for report)
-   python tools/maintain-delta.py --check # delta verdict: NO_CHANGES -> skip full audits
+   python3 tools/quick-check.py            # lint + path + extensions, records findings
+   python3 tools/quick-check.py --history  # recent snapshots (trend for report)
+   python3 tools/maintain-delta.py --check # delta verdict: NO_CHANGES -> skip full audits
    ```
 
    - `maintain-delta.py --check` verdicts: FIRST_RUN → full audit; NO_CHANGES
@@ -34,16 +34,16 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 1. **Tool checks** (run in the ai-system directory)
 
    ```bash
-   python tools/repo-lint.py --repo-root .
-   python tools/repo-metrics.py --repo-root . --snapshot metrics/maintain-{date}.json
-   python tools/path-audit.py
+   python3 tools/repo-lint.py --repo-root .
+   python3 tools/repo-metrics.py --repo-root . --snapshot metrics/maintain-{date}.json
+   python3 tools/path-audit.py
    ```
 
    Do not proceed to later steps until BLOCKER / ERROR are fixed (report only, do not fix on your own).
    After the full run completes, record the delta baseline:
 
    ```bash
-   python tools/maintain-delta.py --record   # record current HEAD as the next delta baseline
+   python3 tools/maintain-delta.py --record   # record current HEAD as the next delta baseline
    ```
 
 2. **Mode-based inspection** (per skills/repository-maintainer and OPERATIONS.md section 9)
@@ -52,8 +52,8 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    - quarterly: workflow redesign assessment, capability restructuring, Playbook consolidation, knowledge cleanup
    - on-demand: run the corresponding items above per Scope
    - Scope=extensions (any mode): run the extensions domain inspection —
-     `python tools/extensions-lint.py` (conventions + tracked artifacts),
-     `python tools/extensions-lint.py --fix-missing-log` (scaffold logs),
+     `python3 tools/extensions-lint.py` (conventions + tracked artifacts),
+     `python3 tools/extensions-lint.py --fix-missing-log` (scaffold logs),
      verify extensions repo sync (`git -C <workspace>/extensions status`),
      and report per-extension health (SKILL.md / OPTIMIZATION_LOG coverage)
 
@@ -78,18 +78,23 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    - Link health: junction/symlink target dirs like projects/ exist and are accessible (`Get-Item -Force` to check LinkType and Target)
    - Doc-vs-reality: AGENTS.md workspace structure diagram, AI_DEVELOPMENT_CONTRACT architecture diagram, OPERATIONS entry sections match the actual directory layout
    - State hygiene: project/change references in workspaces/.aic-state.yaml still exist
-   - **Proposal leftovers**: run `python tools/proposal-audit.py` — evaluate open proposals (Status ≠ Implemented/Approved/Rejected/Archived) and unclosed `- [ ]` action items in reports/; refresh the index (`--refresh-index`) and report each leftover's disposition (approve / implement / reject / defer)
+   - **Proposal leftovers**: run `python3 tools/proposal-audit.py` — evaluate open proposals (Status ≠ Implemented/Approved/Rejected/Archived) and unclosed `- [ ]` action items in reports/; refresh the index (`--refresh-index`) and report each leftover's disposition (approve / implement / reject / defer)
 
 4. **Persist report**
    - Generate the report skeleton first (auto sections: tool checks / metric diff / trend / proposals):
 
      ```bash
-     python tools/maintain-report.py --date {date}
+     python3 tools/maintain-report.py --date {date}
      ```
 
      Then the AI fills the narrative sections (findings by severity / consistency
      spot-check results / fix list). Non-destructive: existing file is not overwritten.
    - Write to ai-system/reports/MAINTENANCE-{date}.md: findings list (by severity), fix suggestions, metric comparison (vs previous snapshot)
+   - Run the language gate on the report before presenting (P45 pilot chain):
+     `python3 tools/language-gate.py reports/MAINTENANCE-{date}.md` — PASS → present;
+     WARN → review `--list-suspicious`; FAIL → rewrite the user-facing sections in the
+     system language and re-run the gate. Gate outcome recorded in the per-run
+     diagnostic log.
    - Minor issues (typos, broken links, doc drift) may be fixed in place after confirmation and recorded
    - Structural changes (directory adjustments, module merges, contract modifications) **output suggestions only**, go through the OPERATIONS section 11 change management flow (Analyze → Propose → Review → Approve)
 

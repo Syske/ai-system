@@ -55,5 +55,5 @@ auto-derived — parent of `ai-system/`, never hardcode).
 - Workspace-scoped keys (`bugfix.mode`, `layers`) stay in the workspace
   `local.yaml` — do not move them to the home config (cross-platform drift).
 - Full provisioning (directory scaffold, repo links, metrics baseline,
-  path audit) belongs to `python tools/setup.py`; `--env-init` is
+  path audit) belongs to `python3 tools/setup.py`; `--env-init` is
   config-focused only.

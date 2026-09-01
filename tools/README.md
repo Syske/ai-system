@@ -23,14 +23,15 @@ Automated governance tooling for the AI repository.
 | `prompt-metrics.py` | 提示词体积/缓存友好性实测（Q2/R1-R2）——构建全部 workflow+command，记录体积（chars/token）与前缀稳定性到 metrics/prompt-{date}.json；`AIC_FULL_RUNTIME=1` 时 prompt_builder 内嵌全量 runtime（R3 开关） |
 | `maintain-delta.py` | 巡检增量感知（Q1-1）——对比上次完整巡检后的 git HEAD，判定 FIRST_RUN / NO_CHANGES / CHANGED(受影响区域+建议工具子集)；`--record` 在完整巡检后记录状态（metrics/maintain-delta-state.json，gitignored） |
 | `maintain-report.py` | 巡检报告骨架自动生成（Q1-3）——从 quick-check/指标快照/proposal-audit 自动拼装 MAINTENANCE-{date}.md 的校验/对比/趋势/提案四节；非破坏（已存在不覆盖），叙事节留给 AI |
+| `language-gate.py` | 运行时语言门禁（P45）——校验面向用户文本语言是否匹配 config/menu.yaml → locale；Runtime Complete 阶段呈现前运行（runtime-base「语言自检」步骤），三态 PASS/WARN/FAIL（exit 0/1/2）；`--list-suspicious` 人审可疑行 |
 | `pack.py` | AI System packaging (output dir, zip) |
 
 Run order after a change:
 
 ```text
-python tools/repo-lint.py --repo-root .   # structural + language checks (Rule 1-3)
-python tools/path-audit.py
-python tools/check.py                     # integrity gate (re-runs repo-lint internally)
+python3 tools/repo-lint.py --repo-root .   # structural + language checks (Rule 1-3)
+python3 tools/path-audit.py
+python3 tools/check.py                     # integrity gate (re-runs repo-lint internally)
 ```
 
 **Language checks are mandatory on every change** — `repo-lint.py`

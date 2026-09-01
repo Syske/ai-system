@@ -69,6 +69,20 @@ On Complete, every Runtime MUST persist a per-run diagnostic record to
 Report + Reflection fields; fails carry root cause + reproduction; normal runs one
 page + pointer). Filename `<workflow>-<YYYYMMDD-HHMMSS>.md`.
 
+On Complete, every Runtime presents its Completion Report (summary, findings,
+recommendations) to the user in the system language (`config/menu.yaml → locale`),
+with bilingual headings (`## 实现总结 / Implementation Summary`)
+per governance/LANGUAGE_CONVENTION.md. AI control flow stays English; only the
+text shown to the user is localized.
+
+Before presenting, the Runtime runs the language gate (P45, mechanism-level
+enforcement): `python3 tools/language-gate.py <report-file>`.
+- PASS → present the report.
+- WARN → review suspicious lines (`--list-suspicious`); fix or accept with a note.
+- FAIL → rewrite the user-facing text in the system language, then re-run the gate
+  before presenting.
+- Gate outcome (PASS/WARN/FAIL) is recorded in the per-run diagnostic log.
+
 ---
 
 # Runtime Context

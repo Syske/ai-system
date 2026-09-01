@@ -60,7 +60,7 @@ Compare the code differences between the current feature branch and the baseline
 
    - **verify** (recommended when artifacts are aligned): execute in place — load `ai-system/workflows/verify.md` and `ai-system/templates/runtime/runtime-verify.md`, run contract correctness checks per affected Task ID, produce the verification report
    - **review** (when implementation quality review needed): load the review contract, then verify (OPERATIONS.md 1.6 standard closing order)
-   - **spec re-entry** (when reconciliation reveals a wider spec update): prompt `python -m cli.main prepare --change <change_id> --request "<变动点>" --mode re-entry`
+   - **spec re-entry** (when reconciliation reveals a wider spec update): prompt `python3 -m cli.main prepare --change <change_id> --request "<变动点>" --mode re-entry`
    - **finish**: output the Trace Report only
 
    Execute the chosen action immediately; do not decide on your own.

@@ -18,7 +18,7 @@ Email / Name (optional, repo-local only); Workspace Root (default: workspace).
 2. Check current state (non-destructive):
 
    ```bash
-   python tools/extensions-init.py --workspace <root> --check
+   python3 tools/extensions-init.py --workspace <root> --check
    ```
 
    - exit 0 → extensions/ already initialized; skip to Step 6.
@@ -27,7 +27,7 @@ Email / Name (optional, repo-local only); Workspace Root (default: workspace).
 3. Initialize the extensions directory (idempotent, never overwrites):
 
    ```bash
-   python tools/extensions-init.py --workspace <root> \
+   python3 tools/extensions-init.py --workspace <root> \
      [--remote <git-url>] [--email <email>] [--name <name>]
    ```
 
@@ -47,7 +47,7 @@ Email / Name (optional, repo-local only); Workspace Root (default: workspace).
 6. Verify:
 
    ```bash
-   python tools/extensions-init.py --workspace <root> --check   # exit 0
+   python3 tools/extensions-init.py --workspace <root> --check   # exit 0
    git -C <root>/extensions remote -v                           # origin set
    git -C <root>/extensions config user.name                    # identity
    ```

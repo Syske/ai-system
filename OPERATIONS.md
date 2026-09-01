@@ -51,8 +51,8 @@ Rules:
 * prepare Blocked → collect clarifications, do not proceed.
 * spec produces independent task cards; dev-setup confirms branches before develop.
 * First-time change set scaffold is driven by the methodology provider during spec (/aic-propose or openspec-cn new change); the chosen kebab-case name becomes the Change ID. Run it inside workspaces/{project_id}/ — openspec-cn locates the project by working directory.
-* Slash commands are only discovered from a platform's own command paths. From the workspace root, generate the prompt instead: `python -m cli.main propose --project <project_id> --request "<description>"` (also works for explore / apply / archive).
-* Run `python -m cli.main` with no arguments for an interactive picker: project first (last project starred), then workflow/command (recommendation derived from the previous workflow's Next contract, or from change-set facts for a fresh project), then remaining inputs with Project/Workspace ID auto-filled and last task/change pre-selected. Full-screen arrow-key selection (alternate screen, restored on exit), entries annotated with Purpose/description, Left/Backspace back, Esc cancels anywhere, explicit skip entries for optional fields; numbered-input fallback when piped or non-TTY (b = back, < = back in text fields). Session state persists in workspaces/.aic-state.yaml. The final step can launch opencode or pi at the workspace root with the prompt already in the clipboard.
+* Slash commands are only discovered from a platform's own command paths. From the workspace root, generate the prompt instead: `python3 -m cli.main propose --project <project_id> --request "<description>"` (also works for explore / apply / archive).
+* Run `python3 -m cli.main` with no arguments for an interactive picker: project first (last project starred), then workflow/command (recommendation derived from the previous workflow's Next contract, or from change-set facts for a fresh project), then remaining inputs with Project/Workspace ID auto-filled and last task/change pre-selected. Full-screen arrow-key selection (alternate screen, restored on exit), entries annotated with Purpose/description, Left/Backspace back, Esc cancels anywhere, explicit skip entries for optional fields; numbered-input fallback when piped or non-TTY (b = back, < = back in text fields). Session state persists in workspaces/.aic-state.yaml. The final step can launch opencode or pi at the workspace root with the prompt already in the clipboard.
 * develop implements exactly one task card on branch task/{task-id}.
 * review and verify are mandatory gates; failures return to develop, never spawn new cards.
 * release READY hands off to deployment (outside this workflow set).
@@ -108,8 +108,8 @@ hotfix 模式要点：
 新增/修改模式或解析器后必须运行：
 
 ```text
-python tools/check.py
-python tools/repo-lint.py --repo-root .
+python3 tools/check.py
+python3 tools/repo-lint.py --repo-root .
 ```
 
 ---
@@ -140,9 +140,9 @@ Never open a second change set while the current one is not archived.
 Trigger:
 
 ```text
-python -m cli.main prepare --change <change_id> --request "<change point>" --mode re-entry
-python -m cli.main spec    --change <change_id> --mode re-entry
-python -m cli.main develop --project <project_id> --task <task_id>
+python3 -m cli.main prepare --change <change_id> --request "<change point>" --mode re-entry
+python3 -m cli.main spec    --change <change_id> --mode re-entry
+python3 -m cli.main develop --project <project_id> --task <task_id>
 ```
 
 ---
@@ -151,7 +151,7 @@ python -m cli.main develop --project <project_id> --task <task_id>
 
 Code was changed but spec / task cards were not updated.
 
-Locate owners from the branch diff first: `python -m cli.main trace --project <project_id>`
+Locate owners from the branch diff first: `python3 -m cli.main trace --project <project_id>`
 (diffs the current branch against master; `--code` narrows focus, `--base` overrides the baseline).
 trace maps each changed file to task card / spec scenario / contract, then — after confirmation —
 backfills the in-flight change set, or scaffolds a new change set for untracked but approved behaviour.
@@ -192,7 +192,7 @@ user menu entry). `governance/memory/` is validated by `tools/check.py`
 
 AI-operation-first health flow (ADR-0009):
 
-- Session start: AI runs `python tools/quick-check.py` (read-only, seconds);
+- Session start: AI runs `python3 tools/quick-check.py` (read-only, seconds);
   findings recorded to `metrics/quick-check-{date}.json` (traceable).
 - Due maintenance: AI checks `ai-system/config/maintenance.yaml →
   next_maintenance`; when due, prompts the user for authorization.
@@ -217,7 +217,7 @@ Modes:
 Trigger (AI-operation-first, ADR-0009):
 
 ```text
-python -m cli.main maintain --mode weekly
+python3 -m cli.main maintain --mode weekly
 ```
 
 - AI runs `tools/quick-check.py` at session start (read-only pre-flight).
@@ -243,8 +243,8 @@ Used for:
 
 | 域 | 入口 | 关注 | 频率 |
 |----|------|------|------|
-| **aic 工具巡检** | `python tools/quick-check.py` | aic 工具自身健康：repo-lint（结构/语言）、path-audit（引用）、extensions-lint（扩展域）、CLI 测试、命令注册 | 会话启动自动 + on-demand |
-| **系统维护** | `python -m cli.main maintain --mode <mode>` | ai-system 架构：workflow 八段契约、governance 一致性、层级/目录、能力矩阵、知识生命周期 | weekly/monthly/quarterly |
+| **aic 工具巡检** | `python3 tools/quick-check.py` | aic 工具自身健康：repo-lint（结构/语言）、path-audit（引用）、extensions-lint（扩展域）、CLI 测试、命令注册 | 会话启动自动 + on-demand |
+| **系统维护** | `python3 -m cli.main maintain --mode <mode>` | ai-system 架构：workflow 八段契约、governance 一致性、层级/目录、能力矩阵、知识生命周期 | weekly/monthly/quarterly |
 
 - quick-check 结果落盘 `metrics/quick-check-{date}.json`（趋势可查）。
 - 架构维护经验（CI 无 extensions / pyc 缓存 / 目录层级模拟等）不常驻本文，
@@ -580,7 +580,7 @@ Checks:
 After any ai-system modification, run the integrity gate:
 
 ```text
-python tools/check.py
+python3 tools/check.py
 ```
 
 It must exit `0` before committing/merging. It verifies the system still

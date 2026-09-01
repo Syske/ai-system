@@ -41,7 +41,7 @@
 | [P32](P32-PREPARE-OUTPUTS-LOCATION.md) | prepare 工作流子报告输出位置与 AGENTS.md 约定对齐（outputs/prepare→workspace-anchored）— **Implemented** | 2026-08-24 |
 | [P33](P33-ISSUE-CAPTURE-CONTEXT-LOADING.md) | 日常运行中发现变更时的上下文加载触发规则（Issue Capture：JIT 加载 proposal-policy + OPERATIONS §12 + 尺寸分流）— **Implemented** | 2026-08-24 |
 | [P34](P34-MAINTENANCE-STATE-INTO-GIT.md) | maintenance 状态纳入 ai-system 提交（拆分：系统级 maintenance 块 → config/maintenance.yaml 入 git，机器级留 workspaces 本地）— **Implemented** | 2026-08-24 |
-| [P35](P35-PYTHON-INTERPRETER-ROBUSTNESS.md) | python 解释器鲁棒性（python shim 在 WSL 不可用，命令文档统一 python3 + 工具调用鲁棒化）— **Proposed** | 2026-08-24 |
+| [P35](P35-PYTHON-INTERPRETER-ROBUSTNESS.md) | python 解释器鲁棒性（命令文档统一 python3 + 工具调用鲁棒化）— **Implemented** 2026-09-01 | 2026-08-24 |
 | [P38](P38-WORKFLOW-INTERACTION-AUDIT.md) | 逐 aic 工作流用户交互审计（wizard 提示序列/确认节奏/可选字段呈现/中途检查点；与 P37 互补：P37 定必填归属、P38 定交互呈现）— **Implemented**（批次 1；批次 2 defer：全推导字段静默推导等） | 2026-08-25 |
 | [P39](P39-EXTENSIONS-LINT-HIDDEN-DIRS.md) | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 向 .git/.githooks 写入脚手架；修复：枚举过滤 `.` 开头目录）— **Implemented** | 2026-08-25 |
 | [P40](P40-OPENSPEC-CHANGE-NAME-NAMING.md) | OpenSpec-CN change name 字母开头约束与 workspace `<YYYYMM>-` 命名惯例冲突（openspec changes 目录用字母开头，workspace 目录不变 + 映射注明）— **Implemented** | 2026-08-25 |
@@ -49,6 +49,7 @@
 | [P42](P42-TR5-TEMPLATE-SKELETON.md) | tr5 templates 缺 markdown 骨架（tr5_template.md 每项目从 storage XML 反推；新增 19 节骨架模板 + SKILL 拷贝指引）— **Proposed** | 2026-08-26 |
 | [P43](P43-TR5-SECTION0-INLINE-BODIES.md) | tr5 §0 数据槽位恒空（`_split_section0` 不识别头行内联正文 → 0_1/0_2/0_3 恒空且 merge 僵尸保留 → 发布页 §0 露引导占位符；推荐解析器支持 inline）— **Implemented** | 2026-08-28 |
 | [P44](P44-WORKTREE-CONVENTION.md) | Worktree 约定完善（项目级隔离 + 生命周期管理）— **Implemented** | 2026-08-31 |
+| [P45](P45-RUNTIME-LANGUAGE-GATE.md) | 运行时语言门禁（completion-time language gate，方案 B 正式化）— **Implemented** 2026-09-01 | 2026-09-01 |
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库）— **Proposed** | 2026-08-25 |
 | [P37](P37-REQUIRED-INPUTS-TRIAGE.md) | 工作流必填参数必要性评估（降可选/自动推导/保持，提升使用效率）— **Proposed** | 2026-08-25 |
 
@@ -79,6 +80,8 @@
 | 2026-08-26 | on-demand | extensions/tr5 — 前后端需求区分机制确认 | `MAINTENANCE-2026-08-26.md` | — |
 | 2026-08-31 | weekly | 增量 NO_CHANGES；工具校验 OK；code-review.md 节顺序违规；7 项提案开放 | `MAINTENANCE-2026-08-31.md` | code-review.md 节结构调整需 L2 变更审批 |
 | 2026-08-31 | on-demand | task 制定/拆分对齐（task-splitter → cards/ 位置 + Task Card 字段）+ 淘汰根 tasks.md + 堵 archive 归档完成度缺口 | `MAINTENANCE-2026-08-31-task-splitter.md` | task-splitter 1.1.0；tasks.md 淘汰；archive/explore/aic-propose 同步 |
+| 2026-09-01 | on-demand/workflows | 语言边界专项：根因定位（执行层未按 locale 转换）+ pilot A（aic-maintain 交互语言约束，自测+实测通过） | `MAINTENANCE-2026-09-01.md` | 方案 B/C 延后（待 §11）；P35 复现实锤建议实施 |
+| 2026-09-01 | on-demand | 最新改动诊断（提交 3580bb0 + 孤儿 runtime-base.md 改动）+ 最新运行日志巡检 | `MAINTENANCE-2026-09-01-logs.md` | 孤儿改动 B1/B2/B3 待决策（建议 B1）；README 索引补登；code-review.md 节序待 L2 |
 
 ---
 
