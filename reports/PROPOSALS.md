@@ -48,6 +48,7 @@
 | Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |
 | Implemented | Worktree 约定完善（项目级隔离 + 生命周期管理） | 2026-08-31 | `P44-WORKTREE-CONVENTION.md` |
 | Implemented | 运行时语言门禁（completion-time language gate，方案 B 正式化） | 2026-09-01 | `P45-RUNTIME-LANGUAGE-GATE.md` |
+| Proposed | tr5 发布债收口 + review/verify 验证标记检查 | 2026-09-01 | `P46-TR5-DEBT-VALIDATION-MARKER.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
