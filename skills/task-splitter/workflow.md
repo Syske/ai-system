@@ -13,7 +13,7 @@
 
 **服务**: {服务名}
 
-**branch**: {分支名模板，如 cc{date}_ipd_{desc}_{service}，由需求确认时定死}
+**branch**: {已固化分支名——date 取需求确认日；dev-setup 已建分支时以 `contexts/project-context.yaml → branches` 全名为准（例 `cc20260820_ipd_{desc}_{service}`）。**禁止保留 `{date}` 等未替换占位符**}
 
 **Spec引用**: {spec文件} § {需求/场景}
 
@@ -37,6 +37,8 @@
 ```
 
 - **branch**：来自 runtime-spec 6.Y 分支命名模板（默认 `cc{date}_ipd_{desc}_{service}`），dev-setup 据此创建/校验服务分支并冻结。同一服务的多张卡共享同一分支名。
+  - **date 写入规则（2026-09-01 修复，防占位符残留）**：拆分时优先读 `contexts/project-context.yaml → branches`，已建分支直接写已固化全名；未建分支时 date 写需求确认日期。输出卡**禁止保留未替换占位符**（`{date}` / `{desc}` / `{service}` 均须已替换为实际值）。
+  - **Verify 强化**：卡片 branch 行不得含 `{` 占位符；发现占位符即视为拆分缺陷，须重写该卡。
 - **代码质量检查推导**：按 runtime-spec 6.X 规则——基线清单仅引用一行（Single Source of Truth，不逐项展开）；条件检查仅在某条件命中时逐项展开（REST 接口 / MQ / RPC / 影响数据访问或远程调用的性能 / 新增功能 / 修改既有代码 / 删除）。
 - 卡片中出现的每个文件引用须为完整仓库相对路径。
 
