@@ -207,6 +207,24 @@ class TestFieldContract(unittest.TestCase):
         self.assertNotIn("## Runtime", prompt)
         self.assertNotIn("Runtime Skeleton", prompt)
 
+    def test_runtime_skeleton_merges_base_keep(self):
+        """R1（P45 缺陷修复）：runtime 模板 `Extends: runtime-base.md` 的
+        @keep 级机制（P45 语言门禁步骤）必须进入骨架化 prompt。
+
+        回归：曾只骨架化 runtime-<name>.md 自身，base 机制对 AI 不可见
+        （develop/prepare 日志实读清单均无 runtime-base.md）。
+        """
+        prompt = self.builder.build("develop", {})
+        self.assertIn(
+            "language-gate",
+            prompt,
+            "base @keep 机制（P45 语言门禁）应出现在 develop 的 runtime 骨架中",
+        )
+        self.assertIn(
+            "Before presenting, the Runtime runs the language gate",
+            prompt,
+        )
+
 
 
 if __name__ == "__main__":

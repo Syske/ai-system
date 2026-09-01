@@ -122,3 +122,14 @@ diag log）——孤儿改动正式化落地，B3 闭环。
 
 试点结论（Phase 5 数据）：维护报告类文档 CJK 占比 ≥0.28，门禁阈值留出 ≥8pt 裕度，
 误报风险低；Big Pickle 复测待其会话出现（门禁对 0.00 英文报告必 FAIL）。
+
+**R1 补丁（2026-09-01，运行日志核查驱动）**：
+- 缺陷：language-gate 步骤写在 runtime-base.md，但 `Extends:` 为文档声明无加载器合并，
+  prompt_builder 骨架化只处理 runtime-<name>.md → base 机制对 AI 不可见（develop/prepare
+  日志实读清单均无 runtime-base.md）→ 试点链门禁指令实际不生效。
+- 修复：`prompt_builder._merge_runtime_base` 解析 `Extends:` 引用、把 base 全文并入骨架化输入
+  （base 的 @keep 行自然进入骨架，非 @keep 内容仍被骨架逻辑丢弃，不增体积）；base 语言门禁段
+  压缩为单行 `<!-- @keep -->` 标注。
+- 单测：test_runtime_skeleton_merges_base_keep（回归保护，unittest 164→165 OK）。
+- 验证：develop 骨架实测含 language-gate 步骤；repo-lint 0/0/25、path OK、check PASS 3、
+  quick-check OK。

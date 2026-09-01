@@ -75,13 +75,7 @@ with bilingual headings (`## 实现总结 / Implementation Summary`)
 per governance/LANGUAGE_CONVENTION.md. AI control flow stays English; only the
 text shown to the user is localized.
 
-Before presenting, the Runtime runs the language gate (P45, mechanism-level
-enforcement): `python3 tools/language-gate.py <report-file>`.
-- PASS → present the report.
-- WARN → review suspicious lines (`--list-suspicious`); fix or accept with a note.
-- FAIL → rewrite the user-facing text in the system language, then re-run the gate
-  before presenting.
-- Gate outcome (PASS/WARN/FAIL) is recorded in the per-run diagnostic log.
+Before presenting, the Runtime runs the language gate (P45): `python3 tools/language-gate.py <report-file>` — PASS → present; WARN → review `--list-suspicious` lines; FAIL → rewrite the user-facing text in the system language and re-run the gate; gate outcome recorded in the per-run diagnostic log. <!-- @keep -->
 
 ---
 

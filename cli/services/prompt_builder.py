@@ -435,6 +435,38 @@ class PromptBuilder:
 
         return "\n".join(lines)
 
+    def _merge_runtime_base(self, runtime_md: str, runtime_path: str) -> str:
+        """Resolve `Extends:` refs and append the base content for skeletoning.
+
+        P45 缺陷修复 R1 (2026-09-01): `Extends: - runtime-base.md` 之前只是
+        文档声明,无加载器合并 → 骨架化只处理 runtime-<name>.md 自身, base 的
+        `@keep` 级机制（P45 语言门禁、On Complete 约束）对 AI 不可见。
+        将 base 全文追加为骨架化输入后, base 的 `@keep` 行会像本文件一样
+        幸存并进入 prompt（非 @keep 内容仍被骨架逻辑丢弃, 不增体积）。
+        """
+        lines = runtime_md.splitlines()
+        extends_block = False
+        refs = []
+        for line in lines:
+            s = line.strip()
+            if s == "Extends:":
+                extends_block = True
+                continue
+            if extends_block:
+                if s == "---" or (s and not s.startswith("-")):
+                    break
+                if s.startswith("-") and s[1:].strip():
+                    refs.append(s[1:].strip())
+        if not refs:
+            return runtime_md
+        merged = runtime_md
+        for ref in refs:
+            p = self.root / "templates" / "runtime" / ref
+            if p.exists() and p.name != Path(runtime_path).name:
+                merged += "\n\n<!-- extends: " + ref + " -->\n"
+                merged += p.read_text(encoding="utf-8")
+        return merged
+
     def _skeletonize_runtime(
         self,
         runtime_path: str,
@@ -457,6 +489,10 @@ class PromptBuilder:
         """
 
         import os
+
+        # P45 缺陷修复 R1: 先解析 Extends 引用、合并 base 内容（基类的
+        # @keep 机制约束与 On Complete 步骤才能进入骨架/提示词）。
+        runtime_md = self._merge_runtime_base(runtime_md, runtime_path)
 
         if os.environ.get("AIC_FULL_RUNTIME") == "1":
             return runtime_md
