@@ -11,15 +11,13 @@
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
 
-last_run: 2026-08-31
-mode: weekly
-next_maintenance: '2026-09-07'   # weekly +7d
+last_run: 2026-09-01
+mode: on-demand
+next_maintenance: '2026-09-07'   # weekly +7d（考量：本次为 on-demand/语言边界专项，周维护节奏保持）
 last_findings:
-- maintain-delta: NO_CHANGES（2026-08-25 后无提交），跳过全量审计
-- quick-check OK(0)，近 7 日趋势稳定（8/25 ISSUES 已修复回落）
-- code-review.md 两个可选节插入必选节之间（Target Branch Resolution / Spec-Comparison Review Mode），需走 OPERATIONS §11 结构调整
-- reports/README.md 缺 MAINTENANCE-2026-08-25.md 和 MAINTENANCE-2026-08-26.md 索引登记
-- 7 项 Proposed 提案开放（P28/P35/P36/P37/P41-P43），季度回顾时集中决策
-- 工具门禁：0 BLOCKER / 0 ERROR / 25 WARN（frontmatter 校验），path-audit OK，extensions-lint OK
-- 代码质量：31 skills / 15 workflows / 14 RFC / 57 governance / 22 templates，指标全部持平
-- 机器级观察（python shim CRLF 问题等）见 logs/ per-run diagnostic-log，不入此文件
+- 语言边界专项（Scope=workflows）：定位 dev-setup/maintain 交互英文根因为「执行层未按 system language=zh 转换」，非配置回退（locale 仍 zh，配置干净）
+- pilot A 落地：aic-maintain.md 追加「交互语言=系统语言(zh)」强制约束；PromptBuilder 自测通过，交互实测中文呈现
+- 延后项：将「交互按 locale」约束收敛进全局规范（方案 C，走 OPERATIONS §11）；运行时通用机制（B）待 pilot 结论
+- 提案：6 开放（P28/P35/P36/P37/P41/P42），季度回顾集中决策（与上期一致，本轮未决）
+- 工具门禁：0 BLOCKER / 0 ERROR / 25 WARN；path-audit OK；workflow-command-audit 0 blocker（aic-maintain thin-command 1 WARN 提示性）
+- 机器级观察（python shim 用 python3 等）见 logs/ per-run diagnostic-log，不入此文件

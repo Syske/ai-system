@@ -6,6 +6,8 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 
 **Inputs**: Mode (weekly / monthly / quarterly / on-demand, default weekly); optional Scope (for on-demand, limits the range, e.g. workflows / runtime / skills / governance / cli).
 
+**Interaction language (mandatory):** Every question, choice, and confirmation presented to the user — including Mode/Scope selection and step confirmations — MUST be in the system language (`config/menu.yaml → locale`, currently `zh`). AI control flow stays English; only the text shown to the user is localized.
+
 **AI scheduling** (ADR-0009):
 - At session start the AI runs `python tools/quick-check.py` (read-only,
   seconds); issues are reported and recorded to
