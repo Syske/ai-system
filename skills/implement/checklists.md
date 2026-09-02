@@ -168,6 +168,9 @@ Use during Stage 4.
 - [ ] VO fields include comments.
 - [ ] Entity fields include comments.
 - [ ] MQ message fields include comments.
+- [ ] Field comments describe business meaning — **no verbatim name translation**
+      (e.g. `bsCompensationDataTag` paired with `/** 补偿数据通道 tag */`)
+      (per `governance/standards/common/documentation.md` → Field quality criteria).
 - [ ] Configuration items are documented when required.
 - [ ] Complex business logic explains **why**, not only **what**.
 - [ ] Comments describe business semantics only — **no internal task identifiers**

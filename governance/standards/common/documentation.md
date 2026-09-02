@@ -142,6 +142,17 @@ All fields must:
 
 Include descriptive comments.
 
+Field comment quality criteria（字段注释质量准则，2026-09-02 补充）:
+- Describe **business meaning / value semantics**（业务含义与取值语义），not a verbatim
+  translation of the field name.
+- **禁止名字直译/与字段名重复**：反例——字段 `bsCompensationDataTag` 配注释
+  `/** 补偿数据通道 tag */` 零信息增量，不合格。
+- 配置注入字段（Apollo 等）注明**来源与对齐关系**（如 tag 由 `…bsCompensationDataProductChannel.tag`
+  注入、需与消费端 `bsCompensationDataConsumerChannel` 一致）。
+- 类注释已覆盖关键信息时，字段注释**指向类注释**（如「见类注释：对齐关系与注入来源」）而非复制。
+- 写不出业务语义的平凡字段（如无特殊约束的自解释字段）可省略注释——注释只在对读者
+  有价值时存在（Value-Burden 同样适用于注释）。
+
 Example:
 
 /**
