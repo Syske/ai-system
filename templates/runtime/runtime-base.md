@@ -71,9 +71,10 @@ page + pointer). Filename `<workflow>-<YYYYMMDD-HHMMSS>.md`.
 
 On Complete, every Runtime presents its Completion Report (summary, findings,
 recommendations) to the user in the system language (`config/menu.yaml → locale`),
-with bilingual headings (`## 实现总结 / Implementation Summary`)
-per governance/LANGUAGE_CONVENTION.md. AI control flow stays English; only the
-text shown to the user is localized.
+with bilingual headings per governance/LANGUAGE_CONVENTION.md (Hybrid Bilingual
+Headings section: Chinese heading first, English heading follows — the reference
+sample lives in that section, not duplicated here). AI control flow stays English;
+only the text shown to the user is localized.
 
 Before presenting, the Runtime runs the language gate (P45): `python3 tools/language-gate.py <report-file>` — PASS → present; WARN → review `--list-suspicious` lines; FAIL → rewrite the user-facing text in the system language and re-run the gate; gate outcome recorded in the per-run diagnostic log. <!-- @keep -->
 
