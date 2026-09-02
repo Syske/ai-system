@@ -21,6 +21,19 @@ Per `governance/LANGUAGE_CONVENTION.md`:
 - **Commit messages**: Chinese（遵循 Conventional Commits 中文版）
 - **Error messages in production**: English（避免编码问题）
 
+## Log Content（日志内容规范）
+
+Production log messages（`log.error` / `log.warn`，及新写代码的 `log.info`）MUST be
+**English** per the rule above, and MUST follow a semantic template:
+
+- **Template**: `动作 + 对象 + 后果(+ 关键上下文参数)` — e.g.
+  `Failed to save to bs_fail_task, skipping record, enterpriseId={}, syncData={}`
+  （反例：`落 bs_fail_task 失败，跳过该条, ...` —— 中文 + 口语指代「该条」无主语）。
+- **No colloquial referents**: avoid `该条 / 这个 / 对应记录` without an explicit
+  identifier — always include the business key（enterpriseId / taskId / topic…) as
+  log parameter placeholders。
+- `log.error` MUST carry the exception as the last argument（`…, e)`）。
+
 ---
 
 ## Javadoc Format（Javadoc 格式规范）

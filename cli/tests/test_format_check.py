@@ -62,6 +62,30 @@ public class Bad {
 }
 """
 
+LOG_CJK = """package x;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class Bad {
+    private static final Logger log = LoggerFactory.getLogger(Bad.class);
+    public void save() {
+        log.error("落 bs_fail_task 失败，跳过该条，enterpriseId={}", 1L, e);
+        log.info("开始处理：enterpriseId={}", 1L);
+    }
+}
+"""
+
+LOG_EN = """package x;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class Good {
+    private static final Logger log = LoggerFactory.getLogger(Good.class);
+    public void save() {
+        log.error("Failed to save to bs_fail_task, skipping record, enterpriseId={}", 1L, e);
+        log.info("Starting to process enterprise {}", 1L);
+    }
+}
+"""
+
 
 def _run_single(fname, content, extra=None):
     with tempfile.TemporaryDirectory() as td:
@@ -91,6 +115,12 @@ class TestFormatCheck(unittest.TestCase):
 
     def test_map_payload_warn(self):
         self.assertEqual(_run_single("Bad.java", MAP_PAYLOAD), 1)
+
+    def test_cjk_error_log_fail(self):
+        self.assertEqual(_run_single("Bad.java", LOG_CJK), 2)
+
+    def test_english_log_pass(self):
+        self.assertEqual(_run_single("Good.java", LOG_EN), 0)
 
 
 if __name__ == "__main__":

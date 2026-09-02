@@ -34,6 +34,10 @@ TASK_REF = re.compile(r"T-\d{3}")                              # T-001 等
 MAP_DECL = re.compile(r"Map<String,\s*Object>\s+\w+\s*=\s*new\s+HashMap<>\(\)")
 PUT_REF = re.compile(r'\.put\("')
 COMMIT_TASK_PREFIX = re.compile(r"^(feat|fix|docs|style|refactor|perf|test|chore|ci|revert)\([^)]*\):\s*T-\d{3}")
+# 生产日志消息：error/warn 必须英文（documentation.md → Log Content）；info 提示
+# log.error( "中文" ) / log.warn( "中文" )
+LOG_CJK_ERROR = re.compile(r"log\.(error|warn)\(\s*\"[^\"]*[\u4e00-\u9fff]")
+LOG_CJK_INFO = re.compile(r"log\.(info|debug)\(\s*\"[^\"]*[\u4e00-\u9fff]")
 
 
 def _is_comment_line(line: str) -> bool:
@@ -83,6 +87,13 @@ def check_file(path: Path, findings):
         total += 1
     if total and non_meet / total > 0.15:
         findings.append(("WARN", f"缩进非 4 空格比例 {non_meet}/{total}（启发式，建议人工核验）: {path}"))
+
+    # 6. 生产日志消息语言（error/warn 英文强制；info 提示）
+    for i, ln in enumerate(lines, 1):
+        if LOG_CJK_ERROR.search(ln):
+            findings.append(("FAIL", f"日志消息含中文（error/warn 须英文，Log Content）: {path}:{i}"))
+        elif LOG_CJK_INFO.search(ln):
+            findings.append(("WARN", f"日志消息含中文（新写代码 info 建议英文）: {path}:{i}"))
 
 
 def _changed_java_files(src_dir):

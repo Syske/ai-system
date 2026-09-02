@@ -177,6 +177,9 @@ Use during Stage 4.
 - [ ] MQ message body built as a **typed object** — no hand-assembled
       `Map<String, Object>` payload (`content.put(...)`) for outgoing messages
       (per `extensions/company-standards/cool/rocketmq-conventions.md` §4.1).
+- [ ] Production log messages (`log.error`/`log.warn`) are **English** with
+      semantic template (action + object + consequence + key params, exception last)
+      — no CJK log messages (per `documentation.md` → Log Content).
 - [ ] Configuration items are documented when required.
 - [ ] Complex business logic explains **why**, not only **what**.
 - [ ] Comments describe business semantics only — **no internal task identifiers**
