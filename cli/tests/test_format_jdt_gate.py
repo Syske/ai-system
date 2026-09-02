@@ -36,11 +36,14 @@ class TestJdtGate(unittest.TestCase):
             self.assertEqual(fjg.find_java(str(explicit)), explicit)
 
     def test_find_java_none(self):
+        # 环境解耦：clear=True 清掉 CI runner 预设的 JAVA_HOME；exists mock 阻断
+        # 任何真实 JDK 路径命中（GitHub runner 预装 temurin-17 于 /usr/lib/jvm）
         with mock.patch.object(fjg, "_read_env_yaml", return_value={}), \
-             mock.patch.dict("os.environ", {}, clear=False), \
+             mock.patch.dict("os.environ", {}, clear=True), \
              mock.patch("shutil.which", return_value=None), \
              mock.patch("pathlib.Path.is_dir", return_value=False), \
-             mock.patch("pathlib.Path.glob", return_value=[]):
+             mock.patch("pathlib.Path.glob", return_value=[]), \
+             mock.patch("pathlib.Path.exists", return_value=False):
             self.assertIsNone(fjg.find_java(None))
 
     def test_dry_run_exit_mapping(self):
