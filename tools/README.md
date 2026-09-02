@@ -24,6 +24,7 @@ Automated governance tooling for the AI repository.
 | `maintain-delta.py` | 巡检增量感知（Q1-1）——对比上次完整巡检后的 git HEAD，判定 FIRST_RUN / NO_CHANGES / CHANGED(受影响区域+建议工具子集)；`--record` 在完整巡检后记录状态（metrics/maintain-delta-state.json，gitignored） |
 | `maintain-report.py` | 巡检报告骨架自动生成（Q1-3）——从 quick-check/指标快照/proposal-audit 自动拼装 MAINTENANCE-{date}.md 的校验/对比/趋势/提案四节；非破坏（已存在不覆盖），叙事节留给 AI |
 | `language-gate.py` | 运行时语言门禁（P45）——校验面向用户文本语言是否匹配 config/menu.yaml → locale；Runtime Complete 阶段呈现前运行（runtime-base「语言自检」步骤），三态 PASS/WARN/FAIL（exit 0/1/2）；`--list-suspicious` 人审可疑行 |
+| `format-check.py` | develop 格式与规范泄漏自检（A 层）——纯 python3 无 JDK 依赖；查单行 Javadoc / 中文方法名 / 注释 T-xxx 泄漏 / Map 手工组装 payload（main）/ 4 空格缩进比例；`--changed` 仅查本 change 文件（git status 驱动）、`--check-commit` 查提交 subject；PASS/WARN/FAIL（exit 0/1/2）；接入 runtime-develop Formatting gate |
 | `pack.py` | AI System packaging (output dir, zip) |
 
 Run order after a change:

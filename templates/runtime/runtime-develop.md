@@ -139,6 +139,10 @@ Formatting gate (Stage 6 Validation):
   `Language: Java → Formatting (manual self-check)`: 4-space indentation, multi-line
   Javadoc, no unused imports, consistent with existing code style; the review stage
   verifies this.
+- Run the A-layer script gate: `python3 ai-system/tools/format-check.py <worktree>/src --changed
+  [--check-commit]` — PASS → proceed; FAIL/WARN → fix or justify before completing
+  (tools/format-check.py checks one-line Javadoc, non-ASCII method names, task-id
+  leaks, Map-assembled payloads, 4-space indent ratio).
 - Existing files not touched by this change MUST NOT be re-formatted wholesale
   (minimal diff).
 
