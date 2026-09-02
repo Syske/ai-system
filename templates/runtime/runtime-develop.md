@@ -133,9 +133,14 @@ The Implement Skill executes the full 10-stage lifecycle:
 
 Formatting gate (Stage 6 Validation):
 
-- Java 格式化校验**不依赖自动格式化工具**（pi-lens Java formatter 与 google-java-format 均未启用/未安装）。
-- 实现完成后，按 `task-quality-checklist.md` → `Language: Java → Formatting (manual self-check)` 人工自检：4 空格缩进、多行 Javadoc、无未使用 import、不与存量代码风格冲突；review 阶段核验。
-- 本 change 未涉及的存量文件**不得**整文件重排格式（最小 diff）。
+- Java formatting validation does **not** rely on automatic formatting tools
+  (pi-lens Java formatter and google-java-format are disabled / not installed).
+- After implementation, run the manual self-check per `task-quality-checklist.md` →
+  `Language: Java → Formatting (manual self-check)`: 4-space indentation, multi-line
+  Javadoc, no unused imports, consistent with existing code style; the review stage
+  verifies this.
+- Existing files not touched by this change MUST NOT be re-formatted wholesale
+  (minimal diff).
 
 Required:
 
