@@ -49,6 +49,7 @@
 | Implemented | Worktree 约定完善（项目级隔离 + 生命周期管理） | 2026-08-31 | `P44-WORKTREE-CONVENTION.md` |
 | Implemented | 运行时语言门禁（completion-time language gate，方案 B 正式化） | 2026-09-01 | `P45-RUNTIME-LANGUAGE-GATE.md` |
 | Proposed | tr5 发布债收口 + review/verify 验证标记检查 | 2026-09-01 | `P46-TR5-DEBT-VALIDATION-MARKER.md` |
+| Implemented | develop 前置处理规则（缺 Dev Setup 先跑 dev-setup，禁止自推/跳步）+ 完成报告目录约定（completion-reports/，Location 双文件对齐） | 2026-09-02 | `P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
