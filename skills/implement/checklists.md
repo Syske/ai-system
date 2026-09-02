@@ -171,6 +171,12 @@ Use during Stage 4.
 - [ ] Field comments describe business meaning — **no verbatim name translation**
       (e.g. `bsCompensationDataTag` paired with `/** 补偿数据通道 tag */`)
       (per `governance/standards/common/documentation.md` → Field quality criteria).
+- [ ] Javadoc uses standard **multi-line block** format
+      (`/**` / ` * …` / ` */`) — no one-line `/** … */` blocks
+      (per `documentation.md` → Javadoc Format).
+- [ ] MQ message body built as a **typed object** — no hand-assembled
+      `Map<String, Object>` payload (`content.put(...)`) for outgoing messages
+      (per `extensions/company-standards/cool/rocketmq-conventions.md` §4.1).
 - [ ] Configuration items are documented when required.
 - [ ] Complex business logic explains **why**, not only **what**.
 - [ ] Comments describe business semantics only — **no internal task identifiers**

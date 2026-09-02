@@ -23,6 +23,25 @@ Per `governance/LANGUAGE_CONVENTION.md`:
 
 ---
 
+## Javadoc Format（Javadoc 格式规范）
+
+All Javadoc（类 / 方法 / 字段 / 枚举常量）uses the **standard multi-line block**,
+aligned with IDE default formatting and existing codebase style:
+
+```java
+/**
+ * 描述
+ */
+private String someField;
+```
+
+- **禁止单行块** `/** xxx */` —— 即使描述只有一行，也必须使用三行结构
+  （`/**` 独立行 / ` * 描述` / ` */` 独立行）。反例（AI 生成时可系统性出现）：
+  `/** 补偿数据同步（既有链路） */`、`/** 企业级全量同步锁前缀 */`。
+- 单行注释仅允许使用 `//` 行注释（非 Javadoc），不参与文档生成。
+
+---
+
 ## Comment Content（注释内容规范）
 
 Code comments and Javadoc are written for **repository readers** — teammates and
