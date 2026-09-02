@@ -192,8 +192,10 @@ Generate:
 - Updated Task Card (Completion Definition + Code Quality Checks + Acceptance Criteria all [x])
 - Updated Workspace Context
 - Completion Report
-- **Location**: code → `projects/<service-id>/`; Completion Report + Test results + updated
-  Workspace Context → `workspaces/<project-id>/`; Task Card → `workspaces/<project-id>/openspec/tasks/`
+- **Location**: code → `projects/<service-id>/`; Completion Report + Test results →
+  `workspaces/<project-id>/openspec/changes/<change-id>/completion-reports/`;
+  updated Workspace Context → `workspaces/<project-id>/contexts/`;
+  Task Card → `workspaces/<project-id>/openspec/changes/<change-id>/tasks/cards/<task-id>.md`
 
 ## Phase 4 — Completion
 
