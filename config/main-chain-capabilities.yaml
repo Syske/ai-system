@@ -47,4 +47,8 @@ capabilities:
       enabled: true
   review: []
   verify: []
-  release: []
+  release:
+    - skill: archive-ipd-workspace
+      path: extensions/archive-ipd-workspace
+      desc: "IPD 周期归档同步：workspace 产物（openspec/tr5/source/spec/diagrams/完成报告）单向快照到 IPD 技术设计图纸归档仓（<period>/<stage>/<dir>）（release/变更集闭合时推荐执行；单维护源，不创建链接，自动排除二进制与 temp）"
+      enabled: true
