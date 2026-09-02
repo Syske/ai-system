@@ -143,6 +143,12 @@ Formatting gate (Stage 6 Validation):
   [--check-commit]` — PASS → proceed; FAIL/WARN → fix or justify before completing
   (tools/format-check.py checks one-line Javadoc, non-ASCII method names, task-id
   leaks, Map-assembled payloads, 4-space indent ratio).
+- Optional precise gate (C2, environment-aware): when a machine has JDK, run
+  `python3 ai-system/tools/format-jdt-gate.py <worktree>/src --batch [--skip]` — eclipse
+  JDT formatter dry run against `tools/jdt-format-gate/eclipse-format.xml` (IDEA-exported
+  profile once calibrated). If the environment is not ready, the tool detects it and
+  offers interactive setup/skip; `--batch` requires explicit `--skip` for
+  ENV-unavailable (exit 3). Exit: 0 PASS / 1 WARN (≤5 files) / 2 FAIL / 3 ENV.
 - Existing files not touched by this change MUST NOT be re-formatted wholesale
   (minimal diff).
 

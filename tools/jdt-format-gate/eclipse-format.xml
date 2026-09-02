@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  eclipse JDT formatter profile — 初始配置（C2 方案，2026-09-02）。
+  仅设置团队核心约定（4 空格 / 120 行宽），其余沿用 Eclipse 默认
+  （DefaultCodeFormatterConstants，与 IDEA 默认 Java 风格同族）。
+
+  建议：后续用 IDEA 导出 100% 对齐的 profile 替换本文件——
+  Settings → Editor → Code Style → Java → Scheme Export → Eclipse XML Profile，
+  核对 tabulation.size=4 与 lineSplit=120 后入库（保持文件名/eclipse-format.xml）。
+-->
+<profiles version="13">
+  <profile kind="CodeFormatterProfile" name="CoolJava4Space" version="13">
+    <setting id="org.eclipse.jdt.core.formatter.tabulation.char" value="space"/>
+    <setting id="org.eclipse.jdt.core.formatter.tabulation.size" value="4"/>
+    <setting id="org.eclipse.jdt.core.formatter.indentation.size" value="4"/>
+    <setting id="org.eclipse.jdt.core.formatter.lineSplit" value="120"/>
+    <setting id="org.eclipse.jdt.core.formatter.comment.line_length" value="120"/>
+    <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_imports" value="1"/>
+  </profile>
+</profiles>

@@ -29,3 +29,6 @@ metrics/
 
 # OS
 .DS_Store
+
+# eclipse JDT 干跑 gate（C2）编译产物
+tools/jdt-format-gate/build/
