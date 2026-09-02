@@ -28,6 +28,13 @@ Implement exactly one task.
 - Task Card exists and is not completed
 - Specification and Contracts exist for the task
 
+Precondition handling — do NOT improvise around a missing precondition:
+
+- Missing Dev Setup (workspace has no `contexts/`, or `.aic-state.yaml` shows no
+  dev-setup run): run the `dev-setup` workflow first (previous main-chain stage),
+  then continue `develop`. Never fabricate Project/Workspace Context and never
+  skip the stage, even when the request said "develop".
+
 ## Inputs
 
 Required:
