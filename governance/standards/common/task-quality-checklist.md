@@ -41,6 +41,11 @@ Conditional items (REST / MQ / RPC / performance / task type) stay inside the Ta
 
 ## Language: Java
 
+- **Formatting (manual self-check)**: Java 格式不依赖自动格式化工具（pi-lens 的 Java formatter 已禁用，google-java-format 未安装）。实现完成后按项目管理工具/IDE 风格**人工自检**，review 核验：
+  - 缩进为 4 空格（与存量代码/IDEA 风格一致）
+  - Javadoc 用标准多行块，不用单行 `/** ... */`（见 `documentation.md` → Javadoc Format）
+  - 无未使用 import；import 分组、顺序与既有代码一致（基本目标：`--dry-run` 语义——纯格式差异不引入与本 change 无关的整文件重排）
+  - 方法名/变量名为英文 ASCII（中文仅用于注释/文档，见 documentation.md）
 - **Unit tests**: JUnit version compatibility (per `repositories/{service_id}.yaml` → `technology.test.framework`). Covers normal, exception, boundary, and null cases.
 - **Collections**: Use `isEmpty()` instead of `size()==0`. Ensure thread safety when required.
 - **Optional**: Never return null Optional. Do not use Optional as a field type.
