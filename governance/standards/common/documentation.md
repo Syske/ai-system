@@ -17,7 +17,7 @@ What it does.
 Per `governance/LANGUAGE_CONVENTION.md`:
 
 - **Code comments and Javadoc**: Chinese（业务逻辑说明、复杂算法注释、字段含义说明）
-- **Identifiers**: English（class names, method names, variable names, package names）
+- **Identifiers**: English（class names, method names, variable names, package names）— 标识符（含**测试方法名**）必须为 ASCII 英文（`[A-Za-z0-9_$]` 字符集），**禁止中文/Unicode 标识符**（Java 虽允许 Unicode 标识符且能编译，但破坏 Javadoc/反射/测试报告/IDE 重构与跨团队可读性）。反例：`syncToBeisen_enterpriseId空_抛参数异常` → `syncToBeisen_enterpriseIdNull_shouldThrowIllegalArgument`；场景/中文描述只能写入方法注释或 `@DisplayName`，不进方法名。
 - **Commit messages**: Chinese（遵循 Conventional Commits 中文版）
 - **Error messages in production**: English（避免编码问题）
 

@@ -50,6 +50,14 @@ Example:
 
 shouldRefreshTokenWhenExpired()
 
+Method names MUST be **English ASCII identifiers** (`[A-Za-z0-9_$]`):
+
+- **禁止中文/Unicode 方法名**（Java 允许 Unicode 标识符且能编译，但破坏 Javadoc / 反射 /
+  测试报告 / IDE 重构与跨团队可读性）。反例：`syncToBeisen_enterpriseId空_抛参数异常`；
+  应改：`syncToBeisen_enterpriseIdNull_shouldThrowIllegalArgument`。
+- 场景化描述用英文下划线后缀可保留（`shouldX_whenY` / `method_englishScenario`）；
+  中文场景说明只允许写在方法注释或 `@DisplayName` 中，不进方法名。
+
 ---
 
 # Structure

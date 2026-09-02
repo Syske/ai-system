@@ -238,6 +238,9 @@ Use during Stage 5.
 - [ ] External dependencies mocked where appropriate.
 - [ ] Tests are deterministic.
 - [ ] Tests are repeatable.
+- [ ] Test method names are **English ASCII identifiers** — no Chinese/Unicode method
+      names (per `governance/standards/common/testing.md` → Naming); scene descriptions
+      go in comments or `@DisplayName`.
 
 ---
 
