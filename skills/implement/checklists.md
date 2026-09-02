@@ -170,6 +170,15 @@ Use during Stage 4.
 - [ ] MQ message fields include comments.
 - [ ] Configuration items are documented when required.
 - [ ] Complex business logic explains **why**, not only **what**.
+- [ ] Comments describe business semantics only — **no internal task identifiers**
+      (`T-001`, Change ID) leak into class/method/inline/test comments
+      (per `governance/standards/common/documentation.md` → Comment Content).
+
+## Commit
+
+- [ ] Subject leads with business semantics (verb-object), not task identifiers
+      (`feat(platform-api): T-001 …` → `feat(platform-api): 新增同步到北森的 REST 端点…`);
+      internal task refs only as body trailing note (`关联 T-002`).
 
 ---
 

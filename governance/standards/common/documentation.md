@@ -23,6 +23,26 @@ Per `governance/LANGUAGE_CONVENTION.md`:
 
 ---
 
+## Comment Content（注释内容规范）
+
+Code comments and Javadoc are written for **repository readers** — teammates and
+other teams who read the code without access to internal task context.
+
+- Comments describe **business semantics / intent**（业务语义、Why、复杂算法、字段含义）。
+- **禁止携带内部流程标识**：Task Card 编号（`T-001` 等）、Change ID、ai-system 内部变更集引用
+  **不得写入代码注释**（类 Javadoc / 方法注释 / 行内注释 / 测试注释）。
+- 需求 ↔ 实现的可追溯性由 **Task Card**（Spec 引用 / 完成定义 / 实现说明）维护，不落在代码注释里。
+- 引用需求时应写业务语义（如「BOSS 主管理员触发单企业全量同步到北森」），而非编号（`（T-001）`）。
+
+## Commit Content（提交信息内容规范）
+
+- Subject 以**业务语义**开头（动词宾语短语），**禁止以任务编号开头**
+  （`feat(platform-api): T-001 …` 应写为 `feat(platform-api): 新增同步到北森的 REST 端点 syncToBeisen`；
+  `fix(订单): 修复并发超卖`）。
+- 需要关联内部任务时，任务编号仅可放 **body 尾部作关联注记**（`关联 T-002`），不进 subject。
+
+---
+
 ## Commit Convention
 
 Commit messages follow Conventional Commits, adapted for Chinese teams.
