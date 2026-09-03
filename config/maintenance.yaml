@@ -35,3 +35,8 @@ last_findings:
   yaml desc/工具注释/报告中文惯例合法保留；LANGUAGE_CONVENTION 中文为规范自身示例与简体要求；
   用户可见输出遵循系统语言 zh；运行时语言门禁由 runtime-base Complete 步骤执行（P45）
 - 工作区迁移 WSL（9p 双视图根因解决，用户主导方案 A）：全工作区迁 WSL 文件系统单视图（9p 读缓存假象/false samefile/stat 假死/git add 漏扫根治）；git 仓重新 clone 最新 + 可复制内容 rsync（排除 worktrees/.git/工具状态）；projects 为符号链接指向业务仓物理（87 仓未迁、Windows 工作流保持、归档仓 ext4 副本为日常/D 盘旧仓备份）；worktree 业务仓 4 个 git 链不受影响；路径适配（archive_sync 常量/模板占位化/公开仓不携带本机路径）；aic（pip editable）指向修复（finder+dist-info）；develop 前置规则固化：无 Dev Setup 先跑 dev-setup 禁止自推/跳步（workflows/develop.md，提交 c7c6496）；完成报告目录约定 completion-reports/（runtime-develop Location 对齐 da469ab）；验证基线：unittest 178 OK / lint 0/0 / 归档 dry-run 0 / 三仓 M=0；详细运维日志（含本机路径）在 logs/（gitignored 不公开）
+- 待办（2026-09-03 定案）：P46(b)「验证状态核验」推荐实施——review/verify 无验证标记形式化
+  检查（runtime-verify 0 相关步骤），编译阻断→验证义务传递靠文本约定；维护窗口实施：
+  runtime-review/runtime-verify 新增「验证状态核验」步骤（检查开发产物/任务卡 compile/unittest
+  验证标记，WARN 级，不阻断）+ 完成报告可选「验证状态」字段（对齐 P47 completion-reports 约定）；
+  与 P46(a)/P41/P42（tr5 家族）解耦独立；模板改动不影响进行中会话（后续会话生效）
