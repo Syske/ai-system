@@ -30,4 +30,8 @@ last_findings:
 - IPD 周期归档方案落地（用户需求 + junction 事故复盘）：junction 嵌 workspace 会破坏主链（git 边界渗入/状态耦合）→ 改单向快照（workspace 唯一维护源）；extensions/archive-ipd-workspace（SKILL + archive_sync.py：白名单 copy→git add 目录→commit→push，Windows python 执行绕 drvfs 读缓存怪癖）；main-chain-capabilities.yaml release 段注册扩展点（更新时推荐执行）；归档仓已入库推送（迭代项目产物：openspec 40/tr5 7 等，gitignore 补 tr5 xml 例外）；教训入 OPTIMIZATION_LOG
 - task-splitter 分支占位符修复（用户检查驱动）：202610-cool-italent-sync-plus 24/24 任务卡 branch 字段 `{date}` 未替换（半渲染，desc/service 已填）→ 存量批量补全为 20260820（投影 project-context 冻结分支名，0 残留）+ workflow.md 补 date 写入规则（已建分支写全名/未建写需求确认日/禁占位符）+ Verify 强化；门禁全绿
 - 代码注释/提交任务编号泄漏规范（用户报告驱动）：develop 产出 9+ 处 Javadoc 带 `（T-001）` 等 + 2 条提交标题以 T-xxx 开头 → 根因 = traceability 误读（溯源应存 Task Card 非代码注释）+ documentation.md 无内容对象约束 → 新增 Comment Content / Commit Content 规范 + implement checklists 检查项；存量 worktree 清理待用户决策
+- 语言规范门禁自查（用户提醒驱动，2026-09-03）：本轮模板改动混入中文 → 已按模板英文纪律修复
+  （runtime-develop.md Stage 6 gates 段 7 行 + workflows/develop.md 存量 3 行）；自查范围结论：
+  yaml desc/工具注释/报告中文惯例合法保留；LANGUAGE_CONVENTION 中文为规范自身示例与简体要求；
+  用户可见输出遵循系统语言 zh；运行时语言门禁由 runtime-base Complete 步骤执行（P45）
 - 工作区迁移 WSL（9p 双视图根因解决，用户主导方案 A）：全工作区迁 WSL 文件系统单视图（9p 读缓存假象/false samefile/stat 假死/git add 漏扫根治）；git 仓重新 clone 最新 + 可复制内容 rsync（排除 worktrees/.git/工具状态）；projects 为符号链接指向业务仓物理（87 仓未迁、Windows 工作流保持、归档仓 ext4 副本为日常/D 盘旧仓备份）；worktree 业务仓 4 个 git 链不受影响；路径适配（archive_sync 常量/模板占位化/公开仓不携带本机路径）；aic（pip editable）指向修复（finder+dist-info）；develop 前置规则固化：无 Dev Setup 先跑 dev-setup 禁止自推/跳步（workflows/develop.md，提交 c7c6496）；完成报告目录约定 completion-reports/（runtime-develop Location 对齐 da469ab）；验证基线：unittest 178 OK / lint 0/0 / 归档 dry-run 0 / 三仓 M=0；详细运维日志（含本机路径）在 logs/（gitignored 不公开）
