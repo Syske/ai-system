@@ -7,6 +7,7 @@
 import importlib.util
 import pathlib
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -14,6 +15,23 @@ REPO = pathlib.Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("format_jdt_gate", REPO / "tools" / "format-jdt-gate.py")
 fjg = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fjg)
+
+
+CLEAN_JAVA = "package x;\npublic class Good {\n    public void ok() {\n    }\n}\n"
+
+
+def _mk_clean_git_repo():
+    import subprocess as sp
+    td = tempfile.TemporaryDirectory()
+    root = pathlib.Path(td.name)
+    sp.run(["git", "init", "-q", td.name], check=True)
+    sp.run(["git", "-C", td.name, "config", "user.email", "t@e"], check=True)
+    sp.run(["git", "-C", td.name, "config", "user.name", "t"], check=True)
+    (root / "src").mkdir(parents=True)
+    (root / "src" / "A.java").write_text(CLEAN_JAVA, encoding="utf-8")
+    sp.run(["git", "-C", td.name, "add", "-A"], check=True)
+    sp.run(["git", "-C", td.name, "commit", "-qm", "feat: T-001 init"], check=True)
+    return td, root
 
 
 class TestJdtGate(unittest.TestCase):
@@ -79,6 +97,25 @@ if __name__ == "__main__":
             self.assertEqual(fjg.dry_run("/j", "/lib", "/build", "/x.xml", "/src", apply=True), 0)
             cmd = fjg.run.call_args[0][0]
             self.assertIn("--apply", cmd)
+
+    def test_changed_clean_repo_shortcut(self):
+        # --changed 且无改动：环境探测前短路，无需 JDK/JDT（应 0）
+        td, root = _mk_clean_git_repo()
+        try:
+            args = [str(root / "src"), "--batch", "--changed"]
+            self.assertEqual(fjg.main(args), 0)
+        finally:
+            td.cleanup()
+
+    def test_changed_non_git_falls_back(self):
+        # 非 git 目录：--changed 不短路（继续环境流程；无 JDK → batch skip/3）
+        import unittest.mock as mock
+        with tempfile.TemporaryDirectory() as td:
+            (pathlib.Path(td) / "src").mkdir()
+            with mock.patch.object(fjg, "dry_run", return_value=0) as dr:
+                args = [str(pathlib.Path(td) / "src"), "--batch", "--changed"]
+                fjg.main(args)
+                dr.assert_called_once()  # 回退：仍然走到 dry_run
 
     def test_dry_run_ignore_file_flag(self):
         # --ignore-file 透传：ignore_file 非空时命令追加

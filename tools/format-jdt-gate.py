@@ -105,6 +105,24 @@ def find_java(explicit):
     return None
 
 
+def _changed_java_files(src_dir):
+    """git status 驱动：已改动/新增 .java（返回相对路径列表）；非 git 或异常 → None。"""
+    import subprocess as _sp
+    try:
+        r = _sp.run(["git", "status", "--porcelain"], cwd=str(src_dir),
+                    capture_output=True, text=True, timeout=30)
+    except Exception:
+        return None
+    if r.returncode != 0:
+        return None
+    rels = []
+    for line in r.stdout.splitlines():
+        p = line[3:].strip()
+        if p.endswith(".java"):
+            rels.append(p)
+    return sorted(set(rels))
+
+
 def find_lib_dir(explicit_jar):
     """返回 (lib_dir, build_dir)。jdt 闭包 jar 统一放 LIB_DIR，classpath 用通配。"""
     cfg = _read_env_yaml().get("runtime", {}).get("jdt", {})
@@ -212,6 +230,8 @@ def main(argv=None):
     ap.add_argument("--batch", action="store_true", help="非交互模式（无 TTY 时）")
     ap.add_argument("--apply", action="store_true",
                     help="将 formatted 结果写回源文件（格式基线；配合 git diff -w 安全校验）")
+    ap.add_argument("--changed", action="store_true",
+                    help="增量口径：git status 驱动——无改动 .java 快速 PASS；有改动全量扫描（口径日志）")
     ap.add_argument("--ignore-file", default=None,
                     help="已知边界文件清单（wrapper --ignore-file；默认无；C2 仓内 known-ignore.txt）")
     args = ap.parse_args(argv)
@@ -219,6 +239,16 @@ def main(argv=None):
     if not Path(args.src_dir).is_dir():
         log(f"ERROR: 源目录不存在: {args.src_dir}")
         return 2
+
+    if args.changed:
+        changed = _changed_java_files(Path(args.src_dir))
+        if changed is None:
+            log("--changed：非 git 仓，回退全量扫描")
+        elif not changed:
+            log("PASS（本 change 无改动 .java 文件）")
+            return 0
+        else:
+            log(f"--changed：本 change 改动 {len(changed)} 个 .java，全量扫描（口径日志）")
 
     if args.setup:
         java = find_java(args.java)
