@@ -12,7 +12,8 @@ env 决策（卸载 google-java-format / 停用 pi-lens Java formatter）后，
 4. `Map<String, Object>` + `.put("` 手工组装（疑似消息体 payload）→ WARN
    （rocketmq-conventions §4.1，启发式：方法内 Map 后连续 put）
 5. 4 空格缩进比例偏低（启发式，阈值宽容）→ WARN
-6. `--check-commit`：最近提交 subject 以 `T-\d+` 开头 → FAIL（Commit Content）
+6. `--check-commit`：最近提交 subject 含任务编号时必须为 `<type>(<scope>): T-\d{3}`
+   格式，否则 FAIL（Commit Content → governance/standards/common/commit-content.md）
 
 用法：
     python3 tools/format-check.py <src-dir> [--check-commit]
@@ -212,10 +213,12 @@ def main(argv=None):
     if args.check_commit:
         try:
             subj = subprocess.check_output(
-                ["git", "log", "-1", "--format=%s"], text=True
+                ["git", "log", "-1", "--format=%s"], text=True, cwd=str(root)
             ).strip()
-            if COMMIT_TASK_PREFIX.match(subj):
-                findings.append(("FAIL", f"最近提交 subject 以任务编号开头（Commit Content）: {subj}"))
+            if "T-" in subj and not COMMIT_TASK_PREFIX.match(subj):
+                findings.append(("FAIL",
+                                 f"最近提交 subject 含任务编号但不符合 type(scope): T-xxx 格式"
+                                 f"（commit-content.md）: {subj}"))
         except Exception:
             pass  # 非 git 目录或 git 不可用：跳过
 

@@ -176,6 +176,21 @@ def _run_single(fname, content, extra=None):
         return fc.main(args)
 
 
+def _run_commit_check(subject):
+    """构造一次性 git 仓并提交 subject，跑 format-check --check-commit。"""
+    import subprocess
+    with tempfile.TemporaryDirectory() as td:
+        repo = pathlib.Path(td)
+        subprocess.run(["git", "init", "-q", td], check=True)
+        subprocess.run(["git", "-C", td, "config", "user.email", "t@example.com"], check=True)
+        subprocess.run(["git", "-C", td, "config", "user.name", "t"], check=True)
+        subprocess.run(["git", "-C", td, "config", "commit.gpgsign", "false"], check=True)
+        (repo / "A.java").write_text("class A {}\n", encoding="utf-8")
+        subprocess.run(["git", "-C", td, "add", "-A"], check=True)
+        subprocess.run(["git", "-C", td, "commit", "-q", "-m", subject], check=True)
+        return fc.main([td, "--check-commit"])
+
+
 class TestFormatCheck(unittest.TestCase):
 
     def test_clean_pass(self):
@@ -231,6 +246,20 @@ class TestFormatCheck(unittest.TestCase):
     def test_exempted_pkg_private_pass(self):
         # §Visibility 例外：Javadoc 首行注明「供同包测试直接调用」→ 豁免（exit 0）
         self.assertEqual(_run_single("Exempted.java", PKG_PRIVATE_EXEMPTED), 0)
+
+    # ---- --check-commit（commit-content.md）----
+
+    def test_check_commit_task_format_pass(self):
+        # 合规 type(scope): T-xxx → PASS（exit 0）
+        self.assertEqual(_run_commit_check("feat(gate): T-015 提交信息规范收敛"), 0)
+
+    def test_check_commit_bare_taskid_fail(self):
+        # 裸「T-015 ...」（无 type 前缀）→ FAIL（exit 2，Commit Content）
+        self.assertEqual(_run_commit_check("T-015 完成提交信息校验"), 2)
+
+    def test_check_commit_non_task_pass(self):
+        # 治理提交（无 T-）→ PASS（exit 0）
+        self.assertEqual(_run_commit_check("style: apply format baseline"), 0)
 
 
 if __name__ == "__main__":
