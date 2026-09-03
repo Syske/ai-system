@@ -12,8 +12,11 @@ git status 驱动只查本 change 的 .java，避免 develop 每会话全量扫�
 - git 仓：changed/staged/untracked .java（相对仓根）→ checkstyle 只查这些文件；
   changed 空 → 秒级 PASS；非 git 仓 → 全量 <src>。
 - --full：跳过增量，全量扫描。
-- --dry-run-list：仅打印本次将检查的文件列表（调试/测试）。
-- exit：0 PASS；1 有违反（WARN 级口径，由调用方判断 error/warning 语义）；3 ENV。
+- --dry-run-list：仅打印本次将检查的文件列表（调试/测试；无需 JRE/jar）。
+- 执行顺序：clean 短路与 dry-run-list 均不依赖 JRE/jar（CI 无环境也能跑）；
+  环境探测只在真实扫描前进行。
+- exit：0 PASS（error=0；warning 收集不阻断）；1 有 error 阻断；3 ENV 缺失；
+  2 参数/运行错误。
 
 依赖探测顺序：
 - JRE：--java → ~/.local/jre17/bin/java → PATH java
@@ -79,18 +82,12 @@ def main(argv=None):
     ap.add_argument("--dry-run-list", action="store_true", help="仅打印将检查文件列表")
     args = ap.parse_args(argv)
 
-    java = _find_java(args.java)
-    jar = _find_jar(args.jar)
-    if not java or not jar:
-        print("checkstyle-gate: ENV 缺失（JRE17/checkstyle jar）→ 跳过（exit 3）", file=sys.stderr)
-        return 3
-
     src = Path(args.src_dir)
     if not src.is_dir():
         print(f"checkstyle-gate: ERROR — 源目录不存在: {src}", file=sys.stderr)
         return 2
 
-    # 仓根探测（git -C src 向上）
+    # ---- 环境无关步骤（CI/无 JRE 环境也必须可用）：仓根 + changed 计算 ----
     try:
         root = subprocess.check_output(
             ["git", "-C", str(src), "rev-parse", "--show-toplevel"],
@@ -119,6 +116,13 @@ def main(argv=None):
         for t in (targets or [str(src)]):
             print(" ", t)
         return 0
+
+    # ---- 环境探测（短路/dry-run 之后：无 JRE 时仅真实扫描受影响）----
+    java = _find_java(args.java)
+    jar = _find_jar(args.jar)
+    if not java or not jar:
+        print("checkstyle-gate: ENV 缺失（JRE17/checkstyle jar）→ 跳过（exit 3）", file=sys.stderr)
+        return 3
 
     cmd = [java, "-jar", jar, "-c", str(Path(args.config).resolve())]
     if targets:
