@@ -51,7 +51,6 @@
             <property name="severity" value="error"/>
         </module>
         <module name="ParameterName">
-            <property name="allowLambdaParameterNames" value="true"/>
             <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <property name="severity" value="error"/>
         </module>
@@ -64,31 +63,30 @@
         <!-- 缩写：允许 3 个及以上大写连续（DTO/VO/Api 等存量命名），超限 warn -->
         <module name="AbbreviationAsWordInName">
             <property name="allowedAbbreviationLength" value="3"/>
-            <property name="severity" string="warn"/>
+            <property name="severity" value="warning"/>
         </module>
         <!-- Javadoc：public 类型/方法要求 tag 结构但允许缺失正文（团队已有注释习惯，结构漏斗起步） -->
         <module name="JavadocType">
             <property name="scope" value="public"/>
             <property name="allowMissingParamTags" value="true"/>
-            <property name="severity" string="warn"/>
+            <property name="severity" value="warning"/>
         </module>
         <module name="JavadocMethod">
-            <property name="scope" value="public"/>
-            <property name="allowMissingJavadoc" value="true"/>
+            <property name="accessModifiers" value="public"/>
+            <property name="allowedAnnotations" value="Override"/>
             <property name="validateThrows" value="false"/>
-            <property name="severity" string="warn"/>
+            <property name="severity" value="warning"/>
         </module>
         <!-- 空行结构（存量多不合，从 warn 起步；允许多空行与字段间无空行） -->
         <module name="EmptyLineSeparator">
             <property name="allowMultipleEmptyLines" value="true"/>
             <property name="allowNoEmptyLineBetweenFields" value="true"/>
-            <property name="severity" string="warn"/>
+            <property name="severity" value="warning"/>
         </module>
         <!-- 圈复杂度：仅报告不拦截（消化道） -->
         <module name="CyclomaticComplexity">
             <property name="max" value="20"/>
-            <property name="switchStatementAsSingleDecisionPoint" value="true"/>
-            <property name="severity" string="warn"/>
+            <property name="severity" value="warning"/>
         </module>
 
         <!-- 明确不启用（与团队现状冲突或误报高，见提案 §5.1）：
