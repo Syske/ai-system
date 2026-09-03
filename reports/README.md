@@ -92,7 +92,7 @@
 |------|------|------|------|----------|
 | Quarterly | 季度评估（E9） | 2026-08-06 | `QUARTERLY-REVIEW-2026-08-06.md` | Q4/Q5 下季度 |
 | Assessment | CLI 规范化评估 | 2026-08-06 | `CLI-STANDARDIZATION-ASSESSMENT.md` | **C1 待办（明日执行）→ C2/C3/C4** |
-| Business | Spotless 格式门禁建议（业务仓侧，待评审） | 2026-09-02 | `SPOTLESS-FORMAT-GATE-PROPOSAL.md` | 待业务侧评审；A 层 format-check 已交付兜底 |
+| Business | 业务仓 Java 格式治理建议（CLI 路线 v2：用户裁定不改 pom，C2 校准定稿） | 2026-09-03 | `SPOTLESS-FORMAT-GATE-PROPOSAL.md` | 待业务侧拍板 master 基线执行与 Checkstyle 引入；工具链已入库（c7eef0b/b5e9f70） |
 | Assessment | bugfix skill 优化评估 | 2026-08-08 | `BUGFIX-SKILL-ASSESSMENT-2026-08-08.md` | — |
 | Maintenance | 语言检查存量债登记 | 2026-08-08 | `MAINTENANCE-2026-08-08-language-lint-debt.md` | #1-3 参数说明可接受 / #4 顺手修 / #5-7 memory 翻译待办 |
 | Maintenance | aic 项目识别与状态记录修复 | 2026-08-08 | `MAINTENANCE-2026-08-08-aic-project-recognition.md` | workspace.yaml 初始化未自动化 |
