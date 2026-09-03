@@ -106,4 +106,51 @@ CLI 路线已就绪且经验证（零业务仓配置、同源 profile、安全�
 ## 8. 登记
 
 - 本建议入 `reports/README.md`（评估与评审报告表，类型=Business-side recommendation / Pending）
-- ai-system 侧工具链已入库（c7eef0b profile 定稿 / b5e9f70 边界机制）
+- ai-system 侧工具链已入库（c7eef0b profile 定稿 / b5e9f70 边界机制 / ef8cdf3 规则集修订 / b095ebc 存量抑制工作流）
+
+## 9. 试点执行单（业务侧落地）
+
+> 试点仓建议 **platform-api**（预演/C2 实测数据现成）；主干 master 执行；全程零 pom 改动。
+
+### Step 0 拍板（业务侧，30 分钟）
+- [ ] 确认目标风格 = 已定稿 profile（IDEA 默认系 375 条，4 空格/120）与规则集（error=正确性/warn=风格）
+- [ ] 确认试点仓（platform-api）+ 试点窗口（建议 1-2 周）
+- [ ] 确认门禁接入位置：先本地/命令自检（观察期）还是直接 CI（若 CI 可加脚本步骤）
+
+### Step 1 C2 格式基线（master，约 1 小时）
+```bash
+# 在 master（非任务分支）且 worktree 干净
+python3 ~/ws/ai-workspace/ai-system/tools/format-baseline.py <platform-api>
+# 脚本自校验：token 级零变化（log 中「token 级不一致 0」）→ 通过
+# 人工抽审 5-10 个 diff 文件 → 独立 style: 提交（可整体 revert）
+# 完成后：git log 保留独立 style 提交；任务分支 rebase 后 continue
+```
+
+### Step 2 Checkstyle 存量抑制（master 同基线，约 30 分钟）
+```bash
+JAVA=~/.local/jre17/bin/java; JAR=~/.local/lib/checkstyle/checkstyle-10.23.0-all.jar
+XML=~/ws/ai-workspace/ai-system/tools/checkstyle/checkstyle.xml
+$JAVA -jar $JAR -g -o suppressions.xml -c $XML <platform-api>/src   # 生成 XPath baseline
+# suppressions.xml + checkstyle.xml 放仓根（非构建配置，CLI 引用）
+$JAVA -jar $JAR -c $XML <platform-api>/src     # 观察期自检：期望 0 违反（存量全抑制）
+# 挂载：checkstyle.xml 的 TreeWalker 内加 SuppressionXpathFilter（file=仓内 suppressions.xml 或参数化）
+```
+
+### Step 3 门禁接入与观察（1-2 周）
+- [ ] 主链 develop gate：C2 `format-jdt-gate --check`（可选精确门禁，基线后 differ=0）
+- [ ] 新代码自检命令（供开发者）：`$JAVA -jar $JAR -c $XML -x '' <改动文件>`（增量范围）
+- [ ] 收集误报/规则争议 → 微调 checkstyle.xml（反馈闭环）
+- [ ] 验收指标：新改动无新增违反 & C2 0 differ & 误报率低
+
+### Step 4 铺开（试点通过后）
+- [ ] user-center-api / bs-integration / cmdb-api + security 两仓（knowledge-api / resource-manager）同流程
+- [ ] CI（若允许）加脚本步骤：C2 check + checkstyle（存量抑制后的新违反阻断）
+
+### Step 5 回滚
+- style 提交：`git revert <style-commit>`（全仓还原一行）
+- 门禁：移除 CI 步骤 / 关闭 develop gate 开关即可（零残留配置）
+
+### 职责分工
+- 业务侧：拍板/窗口/门禁位置/误报反馈/最终铺开
+- AI 侧（可代跑 Step 1-2，已在 platform-api 实测过两阶段）
+- 工具资产：ai-system tools（format-baseline/format-jdt-gate/checkstyle）+ 机器级 ~/.local（jar/JRE17）
