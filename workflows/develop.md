@@ -5,8 +5,8 @@ workflow:
   inputs:
     required: []
     optional:
-      - name: Project ID     # 自动推导（wizard 已选项目）
-      - name: Task ID        # 自动推导（Task Card 读取）
+      - name: Project ID     # auto-derived (wizard-selected project)
+      - name: Task ID        # auto-derived (read from Task Card)
       - name: Related Issue
   next: [review]
   outputs:
@@ -39,7 +39,7 @@ Precondition handling — do NOT improvise around a missing precondition:
 
 Required:
 
-（无——均由主链上下文自动推导）
+(none — all derived from main-chain context)
 
 Optional:
 

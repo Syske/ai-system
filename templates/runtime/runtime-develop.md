@@ -145,16 +145,18 @@ Formatting gate (Stage 6 Validation):
     --changed [--check-commit]` — PASS → proceed; FAIL/WARN → fix or justify before
     completing (one-line Javadoc, non-ASCII method names, task-id leaks, Map-assembled
     payloads, 4-space indent ratio).
-  - `format-jdt-c2` (optional, environment-aware): when the JDT toolchain is ready
-    (本机即就绪；缺环境时显式 `--skip`，exit 3 表示 ENV 不可用) — eclipse JDT
-    formatter dry run against `tools/jdt-format-gate/eclipse-format.xml` (IDEA
-    default-derived profile, 375 条，已校准). Exit: 0 PASS / 1 WARN (≤5 files) /
-    2 FAIL / 3 ENV.
-  - `checkstyle-gate` (optional, environment-aware; 仓内 checkstyle.xml/suppressions.xml
-    存在且 checkstyle jar/JRE 就绪时执行): `{checkstyle_java} -jar {checkstyle_jar}
-    -c <repo>/checkstyle.xml <worktree>/src` — error=0 通过；warn 仅收集（存量）。
-    环境/资产缺失 → 跳过并说明。
-- 门禁启停只改 `main-chain-capabilities.yaml → gates.develop`（enabled 字段），不改模板。
+  - `format-jdt-c2` (optional, environment-aware; runs when the local JDT toolchain
+    is ready — this machine is ready; on others use explicit `--skip`, exit 3 means
+    ENV unavailable) — eclipse JDT formatter dry run against
+    `tools/jdt-format-gate/eclipse-format.xml` (IDEA default-derived profile, 375
+    settings, calibrated). Exit: 0 PASS / 1 WARN (≤5 files) / 2 FAIL / 3 ENV.
+  - `checkstyle-gate` (optional, environment-aware; runs when the repo carries
+    `checkstyle.xml`/`suppressions.xml` and the checkstyle jar/JRE are present):
+    `{checkstyle_java} -jar {checkstyle_jar} -c <repo>/checkstyle.xml <worktree>/src`
+    — `error` = 0 passes; `warning` are collection-only (baseline inventory).
+    Missing assets/environment → skip with a note.
+- Gate enable/disable only edits `main-chain-capabilities.yaml → gates.develop`
+  (enabled field); templates are not touched.
 - Existing files not touched by this change MUST NOT be re-formatted wholesale
   (minimal diff).
 
