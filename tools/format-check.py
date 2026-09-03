@@ -34,6 +34,21 @@ TASK_REF = re.compile(r"T-\d{3}")                              # T-001 等
 MAP_DECL = re.compile(r"Map<String,\s*Object>\s+\w+\s*=\s*new\s+HashMap<>\(\)")
 PUT_REF = re.compile(r'\.put\("')
 COMMIT_TASK_PREFIX = re.compile(r"^(feat|fix|docs|style|refactor|perf|test|chore|ci|revert)\([^)]*\):\s*T-\d{3}")
+# 第 7 项：方法显式访问修饰符检查的辅助正则
+#   1) 顶层类型声明（见 check_file：仅在 depth==0 时识别，支持 public/abstract/final 前缀；
+#      不要求同行 `{`——兼容跨行声明（`public class X\n implements Y {`）
+TYPE_DECL_RE = re.compile(
+    r"^(?:(?:public|protected|private)\s+)?(?:(?:abstract|final)\s+)?(class|interface|enum|@interface)\b(?:\s.*)?$"
+)
+#   2) 无访问修饰词的方法声明行：行首非修饰词/注解/控制流/`(`/`=` 等，
+#      且形如「<返回类型> <方法名>(…​…) {」——类型段不含 `=`（排除赋值行/字段），
+#      名字后紧跟 `(`（排除构造器/单 token 调用/`x.y(`）。
+METHOD_NO_MOD_RE = re.compile(
+    r"^(?!(?:public|protected|private|static|final|abstract|synchronized|native|default)\s+"
+    r"|@|return\b|if\b|for\b|while\b|switch\b|catch\b|throw\b|new\b|break\b|continue\b|else\b|try\b"
+    r"|[({})=;?:,])"
+    r"(?P<ret>\S[\w<>\[\], .]*?)\s+(?P<name>\w+)\s*\([^;{]*\)[^{;]*(?:\{\s*)?$"
+)
 # 生产日志消息：error/warn 必须英文（documentation.md → Log Content）；info 提示
 # log.error( "中文" ) / log.warn( "中文" )
 LOG_CJK_ERROR = re.compile(r"log\.(error|warn)\(\s*\"[^\"]*[\u4e00-\u9fff]")
@@ -94,6 +109,37 @@ def check_file(path: Path, findings):
             findings.append(("FAIL", f"日志消息含中文（error/warn 须英文，Log Content）: {path}:{i}"))
         elif LOG_CJK_INFO.search(ln):
             findings.append(("WARN", f"日志消息含中文（新写代码 info 建议英文）: {path}:{i}"))
+
+    # 7. 方法显式访问修饰符（java-alibaba.md §Visibility；启发式 WARN，仅 main 代码——
+    #    JUnit 测试方法有 package-private 存量习惯，另行规范）
+    #    类/枚举体内方法声明必须带 public/protected/private；接口体（隐式 public）与
+    #    构造器/字段/表达式不检查。误报宁可漏：行级启发 + 注释/含=行排除。
+    if _is_main:
+        depth = 0
+        type_stack = []  # 顶层类型声明栈（'class'/'interface'/'enum'）
+        pushed_now = False
+        for i, ln in enumerate(lines, 1):
+            s = ln.strip()
+            if not s or _is_comment_line(s):
+                continue
+            if depth == 0:
+                dt = TYPE_DECL_RE.match(s)
+                if dt:
+                    type_stack.append(dt.group(1))
+                    pushed_now = True  # 跨行声明（本行无 `{`）不得在本行被 depth 归零弹栈
+            if type_stack and type_stack[-1] not in ("interface", "@interface"):
+                mm = METHOD_NO_MOD_RE.match(s)
+                if mm:
+                    findings.append(
+                        ("WARN",
+                         f"方法「{mm.group(2)}」缺少显式访问修饰符（§Visibility：默认 private，"
+                         f"接口实现 public；同包测试直调须 Javadoc 注明）: {path}:{i}"))
+            depth += s.count("{") - s.count("}")
+            if depth <= 0 and not pushed_now:
+                depth = 0
+                if type_stack:
+                    type_stack.pop()
+            pushed_now = False
 
 
 def _changed_java_files(src_dir):
