@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CoolJava 规范闸门规则集（初稿 v0.1，2026-09-03）
+  - 承载：CLI（com.puppycrawl.tools.checkstyle.Main -c checkstyle.xml -p suppressions.xml <src>），
+    业务仓零 build 配置（不改 pom）
+  - 分级：error = 正确性/低争议类；warn = 风格类（存量多不合，先收集后收紧）
+  - 与主链分层：A 层 format-check（规范泄漏软检）与 C2（格式）互不重复；本规则集只做规范检查
+  - 存量治理：先 baseline（suppressions.xml 抑制已知违反），随进度逐步移除抑制
+  - 决策依据：SPOTLESS-FORMAT-GATE-PROPOSAL.md §5.1（规则子集 10 项）
+-->
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- 禁用 Tab（与 profile tab=space 对齐；C2 baseline 后存量无 tab） -->
+    <module name="FileTabCharacter">
+        <property name="severity" value="error"/>
+    </module>
+
+    <!-- 行宽 120（与 profile lineSplit=120 对齐；import/package 不受限） -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^(package|import) "/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- ===== 正确性/低争议类（error） ===== -->
+        <module name="EqualsHashCode"><property name="severity" value="error"/></module>
+        <module name="DefaultComesLast"><property name="severity" value="error"/></module>
+        <module name="NeedBraces"><property name="severity" value="error"/></module>
+
+        <!-- import 规范：无用 import/星号 import（与 C2 removeUnusedImports 同向，检查层兜底） -->
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="false"/>
+            <property name="severity" value="error"/>
+        </module>
+        <module name="AvoidStarImport"><property name="severity" value="error"/></module>
+
+        <!-- 命名（驼峰；lambda 单字母参数放行——s-> 合法） -->
+        <module name="TypeName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        <module name="MethodName">
+            <!-- 常规驼峰；测试方法名若有下划线由 A 层中文方法名检查 + 人工评审约束 -->
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        <module name="ParameterName">
+            <property name="allowLambdaParameterNames" value="true"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        <module name="LocalVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+
+        <!-- ===== 风格类（warn，先收集后收紧） ===== -->
+        <!-- 缩写：允许 3 个及以上大写连续（DTO/VO/Api 等存量命名），超限 warn -->
+        <module name="AbbreviationAsWordInName">
+            <property name="allowedAbbreviationLength" value="3"/>
+            <property name="severity" string="warn"/>
+        </module>
+        <!-- Javadoc：public 类型/方法要求 tag 结构但允许缺失正文（团队已有注释习惯，结构漏斗起步） -->
+        <module name="JavadocType">
+            <property name="scope" value="public"/>
+            <property name="allowMissingParamTags" value="true"/>
+            <property name="severity" string="warn"/>
+        </module>
+        <module name="JavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="allowMissingJavadoc" value="true"/>
+            <property name="validateThrows" value="false"/>
+            <property name="severity" string="warn"/>
+        </module>
+        <!-- 空行结构（存量多不合，从 warn 起步；允许多空行与字段间无空行） -->
+        <module name="EmptyLineSeparator">
+            <property name="allowMultipleEmptyLines" value="true"/>
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="severity" string="warn"/>
+        </module>
+        <!-- 圈复杂度：仅报告不拦截（消化道） -->
+        <module name="CyclomaticComplexity">
+            <property name="max" value="20"/>
+            <property name="switchStatementAsSingleDecisionPoint" value="true"/>
+            <property name="severity" string="warn"/>
+        </module>
+
+        <!-- 明确不启用（与团队现状冲突或误报高，见提案 §5.1）：
+             MagicNumber / AvoidInlineConditionals / FinalLocalVariable / CustomImportOrder -->
+    </module>
+</module>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CoolJava 规范闸门存量抑制清单（baseline 阶段）
+  - 用法：checkstyle Main -c checkstyle.xml -p suppressions.xml <src>
+  - 原则：存量已知违反在此临时抑制（文件级/ID 级），随治理进度逐步移除；
+    新增代码不受抑制（suppress 表按存量文件路径收敛）
+  - 移除节奏：每个文件人工修复后删除对应条目（或治理批次批量收敛）
+-->
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!-- 示例（待基线跑出真实存量后填充）：
+    <suppress files="src/main/java/legacy/.*" checks="LineLength|EmptyLineSeparator"/>
+    <suppress files="src/main/java/.*/OldService\.java" checks="MethodName"/>
+    -->
+</suppressions>
