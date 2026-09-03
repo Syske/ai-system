@@ -152,6 +152,20 @@ public class Ctrl {
 }
 """
 
+PKG_PRIVATE_EXEMPTED = """package x;
+public class Exempted {
+    /**
+     * 供同包测试直接调用（§Visibility 例外，review 重点）
+     *
+     * @param a 入参
+     * @return 结果
+     */
+    ReconcileDiffResult computeReconcileDiff(Map<Long, String> a) {
+        return null;
+    }
+}
+"""
+
 
 def _run_single(fname, content, extra=None):
     with tempfile.TemporaryDirectory() as td:
@@ -213,6 +227,10 @@ class TestFormatCheck(unittest.TestCase):
     def test_control_flow_no_false_positive(self):
         # else-if / 赋值 / 构造调用行 → 不报
         self.assertEqual(_run_single("Ctrl.java", CONTROL_FLOW_OK), 0)
+
+    def test_exempted_pkg_private_pass(self):
+        # §Visibility 例外：Javadoc 首行注明「供同包测试直接调用」→ 豁免（exit 0）
+        self.assertEqual(_run_single("Exempted.java", PKG_PRIVATE_EXEMPTED), 0)
 
 
 if __name__ == "__main__":

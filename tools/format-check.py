@@ -130,10 +130,19 @@ def check_file(path: Path, findings):
             if type_stack and type_stack[-1] not in ("interface", "@interface"):
                 mm = METHOD_NO_MOD_RE.match(s)
                 if mm:
-                    findings.append(
-                        ("WARN",
-                         f"方法「{mm.group(2)}」缺少显式访问修饰符（§Visibility：默认 private，"
-                         f"接口实现 public；同包测试直调须 Javadoc 注明）: {path}:{i}"))
+                    # §Visibility 例外：同包测试直接调用的 helper 在 Javadoc 首行注明
+                    # 「供同包测试直接调用」→ 豁免（合规通道，与规范一致）
+                    # 索引注意：i 为 1-based 行号，lines 为 0-based；窗口 26 行覆盖
+                    # 多行 Javadoc（含 @param）与上方注释块
+                    exempted = any(
+                        "供同包测试直接调用" in lines[j]
+                        for j in range(max(0, i - 26), i - 1)
+                    )
+                    if not exempted:
+                        findings.append(
+                            ("WARN",
+                             f"方法「{mm.group(2)}」缺少显式访问修饰符（§Visibility：默认 private，"
+                             f"接口实现 public；同包测试直调须 Javadoc 注明）: {path}:{i}"))
             depth += s.count("{") - s.count("}")
             if depth <= 0 and not pushed_now:
                 depth = 0
