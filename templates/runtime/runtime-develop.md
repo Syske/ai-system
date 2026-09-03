@@ -139,16 +139,22 @@ Formatting gate (Stage 6 Validation):
   `Language: Java → Formatting (manual self-check)`: 4-space indentation, multi-line
   Javadoc, no unused imports, consistent with existing code style; the review stage
   verifies this.
-- Run the A-layer script gate: `python3 ai-system/tools/format-check.py <worktree>/src --changed
-  [--check-commit]` — PASS → proceed; FAIL/WARN → fix or justify before completing
-  (tools/format-check.py checks one-line Javadoc, non-ASCII method names, task-id
-  leaks, Map-assembled payloads, 4-space indent ratio).
-- Optional precise gate (C2, environment-aware): when a machine has JDK, run
-  `python3 ai-system/tools/format-jdt-gate.py <worktree>/src --batch [--skip]` — eclipse
-  JDT formatter dry run against `tools/jdt-format-gate/eclipse-format.xml` (IDEA-exported
-  profile once calibrated). If the environment is not ready, the tool detects it and
-  offers interactive setup/skip; `--batch` requires explicit `--skip` for
-  ENV-unavailable (exit 3). Exit: 0 PASS / 1 WARN (≤5 files) / 2 FAIL / 3 ENV.
+- Run the configured development gates from `config/main-chain-capabilities.yaml`
+  (`gates.develop`, ordered):
+  - `format-check-a` (mandatory): `python3 ai-system/tools/format-check.py <worktree>/src
+    --changed [--check-commit]` — PASS → proceed; FAIL/WARN → fix or justify before
+    completing (one-line Javadoc, non-ASCII method names, task-id leaks, Map-assembled
+    payloads, 4-space indent ratio).
+  - `format-jdt-c2` (optional, environment-aware): when the JDT toolchain is ready
+    (本机即就绪；缺环境时显式 `--skip`，exit 3 表示 ENV 不可用) — eclipse JDT
+    formatter dry run against `tools/jdt-format-gate/eclipse-format.xml` (IDEA
+    default-derived profile, 375 条，已校准). Exit: 0 PASS / 1 WARN (≤5 files) /
+    2 FAIL / 3 ENV.
+  - `checkstyle-gate` (optional, environment-aware; 仓内 checkstyle.xml/suppressions.xml
+    存在且 checkstyle jar/JRE 就绪时执行): `{checkstyle_java} -jar {checkstyle_jar}
+    -c <repo>/checkstyle.xml <worktree>/src` — error=0 通过；warn 仅收集（存量）。
+    环境/资产缺失 → 跳过并说明。
+- 门禁启停只改 `main-chain-capabilities.yaml → gates.develop`（enabled 字段），不改模板。
 - Existing files not touched by this change MUST NOT be re-formatted wholesale
   (minimal diff).
 

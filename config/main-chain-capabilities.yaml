@@ -52,3 +52,23 @@ capabilities:
       path: extensions/archive-ipd-workspace
       desc: "IPD 周期归档同步：workspace 产物（openspec/tr5/source/spec/diagrams/完成报告）单向快照到 IPD 技术设计图纸归档仓（<period>/<stage>/<dir>）（release/变更集闭合时推荐执行；单维护源，不创建链接，自动排除二进制与 temp）"
       enabled: true
+
+# 开发门禁（流程内执行，非推荐式）：会话按此配置运行；启停只改 enabled，不加不改模板。
+# env = 环境闭包标记（python3/jdt/checkstyle）；optional=true 且环境不就绪 → 显式 skip。
+gates:
+  develop:
+    - name: format-check-a            # A 层规范泄漏快检（提交前）
+      cmd: "python3 ai-system/tools/format-check.py {src} --changed [--check-commit]"
+      enabled: true
+      optional: false
+      env: python3
+    - name: format-jdt-c2              # C2 精确格式（eclipse JDT 干跑）
+      cmd: "python3 ai-system/tools/format-jdt-gate.py {src} --batch [--skip]"
+      enabled: true
+      optional: true
+      env: jdt
+    - name: checkstyle-gate            # 规范闸门（存量抑制 + 新 error 阻断；仓内资产存在时生效）
+      cmd: "{checkstyle_java} -jar {checkstyle_jar} -c {repo}/checkstyle.xml {src}"
+      enabled: true
+      optional: true
+      env: checkstyle
