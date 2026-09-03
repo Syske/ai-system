@@ -52,6 +52,42 @@
 - 与 C2 的关系：格式（C2/IDEA 4 空格）+ 规范（Checkstyle）两层；A 层软约束保留作提交前快检
 - 建议与 master 基线同批评估（业务侧一块拍板投入）
 
+### 5.1 规则子集建议（从 A 层 7 项 + 团队现状提炼，~20 条，severity 分级）
+
+| 检查 | 级别 | 备注 |
+|---|---|---|
+| `UnusedImports` / `AvoidStarImport` | error | 与 C2 removeUnusedImports 互补（imports 规范） |
+| `MethodName` / `TypeName` / `ParameterName` / `LocalVariableName` | error | 驼峰；存量例外用泛化（如 `s->` 单字母在 lambda 由 SuppressWarnings 覆盖可改用 `FinalParameters=off`） |
+| `AbbreviationAsWordInName` | warn | 存量缩写多（DTO/VO/API），先 warn 后收紧 |
+| `JavadocType`（public 类） / `JavadocMethod`（public 方法，允许缺省报告） | warn | 团队已有 Javadoc 习惯（A 层单行 Javadoc 检查互补：此处查结构不查格式） |
+| `LineLength`（120，非 import/package） | error | 与 profile lineSplit=120 对齐 |
+| `EmptyLineSeparator`（package/import/类型/方法间） | warn | 空行结构；存量多不合，从 warn 起步 |
+| `EqualsHashCode` / `DefaultComesLast` / `NeedBraces`（if/else/for/while 多语句） | error | 低争议正确性类 |
+| `CyclomaticComplexity`（阈值 20） | warn | 仅报告不拦（消化道） |
+| `MagicNumber` | 不开 | 业务常量多，误报高；A 层不覆盖 |
+| `CustomImportOrder` / `AvoidInlineConditionals` / `FinalLocalVariable` | 不开 | 与团队现状冲突或收益低 |
+
+> 原则：**先基线后收紧**——以 severity 分级起步（error=正确性类、warn=风格类），
+> 运行 1-2 周收集真实违反分布后再决定具体项升级。规则集与存量对齐优先（A 层 format-check
+> 同类检查保留，不重复拦截）。
+
+### 5.2 CLI 承载示例（零业务仓配置）
+
+```bash
+# 规则/jar 由主链或 CI 脚本持有（checkstyle VERSION 选稳定版，company maven 镜像可拉）
+java -cp checkstyle-<V>-all.jar com.puppycrawl.tools.checkstyle.Main \
+    -c checkstyle.xml -p suppressions.xml <repo>/src  # 存量超限用 suppressions 白名单
+```
+
+- `suppressions.xml`：baseline 阶段对已知违反（行级/文件级）临时抑制，随治理进度逐步移除
+- 与 format-baseline 同批：先格式基线（token 校验零逻辑），再规范基线（suppress 存量）
+
+### 5.3 集成点
+
+- CI/发布链脚本步骤（不改 pom）；主链 evaluate：develop gate 可选跑 Checkstyle（warn 收集）
+- 报告：拒绝/警告计数进 review/verify 检查项（与 C2 对齐）
+- 归属：仍为 Business-side recommendation；规则集 XML 初稿可在 ai-system 侧起草待业务确认
+
 ## 6. 风险与缓解
 
 | 风险 | 缓解 |
