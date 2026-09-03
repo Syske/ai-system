@@ -15,7 +15,7 @@ last_run: 2026-09-03
 mode: on-demand
 next_maintenance: '2026-09-07'   # 周节奏锚点保持；09-03 on-demand 为 pi-lens 扩展评估专项（FIRST_RUN 全量审计顺延至本次窗口）
 last_findings:
-- pi-lens 扩展评估（on-demand 专项）：结论「现在不安装」已获用户确认（2026-09-03）——与 Stage-6 门禁链能力重叠、google-java-format 与 IDEA profile/spotless 双格式权威冲突、自主 reformat/autofix 绕过变更控制、git-guard 会因存量债阻塞提交；重估触发条件与缓解底线已入 MAINTENANCE-2026-09-03.md §7；机器级观察见 logs/ 诊断日志；P47/本报告 README 索引已补登（WARN 归零）
+- pi-lens 扩展评估（on-demand 专项）：结论「现在不安装」已获用户确认（2026-09-03）——与 Stage-6 门禁链能力重叠、google-java-format 与 IDEA profile/spotless 双格式权威冲突、自主 reformat/autofix 绕过变更控制、git-guard 会因存量债阻塞提交；重估触发条件与缓解底线已入 MAINTENANCE-2026-09-03.md §7；机器级观察见 logs/ 诊断日志；P47/本报告 README 索引已补登（WARN 归零）；衍生场景「env-init 首次运行触发」经用户指示增补进 P36（触发层 T-b 方案，内容层先行）不另立提案
 - 最新改动诊断：3580bb0（pilot A）流程规范；孤儿改动 templates/runtime/runtime-base.md 经确认后按用户决策 B3 并入 P45 Phase 1 正式化（完成报告语言声明 + 语言门禁步骤）——流程闭环
 - README 索引 WARN 已修复：MAINTENANCE-2026-09-01.md 与本次报告补登 reports/README.md（proposal-policy §6），check.py WARN 4→3
 - 工具门禁：0 BLOCKER / 0 ERROR / 25 WARN；path-audit 688 refs OK；workflow-command-audit 0 blocker；proposal-audit 0 gate error，索引刷新 38 提案

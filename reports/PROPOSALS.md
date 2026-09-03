@@ -38,7 +38,7 @@
 | Implemented | 日常运行中发现变更时的上下文加载触发规则（Issue Capture） | 2026-08-24 | `P33-ISSUE-CAPTURE-CONTEXT-LOADING.md` |
 | Implemented | maintenance 状态纳入 ai-system 提交（拆分：系统级入 git / 机器级留本地） | 2026-08-24 | `P34-MAINTENANCE-STATE-INTO-GIT.md` |
 | Implemented | python 解释器鲁棒性（`python` shim 在 WSL 不可用，scripts/docs 用法不一） | 2026-08-24 | `P35-PYTHON-INTERPRETER-ROBUSTNESS.md` |
-| Proposed | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定代码仓库） | 2026-08-25 | `P36-SETUP-ENV-INIT-SCAFFOLD.md` |
+| Proposed | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定代码仓库；2026-09-03 增补触发层：aic 首次运行检测+确认） | 2026-08-25 | `P36-SETUP-ENV-INIT-SCAFFOLD.md` |
 | Proposed | 工作流必填参数必要性评估（省掉不必要的必填项，提升用户使用效率） | 2026-08-25 | `P37-REQUIRED-INPUTS-TRIAGE.md` |
 | Implemented | 逐 aic 工作流用户交互审计（wizard 交互序列/确认节奏/呈现） | 2026-08-25 | `P38-WORKFLOW-INTERACTION-AUDIT.md` |
 | Implemented | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 污染 .git/.githooks） | 2026-08-25 | `P39-EXTENSIONS-LINT-HIDDEN-DIRS.md` |

@@ -52,7 +52,7 @@
 | [P45](P45-RUNTIME-LANGUAGE-GATE.md) | 运行时语言门禁（completion-time language gate，方案 B 正式化）— **Implemented** 2026-09-01 | 2026-09-01 |
 | [P46](P46-TR5-DEBT-VALIDATION-MARKER.md) | tr5 发布债收口（check_tr5 8 FAIL）+ review/verify 验证标记检查 — **Proposed** | 2026-09-01 |
 | [P47](P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md) | develop 前置处理规则与产物目录约定（前置不满足→先跑 dev-setup；完成报告落 completion-reports/）— **Implemented** 2026-09-02 | 2026-09-02 |
-| [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库）— **Proposed** | 2026-08-25 |
+| [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |
 | [P37](P37-REQUIRED-INPUTS-TRIAGE.md) | 工作流必填参数必要性评估（降可选/自动推导/保持，提升使用效率）— **Proposed** | 2026-08-25 |
 
 ---
@@ -84,7 +84,7 @@
 | 2026-08-31 | on-demand | task 制定/拆分对齐（task-splitter → cards/ 位置 + Task Card 字段）+ 淘汰根 tasks.md + 堵 archive 归档完成度缺口 | `MAINTENANCE-2026-08-31-task-splitter.md` | task-splitter 1.1.0；tasks.md 淘汰；archive/explore/aic-propose 同步 |
 | 2026-09-01 | on-demand/workflows | 语言边界专项：根因定位（执行层未按 locale 转换）+ pilot A（aic-maintain 交互语言约束，自测+实测通过） | `MAINTENANCE-2026-09-01.md` | 方案 B/C 延后（待 §11）；P35 复现实锤建议实施 |
 | 2026-09-01 | on-demand | 最新改动诊断（提交 3580bb0 + 孤儿 runtime-base.md 改动）+ 最新运行日志巡检 | `MAINTENANCE-2026-09-01-logs.md` | 孤儿改动 B1/B2/B3 待决策（建议 B1）；README 索引补登；code-review.md 节序待 L2 |
-| 2026-09-03 | on-demand | pi-lens 扩展安装评估（结论：现在不安装，用户已确认）+ 迁移后基线重置（FIRST_RUN 全量审计顺延 09-07） | `MAINTENANCE-2026-09-03.md` | extensions 仓恢复待用户（aic extensions-init 已覆盖；P36 为整合方向）；P47 索引补登（本次） |
+| 2026-09-03 | on-demand | pi-lens 扩展安装评估（结论：现在不安装，用户已确认）+ env-init 首次运行触发场景并入 P36（触发层增补）+ 迁移后基线重置（FIRST_RUN 全量审计顺延 09-07） | `MAINTENANCE-2026-09-03.md` | extensions 仓恢复待用户（aic extensions-init 已覆盖）；P47 索引补登（本次）；P36 增补待季度回顾决策是否提前 |
 
 ---
 

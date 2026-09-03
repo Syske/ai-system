@@ -6,7 +6,7 @@
 | Type | Fix（工具行为，初始化脚本 tools/setup.py + aic-env-init 命令文档） |
 | Author | AI Maintainer |
 | Created | 2026-08-25 |
-| Reference | 用户反馈（maintain on-demand/workflows 巡检后续）：初始化脚本不完善——未创建必要文件夹、未引导用户指定代码仓库、未生成 workspaces/repositories 等目录 |
+| Reference | 用户反馈（maintain on-demand/workflows 巡检后续）：初始化脚本不完善——未创建必要文件夹、未引导用户指定代码仓库、未生成 workspaces/repositories 等目录；**2026-09-03 增补**：MAINTENANCE-2026-09-03.md §7 会话（pi-lens 评估衍生：aic 首次运行无环境感知新场景，用户指示并入本提案不另立 P48） |
 | Process | OPERATIONS §12 Change Management |
 
 ---
@@ -18,6 +18,11 @@
 1. **必要文件夹未创建**：workspaces/ projects/ repositories/ methodologies/ extensions/（`BASE_DIRS`）与 ai-system 的 metrics/ logs/（`ensure_runtime_dirs`）在 `--env-init` 下全部不建；新机器按推荐路径初始化后目录缺失（本机实测 extensions/、logs/ 缺失）。
 2. **未引导用户指定代码仓库**：`detect_repos()` 只扫 workspace 根**直接子目录**（`iterdir()`），且 `SYSTEM_DIRS` 排除表过滤；真正的代码仓库多在任意外部路径（如 `/mnt/d/code/xxx`、`~/code/xxx`），脚本**没有任何交互提示让用户输入外部仓库路径**，`link_repos()` 只能链接 workspace 根下现成目录 → projects/ 无法被引导填充。
 3. **workspaces/repositories 等目录缺失**：同 1，scaffold 只存在于完整流程；`--env-init` 不跑（本机 workspaces/repositories 为历史遗留手建，新机器走 `--env-init` 则全缺）。
+
+**(2026-09-03 增补) 4. 触发层缺口：aic 首次运行无环境感知**
+
+- `cli/main.py` 入口对「环境未初始化」无感知：不检测、不提示、不引导，用户/agent 跑到中途撞上 config 缺失才报错（2026-09-03 WSL 迁移后本机实测：workspaces/ 仅剩 `.aic-state.yaml`、extensions/ 缺失，quick-check ERROR）。
+- 与 P47 教训同类：前置不满足 + 无规则 → 会话迷失；差异是 P47 管的是 workflow 层前置，本条管的是机器/工作区环境层前置。
 
 ## 2. Root-Cause（根因分析）
 
@@ -31,6 +36,14 @@
 | B. 引入独立 `aic-bootstrap-dirs` 命令 | 新增菜单入口专做目录/仓库引导 | 增入口面（menu.yaml + 命令 + 文档 + 测试），职责本已属 setup.py，属重复轮子（Evolution Principle 反对） |
 | C. 仅改文档（指引用户手动建目录 + 手敲 link） | 零代码 | 未根治：新机器仍手动犯错，摩擦持续（与 P35 同理，重复踩坑留日志） |
 
+**(2026-09-03 增补) 触发层选项**（内容层与触发层为两个独立关注点）:
+
+| 选项 | 含义 | 评估 |
+|---|---|---|
+| T-a. 首次运行静默自动跑 env-init | aic 启动时检测配置缺失即静默执行 | **否决**：env-init 生成半成品配置（JDK/Maven 探测猜测路径，WSL 特例需手改）→「看似已初始化实则错配置」假阳性，比明确缺失更难排查；且违反 ADR-0009 分层（只读才自动，写入需授权） |
+| **T-b. 首次运行只读检测 + 交互确认后执行（Recommended）** | 入口毫秒级只读检查两份配置存在性；缺失且 TTY → zh 提示确认 → y 后执行完整 env-init（含内容层增补）；非交互/CI 跳过提示、stderr 一行指引 | 符合 ADR-0009 授权分层与 P45 交互语言约束；摩擦仅一次按键；与 T-a 实现成本几乎相同但无假阳性风险 |
+| T-c. 维持纯显式命令（现状） | 用户自己记得跑 env-init | 摩擦留在每个新机器，P47 类迷失根源不除（与 C 同理否决） |
+
 ## 4. Recommendation（推荐方案 + 理由）
 
 **方案 A**。理由：
@@ -38,6 +51,8 @@
 2. **根因对齐**：摩擦出自「推荐入口不建目录」；让 env-init 交付完整骨架直击。
 3. **幂等安全**：所有步骤非破坏（存在即跳过），重跑无副作用，符合 aic-env-init Guardrails「Never delete or overwrite existing config」。
 4. **Evolution Principle**：不新增入口（B），不靠文档补丁（C）。
+
+**(2026-09-03 增补)** 触发层推荐 **T-b**，与内容层（A）同一提案两段交付，**顺序：内容层先行**——否则触发层只能触发「半成品」env-init（只生成 2 份配置、目录仍缺），增补的目录骨架价值无法兑现。
 
 ## 5. Proposed Changes（具体改动清单，待批准实施）
 
@@ -49,6 +64,11 @@
 4. 测试：`cli/tests/test_maintain_tools.py` 或新增 `tools` 侧用例——env-init 幂等（重跑不重复创建）、scaffold 创建清单、link_repos 外部路径链接（tempdir 夹具）。
 5. 文档：P36 状态与 PROPOSALS.md / reports/README.md 登记。
 
+**(2026-09-03 增补) 触发层改动**（在上述 1-4 之后实施）:
+
+6. `cli/main.py`（或命令公共入口）：调用前只读检测 workspace `local.yaml` + 机器层 `env.yaml` 存在性；缺失且 TTY → zh 提示「环境未初始化，是否运行 env-init？(y/N)」→ 确认后执行 `tools/setup.py --env-init`；非 TTY/CI → 跳过提示，stderr 一行指引（`python3 tools/setup.py --env-init`）。
+7. 测试：触发层三态——配置齐全不提示 / 缺失 + 注入 y → 执行 / 非 TTY 跳过（cli/tests 夹具）。
+
 ## 6. Validation Plan（如何验证）
 
 - 在临时 workspace（tempdir）跑 `python tools/setup.py --env-init --workspace <tmp>` → 断言 5 个 BASE_DIRS + metrics/logs 创建；重跑断言幂等（created=0）。
@@ -57,11 +77,23 @@
 - `python tools/quick-check.py` / repo-lint / path-audit 全绿（无回归）。
 - 真实工作区重跑 `--env-init`：extensions/、logs/ 补齐，无破坏。
 
+**(2026-09-03 增补) 触发层验证**:
+
+- 触发层三态单测：配置齐全 → 无提示零开销；缺失 + TTY 注入 y → env-init 执行且目录/配置双落盘；非 TTY → 无提示 + stderr 指引。
+- 端到端：tempdir workspace 缺配置跑任一 aic 命令 → 提示出现 → 确认后 BASE_DIRS + 两份配置生成。
+- 触发层为纯只读前置 + 显式确认，重跑/已有环境零副作用。
+
 ## 7. Risks（风险与缓解）
 
 - 风险低：全部步骤幂等非破坏，仅补目录 + 交互引导，无契约/结构影响。
 - 缓解：链接前校验目标存在性 + 排除自链（projects/ 自身、ai-system/）；交互输入用 `ask_path`（有默认值），`--non-interactive` 无输入路径则跳过。
 - 遗留：`--env-init` 仍不跑 metrics baseline / path-audit（属完整流程，保持现状，避免 env-init 过重）。
+
+**(2026-09-03 增补) 触发层风险**:
+
+- 假阳性配置风险由 T-b 设计本身缓解：静默生成被否决，生成后必须人工核对探测路径（env-init 现有约定）。
+- 入口检测为存在性检查，毫秒级；配置齐全路径零额外开销、零行为变化。
+- 提示仅在缺失时出现，老机器/已初始化环境无感知。
 
 ---
 
