@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  CoolJava 规范闸门存量抑制清单（baseline 阶段）
-  - 用法：checkstyle Main -c checkstyle.xml -p suppressions.xml <src>
-  - 原则：存量已知违反在此临时抑制（文件级/ID 级），随治理进度逐步移除；
-    新增代码不受抑制（suppress 表按存量文件路径收敛）
-  - 移除节奏：每个文件人工修复后删除对应条目（或治理批次批量收敛）
+  CoolJava 规范闸门存量抑制清单（baseline 工作流，2026-09-03 定稿）
+  ------------------------------------------------------------
+  生成流程（顺序铁律，先 C2 后 checkstyle——保证行/AST 与格式化后代码一致）：
+    1. C2 格式基线：python3 ai-system/tools/format-baseline.py <repo>   # LineLength/FileTabCharacter 自愈
+    2. 生成存量抑制（TreeWalker 级 XPath）：
+       ~/.local/jre17/bin/java -jar ~/.local/lib/checkstyle/checkstyle-10.23.0-all.jar \
+           -g -o <repo>/suppressions.xml -c <checkstyle.xml> <repo>/src
+    3. 规则集挂载：checkstyle.xml 的 TreeWalker 内启用：
+         <module name="SuppressionXpathFilter">
+             <property name="file" value="suppressions.xml"/>
+         </module>
+    4. 门禁：带 -c checkstyle.xml 扫描（存量全抑制，新代码/改动文件的新违反暴露）
+  注意：
+    - SuppressionXpathFilter 必须在 TreeWalker 内（XPath 抑制只覆盖 TreeWalker checks）；
+      Checker 级 check（LineLength/FileTabCharacter）由 C2 格式 baseline 自愈，
+      残余用旧格式 <suppress files=... checks=...> 手写兜底（旧 DTD suppressions_1_2）
+    - 生成与使用必须基于同一格式化基线（C2 之后），否则 XPath 位置偏移导致抑制失效
+    - 存量修复后删除对应条目；新代码不受抑制影响
 -->
 <!DOCTYPE suppressions PUBLIC
     "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-    <!-- 示例（待基线跑出真实存量后填充）：
-    <suppress files="src/main/java/legacy/.*" checks="LineLength|EmptyLineSeparator"/>
+    <!-- 旧格式（files/checks）手写兜底示例：
+    <suppress files="src/main/java/legacy/.*" checks="LineLength|FileTabCharacter"/>
     <suppress files="src/main/java/.*/OldService\.java" checks="MethodName"/>
     -->
 </suppressions>
