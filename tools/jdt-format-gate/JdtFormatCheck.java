@@ -1,12 +1,15 @@
-// JdtFormatCheck — eclipse JDT formatter 干跑校验（C2 方案，2026-09-02 v2）
+// JdtFormatCheck — eclipse JDT formatter 干跑校验（C2 方案，2026-09-02 v3）
 //
 // 用法（由 tools/format-jdt-gate.py 驱动）：
 //   java -cp <jdt-core.jar>:<org.eclipse.text.jar>:<build-dir> JdtFormatCheck \
-//       <eclipse-format.xml> <src-dir> [--check]
+//       <eclipse-format.xml> <src-dir> [--check] [--dump-dir <path>]
 //
 // 行为：eclipse JDT ToolFactory + eclipse-format.xml（tab=4 space）对目录内 .java
 // 干跑格式化（不写盘）：手工应用 TextEdits（不依赖 jface.text），统计差异文件/行。
-// exit: 0 = 全部一致  1 = 有差异  2 = 用法错误
+// --dump-dir：将 differ 文件的 formatted 结果写入 <path>/<相对路径>（保留目录结构），
+//             并逐文件打印差异文件相对路径（供 profile 校准的差异分类反推）。
+// --apply：将 formatted 结果直接写回源文件（业务仓格式基线；配合 git diff -w 安全校验）。
+// exit: 0 = 全部一致（或 apply 完成）  1 = 有差异  2 = 用法错误
 //
 // profile 建议用 IDEA 导出的 Eclipse XML Profile 替换（见 eclipse-format.xml 注释）。
 import java.nio.charset.StandardCharsets;
@@ -24,12 +27,21 @@ public class JdtFormatCheck {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.err.println("usage: JdtFormatCheck <eclipse-format.xml> <src-dir> [--check]");
+            System.err.println("usage: JdtFormatCheck <eclipse-format.xml> <src-dir> [--check] [--dump-dir <path>]");
             System.exit(2);
         }
         Map<String, String> options = loadOptions(Paths.get(args[0]));
         CodeFormatter formatter = ToolFactory.createCodeFormatter(options);
         Path srcDir = Paths.get(args[1]);
+        Path dumpDir = null;
+        boolean apply = false;
+        for (int i = 2; i < args.length; i++) {
+            if ("--dump-dir".equals(args[i]) && i + 1 < args.length) {
+                dumpDir = Paths.get(args[++i]);
+            } else if ("--apply".equals(args[i])) {
+                apply = true;
+            }
+        }
 
         List<Path> javaFiles = new ArrayList<Path>();
         try (java.util.stream.Stream<Path> stream = Files.walk(srcDir)) {
@@ -49,12 +61,24 @@ public class JdtFormatCheck {
                 if (firstDiffer.isEmpty()) {
                     firstDiffer = f.toString();
                 }
+                if (dumpDir != null) {
+                    Path rel = srcDir.relativize(f);
+                    Path out = dumpDir.resolve(rel);
+                    Files.createDirectories(out.getParent());
+                    Files.write(out, formatted.getBytes(StandardCharsets.UTF_8));
+                    System.out.println("DIFF " + rel);
+                }
+                if (apply) {
+                    Files.write(f, formatted.getBytes(StandardCharsets.UTF_8));
+                    System.out.println("APPLIED " + srcDir.relativize(f));
+                }
             }
         }
         System.out.println("JdtFormatCheck: files=" + javaFiles.size()
                 + " differ=" + differFiles + " diffLines=" + diffLines
-                + (firstDiffer.isEmpty() ? "" : " first=" + firstDiffer));
-        System.exit(differFiles == 0 ? 0 : 1);
+                + (firstDiffer.isEmpty() ? "" : " first=" + firstDiffer)
+                + (apply ? " [apply 完成]" : ""));
+        System.exit(apply ? 0 : (differFiles == 0 ? 0 : 1));
     }
 
     /** 一次格式化：接收 TextEdit 后手工应用（leaf edits 按 offset 升序重放）。 */

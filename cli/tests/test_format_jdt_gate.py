@@ -70,3 +70,12 @@ class TestJdtGate(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    def test_dry_run_apply_flag(self):
+        # --apply 透传：apply=True 命令追加 --apply，且返回 0（写回完成即成功）
+        with mock.patch.object(fjg, "run", return_value=mock.Mock(
+                returncode=0,
+                stdout="JdtFormatCheck: files=2 differ=1 diffLines=9 [apply 完成]", stderr="")), \
+             mock.patch.object(pathlib.Path, "exists", return_value=True):
+            self.assertEqual(fjg.dry_run("/j", "/lib", "/build", "/x.xml", "/src", apply=True), 0)
+            cmd = fjg.run.call_args[0][0]
+            self.assertIn("--apply", cmd)

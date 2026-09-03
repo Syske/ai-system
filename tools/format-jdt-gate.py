@@ -125,7 +125,7 @@ def _closure_ready(lib):
 
 # ---------- 干跑 ----------
 
-def dry_run(java, lib_dir, build_dir, xml, src_dir):
+def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False):
     lib_dir = Path(lib_dir)
     build_dir = Path(build_dir)
     cp = f"{lib_dir}/*:{build_dir}"   # 闭包 jar 目录通配
@@ -137,12 +137,18 @@ def dry_run(java, lib_dir, build_dir, xml, src_dir):
         if r.returncode != 0:
             log(f"javac 失败: {r.stderr.strip()[:300]}")
             return 3
-    r = run([str(java), "-cp", cp, "JdtFormatCheck", str(xml), str(src_dir)])
+    cmd = [str(java), "-cp", cp, "JdtFormatCheck", str(xml), str(src_dir)]
+    if apply:
+        cmd.append("--apply")
+    r = run(cmd)
     # rc 0=一致 / 1=有差异 均为 wrapper 正常输出；其余（含 stdout 无 files=）判失败
     if r.returncode not in (0, 1) or "files=" not in r.stdout:
         log(f"wrapper 运行失败（rc={r.returncode}）: {r.stderr.strip()[:300] or r.stdout.strip()[:300]}")
         return 3
     log(r.stdout.strip())
+    if apply:
+        # apply 模式：wrapper 已完成写回（exit 0），检查结果由 git diff 承担
+        return 0
     differ = 0
     for line in r.stdout.splitlines():
         if "differ=" in line:
@@ -202,6 +208,8 @@ def main(argv=None):
     ap.add_argument("--setup", action="store_true", help="直接执行环境配置（不跑检查）")
     ap.add_argument("--skip", action="store_true", help="显式跳过本次检查（环境不可用时）")
     ap.add_argument("--batch", action="store_true", help="非交互模式（无 TTY 时）")
+    ap.add_argument("--apply", action="store_true",
+                    help="将 formatted 结果写回源文件（格式基线；配合 git diff -w 安全校验）")
     args = ap.parse_args(argv)
 
     if not Path(args.src_dir).is_dir():
@@ -257,7 +265,7 @@ def main(argv=None):
             else:
                 return 3
 
-    return dry_run(java, lib, build, Path(args.xml), Path(args.src_dir))
+    return dry_run(java, lib, build, Path(args.xml), Path(args.src_dir), apply=args.apply)
 
 
 if __name__ == "__main__":
