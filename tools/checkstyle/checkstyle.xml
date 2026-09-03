@@ -18,13 +18,17 @@
 
     <!-- 禁用 Tab（与 profile tab=space 对齐；C2 baseline 后存量无 tab） -->
     <module name="FileTabCharacter">
-        <property name="severity" value="error"/>
+        <!-- C2 已 tab→space；残余存量文件仅收集（warning），新增 tab 由 C2 check 兜底 -->
+        <property name="severity" value="warning"/>
     </module>
 
     <!-- 行宽 120（与 profile lineSplit=120 对齐；import/package 不受限） -->
     <module name="LineLength">
         <property name="max" value="120"/>
         <property name="ignorePattern" value="^(package|import) "/>
+        <!-- C2 profile 已强制 lineSplit=120（可 wrap 部分）；超长多为长字符串/URL 等
+             C2 无法 wrap，存量收集（warning），新代码由 C2 check + 本 warn 提示 -->
+        <property name="severity" value="warning"/>
     </module>
 
     <module name="TreeWalker">
