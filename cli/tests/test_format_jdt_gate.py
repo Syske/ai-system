@@ -79,3 +79,14 @@ if __name__ == "__main__":
             self.assertEqual(fjg.dry_run("/j", "/lib", "/build", "/x.xml", "/src", apply=True), 0)
             cmd = fjg.run.call_args[0][0]
             self.assertIn("--apply", cmd)
+
+    def test_dry_run_ignore_file_flag(self):
+        # --ignore-file 透传：ignore_file 非空时命令追加
+        with mock.patch.object(fjg, "run", return_value=mock.Mock(
+                returncode=0, stdout="JdtFormatCheck: files=2 differ=0 diffLines=0", stderr="")), \
+             mock.patch.object(pathlib.Path, "exists", return_value=True):
+            self.assertEqual(fjg.dry_run("/j", "/lib", "/build", "/x.xml", "/src",
+                                         ignore_file="/ig.txt"), 0)
+            cmd = fjg.run.call_args[0][0]
+            self.assertIn("--ignore-file", cmd)
+            self.assertEqual(cmd[cmd.index("--ignore-file") + 1], "/ig.txt")

@@ -125,7 +125,7 @@ def _closure_ready(lib):
 
 # ---------- 干跑 ----------
 
-def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False):
+def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False, ignore_file=None):
     lib_dir = Path(lib_dir)
     build_dir = Path(build_dir)
     cp = f"{lib_dir}/*:{build_dir}"   # 闭包 jar 目录通配
@@ -140,6 +140,8 @@ def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False):
     cmd = [str(java), "-cp", cp, "JdtFormatCheck", str(xml), str(src_dir)]
     if apply:
         cmd.append("--apply")
+    if ignore_file:
+        cmd += ["--ignore-file", str(ignore_file)]
     r = run(cmd)
     # rc 0=一致 / 1=有差异 均为 wrapper 正常输出；其余（含 stdout 无 files=）判失败
     if r.returncode not in (0, 1) or "files=" not in r.stdout:
@@ -210,6 +212,8 @@ def main(argv=None):
     ap.add_argument("--batch", action="store_true", help="非交互模式（无 TTY 时）")
     ap.add_argument("--apply", action="store_true",
                     help="将 formatted 结果写回源文件（格式基线；配合 git diff -w 安全校验）")
+    ap.add_argument("--ignore-file", default=None,
+                    help="已知边界文件清单（wrapper --ignore-file；默认无；C2 仓内 known-ignore.txt）")
     args = ap.parse_args(argv)
 
     if not Path(args.src_dir).is_dir():
@@ -265,7 +269,8 @@ def main(argv=None):
             else:
                 return 3
 
-    return dry_run(java, lib, build, Path(args.xml), Path(args.src_dir), apply=args.apply)
+    return dry_run(java, lib, build, Path(args.xml), Path(args.src_dir), apply=args.apply,
+                   ignore_file=args.ignore_file)
 
 
 if __name__ == "__main__":

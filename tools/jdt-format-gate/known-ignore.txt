@@ -1,0 +1,3 @@
+# C2 已知无 fixpoint 边界文件（eclipse JDT formatter 对合往返：format→format 振荡，check 无法归零）
+# 路径基准：相对所扫 srcDir（如 <worktree>/src 的 main/java/...）；移除前请人工确认该文件
+main/java/net/coolcollege/platform/api/mapper/EnterpriseProvider.java

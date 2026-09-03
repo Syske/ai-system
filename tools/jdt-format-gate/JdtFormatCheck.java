@@ -10,6 +10,8 @@
 //             并逐文件打印差异文件相对路径（供 profile 校准的差异分类反推）。
 // --apply：将 formatted 结果直接写回源文件（业务仓格式基线；配合 git diff -w 安全校验）。
 // exit: 0 = 全部一致（或 apply 完成）  1 = 有差异  2 = 用法错误
+// --ignore-file <path>：每行一个相对路径（srcDir 下），check/apply 跳过（已知无 fixpoint
+//                     的振荡边界文件，如 formatter 对合往返的文件）；行首 # 为注释。
 //
 // profile 建议用 IDEA 导出的 Eclipse XML Profile 替换（见 eclipse-format.xml 注释）。
 import java.nio.charset.StandardCharsets;
@@ -35,11 +37,20 @@ public class JdtFormatCheck {
         Path srcDir = Paths.get(args[1]);
         Path dumpDir = null;
         boolean apply = false;
+        Set<String> ignoreSet = null;
         for (int i = 2; i < args.length; i++) {
             if ("--dump-dir".equals(args[i]) && i + 1 < args.length) {
                 dumpDir = Paths.get(args[++i]);
             } else if ("--apply".equals(args[i])) {
                 apply = true;
+            } else if ("--ignore-file".equals(args[i]) && i + 1 < args.length) {
+                ignoreSet = new HashSet<String>();
+                for (String line : Files.readAllLines(Paths.get(args[++i]), StandardCharsets.UTF_8)) {
+                    String t = line.trim();
+                    if (!t.isEmpty() && !t.startsWith("#")) {
+                        ignoreSet.add(t);
+                    }
+                }
             }
         }
 
@@ -53,6 +64,10 @@ public class JdtFormatCheck {
         int diffLines = 0;
         String firstDiffer = "";
         for (Path f : javaFiles) {
+            String relStr = srcDir.relativize(f).toString().replace('\\', '/');
+            if (ignoreSet != null && ignoreSet.contains(relStr)) {
+                continue;
+            }
             String src = new String(Files.readAllBytes(f), StandardCharsets.UTF_8);
             String formatted = formatOnce(formatter, src);
             if (formatted != null && !formatted.equals(src)) {
@@ -69,8 +84,19 @@ public class JdtFormatCheck {
                     System.out.println("DIFF " + rel);
                 }
                 if (apply) {
-                    Files.write(f, formatted.getBytes(StandardCharsets.UTF_8));
-                    System.out.println("APPLIED " + srcDir.relativize(f));
+                    // 迭代至稳定：eclipse formatter 个别文件一次格式化不收敛（如长 lambda/三元组合），
+                    // 循环至 fixpoint（最多 5 轮），保证 apply 后 check 为 0。
+                    String cur = formatted;
+                    int rounds = 1;
+                    for (; rounds < 5; rounds++) {
+                        String next = formatOnce(formatter, cur);
+                        if (next == null || next.equals(cur)) {
+                            break;
+                        }
+                        cur = next;
+                    }
+                    Files.write(f, cur.getBytes(StandardCharsets.UTF_8));
+                    System.out.println("APPLIED " + srcDir.relativize(f) + " x" + rounds);
                 }
             }
         }
