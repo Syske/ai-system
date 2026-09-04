@@ -41,3 +41,8 @@ last_findings:
   runtime-review/runtime-verify 新增「验证状态核验」步骤（检查开发产物/任务卡 compile/unittest
   验证标记，WARN 级，不阻断）+ 完成报告可选「验证状态」字段（对齐 P47 completion-reports 约定）；
   与 P46(a)/P41/P42（tr5 家族）解耦独立；模板改动不影响进行中会话（后续会话生效）
+- 待办（2026-09-04 定案）：L2 配置对象化（季度窗口）——同类 @Value 收敛为
+  @ConfigurationProperties 配置 POJO（默认值集中 POJO 字段一处、new Properties() 自带默认供
+  测试直构、字段 final 杜绝双写），根治默认多源；新代码默认范式写入 spring.md；
+  前置 L1 已落地（spring.md §Configuration Injection + format-check 第 8 项，36d19e9）；
+  批尺寸防御校验（batchSize<=0 拦截）纳入存量修复清单
