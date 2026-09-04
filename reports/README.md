@@ -51,6 +51,7 @@
 | [P44](P44-WORKTREE-CONVENTION.md) | Worktree 约定完善（项目级隔离 + 生命周期管理）— **Implemented** | 2026-08-31 |
 | [P45](P45-RUNTIME-LANGUAGE-GATE.md) | 运行时语言门禁（completion-time language gate，方案 B 正式化）— **Implemented** 2026-09-01 | 2026-09-01 |
 | [P46](P46-TR5-DEBT-VALIDATION-MARKER.md) | tr5 发布债收口（check_tr5 8 FAIL）+ review/verify 验证标记检查 — **Proposed** | 2026-09-01 |
+| [P48](P48-CONFIG-DEFAULT-SOURCING.md) | 配置默认值治理（@Value 单一默认源 + 对象化；L1 已实施，L2 配置 POJO 化待季度窗口）— **Proposed** | 2026-09-04 |
 | [P47](P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md) | develop 前置处理规则与产物目录约定（前置不满足→先跑 dev-setup；完成报告落 completion-reports/）— **Implemented** 2026-09-02 | 2026-09-02 |
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |
 | [P37](P37-REQUIRED-INPUTS-TRIAGE.md) | 工作流必填参数必要性评估（降可选/自动推导/保持，提升使用效率）— **Proposed** | 2026-08-25 |
