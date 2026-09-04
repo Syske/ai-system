@@ -29,6 +29,33 @@ User-facing reports are produced in Chinese; memory is loaded by agents at execu
 
 ---
 
+# Privacy / Sanitization
+
+ai-system is a **PUBLIC repository** (private: False) — memory entries are
+pushed to GitHub. Machine-specific or sensitive content MUST NOT be committed.
+
+Prohibited in any entry:
+
+- Local absolute paths (`/mnt/d/...`, `/home/<user>/...`, `~/.jdks`, Windows
+  `D:\...`).
+- Person-name ↔ business-name combinations that identify an individual.
+- Internal repository / artifact-server addresses (codeup, internal maven
+  mirrors, VPN hosts).
+
+Parameterization:
+
+- Environment-specific facts are written generically: `<maven-home>`,
+  `<jdk-home>`, `<repo-root>` — keep the version/behavior that is reusable,
+  drop the machine context.
+- Example (reusable): `surefire provider pinned by spring-boot-dependencies
+  2.1.13 is missing from the OFFLINE maven repo`.
+  Example (prohibited): `/mnt/d/tools/apache-maven-3.6.3 ...`.
+
+Guard: never copy a raw error/log line that embeds an absolute path; redact
+before storing. When in doubt, omit the path.
+
+---
+
 # Responsibility Boundary
 
 Coding Memory must keep clear boundaries with other AI system components.
