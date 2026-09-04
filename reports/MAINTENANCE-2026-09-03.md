@@ -163,3 +163,25 @@ language-gate）兑底，「反馈时点差距」尚无真实案例证明是当�
 项目级安装（不进全局 packages）、项目配置显式关 formatter/autofix（显式配置
 优先于智能默认）、opt-in 安全扫描保持关闭、先小仓试点并按 Value-Burden Check
 记录价值证据；ai-system 资产不引用该包路径。
+
+---
+
+### 2026-09-04 复核（pi-lens 评估结论时效性判定）
+
+**判定：事实面无需修正，时效面追加状态（触发条件③已达成）。**
+
+1. **事实核实（官方文档，v4.1.3 language-coverage/features 等）**：
+   - Java：LSP=JDT LS，dispatch=runners lsp+javac，formatter=google-java-format；
+     Java **非 config-first**（未标 config-first），smart default 生效 → post-write
+     自动格式化**事实成立**（与评估冲突①一致，无需修正）。
+   - 32 formatters 自动检测，显式项目配置优先；`lens_diagnostics`/guard 机制同评估。
+2. **触发条件核查**（评估自设重估条件，满足其一再议）：
+   - 条件①（真实案例语言在 Python/TS）：未满足（本仓 Java 主，无案例记录）。
+   - 条件②（新开 Python/TS 项目）：未满足。
+   - **条件③（IDEA profile 校准完成 + 格式债清零 → 纯诊断模式小仓试点）：已达成**——
+     C2 profile 已校准定稿（同事版 375 条，1010→721，c7eef0b）+ platform-api 试点
+     基线（718 文件 apply，token 0 不一致）+ checkstyle error=0（全仓）。
+3. **结论更新**：维持「现在不安装」；按条件③进入**纯诊断模式小仓试点评估窗口**——
+   试点最小清单：项目级安装（不进全局）、显式关 formatter/autofix（纯诊断）、
+   Java 侧只取 JDT LS/javac 编辑期诊断、2 周观察按 Value-Burden Check 记录价值证据。
+   试点与否由业务侧拍板；ai-system 资产不引用该包路径。
