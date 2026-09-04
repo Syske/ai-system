@@ -52,3 +52,8 @@ last_findings:
   checkstyle 因仓内无资产 SKIP（资产缺失语义）。可逆：reflog（60670b450）/远端 style 分支
   （suppressions 4845 完整副本）/format-baseline 一键重跑。脚本语义验证（回退实验）：增量无改动
   三连 gate 全 PASS（存量不可见）；checkstyle-gate 资产缺失 SKIP（对齐模板语义，9656c3e）
+- Windows 侧 ai-system 逐步移除（2026-09-04）：D 盘 ai-workspace/ai-system → ai-system-bak（观察）；
+  ai.bat 入口废弃删除（用户确认主链全在 WSL，Windows 不再启动 aic）。前提核查：D 盘副本落后
+  （aaadbc2 < WSL 3476486）无备份价值（git 远端即备份）、0 未提交/未推送；projects symlink 指向
+  D 盘 project-resources 不受影响。观察期后无回归 → 正式删除 ai-system-bak。业务仓 Windows 工作流
+  （IDEA/Maven）保持 D 盘物理
