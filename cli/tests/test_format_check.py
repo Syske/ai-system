@@ -166,6 +166,58 @@ public class Exempted {
 }
 """
 
+# ---- 第 8 项（@Value 配置字段）样例 ----
+
+VALUE_DUAL = """package x;
+
+public class Dual {
+    @Value("${bs.org.sync.max-attempts:3}")
+    private int maxAttempts = 3;
+}
+"""
+
+VALUE_DUAL_EXEMPT = """package x;
+
+public class DualEx {
+    /**
+     * 测试直构兜底，与 @Value 默认一致
+     */
+    @Value("${bs.org.sync.max-attempts:3}")
+    private int maxAttempts = 3;
+}
+"""
+
+VALUE_CLEAN = """package x;
+
+public class Val {
+    @Value("${bs.org.sync.batch-size:100}")
+    private int batchSize; // 同步分批大小
+}
+"""
+
+VALUE_NO_COMMENT = """package x;
+
+public class NoCom {
+    @Value("${bs.org.sync.timeout:30}")
+    private int timeoutSeconds;
+}
+"""
+
+VALUE_TRAILING_COMMENT = """package x;
+
+public class Com {
+    @Value("${bs.org.sync.retry:3}")
+    private int retryTimes; // 重试次数
+}
+"""
+
+PLAIN_INIT = """package x;
+
+public class Plain {
+    private int plainCounter = 3;
+}
+"""
+
 
 def _run_single(fname, content, extra=None):
     with tempfile.TemporaryDirectory() as td:
@@ -246,6 +298,32 @@ class TestFormatCheck(unittest.TestCase):
     def test_exempted_pkg_private_pass(self):
         # §Visibility 例外：Javadoc 首行注明「供同包测试直接调用」→ 豁免（exit 0）
         self.assertEqual(_run_single("Exempted.java", PKG_PRIVATE_EXEMPTED), 0)
+
+    # ---- 第 8 项：@Value 配置字段（spring.md §Configuration Injection）----
+
+    def test_value_dual_default_warn(self):
+        # 占位符已带默认 + 字段初始化 → WARN（exit 1）
+        self.assertEqual(_run_single("Dual.java", VALUE_DUAL), 1)
+
+    def test_value_dual_exempt_pass(self):
+        # 过渡豁免：Javadoc 注明「测试直构兜底」→ 不报双默认
+        self.assertEqual(_run_single("DualEx.java", VALUE_DUAL_EXEMPT), 0)
+
+    def test_value_clean_pass(self):
+        # @Value 带默认 + 字段无初始化 + 行尾注释 → 0
+        self.assertEqual(_run_single("Val.java", VALUE_CLEAN), 0)
+
+    def test_value_no_comment_warn(self):
+        # @Value 字段无注释说明 → WARN（exit 1）
+        self.assertEqual(_run_single("NoCom.java", VALUE_NO_COMMENT), 1)
+
+    def test_value_trailing_comment_pass(self):
+        # @Value 字段带行尾注释 → 0
+        self.assertEqual(_run_single("Com.java", VALUE_TRAILING_COMMENT), 0)
+
+    def test_plain_init_no_false_positive(self):
+        # 非 @Value 字段初始化 → 不报（exit 0）
+        self.assertEqual(_run_single("Plain.java", PLAIN_INIT), 0)
 
     # ---- --check-commit（commit-content.md）----
 

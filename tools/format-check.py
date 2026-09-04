@@ -32,6 +32,9 @@ METHOD_SIG = re.compile(
     r"(?:public|protected|private)\s+[\w<>\[\],\s]+\s+([^\s(]+)\s*\("  # 方法名 token
 )
 TASK_REF = re.compile(r"T-\d{3}")                              # T-001 等
+VALUE_ANNOT = re.compile(r'@Value\("\$\{([^"{}:]+)(?::([^"}]*))?\}"\)')
+VALUE_FIELD_INIT = re.compile(r'(?:private|public|protected)\s+[^;=]+\s*=\s*[^;]+;')
+VALUE_FIELD_DECL = re.compile(r'(?:private|public|protected)\s+[^;]+;')
 MAP_DECL = re.compile(r"Map<String,\s*Object>\s+\w+\s*=\s*new\s+HashMap<>\(\)")
 PUT_REF = re.compile(r'\.put\("')
 COMMIT_TASK_PREFIX = re.compile(r"^(feat|fix|docs|style|refactor|perf|test|chore|ci|revert)\([^)]*\):\s*T-\d{3}")
@@ -150,6 +153,39 @@ def check_file(path: Path, findings):
                 if type_stack:
                     type_stack.pop()
             pushed_now = False
+
+    # 8. @Value 配置字段（spring.md §Configuration Injection，启发式 WARN）：
+    #    a) 双默认——占位符已带默认值仍给字段初始化（漂移源）
+    #    b) 缺注释——@Value 字段无行尾注释（用途/默认/单位）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        m = VALUE_ANNOT.search(s)
+        if not m:
+            continue
+        field_j = None
+        for j in range(i, min(i + 3, len(lines) + 1)):
+            fl = lines[j - 1].strip() if j - 1 < len(lines) else ""
+            if not fl:
+                continue
+            if VALUE_FIELD_DECL.search(fl):
+                field_j = (j, fl)
+                break
+            if not fl.startswith(("@", "private", "public", "protected")):
+                break
+        if field_j is None:
+            continue
+        j, fl = field_j
+        ctx = " ".join(lines[max(0, i - 4):j])
+        dual_exempt = ("测试直构" in ctx) or ("兜底" in ctx)
+        if VALUE_FIELD_INIT.search(fl) and not dual_exempt:
+            findings.append(
+                ("WARN",
+                 f"@Value 已带默认值仍字段初始化（spring.md：占位符为唯一默认源，"
+                 f"测试直构默认移测试侧）: {path}:{j}"))
+        if ("//" not in lines[j - 1]) and ("/**" not in ctx) and ("/*" not in ctx):
+            findings.append(
+                ("WARN",
+                 f"@Value 配置字段缺少注释说明（spring.md：用途/默认/单位）: {path}:{j}"))
 
 
 def _changed_java_files(src_dir):
