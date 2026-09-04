@@ -46,3 +46,9 @@ last_findings:
   测试直构、字段 final 杜绝双写），根治默认多源；新代码默认范式写入 spring.md；
   前置 L1 已落地（spring.md §Configuration Injection + format-check 第 8 项，36d19e9）；
   批尺寸防御校验（batchSize<=0 拦截）纳入存量修复清单
+- 试点基线回退（业务侧决策，2026-09-04）：platform-api 本地 master 回退 775f09e4/60670b450
+  （style 格式基线 + checkstyle 资产）→ 0d594b55f（8-21），本地=远端（ahead 0）；原因=业务侧
+  未采纳基线（master 提交纯格式优化顾虑）。影响：C2 门禁在开发改动时回归全量差分（需 --skip），
+  checkstyle 因仓内无资产 SKIP（资产缺失语义）。可逆：reflog（60670b450）/远端 style 分支
+  （suppressions 4845 完整副本）/format-baseline 一键重跑。脚本语义验证（回退实验）：增量无改动
+  三连 gate 全 PASS（存量不可见）；checkstyle-gate 资产缺失 SKIP（对齐模板语义，9656c3e）
