@@ -75,7 +75,8 @@ def changed_java_files(repo_root, src_dir):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="checkstyle 增量门禁 wrapper")
     ap.add_argument("src_dir", help="Java 源目录（仓内）")
-    ap.add_argument("--config", required=True, help="checkstyle.xml（规则集）")
+    ap.add_argument("--config", default=None,
+                    help="checkstyle.xml（规则集）；缺省探测仓根 checkstyle.xml，仓内无资产 → skip（模板语义）")
     ap.add_argument("--java", default=None)
     ap.add_argument("--jar", default=None)
     ap.add_argument("--full", action="store_true", help="跳过增量，全量扫描 src")
@@ -117,6 +118,13 @@ def main(argv=None):
             print(" ", t)
         return 0
 
+    # ---- 仓内资产存在性（模板语义：Missing assets → skip with a note）----
+    config = args.config or (str(Path(root) / "checkstyle.xml") if root else None)
+    if config is None or not Path(config).exists():
+        print("checkstyle-gate: SKIP（仓内无 checkstyle.xml/suppressions.xml 资产，"
+              "未基线仓；需显式 --config 或先跑格式基线）→ exit 0", file=sys.stderr)
+        return 0
+
     # ---- 环境探测（短路/dry-run 之后：无 JRE 时仅真实扫描受影响）----
     java = _find_java(args.java)
     jar = _find_jar(args.jar)
@@ -124,7 +132,7 @@ def main(argv=None):
         print("checkstyle-gate: ENV 缺失（JRE17/checkstyle jar）→ 跳过（exit 3）", file=sys.stderr)
         return 3
 
-    cmd = [java, "-jar", jar, "-c", str(Path(args.config).resolve())]
+    cmd = [java, "-jar", jar, "-c", str(Path(config).resolve())]
     if targets:
         cmd += targets
     else:

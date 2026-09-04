@@ -78,6 +78,15 @@ class TestCheckstyleGate(unittest.TestCase):
         finally:
             td.cleanup()
 
+    def test_no_assets_skip(self):
+        # 未基线仓（仓根无 checkstyle.xml 资产）且无 --config → SKIP（exit 0）
+        td, root = _mk_repo()
+        try:
+            _commit(root, "src/main/java/x/Good.java", GOOD)
+            self.assertEqual(cg.main([str(root / "src")]), 0)
+        finally:
+            td.cleanup()
+
     def test_clean_repo_pass_without_env(self):
         # CI/无环境回归：clean 短路不依赖 JRE/jar（mock 探测返回 None 仍应 0）
         td, root = _mk_repo()
