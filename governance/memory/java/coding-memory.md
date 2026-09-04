@@ -72,3 +72,72 @@ Category files, split by topic:
 - `java/integration.md` — integration (WeCom, etc.) experience
 - `java/spring.md` — Spring experience
 
+
+## [Java] SOFABoot Offline Test-Environment Workarounds
+
+Date: 2026-09-04
+
+Priority: P1
+
+Context:
+
+The 202610-public-security-storage-no-ai-parse-optimization project (resource-manager, SOFABoot 3.4.6 / Spring Boot 2.1.13) is built offline (Maven 3.x at `<maven-home>`, Dragonwell JDK8 at `<jdk-home>`, local repo at `<local-repo>`) in a Linux-on-Windows setup. Running `mvn test` hits environment-specific blockers that look like code failures.
+
+Problem:
+
+1. `mvn test -o` fails with `MultipleArtifactsNotFoundException: surefire-junit4:jar:2.22.2` — the provider jar pinned by spring-boot-dependencies 2.1.13 is absent from the offline repo (only 2.22.1 present).
+2. Re-running `mvn test` without `clean` fails with jacoco 0.8.2 `Cannot process instrumented class ... Please supply original non-instrumented classes` (double instrumentation).
+3. Spring-context tests fail at startup because logback cannot write the service's configured log directory (WSL has no such dir).
+4. Two existing VodServiceTest classes fail (mock NPE at line 63 + jacoco×PowerMock IllegalClassFormatException) — they fail identically on the pristine baseline.
+
+Root Cause:
+
+Environment/offline-repo gaps, not code defects: surefire provider version mismatch, jacoco instrument leaves classes instrumented, missing log dir, pre-existing broken tests.
+
+Solution:
+
+- Run tests with `-Dmaven-surefire-plugin.version=2.22.1` (provider present in offline repo; do NOT change the pom — 2.22.2 is the project default in CI).
+- Always `mvn clean test` (never bare `test` twice) because jacoco 0.8.2 instrument is not idempotent here.
+- Ensure the service's configured logback directory (e.g. /data/log/<service>/access + /error) exists and is writable before context-loading tests.
+- Accept pre-existing suite failures as such; prove with `git stash push -u` baseline run (include untracked, else new files break compilation) rather than chasing them.
+- Full-suite verdict: run targeted `-Dtest=` filters for the changed classes; treat a full-suite failure count as green for the change when the same failures reproduce on baseline.
+
+Lesson:
+
+For SOFABoot repos in this offline setup, run tests with `-Dmaven-surefire-plugin.version=2.22.1` and `clean`, ensure the configured log directory exists, and baseline-prove any pre-existing suite failures before blaming the change.
+
+Scope:
+
+- SOFABoot / spring-boot-dependencies 2.1.13 based repos built offline
+- Any `mvn test` run under jacoco 0.8.2 with PowerMock tests
+
+## [Java] javax.annotation.Resource vs domain.Resource Class-Name Collision
+
+Date: 2026-09-04
+
+Priority: P1
+
+Context:
+
+While adding a SOFA RPC implementation in resource-manager (a multi-module SOFABoot repo whose domain package contains an entity class named `Resource`), a new class injected a bean with `@Resource` (javax.annotation). The single import of `javax.annotation.Resource` silently shadowed the domain `Resource` used elsewhere in the same file.
+
+Problem:
+
+Compilation failed with ~80 errors that looked like a broken environment: javac reported the domain `Resource` type unresolvable, and — cascading from the same shadowing — Lombok's `@Slf4j` reported `log` not found on the injected type. The noise made it look like a pre-existing repo problem rather than a change-introduced bug.
+
+Root Cause:
+
+A class-name collision between the annotation `javax.annotation.Resource` and the domain entity `Resource` in the same compilation unit. javac resolved the simple name to the wrong type, and the Lombok log generation failed on the mismatched field type, producing a cascade of misleading errors.
+
+Solution:
+
+Switch the injection to Spring's `@Autowired` (or fully qualify the annotation). The compile error cascade disappears once the ambiguous simple name is removed.
+
+Lesson:
+
+In multi-module Java repos whose domain package contains an entity named `Resource`, never inject with `@Resource` (javax.annotation) in the same file — use `@Autowired`. When a multi-module compile suddenly floods with errors (especially Lombok `log` not found), first check symbol collisions introduced by the change before suspecting the environment.
+
+Scope:
+
+- Any SOFABoot / Spring repo with a domain entity named `Resource`
+- Lombok `@Slf4j` usage combined with `@Resource` injection
