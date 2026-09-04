@@ -152,6 +152,13 @@ public class Ctrl {
 }
 """
 
+TRAILING_COMMENT_DECL = """package x;
+public class Trail {
+    void helper() { // 行尾注释形态
+    }
+}
+"""
+
 PKG_PRIVATE_EXEMPTED = """package x;
 public class Exempted {
     /**
@@ -294,6 +301,10 @@ class TestFormatCheck(unittest.TestCase):
     def test_control_flow_no_false_positive(self):
         # else-if / 赋值 / 构造调用行 → 不报
         self.assertEqual(_run_single("Ctrl.java", CONTROL_FLOW_OK), 0)
+
+    def test_trailing_comment_decl_warn(self):
+        # 方法声明行带行尾注释（`void helper() { // 注释`）→ 仍命中可见性检查
+        self.assertEqual(_run_single("Trail.java", TRAILING_COMMENT_DECL), 1)
 
     def test_exempted_pkg_private_pass(self):
         # §Visibility 例外：Javadoc 首行注明「供同包测试直接调用」→ 豁免（exit 0）

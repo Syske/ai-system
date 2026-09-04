@@ -51,7 +51,7 @@ METHOD_NO_MOD_RE = re.compile(
     r"^(?!(?:public|protected|private|static|final|abstract|synchronized|native|default)\s+"
     r"|@|return\b|if\b|for\b|while\b|switch\b|catch\b|throw\b|new\b|break\b|continue\b|else\b|try\b"
     r"|[({})=;?:,])"
-    r"(?P<ret>\S[\w<>\[\], .]*?)\s+(?P<name>\w+)\s*\([^;{]*\)[^{;]*(?:\{\s*)?$"
+    r"(?P<ret>\S[\w<>\[\], .]*?)\s+(?P<name>\w+)\s*\([^;{]*\)[^{;]*(?:\{\s*)?(?://.*)?$"
 )
 # 生产日志消息：error/warn 必须英文（documentation.md → Log Content）；info 提示
 # log.error( "中文" ) / log.warn( "中文" )
