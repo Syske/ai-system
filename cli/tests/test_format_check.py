@@ -218,6 +218,39 @@ public class Com {
 }
 """
 
+BRACES_OK = """package x;
+
+public class Ok {
+    public void run(boolean ok) {
+        if (ok) {
+            sync();
+        }
+    }
+
+    private void sync() {
+    }
+}
+"""
+
+BRACES_VIOLATION = """package x;
+
+public class Bad {
+    public void run(boolean ok, long id) {
+        if (ok) sync();
+        else fail();
+        list.forEach(p -> {
+            if (p != null) p.go();
+        });
+    }
+
+    private void sync() {
+    }
+
+    private void fail() {
+    }
+}
+"""
+
 PLAIN_INIT = """package x;
 
 public class Plain {
@@ -335,6 +368,15 @@ class TestFormatCheck(unittest.TestCase):
     def test_plain_init_no_false_positive(self):
         # 非 @Value 字段初始化 → 不报（exit 0）
         self.assertEqual(_run_single("Plain.java", PLAIN_INIT), 0)
+
+    # ---- 第 9 项：单行无大括号控制语句（java-alibaba.md §Braces）----
+
+    def test_braces_ok(self):
+        self.assertEqual(_run_single("Ok.java", BRACES_OK), 0)
+
+    def test_braces_violation_warn(self):
+        # 单行 if/else 无大括号（含 lambda 内）→ WARN（exit 1）
+        self.assertEqual(_run_single("Bad.java", BRACES_VIOLATION), 1)
 
     # ---- --check-commit（commit-content.md）----
 

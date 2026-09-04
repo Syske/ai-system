@@ -32,6 +32,9 @@ METHOD_SIG = re.compile(
     r"(?:public|protected|private)\s+[\w<>\[\],\s]+\s+([^\s(]+)\s*\("  # 方法名 token
 )
 TASK_REF = re.compile(r"T-\d{3}")                              # T-001 等
+BRACELESS_CTRL = re.compile(
+    r"^\s*(?:(?:if|for|while)\s*\([^)]*\)|else)\s*(?!\{|if\b|$)[^{;]*;"
+)
 VALUE_ANNOT = re.compile(r'@Value\("\$\{([^"{}:]+)(?::([^"}]*))?\}"\)')
 VALUE_FIELD_INIT = re.compile(r'(?:private|public|protected)\s+[^;=]+\s*=\s*[^;]+;')
 VALUE_FIELD_DECL = re.compile(r'(?:private|public|protected)\s+[^;]+;')
@@ -186,6 +189,15 @@ def check_file(path: Path, findings):
             findings.append(
                 ("WARN",
                  f"@Value 配置字段缺少注释说明（spring.md：用途/默认/单位）: {path}:{j}"))
+
+    # 9. 单行无大括号控制语句（java-alibaba.md §Braces，启发式 WARN）：
+    #    if/else/for/while 单语句必须带大括号（含 lambda 内）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if BRACELESS_CTRL.search(s) and not _is_comment_line(s):
+            findings.append(
+                ("WARN",
+                 f"单行控制语句无大括号（§Braces：if/else/for/while 必须带 {{}}，含 lambda 内）: {path}:{i}"))
 
 
 def _changed_java_files(src_dir):

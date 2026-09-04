@@ -36,8 +36,8 @@ pushed to GitHub. Machine-specific or sensitive content MUST NOT be committed.
 
 Prohibited in any entry:
 
-- Local absolute paths (`/mnt/d/...`, `/home/<user>/...`, `~/.jdks`, Windows
-  `D:\...`).
+- Local absolute paths: `/mnt/d/...`, `/home/<user>/...`, `~/.jdks`, and Windows
+  drive-letter absolute paths (never spell the drive literal).
 - Person-name ↔ business-name combinations that identify an individual.
 - Internal repository / artifact-server addresses (codeup, internal maven
   mirrors, VPN hosts).
@@ -49,7 +49,8 @@ Parameterization:
   drop the machine context.
 - Example (reusable): `surefire provider pinned by spring-boot-dependencies
   2.1.13 is missing from the OFFLINE maven repo`.
-  Example (prohibited): `/mnt/d/tools/apache-maven-3.6.3 ...`.
+  Example (prohibited): a machine-specific absolute path such as
+  the local maven installation directory (never spell the path itself).
 
 Guard: never copy a raw error/log line that embeds an absolute path; redact
 before storing. When in doubt, omit the path.

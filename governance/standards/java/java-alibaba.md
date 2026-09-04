@@ -39,6 +39,31 @@ code.
 
 ---
 
+## Braces
+
+`if` / `else` / `for` / `while` / `do` bodies MUST always use braces, even for
+a single statement:
+
+    if (ok) {            // good
+        sync();
+    }
+    if (ok) sync();      // forbidden — single-line brace-less statement
+
+Applies equally inside lambdas:
+
+    list.forEach(p -> {
+        if (p.getX() != null) {       // good
+            p.getX().setSecret(mask);
+        }
+    });
+
+Rationale: brace-less single statements are a classic source of dangling-else
+and edit-introduced bugs; the checkstyle gate enforces it as `error`
+(NeedBraces), and the A-layer format gate (format-check.py check #9) warns on
+single-line brace-less control statements.
+
+---
+
 ## Lombok
 
 Prefer:
