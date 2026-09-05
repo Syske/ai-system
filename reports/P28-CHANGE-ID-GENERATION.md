@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Enhancement (wizard 输入减负 + 命名一致性) |
 | Author | AI Maintainer |
 | Created | 2026-08-21 |
@@ -38,12 +38,21 @@
 2. **B 记入触发条件**：若用户实际体验中"想 desc + 手输"负担仍重，或出现多 change 命名不一致实例 → 评估 B（含 required 顺序重排与重入 hook 的兼容设计）。
 3. **C/D 不预引入**（Evolution Principle：不预先引入 LLM 到向导层；触发后再评估 skill 层落点）。
 
-## 5. Open Items（本提案未勾选）
+## 5. Open Items（2026-09-05 更新）
 
-- [ ] B：规则 slug 派生（Change Request 前置收集 + 完整 id 建议）——触发条件未到
-- [ ] D：AI 可选生成（skill 层落点）——触发条件未到
+- [x] B：规则 slug 派生——**已由 P37 批次 1 实施**（prepare required 改 `[Change Request]`
+  前置收集 + `change_resume.suggest_change_id()` 完整 slug `{YYYYMM}-{slug}` + `_manual_default`
+  自动派生可编辑）——P28 卡点（Change Request 前置）随 P37 一并解除
+- [ ] D：AI 可选生成（skill 层落点）——触发条件未到（不引入 wizard LLM，Evolution Principle）
 
-## 6. 追加：输入界面中文化（2026-08-25，用户确认实施）
+## 6. Implementation Record (2026-09-05)
+
+方案 A（`{YYYYMM}-` 前缀默认）随本提案早前已落地；方案 B（规则 slug 派生）由 **P37 批次 1**
+实施覆盖（prepare `required: [Change Request]` + `suggest_change_id` + `_manual_default` 派生），
+2026-09-05 收尾再补中文前导停用词剔除（P37 收尾）。Status → Implemented（PROPOSALS.md 同步）。
+C/D 不引入（Evolution Principle）。
+
+## 7. 追加：输入界面中文化（2026-08-25，用户确认实施）
 
 **背景**：用户反馈 Change ID 输入界面（`from openspec/changes/` + `🔀 Change ID (required):`）交互不够友好——
 英文 required 标记 + 英文技术路径 note，提示与输入框间隔感强。LANGUAGE_CONVENTION 明确
