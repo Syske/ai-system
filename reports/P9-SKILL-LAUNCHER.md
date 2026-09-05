@@ -28,10 +28,10 @@ A launcher is needed: start a script → pick a skill → pick an agent
   name + description live in `<available_skills>`. Full SKILL.md is injected
   only when loaded.
 - Global skill paths (`~/.config/opencode/skills`, `~/.claude/skills`,
-  `~/.agents/skills`) all resolve to `C:\Users\syske\.agents\skills`
+  `~/.agents/skills`) all resolve to `<user-home>/.agents/skills`
   (symlinked) — scan by realpath to dedupe.
 - Project-local discovery walks from CWD up to the git worktree root
-  (`D:\workspace\ai-workspace\ai-system` for the current workspace).
+  (`<workspace-root>/ai-system` for the current workspace).
 - **pi shares the same SKILL.md mechanism**: `pi-cache-optimizer`
   (`~/.pi/agent/npm/node_modules/pi-cache-optimizer/index.ts`) groups skills
   by `dirname(dirname(skill.filePath))` and reads `~/.agents/skills` — no
