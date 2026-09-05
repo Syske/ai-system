@@ -1,4 +1,5 @@
 import argparse
+import sys
 import subprocess
 from pathlib import Path
 
@@ -6,6 +7,56 @@ from cli.services.prompt_builder import PromptBuilder
 from cli.services.wizard import Wizard
 from cli.utils.clipboard import copy
 from cli.utils.file import write_text
+
+
+def _config_files():
+    """两份关键配置路径：workspace 层 + 机器层（P36 触发层 T-b）。"""
+    import os
+    root = Path(__file__).resolve().parents[1]
+    ws_cfg = root / "config" / "environments" / "local.yaml"
+    home_cfg = Path(
+        os.environ.get("AI_HOME_CONFIG")
+        or Path.home() / ".config" / "ai-system" / "env.yaml"
+    )
+    return ws_cfg, home_cfg
+
+
+def _env_uninitialized():
+    """只读检测：workspace local.yaml 与机器层 env.yaml 是否缺失（任一缺失即未初始化）。"""
+    ws_cfg, home_cfg = _config_files()
+    return not ws_cfg.exists() or not home_cfg.exists()
+
+
+def _offer_env_init():
+    """P36 T-b：未初始化 + TTY → 中文提示确认后执行 env-init；非交互 stderr 一行指引。"""
+    ws_cfg, home_cfg = _config_files()
+    missing = [str(p) for p in (ws_cfg, home_cfg) if not p.exists()]
+
+    if not sys.stdin.isatty():
+        print(
+            f"[aic] 环境未初始化（缺: {', '.join(missing)}）。请运行: python tools/setup.py --env-init",
+            file=sys.stderr,
+        )
+        return
+
+    print(
+        "⚠️  环境未初始化（配置缺失）："
+    )
+    for p in missing:
+        print(f"   - {p}")
+    ans = input("是否现在初始化环境？(y/N): ").strip()
+    if ans.lower() in ("y", "yes"):
+        try:
+            import tools.setup as setup
+            setup.env_init(
+                Path(__file__).resolve().parents[1],
+                "local",
+                interactive=True,
+            )
+        except Exception as exc:  # pragma: no cover
+            print(f"初始化失败: {exc}")
+    else:
+        print("跳过（可稍后运行: python tools/setup.py --env-init）")
 
 
 def _launch(
@@ -191,6 +242,10 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # P36 触发层 T-b：首启环境只读检测 + 交互确认（非交互 stderr 指引）
+    if _env_uninitialized():
+        _offer_env_init()
 
     builder = PromptBuilder()
 

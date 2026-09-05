@@ -429,6 +429,16 @@ def env_init(
         interactive
     )
 
+    # P36 方案 A：--env-init 补齐目录骨架 + 外部仓库引导（幂等、非破坏）
+    created = scaffold(workspace_root)
+    if created:
+        print(f"scaffold: created {created} directory(ies) under workspace root")
+    rt = ensure_runtime_dirs()
+    if rt:
+        print(f"runtime dirs: created {rt}")
+
+    link_repos(workspace_root, interactive)
+
     print()
     print("merged resolution:")
 
@@ -580,9 +590,21 @@ def link_repos(
             "no candidate repositories detected under workspace root"
         )
 
-        return 0
-
     confirmed = []
+
+    # P36 方案 A：外部仓库路径引导（interactive 时；逗号分隔，逐个校验链接）
+    if interactive:
+        raw = input(
+            "Add external repository path(s) (comma-separated, e.g. "
+            "/mnt/d/code/a,/home/x/code/b; blank to skip): "
+        ).strip()
+        for chunk in [c.strip() for c in raw.split(",") if c.strip()]:
+            ext = Path(chunk).expanduser()
+            if _looks_like_repo(ext):
+                if ext.name not in {r.name for r in confirmed}:
+                    confirmed.append(ext)
+            else:
+                print(f"skip (no repo marker): {ext}")
 
     for repo in repos:
 
