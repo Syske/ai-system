@@ -155,10 +155,10 @@ Formatting gate (Stage 6 Validation):
     `checkstyle.xml`/`suppressions.xml` and the checkstyle jar/JRE are present):
     `{checkstyle_java} -jar {checkstyle_jar} -c <repo>/checkstyle.xml <worktree>/src`
     — `error` = 0 passes; `warning` are collection-only (baseline inventory).
-    Missing assets/environment → skip with a note. 增量：
-    `python3 ai-system/tools/checkstyle/checkstyle-gate.py <worktree>/src [--config <xml>]
-    — git status 驱动只查本 change 的 .java（相对仓根路径，与 suppressions 匹配一致）；
-    无改动/非 git → 快速 PASS 或全量。
+    Missing assets/environment → skip with a note. Incremental mode:
+    `python3 ai-system/tools/checkstyle/checkstyle-gate.py <worktree>/src [--config <xml>]`
+    — `git status`-driven: checks only `.java` files of this change (relative to the
+    repo root, matching `suppressions.xml`); no changes / non-git → fast PASS or full scan.
 - Gate results MUST be recorded in the per-run diagnostic log (logs/...md, like the
   runtime-base language gate): each gate name + exit/pass state, so the chain audit
   can verify gates actually ran.
