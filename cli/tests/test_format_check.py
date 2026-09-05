@@ -218,6 +218,28 @@ public class Com {
 }
 """
 
+NESTED_STREAM_VIOLATION = """package x;
+
+import java.util.List;
+
+public class StreamBad {
+    public List<String> nested(List<List<String>> lists) {
+        return lists.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
+    }
+}
+"""
+
+SINGLE_STREAM_OK = """package x;
+
+import java.util.List;
+
+public class StreamOk {
+    public List<String> simple(List<String> items) {
+        return items.stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
+    }
+}
+"""
+
 LOMB_VIOLATION = """package x;
 
 public class LombBad {
@@ -678,6 +700,16 @@ class TestFormatCheck(unittest.TestCase):
     def test_lombok_ok(self):
         # @Data 类豁免 + 非 getter 方法 → 不报（exit 0）
         self.assertEqual(_run_single("LombOk.java", LOMB_OK), 0)
+
+    # ---- 第 22 项：§Stream ----
+
+    def test_nested_stream_warn(self):
+        # 单行嵌套 stream（2 次 .stream()）→ WARN（exit 1）
+        self.assertEqual(_run_single("StreamBad.java", NESTED_STREAM_VIOLATION), 1)
+
+    def test_single_stream_ok(self):
+        # 单层 stream → 不报（exit 0）
+        self.assertEqual(_run_single("StreamOk.java", SINGLE_STREAM_OK), 0)
 
     # ---- --check-commit（commit-content.md）----
 

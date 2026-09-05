@@ -88,6 +88,7 @@ LOMBOK_ANNOT_RE = re.compile(r'^\s*@(Data|Getter|Setter|Builder|Value|NoArgsCons
 MANUAL_GETTER_RE = re.compile(r'^\s*public\s+[\w<>\[\],. ]+\s+(get[A-Z]\w*)\s*\(\s*\)\s*\{\s*return\s+\w+\s*;')
 MANUAL_SETTER_RE = re.compile(r'^\s*public\s+void\s+(set[A-Z]\w*)\s*\(([^)]*)\)\s*\{\s*this\.\w+\s*=\s*\w+\s*;')
 JSONOBJECT_NEW_RE = re.compile(r'\bnew\s+JSONObject\s*\(')
+NESTED_STREAM_RE = re.compile(r'\.stream\(\)')
 
 
 def _is_comment_line(line: str) -> bool:
@@ -335,6 +336,14 @@ def check_file(path: Path, findings):
     for i, ln in enumerate(lines, 1):
         if JSONOBJECT_NEW_RE.search(ln) and not _is_comment_line(ln):
             findings.append(("WARN", f"JSONObject 组装（§MQ：组装消息须 Typed VO；HTTP 组装可忽略）: {path}:{i}"))
+
+    # 22. 复杂嵌套 Stream（java-alibaba.md §Stream：Use judiciously；禁复杂嵌套流）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if _is_comment_line(s):
+            continue
+        if len(NESTED_STREAM_RE.findall(s)) >= 2:
+            findings.append(("WARN", f"嵌套 Stream（§Stream：禁复杂嵌套流，拆步骤/中间集合）: {path}:{i}"))
 
 
 def _changed_java_files(src_dir):
