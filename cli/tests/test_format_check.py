@@ -711,6 +711,20 @@ class TestFormatCheck(unittest.TestCase):
         # 单层 stream → 不报（exit 0）
         self.assertEqual(_run_single("StreamOk.java", SINGLE_STREAM_OK), 0)
 
+    def test_throws_exception_test_class_exempt(self):
+        # test 目录下 throws Exception → 豁免（exit 0，§Exception test 类允许）
+        import tempfile
+        import pathlib
+        with tempfile.TemporaryDirectory() as td:
+            src = pathlib.Path(td) / "src" / "test"
+            src.mkdir(parents=True)
+            (src / "MyTest.java").write_text(
+                "package test;\n"
+                "public class MyTest {\n"
+                "    public void setUp() throws Exception {}\n"
+                "}\n", encoding="utf-8")
+            self.assertEqual(fc.main([str(pathlib.Path(td) / "src")]), 0)
+
     # ---- --check-commit（commit-content.md）----
 
     def test_check_commit_task_format_pass(self):

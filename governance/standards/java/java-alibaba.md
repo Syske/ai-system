@@ -134,6 +134,10 @@ Must:
 
 Use business exceptions.
 
+Exception (test classes): JUnit lifecycle/test methods (`setUp`/`@Test`/private
+fixtures) MAY declare `throws Exception` — the rule targets production code;
+tests conventionally propagate reflection/IO failures to the framework.
+
 ---
 
 ## Log

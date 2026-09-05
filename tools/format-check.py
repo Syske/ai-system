@@ -244,12 +244,13 @@ def check_file(path: Path, findings):
                     ("WARN",
                      f"生产日志禁用（§Log：SLF4J；禁 printStackTrace/System.out.println）: {path}:{i}"))
 
-    # 12. throws Exception（java-alibaba.md §Exception：须业务异常）
-    for i, ln in enumerate(lines, 1):
-        if THROWS_EXCEPTION.search(ln) and not _is_comment_line(ln):
-            findings.append(
-                ("WARN",
-                 f"throws Exception（§Exception：须使用业务异常）: {path}:{i}"))
+    # 12. throws Exception（java-alibaba.md §Exception：生产须业务异常；test 类豁免）
+    if _is_main:
+        for i, ln in enumerate(lines, 1):
+            if THROWS_EXCEPTION.search(ln) and not _is_comment_line(ln):
+                findings.append(
+                    ("WARN",
+                     f"throws Exception（§Exception：须使用业务异常）: {path}:{i}"))
 
     # 13. Optional 字段/参数（java-alibaba.md §Optional：禁字段/参数，仅返回值）
     for i, ln in enumerate(lines, 1):
