@@ -218,6 +218,24 @@ public class Com {
 }
 """
 
+CONFIG_PROPS_OK = """package x;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "security.storage")
+public class StorageSecurityProperties {
+    /**
+     * 可见码
+     */
+    private String visibilityCode = "******";
+
+    /**
+     * 单批条数上限
+     */
+    private int batchSize = 500;
+}
+"""
+
 NESTED_STREAM_VIOLATION = """package x;
 
 import java.util.List;
@@ -710,6 +728,10 @@ class TestFormatCheck(unittest.TestCase):
     def test_single_stream_ok(self):
         # 单层 stream → 不报（exit 0）
         self.assertEqual(_run_single("StreamOk.java", SINGLE_STREAM_OK), 0)
+
+    def test_config_properties_pojo_ok(self):
+        # @ConfigurationProperties POJO：字段默认值（第 8 项豁免）+ 三行注释 → PASS
+        self.assertEqual(_run_single("PropsOk.java", CONFIG_PROPS_OK), 0)
 
     def test_throws_exception_test_class_exempt(self):
         # test 目录下 throws Exception → 豁免（exit 0，§Exception test 类允许）

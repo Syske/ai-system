@@ -22,3 +22,29 @@ sole carrier of the runtime default.
 - The A-layer format gate (format-check.py check #8) warns on: field
   initializer under `@Value` (dual default) and `@Value` fields without a
   trailing comment.
+
+---
+
+## Configuration Properties (@ConfigurationProperties)
+
+**L2 target paradigm (P48)** — for NEW code, prefer grouping related `@Value`
+fields into a typed configuration POJO. This is the Spring-recommended way to
+eliminate multi-default drift (P48 / L1 keeps legacy `@Value` compliant via
+check #8).
+
+- **Group related keys**: fields sharing a `prefix` live in one POJO annotated
+  `@ConfigurationProperties(prefix = "...")` (registered via
+  `@EnableConfigurationProperties` or `@ConfigurationPropertiesScan`).
+- **Field defaults are the single source**: the POJO field initializer IS the
+  default (there is no placeholder-colon carrier) — legal here, unlike the
+  `@Value` dual-default case.
+- **Test construction shares the same defaults**: tests build
+  `new MyProperties()` and override per-case — test default == production
+  default by construction (same physical location), which L1's
+  "defaults live in tests" cannot guarantee.
+- **Field Javadoc**: every field carries a comment — use the multi-line
+  Javadoc structure (`/**` line / ` * description` / ` */` line), never the
+  single-line block `/** ... */` (documentation.md Comment Rules).
+- **Consumption**: inject the POJO via constructor, not per-field `@Value`.
+- **Boundary**: legacy `@Value` fields are NOT force-migrated; they stay L1
+  compliant (check #8). POJO-ization is a new-code paradigm + pilot.

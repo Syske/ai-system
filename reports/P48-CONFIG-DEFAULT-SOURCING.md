@@ -46,3 +46,18 @@
 
 - 2026-09-04：L1 规范 + 门禁（spring.md §Configuration Injection；format-check 第 8 项）→ `36d19e9`；L2 待办入档 → `6788fb4`
 - L2：Pending（季度窗口）。
+
+### L2 具体方案（2026-09-05 补充，供排期引用）
+
+动作归属：**业务仓侧 1-4（走任务卡 + develop 主链 + MR）+ 治理层 5-6（ai-system，本提案落地）**。
+
+1. 业务仓：建配置 POJO（如 `StorageSecurityProperties`，`@ConfigurationProperties(prefix="security.storage")`）
+2. 业务仓：使用方 @Value → 构造器注入 POJO
+3. 业务仓：测试 @InjectMocks 直构 → `new StorageSecurityProperties()` 显式传（默认=生产默认同源）
+4. 业务仓：reconcile 系 8 处双默认收敛进 POJO（存量迁移）
+5. 治理层（本提案已落地）：spring.md §Configuration Properties（POJO 字段默认值=单一默认源合法、
+   三行注释、构造器注入）；门禁验证第 8 项对 POJO 天然豁免（无 @Value → 不误拦；#1 单行 Javadoc
+   按 documentation.md 禁单行块，POJO 字段注释须三行结构）
+6. 治理层：补 POJO 合规测试（@ConfigurationProperties + 字段初始化 + 三行注释 → PASS）
+
+验收：试点仓测试全绿 + 门禁通过 + 存量双默认归零。边界：不强制迁移存量（L1 合规即可）。
