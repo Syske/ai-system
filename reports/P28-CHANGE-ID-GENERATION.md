@@ -45,14 +45,14 @@
   自动派生可编辑）——P28 卡点（Change Request 前置）随 P37 一并解除
 - [ ] D：AI 可选生成（skill 层落点）——触发条件未到（不引入 wizard LLM，Evolution Principle）
 
-## 6. Implementation Record (2026-09-05)
+## Implementation Record (2026-09-05)
 
 方案 A（`{YYYYMM}-` 前缀默认）随本提案早前已落地；方案 B（规则 slug 派生）由 **P37 批次 1**
 实施覆盖（prepare `required: [Change Request]` + `suggest_change_id` + `_manual_default` 派生），
 2026-09-05 收尾再补中文前导停用词剔除（P37 收尾）。Status → Implemented（PROPOSALS.md 同步）。
 C/D 不引入（Evolution Principle）。
 
-## 7. 追加：输入界面中文化（2026-08-25，用户确认实施）
+## 追加：输入界面中文化（2026-08-25，用户确认实施）
 
 **背景**：用户反馈 Change ID 输入界面（`from openspec/changes/` + `🔀 Change ID (required):`）交互不够友好——
 英文 required 标记 + 英文技术路径 note，提示与输入框间隔感强。LANGUAGE_CONVENTION 明确
