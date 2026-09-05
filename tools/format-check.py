@@ -66,6 +66,12 @@ STR_EQ_LITERAL = re.compile(r'["\'][\w\s.?!:;+=/\\-]+["\']\s*(?:==|!=)\s*["\']|(
 LOG_FORBIDDEN = re.compile(r'\.printStackTrace\(\)|System\.out\.println\(')
 THROWS_EXCEPTION = re.compile(r'\bthrows\s+Exception\b')
 
+# 第 13-15 项（java-alibaba.md §Optional / §Date / §Thread）
+OPTIONAL_FIELD = re.compile(r'(?:private|public|protected|static|final|\s)+Optional<[^>]+>\s+\w+\s*[;=]')
+OPTIONAL_PARAM = re.compile(r'\([^)]*\bOptional<[^>]+>\s+\w+')
+LEGACY_DATE = re.compile(r'java\.util\.Date|java\.util\.Calendar|(?<![A-Za-z])Calendar\b|new\s+Date\s*\(|SimpleDateFormat|(?<![A-Za-z])Date\b')
+NEW_THREAD = re.compile(r'new\s+Thread\s*\(')
+
 
 def _is_comment_line(line: str) -> bool:
     s = line.strip()
@@ -226,6 +232,26 @@ def check_file(path: Path, findings):
             findings.append(
                 ("WARN",
                  f"throws Exception（§Exception：须使用业务异常）: {path}:{i}"))
+
+    # 13. Optional 字段/参数（java-alibaba.md §Optional：禁字段/参数，仅返回值）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if _is_comment_line(s):
+            continue
+        if OPTIONAL_FIELD.search(s):
+            findings.append(("WARN", f"Optional 作为字段（§Optional：仅用于返回值）: {path}:{i}"))
+        if OPTIONAL_PARAM.search(s):
+            findings.append(("WARN", f"Optional 作为方法参数（§Optional：仅用于返回值）: {path}:{i}"))
+
+    # 14. 遗留日期 API（java-alibaba.md §Date：统一 java.time，禁 Date/Calendar/SimpleDateFormat）
+    for i, ln in enumerate(lines, 1):
+        if LEGACY_DATE.search(ln) and not _is_comment_line(ln):
+            findings.append(("WARN", f"遗留日期 API（§Date：统一 java.time；禁 Date/Calendar/SimpleDateFormat）: {path}:{i}"))
+
+    # 15. new Thread()（java-alibaba.md §Thread：须用线程池）
+    for i, ln in enumerate(lines, 1):
+        if NEW_THREAD.search(ln) and not _is_comment_line(ln):
+            findings.append(("WARN", f"new Thread()（§Thread：须使用线程池）: {path}:{i}"))
 
 
 def _changed_java_files(src_dir):

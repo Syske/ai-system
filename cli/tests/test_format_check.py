@@ -218,6 +218,61 @@ public class Com {
 }
 """
 
+OPTIONAL_VIOLATION = """package x;
+
+import java.util.Optional;
+
+public class OptBad {
+    private Optional<String> name;
+
+    public String find2(Optional<String> filter) {
+        return "x";
+    }
+}
+"""
+
+LEGACY_DATE_VIOLATION = """package x;
+
+public class DateBad {
+    public void go() {
+        java.util.Date d = new java.util.Date();
+        java.util.Calendar c = java.util.Calendar.getInstance();
+    }
+}
+"""
+
+NEW_THREAD_VIOLATION = """package x;
+
+public class ThreadBad {
+    public void go() {
+        new Thread(() -> {}).start();
+    }
+}
+"""
+
+STD_OK = """package x;
+
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.time.LocalDate;
+
+public class StdOk {
+    public Optional<String> find(long id) {
+        return Optional.empty();
+    }
+
+    public LocalDate now() {
+        return LocalDate.now();
+    }
+
+    public void pool() {
+        ExecutorService es = Executors.newFixedThreadPool(2);
+        es.execute(() -> {});
+    }
+}
+"""
+
 STR_EQ_VIOLATION = """package x;
 
 public class StrEq {
@@ -449,6 +504,24 @@ class TestFormatCheck(unittest.TestCase):
     def test_alibaba_rules_ok(self):
         # Objects.equals / 业务异常 / SLF4J → 不报（exit 0）
         self.assertEqual(_run_single("AlibabaOk.java", ALIBABA_OK), 0)
+
+    # ---- 第 13-15 项：§Optional / §Date / §Thread ----
+
+    def test_optional_field_param_warn(self):
+        # Optional 字段 + 参数 → WARN（exit 1）
+        self.assertEqual(_run_single("OptBad.java", OPTIONAL_VIOLATION), 1)
+
+    def test_legacy_date_warn(self):
+        # Date/Calendar/SimpleDateFormat → WARN（exit 1）
+        self.assertEqual(_run_single("DateBad.java", LEGACY_DATE_VIOLATION), 1)
+
+    def test_new_thread_warn(self):
+        # new Thread() → WARN（exit 1）
+        self.assertEqual(_run_single("ThreadBad.java", NEW_THREAD_VIOLATION), 1)
+
+    def test_std_rules_ok(self):
+        # Optional 返回 / LocalDate / 线程池 → 不报（exit 0）
+        self.assertEqual(_run_single("StdOk.java", STD_OK), 0)
 
     # ---- --check-commit（commit-content.md）----
 
