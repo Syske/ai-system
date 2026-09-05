@@ -211,7 +211,21 @@ Quality Verification Report
 
 ---
 
-# Phase 7 — Final Assessment
+# Phase 7 — Validation Status Check
+
+Pre-release gate: confirm the change carries an explicit validation marker
+(same fields as review): `compile` and `unittest` (pass / not-run).
+
+Rules:
+
+- If a mandatory verification is missing and has NOT been re-run here →
+  this is a **release-blocking item** (ERROR level); Verification Status
+  cannot be PASS until compile + unittest are confirmed (pass or re-run).
+- If the marker is present and pass → record as evidence.
+
+---
+
+# Phase 8 — Final Assessment
 
 Calculate:
 
@@ -225,7 +239,8 @@ FAIL
 
 Rules:
 
-If any mandatory verification fails:
+If any mandatory verification fails (including an unresolved Phase 7
+validation gap):
 
 Status = FAIL
 

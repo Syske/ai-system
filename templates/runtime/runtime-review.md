@@ -218,6 +218,25 @@ Revert to [ ], classify as Critical finding.
 
 ---
 
+# Phase 8 — Validation Status Check
+
+Verify whether the task card / completion report carries an explicit
+validation marker for this change:
+
+- `compile`: compile check result (pass / not-run)
+- `unittest`: unit test result (pass + count / not-run)
+
+Rules:
+
+- Marker present and pass → record in the review summary.
+- Marker absent (or `not-run`) → record as an explicit
+  **un-validated item** in the review findings (WARN level) and recommend
+  running the compile / unit-test check before merge.
+- This check does not block the review itself; it only makes the validation
+  obligation visible in the review record.
+
+---
+
 # Outputs
 
 Generate:
