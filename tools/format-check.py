@@ -72,6 +72,12 @@ OPTIONAL_PARAM = re.compile(r'\([^)]*\bOptional<[^>]+>\s+\w+')
 LEGACY_DATE = re.compile(r'java\.util\.Date|java\.util\.Calendar|(?<![A-Za-z])Calendar\b|new\s+Date\s*\(|SimpleDateFormat|(?<![A-Za-z])Date\b')
 NEW_THREAD = re.compile(r'new\s+Thread\s*\(')
 
+# 第 16-17 项（java-alibaba.md §Config / §Collection）
+HARDCODE_URL = re.compile(r'(?:=\s*|return\s+|\bput\s*\(|\bset[A-Z]\w*\s*\(\s*"[^"]*"?\s*,\s*)"https?://[^"]*"')
+HARDCODE_SECRET = re.compile(r'(?:=\s*|return\s+|\bput\s*\(|\bset[A-Z]\w*\s*\(\s*"[^"]*"?\s*,\s*)"(?=[^"]*?(?:token|secret|password|api[_-]?key|access[_-]?key))[^"$<]{4,}"')
+COLL_METHOD_RE = re.compile(r'^\s*(?:public|protected|private|static|final|default|synchronized|\s)+'
+                            r'(?:(?:List|Map|Set|Collection|Queue|Deque|Iterable|Stream)\b[^;(]*)\([^)]*\)\s*\{')
+
 
 def _is_comment_line(line: str) -> bool:
     s = line.strip()
@@ -205,7 +211,7 @@ def check_file(path: Path, findings):
     #    if/else/for/while 单语句必须带大括号（含 lambda 内）
     for i, ln in enumerate(lines, 1):
         s = ln.strip()
-        if BRACELESS_CTRL.search(s) and not _is_comment_line(s):
+        if BRACELESS_CTRL.search(s) and not s.rstrip().endswith("{") and not _is_comment_line(s):
             findings.append(
                 ("WARN",
                  f"单行控制语句无大括号（§Braces：if/else/for/while 必须带 {{}}，含 lambda 内）: {path}:{i}"))
@@ -252,6 +258,32 @@ def check_file(path: Path, findings):
     for i, ln in enumerate(lines, 1):
         if NEW_THREAD.search(ln) and not _is_comment_line(ln):
             findings.append(("WARN", f"new Thread()（§Thread：须使用线程池）: {path}:{i}"))
+
+    # 16. 硬编码 URL/Secret（java-alibaba.md §Config：禁硬编码，须外部化）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if _is_comment_line(s):
+            continue
+        if HARDCODE_URL.search(s):
+            findings.append(("WARN", f"硬编码 URL（§Config：须外部化到配置）: {path}:{i}"))
+        elif HARDCODE_SECRET.search(s):
+            findings.append(("WARN", f"硬编码密钥（§Config：Token/Secret 须外部化）: {path}:{i}"))
+
+    # 17. 集合方法返回 null（java-alibaba.md §Collection：返回空集合，禁 null）
+    depth = 0
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if _is_comment_line(s):
+            continue
+        if depth == 0 and COLL_METHOD_RE.match(s):
+            depth = 1
+            continue
+        if depth > 0:
+            if re.search(r'\breturn\s+null\s*;', s):
+                findings.append(("WARN", f"集合方法返回 null（§Collection：返回空集合）: {path}:{i}"))
+            depth += s.count('{') - s.count('}')
+            if depth <= 0:
+                depth = 0
 
 
 def _changed_java_files(src_dir):

@@ -218,6 +218,42 @@ public class Com {
 }
 """
 
+HARDCODE_VIOLATION = """package x;
+
+public class CfgBad {
+    private String url = "https://api.example.com/v1";
+    private String token = "abc123def456";
+}
+"""
+
+COLL_NULL_VIOLATION = """package x;
+
+import java.util.List;
+
+public class CollBad {
+    public List<String> names() {
+        if (empty) {
+            return null;
+        }
+        return List.of();
+    }
+}
+"""
+
+CONFIG_COLL_OK = """package x;
+
+import java.util.List;
+
+public class CfgOk {
+    private String url = "${app.url}";
+    private String token = "<token-placeholder>";
+
+    public List<String> safe() {
+        return List.of();
+    }
+}
+"""
+
 OPTIONAL_VIOLATION = """package x;
 
 import java.util.Optional;
@@ -522,6 +558,20 @@ class TestFormatCheck(unittest.TestCase):
     def test_std_rules_ok(self):
         # Optional 返回 / LocalDate / 线程池 → 不报（exit 0）
         self.assertEqual(_run_single("StdOk.java", STD_OK), 0)
+
+    # ---- 第 16-17 项：§Config / §Collection ----
+
+    def test_hardcode_config_warn(self):
+        # 硬编码 URL / 密钥 → WARN（exit 1）
+        self.assertEqual(_run_single("CfgBad.java", HARDCODE_VIOLATION), 1)
+
+    def test_collection_return_null_warn(self):
+        # 集合方法返回 null → WARN（exit 1）
+        self.assertEqual(_run_single("CollBad.java", COLL_NULL_VIOLATION), 1)
+
+    def test_config_collection_ok(self):
+        # 占位符 / 空集合返回 → 不报（exit 0）
+        self.assertEqual(_run_single("CfgOk.java", CONFIG_COLL_OK), 0)
 
     # ---- --check-commit（commit-content.md）----
 
