@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Enhancement（多 workflow 参数契约评估；触及结构，走 §12） |
 | Author | AI Maintainer |
 | Created | 2026-08-25 |
@@ -146,3 +146,19 @@ Applied per user approval「先落地收益最大的」：
 **Validation**：repo-lint 25 WARN（0 新增，语言规范修正后归零）/ path-audit 0 broken / workflow-command-audit 0 blocker / check.py PASS / prepare 提示词 Required 收敛为 Change Request。
 
 > 后续批次（未实施，待评估）：analysis Target、bugfix Project ID、change-impact Projects、code-review Projects、knowledge Operation 的推导；Change ID slug 中文分词增强。
+
+## Implementation Record (2026-09-05) — 批次 2 + 收尾（全部落地）
+
+**批次 2（5 workflow 推导，零 LLM）**：`cli/services/wizard/fields.py::_derive_fields`
+- Projects / Project ID（change-impact / code-review / bugfix）：从 wizard 已选项目
+  （Workspace/Project ID）推导，预填可编辑
+- Analysis Target（analysis）：无项目上下文默认 ai-system 自身
+- Knowledge Operation（knowledge）：默认 collect
+- 测试 +5（含「已有项目上下文不覆盖 analysis target」）
+
+**收尾**：`cli/services/change_resume.py::_slugify` 中文前导停用词剔除
+（实现/完成/支持/新增/添加/修复/优化/重构/请 → 避免 slug 以命令式开头）+ 测试 +1。
+
+**P37 状态 → Implemented**。真·必填收敛为 4 个（bugfix Bug Description、change-impact Code Reference、
+prepare Change Request、proposal Topic），其余全部自动推导/生成/默认。Validation：全量 234 tests OK、
+check.py PASS、path-audit 0/0。

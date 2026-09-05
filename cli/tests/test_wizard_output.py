@@ -243,6 +243,10 @@ class TestP37DeriveFields(unittest.TestCase):
         cid2 = change_resume.suggest_change_id("接入微信支付")
         self.assertRegex(cid2, r"^\d{6}-接入微信支付$")
 
+        # 中文前导停用词剔除（P37 收尾）
+        cid3 = change_resume.suggest_change_id("支持多租户登录流程")
+        self.assertRegex(cid3, r"^\d{6}-多租户登录流程$")
+
     def test_release_version_fallback(self):
         from cli.services import git_version
         import datetime

@@ -122,7 +122,15 @@ def _slugify(text: str) -> str:
 
         if re.fullmatch(r"[\u4e00-\u9fff]+", tok):
 
-            tokens.append(tok)
+            # 中文块：剔除前导停用词（整块无法匹配 stop 集合 → 前缀剔除，
+            # P37 收尾：中文分词增强，避免 slug 以「实现/支持…」开头）
+            for w in ("请", "实现", "完成", "支持", "新增", "添加", "修复", "优化", "重构"):
+                if tok.startswith(w):
+                    tok = tok[len(w):]
+                    break
+
+            if tok:
+                tokens.append(tok)
 
         else:
 
