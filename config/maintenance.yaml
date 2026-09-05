@@ -57,3 +57,7 @@ last_findings:
   （aaadbc2 < WSL 3476486）无备份价值（git 远端即备份）、0 未提交/未推送；projects symlink 指向
   D 盘 project-resources 不受影响。观察期后无回归 → 正式删除 ai-system-bak。业务仓 Windows 工作流
   （IDEA/Maven）保持 D 盘物理
+- GitHub Actions CI 移除（2026-09-04）：删除 .github/workflows/ci.yml。理由：ai-system 为本地维护
+  工具仓（主链 WSL），CI 与本地 check.py 门禁重复；GitHub Actions 环境（ubuntu、无 ~/.local/jre17、
+  无本机配置）与全量 unittest 结构性错配 → 经常性报错（此前 D701ce2 修 JRE 印证）；无外部协作价值。
+  回归闸回归到本地 check.py + 全量单测（每次提交前跑）。如需恢复，ci.yml 在 git 历史可随时找回。
