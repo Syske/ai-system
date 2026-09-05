@@ -68,3 +68,9 @@ last_findings:
   必然误报（2 次实验证明）。语言合规机制维持：P45 运行时门禁（language-gate.py，用户可见文本）
   + 语言自查惯例（b5b09b0/4c0125a）；不引入静态逐行 CJK 门禁。本次顺手修复 runtime-develop
   L157-161 真中文（d28eb20 引入的增量说明→英文）。
+- 存量债基线登记（2026-09-05，周巡检 + 用户决策 A）：format-check 全量扫活跃 worktree——
+  knowledge-api 171 FAIL/3147 WARN + 日志中文 17 文件；resource-manager 10 FAIL/242 WARN +
+  日志中文 0（@Value 会话已处理过）。处理：**基线化**（不海量修改业务仓——大 diff/干扰任务/
+  评审成本 > 价值）；门禁 --changed 增量语义复验通过（存量仓无改动 PASS、新增行精确拦截，
+  存量豁免+新增拦截机制成立，与 checkstyle suppressions 同模式）。存量债保持登记，
+  随任务开发自然消减。
