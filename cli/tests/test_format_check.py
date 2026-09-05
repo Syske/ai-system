@@ -218,6 +218,50 @@ public class Com {
 }
 """
 
+MAGIC_STR_VIOLATION = """package x;
+
+public class MagicStr {
+    public void run(String status) {
+        if (status.equals("SUCCESS")) {
+            sync();
+        }
+    }
+
+    private void sync() {
+    }
+}
+"""
+
+MAGIC_NUM_VIOLATION = """package x;
+
+public class MagicNum {
+    public void run(int n) {
+        if (n > 5000) {
+            sync();
+        }
+    }
+
+    private void sync() {
+    }
+}
+"""
+
+MAGIC_OK = """package x;
+
+public class MagicOk {
+    private static final int TIMEOUT = 5000;
+
+    public void run(int n) {
+        if (n > TIMEOUT) {
+            sync();
+        }
+    }
+
+    private void sync() {
+    }
+}
+"""
+
 HARDCODE_VIOLATION = """package x;
 
 public class CfgBad {
@@ -572,6 +616,20 @@ class TestFormatCheck(unittest.TestCase):
     def test_config_collection_ok(self):
         # 占位符 / 空集合返回 → 不报（exit 0）
         self.assertEqual(_run_single("CfgOk.java", CONFIG_COLL_OK), 0)
+
+    # ---- 第 18-19 项：魔法值 ----
+
+    def test_magic_string_warn(self):
+        # 裸字符串 equals / switch-case → WARN（exit 1）
+        self.assertEqual(_run_single("MagicStr.java", MAGIC_STR_VIOLATION), 1)
+
+    def test_magic_number_warn(self):
+        # 方法体内 4+ 位裸数字 → WARN（exit 1）
+        self.assertEqual(_run_single("MagicNum.java", MAGIC_NUM_VIOLATION), 1)
+
+    def test_magic_ok(self):
+        # 常量声明 / @Value / 消息字符串 → 不报（exit 0）
+        self.assertEqual(_run_single("MagicOk.java", MAGIC_OK), 0)
 
     # ---- --check-commit（commit-content.md）----
 

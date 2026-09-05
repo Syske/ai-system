@@ -78,6 +78,11 @@ HARDCODE_SECRET = re.compile(r'(?:=\s*|return\s+|\bput\s*\(|\bset[A-Z]\w*\s*\(\s
 COLL_METHOD_RE = re.compile(r'^\s*(?:public|protected|private|static|final|default|synchronized|\s)+'
                             r'(?:(?:List|Map|Set|Collection|Queue|Deque|Iterable|Stream)\b[^;(]*)\([^)]*\)\s*\{')
 
+# 第 18-19 项（魔法值：裸字符串比较/switch、大数字字面量）
+MAGIC_STR_RE = re.compile(r'\.equals\s*\(\s*"[A-Za-z_][A-Za-z0-9_]{2,}"'
+                          r'|\bswitch\s*\(\s*[^)]*\s*\)\s*\{\s*case\s*"[A-Za-z_][A-Za-z0-9_]{2,}"')
+MAGIC_NUM_RE = re.compile(r'(?<![\w.])([1-9][0-9]{3,})(?![\w.])')
+
 
 def _is_comment_line(line: str) -> bool:
     s = line.strip()
@@ -284,6 +289,23 @@ def check_file(path: Path, findings):
             depth += s.count('{') - s.count('}')
             if depth <= 0:
                 depth = 0
+
+    # 18. 魔法字符串（java-alibaba.md §String 延伸：裸字符串 equals/switch-case，须提命名常量）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if _is_comment_line(s):
+            continue
+        if MAGIC_STR_RE.search(s):
+            findings.append(("WARN", f"魔法字符串（裸字符串 equals/switch-case，建议提命名常量）: {path}:{i}"))
+
+    # 19. 魔法数字（4+ 位裸数字字面量；常量声明/@Value/注解行排除）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if _is_comment_line(s) or re.match(r'(?:private|public|protected|static|final|@Value|@[A-Za-z]+)', s):
+            continue
+        m = MAGIC_NUM_RE.search(s)
+        if m:
+            findings.append(("WARN", f"魔法数字 {m.group(1)}（建议提命名常量）: {path}:{i}"))
 
 
 def _changed_java_files(src_dir):
