@@ -48,8 +48,8 @@
 | Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |
 | Implemented | Worktree 约定完善（项目级隔离 + 生命周期管理） | 2026-08-31 | `P44-WORKTREE-CONVENTION.md` |
 | Implemented | 运行时语言门禁（completion-time language gate，方案 B 正式化） | 2026-09-01 | `P45-RUNTIME-LANGUAGE-GATE.md` |
-| Proposed | tr5 发布债收口 + review/verify 验证标记检查 | 2026-09-01 | `P46-TR5-DEBT-VALIDATION-MARKER.md` |
-| Proposed | 配置默认值治理（@Value 单一默认源 + 对象化路线；L1 已实施，L2 配置 POJO 化待季度窗口） | 2026-09-04 | `P48-CONFIG-DEFAULT-SOURCING.md` |
+| Implemented | tr5 发布债收口 + review/verify 验证标记检查 | 2026-09-01 | `P46-TR5-DEBT-VALIDATION-MARKER.md` |
+| Implemented | 配置默认值治理（@Value 单一默认源 + 对象化路线；L1 + L2 治理层已实施，业务试点季度窗口） | 2026-09-04 | `P48-CONFIG-DEFAULT-SOURCING.md` |
 | Implemented | develop 前置处理规则与产物目录约定 | 2026-09-02 | `P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |

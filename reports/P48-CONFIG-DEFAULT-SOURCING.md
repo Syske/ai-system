@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented**（L1 + L2 治理层已实施；L2 业务试点季度窗口 defer，见 Implementation Record） |
 | Type | Fix + Structural（规范与门禁收口 L1 已实施；L2 配置对象化为本提案主体，触及新代码范式） |
 | Author | AI Maintainer |
 | Created | 2026-09-04 |
@@ -46,6 +46,10 @@
 
 - 2026-09-04：L1 规范 + 门禁（spring.md §Configuration Injection；format-check 第 8 项）→ `36d19e9`；L2 待办入档 → `6788fb4`
 - L2：Pending（季度窗口）。
+- 2026-09-05：**L2 治理层落地**（`d38bbb9`）——spring.md §Configuration Properties（POJO 字段
+  默认值=单一默认源合法、三行注释、构造器注入）；门禁验证第 8 项对 POJO 天然豁免（无 @Value 不误拦）；
+  P48 补 L2 具体方案 + 动作归属（业务仓 1-4 走任务卡/MR + 治理层 5-6 已落地）；测试 +1（POJO 合规
+  写法 PASS）。Status → Implemented（业务试点仍排季度窗口）。
 
 ### L2 具体方案（2026-09-05 补充，供排期引用）
 
