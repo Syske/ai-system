@@ -151,6 +151,22 @@ class WizardFields:
                 if v:
                     values["Release Version"] = v
 
+            # P37 批次 2：项目选择类 + 默认类推导（评估表后续批次）
+            # - Projects / Project ID：wizard 已选项目（Workspace/Project ID）推导
+            # - Analysis Target：主链进入默认 ai-system 自身
+            # - Knowledge Operation：默认 collect
+            if field in ("Projects", "Project ID") and project:
+                values[field] = project
+                continue
+
+            if field == "Analysis Target" and not project:
+                values[field] = "ai-system"
+                continue
+
+            if field == "Knowledge Operation" and not values.get(field):
+                values[field] = "collect"
+                continue
+
     def _apply_field_defaults(
         self,
         fields,

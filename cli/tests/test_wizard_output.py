@@ -275,6 +275,39 @@ class TestP37DeriveFields(unittest.TestCase):
         from cli.services import git_version
         self.assertEqual(values.get("Release Version"), git_version.guess_release_version())
 
+    # ---- P37 批次 2：项目选择类 + 默认类推导 ----
+
+    def test_derive_projects_from_selected(self):
+        w = WizardFields()
+        values = {"Project ID": "proj-x"}
+        w._derive_fields([("Projects", False)], values)
+        self.assertEqual(values.get("Projects"), "proj-x")
+
+    def test_derive_project_id_from_workspace(self):
+        w = WizardFields()
+        values = {"Workspace ID": "ws-a"}
+        w._derive_fields([("Project ID", False)], values)
+        self.assertEqual(values.get("Project ID"), "ws-a")
+
+    def test_derive_analysis_target_default(self):
+        w = WizardFields()
+        values = {}
+        w._derive_fields([("Analysis Target", False)], values)
+        self.assertEqual(values.get("Analysis Target"), "ai-system")
+
+    def test_derive_knowledge_operation_default(self):
+        w = WizardFields()
+        values = {}
+        w._derive_fields([("Knowledge Operation", False)], values)
+        self.assertEqual(values.get("Knowledge Operation"), "collect")
+
+    def test_derive_analysis_target_keeps_selected(self):
+        # 已有项目上下文时 analysis target 不覆盖
+        w = WizardFields()
+        values = {"Project ID": "proj-y"}
+        w._derive_fields([("Analysis Target", False)], values)
+        self.assertIsNone(values.get("Analysis Target"))
+
 if __name__ == "__main__":
     unittest.main()
 
