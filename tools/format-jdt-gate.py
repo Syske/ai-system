@@ -143,7 +143,10 @@ def _closure_ready(lib):
 
 # ---------- 干跑 ----------
 
-def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False, ignore_file=None):
+def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False, ignore_file=None,
+          files_list=None):
+    """files_list：显式文件集（相对路径列表，对应 Java --files-file）。
+    提供时仅检查该子集（替代目录全量 walk）——用于 CI/外部工具精确指定文件。"""
     lib_dir = Path(lib_dir)
     build_dir = Path(build_dir)
     cp = f"{lib_dir}/*:{build_dir}"   # 闭包 jar 目录通配
@@ -160,6 +163,12 @@ def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False, ignore_file=Non
         cmd.append("--apply")
     if ignore_file:
         cmd += ["--ignore-file", str(ignore_file)]
+    if files_list:
+        files_file = build_dir / "files-list.txt"
+        files_file.write_text(
+            "\n".join(f.replace("\\", "/") for f in files_list) + "\n",
+            encoding="utf-8")
+        cmd += ["--files-file", str(files_file)]
     r = run(cmd)
     # rc 0=一致 / 1=有差异 均为 wrapper 正常输出；其余（含 stdout 无 files=）判失败
     if r.returncode not in (0, 1) or "files=" not in r.stdout:
@@ -232,6 +241,9 @@ def main(argv=None):
                     help="将 formatted 结果写回源文件（格式基线；配合 git diff -w 安全校验）")
     ap.add_argument("--changed", action="store_true",
                     help="增量口径：git status 驱动——无改动 .java 快速 PASS；有改动全量扫描（口径日志）")
+    ap.add_argument("--files-list", default=None,
+                    help="显式 .java 文件集（相对 src_dir 路径，逗号/空格/换行分隔）；"
+                         "提供时仅检查该子集（替代全量 walk）")
     ap.add_argument("--ignore-file", default=None,
                     help="已知边界文件清单（wrapper --ignore-file；默认无；C2 仓内 known-ignore.txt）")
     args = ap.parse_args(argv)
@@ -299,8 +311,13 @@ def main(argv=None):
             else:
                 return 3
 
+    files_list = None
+    if args.files_list:
+        import re as _re
+        files_list = [f for f in _re.split(r"[,\s]+", args.files_list.strip()) if f]
+
     return dry_run(java, lib, build, Path(args.xml), Path(args.src_dir), apply=args.apply,
-                   ignore_file=args.ignore_file)
+                   ignore_file=args.ignore_file, files_list=files_list)
 
 
 if __name__ == "__main__":

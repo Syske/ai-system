@@ -86,6 +86,37 @@ class TestJdtGate(unittest.TestCase):
             self.assertEqual(fjg.dry_run("/j", "/lib", "/build", "/x.xml", "/src"), 3)
 
 
+    def test_dry_run_files_list_writes_list_file(self):
+        # --files-list：files-list.txt 写入 build_dir 且 cmd 带 --files-file；子集生效
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            build = pathlib.Path(td)
+            with mock.patch.object(fjg, "run", return_value=mock.Mock(
+                    returncode=0, stdout="JdtFormatCheck: files=1 differ=0 diffLines=0",
+                    stderr="")), \
+                 mock.patch.object(pathlib.Path, "exists", return_value=True):
+                rc = fjg.dry_run("/j", td, str(build), "/x.xml", "/src",
+                                 files_list=["a.java", "b/c.java"])
+                self.assertEqual(rc, 0)
+                cmd = fjg.run.call_args[0][0]
+                self.assertIn("--files-file", cmd)
+            txt = (build / "files-list.txt").read_text(encoding="utf-8")
+            self.assertIn("a.java", txt)
+            self.assertIn("b/c.java", txt)
+
+    def test_main_files_list_parsed(self):
+        # main 参数解析：--files-list 逗号/空格分隔 → 传给 dry_run
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch.object(fjg, "dry_run", return_value=0) as dr, \
+                 mock.patch.object(fjg, "find_java", return_value="/j"), \
+                 mock.patch.object(fjg, "find_lib_dir", return_value=("/lib", "/build")), \
+                 mock.patch.object(fjg, "_closure_ready", return_value=True):
+                rc = fjg.main([td, "--batch", "--files-list", "a.java,b.java c.java"])
+                self.assertEqual(rc, 0)
+                self.assertEqual(dr.call_args.kwargs.get("files_list"),
+                                 ["a.java", "b.java", "c.java"])
+
 if __name__ == "__main__":
     unittest.main()
     def test_dry_run_apply_flag(self):

@@ -38,11 +38,14 @@ public class JdtFormatCheck {
         Path dumpDir = null;
         boolean apply = false;
         Set<String> ignoreSet = null;
+        Path filesFile = null;
         for (int i = 2; i < args.length; i++) {
             if ("--dump-dir".equals(args[i]) && i + 1 < args.length) {
                 dumpDir = Paths.get(args[++i]);
             } else if ("--apply".equals(args[i])) {
                 apply = true;
+            } else if ("--files-file".equals(args[i]) && i + 1 < args.length) {
+                filesFile = Paths.get(args[++i]);
             } else if ("--ignore-file".equals(args[i]) && i + 1 < args.length) {
                 ignoreSet = new HashSet<String>();
                 for (String line : Files.readAllLines(Paths.get(args[++i]), StandardCharsets.UTF_8)) {
@@ -55,8 +58,21 @@ public class JdtFormatCheck {
         }
 
         List<Path> javaFiles = new ArrayList<Path>();
-        try (java.util.stream.Stream<Path> stream = Files.walk(srcDir)) {
-            stream.filter(p -> p.toString().endsWith(".java")).forEach(javaFiles::add);
+        if (filesFile != null) {
+            for (String line : Files.readAllLines(filesFile, StandardCharsets.UTF_8)) {
+                String t = line.trim();
+                if (t.isEmpty() || t.startsWith("#")) {
+                    continue;
+                }
+                Path f = srcDir.resolve(t.replace('\\', '/'));
+                if (Files.isRegularFile(f)) {
+                    javaFiles.add(f);
+                }
+            }
+        } else {
+            try (java.util.stream.Stream<Path> stream = Files.walk(srcDir)) {
+                stream.filter(p -> p.toString().endsWith(".java")).forEach(javaFiles::add);
+            }
         }
         Collections.sort(javaFiles);
 
