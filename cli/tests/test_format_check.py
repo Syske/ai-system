@@ -218,6 +218,60 @@ public class Com {
 }
 """
 
+STR_EQ_VIOLATION = """package x;
+
+public class StrEq {
+    public void run(String status) {
+        if (status == "OK") {
+            sync();
+        }
+    }
+
+    private void sync() {
+    }
+}
+"""
+
+LOG_VIOLATION = """package x;
+
+public class LogBad {
+    public void run() {
+        try {
+            risky();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("done");
+    }
+
+    private void risky() {
+    }
+}
+"""
+
+THROWS_VIOLATION = """package x;
+
+public class ThrowsBad {
+    private void risky() throws Exception {
+        throw new Exception("x");
+    }
+}
+"""
+
+ALIBABA_OK = """package x;
+
+public class AlibabaOk {
+    public void run(String a, String b) {
+        if (Objects.equals(a, b)) {
+            sync();
+        }
+    }
+
+    private void sync() {
+    }
+}
+"""
+
 BRACES_OK = """package x;
 
 public class Ok {
@@ -377,6 +431,24 @@ class TestFormatCheck(unittest.TestCase):
     def test_braces_violation_warn(self):
         # 单行 if/else 无大括号（含 lambda 内）→ WARN（exit 1）
         self.assertEqual(_run_single("Bad.java", BRACES_VIOLATION), 1)
+
+    # ---- 第 10-12 项：§String / §Log / §Exception ----
+
+    def test_str_eq_literal_warn(self):
+        # 字符串字面量 == 比较 → WARN（exit 1）
+        self.assertEqual(_run_single("StrEq.java", STR_EQ_VIOLATION), 1)
+
+    def test_log_forbidden_warn_main_only(self):
+        # main：printStackTrace/System.out.println → WARN（exit 1）
+        self.assertEqual(_run_single("LogBad.java", LOG_VIOLATION), 1)
+
+    def test_throws_exception_warn(self):
+        # throws Exception → WARN（exit 1）
+        self.assertEqual(_run_single("ThrowsBad.java", THROWS_VIOLATION), 1)
+
+    def test_alibaba_rules_ok(self):
+        # Objects.equals / 业务异常 / SLF4J → 不报（exit 0）
+        self.assertEqual(_run_single("AlibabaOk.java", ALIBABA_OK), 0)
 
     # ---- --check-commit（commit-content.md）----
 

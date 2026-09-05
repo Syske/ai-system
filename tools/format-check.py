@@ -61,6 +61,11 @@ METHOD_NO_MOD_RE = re.compile(
 LOG_CJK_ERROR = re.compile(r"log\.(error|warn)\(\s*\"[^\"]*[\u4e00-\u9fff]")
 LOG_CJK_INFO = re.compile(r"log\.(info|debug)\(\s*\"[^\"]*[\u4e00-\u9fff]")
 
+# 第 10-12 项（java-alibaba.md §String / §Log / §Exception）
+STR_EQ_LITERAL = re.compile(r'["\'][\w\s.?!:;+=/\\-]+["\']\s*(?:==|!=)\s*["\']|(?:==|!=)\s*["\'][^"\'\n]*["\']')
+LOG_FORBIDDEN = re.compile(r'\.printStackTrace\(\)|System\.out\.println\(')
+THROWS_EXCEPTION = re.compile(r'\bthrows\s+Exception\b')
+
 
 def _is_comment_line(line: str) -> bool:
     s = line.strip()
@@ -198,6 +203,29 @@ def check_file(path: Path, findings):
             findings.append(
                 ("WARN",
                  f"单行控制语句无大括号（§Braces：if/else/for/while 必须带 {{}}，含 lambda 内）: {path}:{i}"))
+
+    # 10. 字符串字面量 == / != 比较（java-alibaba.md §String：Forbidden ==，须 Objects.equals）
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if STR_EQ_LITERAL.search(s) and not _is_comment_line(s):
+            findings.append(
+                ("WARN",
+                 f"字符串 == / != 字面量比较（§String：用 Objects.equals/StringUtils.equals）: {path}:{i}"))
+
+    # 11. 生产日志禁用写法（java-alibaba.md §Log：SLF4J，禁止 printStackTrace/System.out.println，仅 main）
+    if _is_main:
+        for i, ln in enumerate(lines, 1):
+            if LOG_FORBIDDEN.search(ln) and not _is_comment_line(ln):
+                findings.append(
+                    ("WARN",
+                     f"生产日志禁用（§Log：SLF4J；禁 printStackTrace/System.out.println）: {path}:{i}"))
+
+    # 12. throws Exception（java-alibaba.md §Exception：须业务异常）
+    for i, ln in enumerate(lines, 1):
+        if THROWS_EXCEPTION.search(ln) and not _is_comment_line(ln):
+            findings.append(
+                ("WARN",
+                 f"throws Exception（§Exception：须使用业务异常）: {path}:{i}"))
 
 
 def _changed_java_files(src_dir):
