@@ -42,7 +42,7 @@
 3. **L3（远期）**：随团队测试基础设施演进评估。
 4. 批尺寸防御纳入存量修复清单（独立推进，不依赖 L2）。
 
-## 5. Implementation Record（实施记录）
+## Implementation Record
 
 - 2026-09-04：L1 规范 + 门禁（spring.md §Configuration Injection；format-check 第 8 项）→ `36d19e9`；L2 待办入档 → `6788fb4`
 - L2：Pending（季度窗口）。
