@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Fix（工具行为，初始化脚本 tools/setup.py + aic-env-init 命令文档） |
 | Author | AI Maintainer |
 | Created | 2026-08-25 |
@@ -105,6 +105,14 @@
 
 ---
 
-## Implementation Record
+## Implementation Record (2026-09-05)
 
-（批准并实施后追加：Applied per approval → 改动清单 → Validation 结果 → Status 置 Implemented + 同步 PROPOSALS.md/README）
+**内容层（方案 A）**：`tools/setup.py::env_init` 补 `scaffold(BASE_DIRS)` + `ensure_runtime_dirs()` +
+`link_repos()`（幂等非破坏）；`link_repos` 加外部仓库路径引导（interactive 时逗号分隔输入，
+`_looks_like_repo` 逐个校验链接）。实测：临时 root 5 目录 + metrics 创建、幂等复跑无副作用。
+
+**触发层（T-b）**：`cli/main.py` 首启只读检测两份配置（workspace local.yaml + 机器层 env.yaml）；
+缺失 + TTY → 中文确认 → 执行 env-init；非交互 → stderr 一行指引（符合 ADR-0009 授权分层）。
+
+**Validation**：测试 +5（test_main_p36：未初始化判定/非交互指引/确认执行/拒绝跳过）；
+全量 242 tests OK、check.py PASS、path-audit 0/0。Status → Implemented。
