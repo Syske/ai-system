@@ -83,6 +83,12 @@ MAGIC_STR_RE = re.compile(r'\.equals\s*\(\s*"[A-Za-z_][A-Za-z0-9_]{2,}"'
                           r'|\bswitch\s*\(\s*[^)]*\s*\)\s*\{\s*case\s*"[A-Za-z_][A-Za-z0-9_]{2,}"')
 MAGIC_NUM_RE = re.compile(r'(?<![\w.])([1-9][0-9]{3,})(?![\w.])')
 
+# 第 20-21 项（java-alibaba.md §Lombok / §MQ）
+LOMBOK_ANNOT_RE = re.compile(r'^\s*@(Data|Getter|Setter|Builder|Value|NoArgsConstructor|RequiredArgsConstructor)\b')
+MANUAL_GETTER_RE = re.compile(r'^\s*public\s+[\w<>\[\],. ]+\s+(get[A-Z]\w*)\s*\(\s*\)\s*\{\s*return\s+\w+\s*;')
+MANUAL_SETTER_RE = re.compile(r'^\s*public\s+void\s+(set[A-Z]\w*)\s*\(([^)]*)\)\s*\{\s*this\.\w+\s*=\s*\w+\s*;')
+JSONOBJECT_NEW_RE = re.compile(r'\bnew\s+JSONObject\s*\(')
+
 
 def _is_comment_line(line: str) -> bool:
     s = line.strip()
@@ -306,6 +312,29 @@ def check_file(path: Path, findings):
         m = MAGIC_NUM_RE.search(s)
         if m:
             findings.append(("WARN", f"魔法数字 {m.group(1)}（建议提命名常量）: {path}:{i}"))
+
+    # 20. Lombok 无意义 getter/setter（java-alibaba.md §Lombok：Prefer @Data；禁无意义手动 getter/setter）
+    lombok_on = False
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if _is_comment_line(s):
+            continue
+        if s.startswith('}'):
+            lombok_on = False
+        elif LOMBOK_ANNOT_RE.match(s):
+            lombok_on = True
+        elif not lombok_on:
+            m = MANUAL_GETTER_RE.match(s)
+            if m:
+                findings.append(("WARN", f"无意义 getter {m.group(1)}（§Lombok：用 @Data/@Getter 或省略）: {path}:{i}"))
+            m2 = MANUAL_SETTER_RE.match(s)
+            if m2:
+                findings.append(("WARN", f"无意义 setter {m2.group(1)}（§Lombok：用 @Data/@Setter 或省略）: {path}:{i}"))
+
+    # 21. JSONObject 组装（java-alibaba.md §MQ：Typed VOs；禁 JSONObject 组装消息）
+    for i, ln in enumerate(lines, 1):
+        if JSONOBJECT_NEW_RE.search(ln) and not _is_comment_line(ln):
+            findings.append(("WARN", f"JSONObject 组装（§MQ：组装消息须 Typed VO；HTTP 组装可忽略）: {path}:{i}"))
 
 
 def _changed_java_files(src_dir):

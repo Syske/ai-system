@@ -218,6 +218,40 @@ public class Com {
 }
 """
 
+LOMB_VIOLATION = """package x;
+
+public class LombBad {
+    private String name;
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+}
+"""
+
+JSONOBJECT_VIOLATION = """package x;
+
+public class MqBad {
+    public void send() {
+        JSONObject msg = new JSONObject();
+        msg.put("type", "order");
+    }
+}
+"""
+
+LOMB_OK = """package x;
+
+import lombok.Data;
+
+@Data
+class LombOk {
+    private String x;
+
+    public String getX() { return x; }
+
+    public String real() { return "c"; }
+}
+"""
+
 MAGIC_STR_VIOLATION = """package x;
 
 public class MagicStr {
@@ -630,6 +664,20 @@ class TestFormatCheck(unittest.TestCase):
     def test_magic_ok(self):
         # 常量声明 / @Value / 消息字符串 → 不报（exit 0）
         self.assertEqual(_run_single("MagicOk.java", MAGIC_OK), 0)
+
+    # ---- 第 20-21 项：§Lombok / §MQ ----
+
+    def test_manual_getter_setter_warn(self):
+        # 无注解类的手动 getter/setter（单行形态）→ WARN（exit 1）
+        self.assertEqual(_run_single("LombBad.java", LOMB_VIOLATION), 1)
+
+    def test_jsonobject_mq_warn(self):
+        # new JSONObject() 组装 → WARN（exit 1）
+        self.assertEqual(_run_single("MqBad.java", JSONOBJECT_VIOLATION), 1)
+
+    def test_lombok_ok(self):
+        # @Data 类豁免 + 非 getter 方法 → 不报（exit 0）
+        self.assertEqual(_run_single("LombOk.java", LOMB_OK), 0)
 
     # ---- --check-commit（commit-content.md）----
 
