@@ -101,8 +101,10 @@ Output:
 - Step Sequence (small, independently verifiable steps — see skills/implement/planning.md)
 - Risks
 - Test Strategy
+- Method-Granularity Design Summary (P50): for design-critical methods (interface/contract surface) — signature, return granularity & failure-branch representation, resource/error semantics (refactor / resource-class cards extend to internal critical semantics: finally/reset, key state transitions)
+- Reuse Decision (P50): every planned method marked reuse / extend / new — after a mandatory existing-implementation scan (REPOSITORY_FIRST / karpathy Read Existing Code); discovered similar implementations surface an explicit reuse decision for confirmation (no silent copy or re-implementation)
 
-Wait for confirmation. Present the confirmation request in the system language (config/menu.yaml → locale). <!-- @keep -->
+Wait for confirmation. Present the confirmation request in the system language (config/menu.yaml → locale). The plan confirmation includes the method-granularity design summary: AI self-checks the plan against the P49 checklists (return-granularity / non-necessary entities) first, then presents. <!-- @keep -->
 
 Mid-task checkpoint: after every ~3 implementation steps, briefly verify alignment (goal / plan / done-so-far) before continuing; if output degrades or scope drifts, stop and checkpoint first. <!-- @keep -->
 
@@ -166,6 +168,23 @@ Formatting gate (Stage 6 Validation):
   (enabled field); templates are not touched.
 - Existing files not touched by this change MUST NOT be re-formatted wholesale
   (minimal diff).
+
+Post-Implementation Confirmation (P50, conditional — before the final commit):
+
+- Trigger: Task Card marked `实现后置确认: required` (interface/contract surface,
+  refactor / behavior change, cross-component / cross-repo contract — set by
+  task-splitter; AI feature-detection as fallback). Mechanical cards (DTO / channel
+  beans / config / docs) skip.
+- Present the implementation method-granularity summary and wait for user
+  confirmation before committing:
+  - new/changed methods + signatures
+  - return granularity & failure-branch representation (P49 self-check applied)
+  - resource/error semantics (refactor class)
+  - reuse-decision execution (per plan reuse scan; any bypass flagged)
+  - deviations vs the confirmed plan (plan-level deviations surface as L2 stop-confirm)
+  - gate results summary (format-check-a / format-jdt-c2 / checkstyle / unit tests)
+- Confirmation requested in the system language (config/menu.yaml → locale).
+  Outcome recorded in the per-run diagnostic log. <!-- @keep -->
 
 Required:
 

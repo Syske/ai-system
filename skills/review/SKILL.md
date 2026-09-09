@@ -60,6 +60,8 @@ Phases:
    - Grilling Method: tree-walk design decisions, single question at a time, codebase-first
 3. Code Review — readability, naming, complexity, duplication, error handling, logging
    - False Completion Detection: verify every [x] in Task Card against actual implementation
+   - Return-Granularity Verification (P49): return semantics of new/changed methods — failure branches distinguishable (boolean-collapse anti-pattern → enum / reason code with user-facing mapping)?
+   - Implementation-Layer Reuse Verification (P49): new methods re-invent existing implementations instead of reusing/delegating existing behavior (Single Source of Truth)?
 4. Standards Review — coding standards, documentation standards, testing standards
 5. Quality Review — security, performance, compatibility, maintainability
 6. Review Summary — classify all findings

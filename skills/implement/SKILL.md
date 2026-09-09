@@ -184,7 +184,14 @@ Never:
 
 Before coding:
 
-Generate implementation plan.
+Generate implementation plan, including the method-granularity design summary (P50):
+design-critical methods (interface/contract surface) — signature, return granularity
+& failure-branch representation, resource/error semantics; plus the Reuse Decision
+from a mandatory existing-implementation scan (REPOSITORY_FIRST / karpathy Read
+Existing Code): each planned method marked reuse / extend / new; discovered similar
+implementations surface an explicit reuse decision (no silent copy or re-implementation).
+Self-check the plan against the P49 checklists (return-granularity / non-necessary
+entities-methods) before presenting.
 
 Wait for explicit user confirmation.
 
@@ -240,6 +247,18 @@ Before completion verify:
 - Specification compliance
 - Standards compliance
 - Documentation compliance
+
+## Post-Implementation Confirmation (P50, conditional)
+
+For cards marked `实现后置确认: required` (interface/contract surface, refactor /
+behavior change, cross-component / cross-repo contract — see Task Card field;
+AI feature-detection as fallback), before the final commit:
+
+Present the implementation method-granularity summary (new/changed methods +
+signatures; return granularity & failure-branch representation; resource/error
+semantics; reuse-decision execution; deviations vs the confirmed plan; gate results)
+and wait for user confirmation. Mechanical cards (DTO / channel beans / config / docs)
+skip. Plan-vs-implementation deviations follow the L2 stop-confirm path.
 
 
 ---

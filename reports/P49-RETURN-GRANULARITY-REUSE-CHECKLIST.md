@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Standards（review/implement 检查清单补充） |
 | Author | AI Maintainer |
 | Created | 2026-09-09 |
@@ -69,4 +69,16 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-09-09 |
+| User (AI Maintainer operator) | **Approved**（决策②：karpathy 转强制校验按方案 A；quality-gates 转后续待办） | 2026-09-09 |
+
+---
+
+## Implementation Record (2026-09-09)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+1. `skills/implement/checklists.md`：Code Quality 节增「Return-granularity check (P49)」「Non-necessary entities/methods (karpathy Read Existing Code)」2 项；Unit Tests 节增「Failure-branch distinctiveness covered」1 项。
+2. `skills/review/SKILL.md`：Code Review 阶段增「Return-Granularity Verification (P49)」「Implementation-Layer Reuse Verification (P49)」2 项。
+3. 与 P50 联动：P49 清单作为 P50 前置/后置 AI 自检判据（plan + implementation 两次喂入）。
+4. quality-gates 实现层复用 Gate：**后续待办**（调研结论见 §3/§7，不纳入本提案实施）。
+
+**Validation**：repo-lint 0/0/26（无新增 WARN）；path-audit OK；check.py PASS（3 已知 WARN）；unittest 242 OK；workflow-command-audit 0 blocker。语言 gate 对英文纪律区资产 FAIL 为既有预期（gate 仅适用于用户面报告，未改动模板/技能亦同样 FAIL，非本提案回归）。

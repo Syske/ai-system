@@ -124,6 +124,8 @@ Use during Stage 4.
 - [ ] No duplicated logic introduced.
 - [ ] No dead code introduced.
 - [ ] Changes remain minimal and maintainable.
+- [ ] Return-granularity check (P49): failure branches distinguishable? Boolean-collapse anti-pattern → enum / reason code (technical code + user-facing message mapping).
+- [ ] Non-necessary entities/methods (karpathy Read Existing Code): every new class/method — could an existing implementation be reused/extended? State the rationale; no silent re-implementation of existing behavior.
 
 ## Minimal Diff
 
@@ -229,6 +231,7 @@ Use during Stage 5.
 - [ ] Happy Path covered.
 - [ ] Error Path covered.
 - [ ] Boundary Conditions covered.
+- [ ] Failure-branch distinctiveness covered (each failure reason code asserted where applicable, P49).
 
 ## Contract
 

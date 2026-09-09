@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural（开发运行时机制：runtime-develop + implement skill + 任务卡字段） |
 | Author | AI Maintainer |
 | Created | 2026-09-09 |
@@ -76,4 +76,17 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-09-09 |
+| User (AI Maintainer operator) | **Approved**（决策①：采纳方法粒度双确认模型；P50 实施含前置三面+复用决策面+后置一致性确认） | 2026-09-09 |
+
+---
+
+## Implementation Record (2026-09-09)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+1. `templates/runtime/runtime-develop.md`：Phase 2 前置确认扩为方法粒度设计摘要（三面：接口面/资源语义/复用决策面）+ 存量复用扫描必答 + P49 自检先行；Phase 3 增条件式 Post-Implementation Confirmation（触发类卡最终提交前呈现方法粒度摘要待确认，机械卡跳过，偏差即 L2，`@keep` 登记诊断日志）。
+2. `skills/implement/SKILL.md`：Planning Gate 扩（方法粒度设计摘要 + 复用决策必答）；新增 Post-Implementation Confirmation (P50, conditional) 节。
+3. `methodologies/providers/openspec-cn/templates/tasks-template.md`：任务卡新增 `**实现后置确认**` 字段（required/skip 判定）。
+4. `skills/task-splitter/workflow.md`：Task Card 字段 + 推导规则（接口/契约/重构/跨仓 = required；机械类 = skip）。
+5. 试点计划（T-001/T-008）随 security-migration 变更推进落地，未在本批次执行。
+
+**Validation**：repo-lint 0/0/26；path-audit OK；check.py PASS（3 已知 WARN）；unittest 242 OK；workflow-command-audit 0 blocker。语言 gate 对英文纪律区资产 FAIL 为既有预期（gate 仅适用用户面报告，未改动模板同样 FAIL，非回归）。
