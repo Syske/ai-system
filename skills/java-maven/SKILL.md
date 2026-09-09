@@ -99,3 +99,4 @@ it is a human convenience wrapper — agents resolve from metadata.
 | `retry.md` | Incremental retry strategy and stopping conditions | Stage 8 |
 | `checklists.md` | 7 reusable checklists | Any stage |
 | `examples.md` | 4 complete workflow examples | Reference |
+| `spring.md §Test Conventions` | SOFA/PowerMock/jacoco test-stack pitfalls + full-regression environment baseline register (P52) | Stage 6-7, test failures |

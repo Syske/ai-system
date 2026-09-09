@@ -48,3 +48,55 @@ check #8).
 - **Consumption**: inject the POJO via constructor, not per-field `@Value`.
 - **Boundary**: legacy `@Value` fields are NOT force-migrated; they stay L1
   compliant (check #8). POJO-ization is a new-code paradigm + pilot.
+
+---
+
+## Test Conventions (SOFA/PowerMock)
+
+Known compatibility pitfalls of the SOFA/PowerMock/jacoco test stack, captured
+from real runs (T-011/T-012/T-013, security-migration 2026-09); only empirically
+hit pitfalls are listed (Evolution Principle) — add a new pitfall only after
+≥1 real occurrence with evidence.
+
+- **Same-name injection collision**: javax `@Resource` (field injection by name)
+  colliding with an entity class of the same name (e.g. `domain.Resource`) causes
+  cascading compile / lombok `log` errors — inject with `@Autowired` (by type) or
+  a disambiguated qualifier instead.
+- **Jacoco × PowerMock double instrumentation**: jacoco-online (`-javaagent`
+  instrumentation) together with PowerMock raises `IllegalClassFormatException`
+  — run conflicting test classes separately, or `clean` then run a single
+  instrumentation path.
+- **javassist default-method limits (PowerMock)**: under PowerMock's javassist
+  transformation, Iterable default methods (e.g. `Sort.forEach`) are not
+  resolvable — use an explicit iterator loop in the tested code path.
+- **Offline build discipline**: when the offline repository lacks a plugin
+  version (e.g. `surefire-junit4:2.22.2`), override via
+  `-Dmaven-surefire-plugin.version=<present version>` (build parameter, never a
+  pom edit); after jacoco instrumentation, run `clean` before re-running tests
+  ("Cannot process instrumented class").
+
+### Full-Regression Environment Baseline (登记基线)
+
+Environment-caused full-regression failures (proven reproducible on the untouched
+baseline) are registered here once, so later regressions compare against the
+register instead of re-running `git stash` baseline checks every time.
+
+Register template:
+- failure class / phenomenon
+- root cause (environmental)
+- baseline re-run evidence (command + result)
+- invalidation condition (remove the entry when fixed)
+
+Current entries (resource-manager, 2026-09):
+1. jacoco-online × PowerMock double instrumentation → IllegalClassFormatException
+   (baseline re-run proven; invalidate when test config separates instrumentation).
+2. logback cannot write `/data/log/resource-manager/` under WSL (missing dir) →
+   Spring context startup failure (invalidate when dir exists / logback path
+   configurable).
+3. `VodServiceTest` mock NPE at VodServiceTest.java:63 (baseline re-run proven;
+   invalidate when mock setup fixed).
+
+Usage: a full-regression failure matching a registered entry does NOT require a
+fresh stash baseline re-run — note the register match in the run's diagnostic
+log. Entries are reviewed by the maintenance run (same discipline as the
+format-debt baseline registration).

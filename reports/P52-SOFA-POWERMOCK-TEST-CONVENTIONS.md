@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Standards（spring.md 测试节 + 回归基线附录） |
 | Author | AI Maintainer |
 | Created | 2026-09-09 |
@@ -70,4 +70,14 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-09-09 |
+| User (AI Maintainer operator) | **Approved**（允许实施，方案 A） | 2026-09-09 |
+
+---
+
+## Implementation Record (2026-09-09)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+1. `governance/standards/java/spring.md`：新增「## Test Conventions (SOFA/PowerMock)」节（4 条纪律：同名注入规避 / 双插桩互斥 / javassist 默认方法限制 / 离线构建纪律）+「### Full-Regression Environment Baseline (登记基线)」附录（登记模板 + 3 项实证条目 + 使用规则：命中清单不再 stash 复跑、失效条件移除、维护 run 复核）。
+2. `skills/java-maven/SKILL.md`：Reference Files 表增 `spring.md §Test Conventions` 一行（Stage 6-7 测试失败时加载）。
+
+**Validation**：三案回放——按新节 4 条纪律逐一对照 T-011（@Resource 同名→@Autowired）/ T-012（双插桩→分跑/clean；离线 surefire→参数覆盖）/ T-013（Sort.forEach→显式迭代器）过程教训，全部命中且表述一致；回归基线 3 项实证与 T-012/T-013 完成报告逐字对齐。repo-lint 0/0/26；path-audit OK；check.py PASS（3 已知 WARN）；unittest 251 OK（无 Python 逻辑改动）。
