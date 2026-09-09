@@ -56,6 +56,17 @@
 > ① Java 支持确认；② 在 resource-manager / knowledge-api 真实 worktree 试跑，统计「改名重写」检出率与误报率；
 > ③ 达标后作为**结构相似类增量闸**与方案 A 并存（语义类 Type-4 仍靠清单 + review）。Sonar sonar-cpd 为备选；
 > PMD CPD 改名即断（弱，排除）。
+>
+> **调研结果（2026-09-09，三步全过，达标）**：
+> ① **Java 支持** ✅（tree-sitter + winnowing 指纹；支持 15 语言）；
+> ② **真实 worktree 试跑** ✅（resource-manager 173 Java 文件/326 函数，57ms）：24 clusters / slop 2.5%（A 级）；
+>    MAIN 簇 14 个全为真实重复（RedisUtil execute 样板 8 簇、DTO toString 4× 相同、RedisLock.lock 2×、
+>    existName/existHost、updateStatus 变体等）；TEST 簇 10 个（测试方法样板）；未检出结构不同语义相同类（Type-4，符合预期）；
+> ③ **CI gate 语义** ✅：`check` 对比 HEAD 只拦**新增**重复（改名改字面量 100% 检出、RC=1；恢复后 RC=0）——
+>    存量天然豁免，无需基线抑制；`--min-tokens` 默认 40 会滤短方法，建议调低至 10-15；内置排除 vendor/生成/测试。
+> **接入建议**（quality-gates 待办落地形态）：runtime-develop 可选门禁（对齐 format-jdt-c2 环境感知模式），
+> 阈值 `--min-tokens 10-15`；企业仓加 `--exclude` 生成代码；DTO toString 类可先批量治理（Lombok @ToString）再启用。
+> 与方案 A 并存：dupehound 拦结构相似新增重复，方案 A 拦语义类。
 
 ## 6. Validation Plan
 
