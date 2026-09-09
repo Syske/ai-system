@@ -47,31 +47,46 @@ Output
 
 Goal
 
-Generate an implementation plan.
+Reuse the already-confirmed plan when one exists; generate only when missing
+(independent implement invocation without a runtime Phase 2 plan). P54 — no
+double planning: the develop runtime already generated, confirmed and persisted
+it in Phase 2.
 
-Execute:
+Execute
 
-planning.md
+1. Look for the confirmed plan:
+   `workspaces/{project_id}/openspec/changes/{change_id}/tasks/plans/{task_id}-plan.md`.
+2. Plan present: load it and verify it still matches the current Task Card
+   (scope / contracts / acceptance). Match → proceed to Stage 4 (plan is
+   pre-approved — do NOT regenerate, do NOT re-run a full confirmation
+   round-trip). Mismatch → surface the deviation (L2) and reconcile with the
+   user before continuing.
+3. Plan absent (independent invocation, or the runtime gate guarantees a plan
+   but the file is not found): generate the implementation plan via planning.md,
+   including the method-granularity design summary (P50) and the mandatory
+   reuse-decision scan; self-check against the P49 checklists; then wait for
+   user confirmation (Stage 3).
 
 Output
 
-Implementation Plan
-
-Wait for user confirmation before continuing.
+- Confirmed Implementation Plan (loaded from the persisted plan, or generated)
 
 ---
 
 # Stage 3 — Wait For Approval
 
-This is a mandatory checkpoint.
-
-Do not generate implementation code until the user explicitly approves the implementation plan.
+Mandatory only when the plan was generated in Stage 2 (no confirmed plan on
+entry). When an already-confirmed plan was loaded and matches the Task Card,
+the plan is pre-approved — skip the full confirmation round-trip and continue
+(only a one-line re-confirmation with the user when the runtime gate requires
+it). This is the P54 counterpart of the runtime Plan Gate (A1): no code before
+a confirmed plan exists.
 
 If rejected:
 
-Return to Stage 2.
+Return to Stage 2 (regenerate).
 
-If approved:
+If approved / pre-approved:
 
 Continue to Stage 4.
 

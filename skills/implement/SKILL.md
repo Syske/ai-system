@@ -184,19 +184,27 @@ Never:
 
 Before coding:
 
-Generate implementation plan, including the method-granularity design summary (P50):
-design-critical methods (interface/contract surface) — signature, return granularity
-& failure-branch representation, resource/error semantics; plus the Reuse Decision
-from a mandatory existing-implementation scan (REPOSITORY_FIRST / karpathy Read
-Existing Code): each planned method marked reuse / extend / new; discovered similar
-implementations surface an explicit reuse decision (no silent copy or re-implementation).
-Self-check the plan against the P49 checklists (return-granularity / non-necessary
-entities-methods) before presenting.
+1. **Reuse the confirmed plan (P54)**: when the develop runtime already
+   generated, confirmed and persisted the plan
+   (`.../tasks/plans/{task_id}-plan.md`), load it and verify it still matches
+   the Task Card (scope / contracts / acceptance). Match → the plan is
+   pre-approved — do NOT regenerate or re-run a full confirmation round-trip.
+   Deviation → L2 stop-confirm path.
+2. **Generate only when no confirmed plan exists** (independent implement
+   invocation): generate the implementation plan via planning.md, including the
+   method-granularity design summary (P50): design-critical methods
+   (interface/contract surface) — signature, return granularity
+   & failure-branch representation, resource/error semantics; plus the Reuse
+   Decision from a mandatory existing-implementation scan (REPOSITORY_FIRST /
+   karpathy Read Existing Code): each planned method marked reuse / extend /
+   new; discovered similar implementations surface an explicit reuse decision
+   (no silent copy or re-implementation). Self-check the plan against the P49
+   checklists (return-granularity / non-necessary entities-methods) before
+   presenting.
 
-Wait for explicit user confirmation.
+Wait for explicit user confirmation only in the generate path (Stage 3).
 
-
-No code generation before approval.
+No code generation before a confirmed plan exists.
 
 
 ---

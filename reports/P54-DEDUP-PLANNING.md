@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural（implement skill 计划阶段语义收敛 + runtime-develop 联动） |
 | Author | AI Maintainer |
 | Created | 2026-09-09 |
@@ -67,4 +67,17 @@ P50 前置内容（方法粒度设计摘要 / 复用决策 / P49 自检）在这
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-09-09 |
+| User (AI Maintainer operator) | **Approved** | 2026-09-09 |
+
+---
+
+## Implementation Record
+
+**Implemented 2026-09-09**（方案 A）
+
+- `skills/implement/workflow.md` Stage 2：复用优先——先查 `.../tasks/plans/{task_id}-plan.md`，存在且与卡一致 → 直接进 Stage 4（预批准，不重复 Generate/确认往返）；缺失（独立调用）→ 走 planning.md 生成 + Stage 3 确认。Stage 3 改条件式（仅生成路径强制等确认）。
+- `skills/implement/SKILL.md` Planning Gate：同步复用语义（已确认计划装载 + 卡一致性核验；偏差 L2）；生成路径保留 P50 方法粒度摘要 + 复用扫描 + P49 自检。
+- 与 A1 联动闭环：runtime Plan Gate 保证实现前有已批准计划；implement 复用它，不再重复设计。
+- 不缩 10 阶段骨架，不动其它阶段；planning.md 持久化约定（L317-321）保持为生成路径锚点。
+
+**Validation（2026-09-09）**：unittest 258 OK · repo-lint 0/0/26 · check PASS · language 纪律区 0 残留

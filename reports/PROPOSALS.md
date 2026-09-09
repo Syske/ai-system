@@ -55,7 +55,7 @@
 | Implemented | 方法粒度双确认模型（开发主链前置方案确认 + 后置一致性确认） | 2026-09-09 | `P50-METHOD-GRANULARITY-DUAL-CONFIRMATION.md` |
 | Implemented | format-jdt-gate 增量差分语义（hunk × 改动行交集） | 2026-09-09 | `P51-JDT-GATE-INCREMENTAL-DIFF.md` |
 | Implemented | SOFA/PowerMock/jacoco 测试兼容性纪律 + 全量回归环境性基线登记 | 2026-09-09 | `P52-SOFA-POWERMOCK-TEST-CONVENTIONS.md` |
-| Proposed | 消除双重计划（implement Stage 2 复用已确认计划） | 2026-09-09 | `P54-DEDUP-PLANNING.md` |
+| Implemented | 消除双重计划（implement Stage 2 复用已确认计划） | 2026-09-09 | `P54-DEDUP-PLANNING.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
