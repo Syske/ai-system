@@ -762,5 +762,87 @@ class TestFormatCheck(unittest.TestCase):
         self.assertEqual(_run_commit_check("style: apply format baseline"), 0)
 
 
+class TestDuplicationCheck(unittest.TestCase):
+    """第 23 项：结构相似重复实现（L1，参考 dupehound 方法论）。"""
+
+    def test_norm_tokens_blinds_identifiers_literals(self):
+        toks = fc._norm_tokens("public int calc(int a, int b) { int sum = a + b; if (sum > 100) { return sum * 2; } return sum; }")
+        self.assertIn("$ID", toks)
+        self.assertIn("$LIT", toks)
+        self.assertIn("public", toks)
+        self.assertIn("if", toks)
+        self.assertNotIn("calc", toks)   # 方法名/标识符被盲化
+        self.assertNotIn("100", toks)    # 字面量被盲化
+
+    def test_extract_functions_skips_constructors(self):
+        src = """package x;
+public class A {
+    public A() { this.y = 1; }
+    public int calc(int a, int b) {
+        int sum = a + b;
+        return sum;
+    }
+}
+"""
+        funcs = fc._extract_functions(src)
+        names = [f[0] for f in funcs]
+        self.assertEqual(names, ["calc"])
+        self.assertGreater(len(funcs[0][2]), 0)   # 捕获了 body tokens
+
+    def test_extract_functions_single_line(self):
+        src = "public int one() { return 1; }"
+        funcs = fc._extract_functions(src)
+        self.assertEqual([f[0] for f in funcs], ["one"])
+
+    def test_check_duplicates_detects_renamed_reimpl(self):
+        # 存量 A.calc（提交态）；B.compute 与 calc 同骨架改标识符/字面量 → WARN
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            (root / "A.java").write_text(
+                "package x;\npublic class A {\n"
+                "    public int calc(int a, int b) {\n"
+                "        int total = a + b;\n"
+                "        if (total > 100) {\n"
+                "            return total * 2;\n"
+                "        }\n"
+                "        return total;\n"
+                "    }\n"
+                "}\n", encoding="utf-8")
+            changed = root / "B.java"
+            changed.write_text(
+                "package x;\npublic class B {\n"
+                "    public int compute(int x, int y) {\n"
+                "        int sum = x + y;\n"
+                "        if (sum > 50) {\n"
+                "            return sum * 3;\n"
+                "        }\n"
+                "        return sum;\n"
+                "    }\n"
+                "}\n", encoding="utf-8")
+            findings = []
+            fc.check_duplicates(root, [changed], findings)
+        self.assertTrue(any("结构近似既有函数" in msg for sev, msg in findings),
+                        findings)
+
+    def test_check_duplicates_distinct_no_warn(self):
+        # 改动函数与存量函数骨架不同 → 无 WARN
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            (root / "A.java").write_text(
+                "public int calc(int a, int b) {\n int t = a + b;\n return t; }\n", encoding="utf-8")
+            changed = root / "B.java"
+            changed.write_text(
+                "public String build(String s) { return s.trim(); }\n", encoding="utf-8")
+            findings = []
+            fc.check_duplicates(root, [changed], findings)
+        self.assertEqual(findings, [])
+
+    def test_check_duplicates_none_changed_skips(self):
+        # changed_files=None（全量模式）→ 跳过重复检查（防存量债噪音）
+        findings = []
+        fc.check_duplicates(pathlib.Path("."), None, findings)
+        self.assertEqual(findings, [])
+
+
 if __name__ == "__main__":
     unittest.main()

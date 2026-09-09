@@ -67,6 +67,14 @@
 > **接入建议**（quality-gates 待办落地形态）：runtime-develop 可选门禁（对齐 format-jdt-c2 环境感知模式），
 > 阈值 `--min-tokens 10-15`；企业仓加 `--exclude` 生成代码；DTO toString 类可先批量治理（Lombok @ToString）再启用。
 > 与方案 A 并存：dupehound 拦结构相似新增重复，方案 A 拦语义类。
+>
+> **L1 轻量落地（2026-09-09，用户选型 L1 = 参考方法论自研，零外部依赖）**：已实现为 format-check.py 第 23 项
+> `check_duplicates`（规范化骨架：标识符→$ID/字面量→$LIT + SequenceMatcher 相似度；`DUP_SIM_THRESHOLD=0.85` /
+> `DUP_MIN_TOKENS=15` 模块常量；仅 `--changed` 增量模式，存量豁免；getter/setter 单语句样板显式排除）。
+> 校准（对照 dupehound 的 resource-manager 24 clusters）：改名重写 calc/compute 端到端检出 1.00；DTO toString 簇
+> 复现 0.96（对应 cluster#3）；RedisUtil execute/wrapper 簇复现 0.87-1.00（对应 cluster#4/6/8/12-15）；
+> getter/setter 噪音消除。质量门容器扩展性已确认：gates.develop 注册表加条目即挂新工具门禁（统一 --changed 语义
+> 与 exit 0/1/2+3 ENV）。dupehound 保留为校准基准，不引入为运行时依赖。
 
 ## 6. Validation Plan
 

@@ -14,6 +14,13 @@ env 决策（卸载 google-java-format / 停用 pi-lens Java formatter）后，
 5. 4 空格缩进比例偏低（启发式，阈值宽容）→ WARN
 6. `--check-commit`：最近提交 subject 含任务编号时必须为 `<type>(<scope>): T-\d{3}`
    格式，否则 FAIL（Commit Content → governance/standards/common/commit-content.md）
+23. 结构相似重复实现（L1，参考 dupehound 方法论——规范化骨架 + 相似度；仅 --changed 增量模式）：
+   改动文件函数做规范化骨架（标识符→$ID、字面量→$LIT），与全树函数集对比，
+   相似度 ≥ DUP_SIM_THRESHOLD 且 token ≥ DUP_MIN_TOKENS → WARN（疑似重复实现，建议复用）。
+   检查项契约（扩展性）：新增检查 = 独立函数（入参/出参见 check_duplicates）+ docstring 一行
+   + 单测；跨文件/全树类检查与 per-file 检查（check_file）分离，均在 main() 统一接线。
+   quality-gates 容器扩展：gates.develop 注册表（config/main-chain-capabilities.yaml）
+   加条目即可挂新工具门禁（dupehound 类），统一 --changed 增量语义与 exit 0/1/2（+3 ENV）。
 
 用法：
     python3 tools/format-check.py <src-dir> [--check-commit]
@@ -89,6 +96,128 @@ MANUAL_GETTER_RE = re.compile(r'^\s*public\s+[\w<>\[\],. ]+\s+(get[A-Z]\w*)\s*\(
 MANUAL_SETTER_RE = re.compile(r'^\s*public\s+void\s+(set[A-Z]\w*)\s*\(([^)]*)\)\s*\{\s*this\.\w+\s*=\s*\w+\s*;')
 JSONOBJECT_NEW_RE = re.compile(r'\bnew\s+JSONObject\s*\(')
 NESTED_STREAM_RE = re.compile(r'\.stream\(\)')
+
+# ---- 第 23 项：结构相似重复实现（L1）----
+# 参考 dupehound 方法论：规范化（blinding）→ 相似度。纯 python3 无外部依赖。
+# 阈值/开关为模块常量（可调，校准基准：dupehound 在 resource-manager 的 24 clusters）。
+DUP_SIM_THRESHOLD = 0.85     # 规范化骨架相似度阈值（WARN 触发）
+DUP_MIN_TOKENS = 15          # 低于该 token 数的方法不参与（getter/setter 单语句样板 ~8-13 token 天然滤除）
+DUP_JAVA_TOK = re.compile(r"[A-Za-z_$][\w$]*|\d+(?:\.\d+)?|\"[^\"]*\"|'[^']*'|\S")
+DUP_KEEP = frozenset((
+    "public", "private", "protected", "static", "final", "return", "if", "else",
+    "for", "while", "switch", "case", "break", "continue", "new", "try", "catch",
+    "finally", "throw", "throws", "class", "interface", "enum", "void", "int",
+    "long", "double", "float", "boolean", "char", "byte", "short", "this", "null",
+    "true", "false", "extends", "implements", "package", "import", "synchronized",
+    "instanceof", "abstract", "default", "assert", "do", "super", "return"))
+DUP_METHOD_DECL = re.compile(
+    r"^(?:(?:public|protected|private|static|final|abstract|synchronized|default|native)\s+)"
+    r"(?:[\w<>\[\],.\s]+)\s+([A-Za-z_$][\w$]*)\s*\([^;{}]*\)\s*(?:throws\s+[\w.,\s]+)?\s*\{")
+# 平凡 getter/setter 单语句体（`{ return x; }` / `{ this.x = y; }`）——样板噪音，不参与重复检测
+# （Lombok 场景由第 20 项另检；dupehound 靠 min-tokens 天然滤除，此处显式排除）
+DUP_ACCESSOR_BODY = re.compile(
+    r"\{\s*(?:this\.\w+\s*=\s*[^;]+;|return\s+(?:this\.)?\w+\s*;)\s*\}")
+
+
+def _norm_tokens(src):
+    """规范化 token 流：标识符→$ID、字面量→$LIT、保留关键字/运算符/结构符号。"""
+    out = []
+    for t in DUP_JAVA_TOK.findall(src):
+        if t[0].isalpha() or t[0] in "_$":
+            out.append(t if t in DUP_KEEP else "$ID")
+        elif t[0].isdigit() or t[0] in "\"'":
+            out.append("$LIT")
+        else:
+            out.append(t)
+    return out
+
+
+def _extract_functions(src):
+    """轻量方法提取：行级识别声明 + 括号配对取体。返回 [(name, start_line, norm_tokens)]。
+    大写开头方法名（构造器）跳过——构造器跨类同名，骨架对比会误报。"""
+    lines = src.splitlines()
+    funcs = []
+    in_method = False
+    depth = 0
+    buf = []
+    name = ""
+    start = 0
+    for i, ln in enumerate(lines, 1):
+        s = ln.strip()
+        if not in_method:
+            m = DUP_METHOD_DECL.match(s)
+            if m and not m.group(1)[0].isupper():
+                in_method = True
+                name = m.group(1)
+                start = i
+                buf = [ln]
+                depth = s.count("{") - s.count("}")
+                if depth <= 0:  # 单行方法 `{ ... }`
+                    funcs.append((name, start, _norm_tokens("\n".join(buf))))
+                    in_method = False
+            continue
+        buf.append(ln)
+        depth += s.count("{") - s.count("}")
+        if depth <= 0:
+            body = "\n".join(buf)
+            # 平凡 getter/setter 排除：去掉注释后，体部仅 `{ return x; }` / `{ this.x = y; }`
+            if not DUP_ACCESSOR_BODY.search(re.sub(r"//[^\n]*|/\*.*?\*/", "", body, flags=re.S)):
+                funcs.append((name, start, _norm_tokens(body)))
+            in_method = False
+    return funcs
+
+
+def check_duplicates(root, changed_files, findings):
+    """第 23 项：结构相似重复实现（L1，仅 --changed 增量模式，存量豁免）。
+
+    契约（扩展性）：入参 (root, changed_files, findings)——root=扫描根，
+    changed_files=本 change 的 .java 绝对路径列表（None 时跳过=全量模式不做重复检查，
+    避免存量债噪音）；出参：WARN 追加进 findings。阈值常量 DUP_SIM_THRESHOLD /
+    DUP_MIN_TOKENS 模块级可调。
+
+    改动文件函数 vs 全树函数集：规范化骨架相似度 ≥ 阈值 → WARN（疑似重复实现，建议复用）。
+    """
+    if not changed_files:
+        return
+    import difflib
+    root_res = Path(root).resolve()
+    index = {}
+    for p in root_res.rglob("*.java"):
+        if "/target/" in str(p).replace("\\", "/") or "/.git/" in str(p).replace("\\", "/"):
+            continue
+        try:
+            index[p.resolve()] = _extract_functions(p.read_text(encoding="utf-8", errors="replace"))
+        except Exception:
+            continue
+    reported = set()
+    for cp in sorted(changed_files):
+        cpath = Path(cp).resolve()
+        for name, start, toks in index.get(cpath, []):
+            if len(toks) < DUP_MIN_TOKENS:
+                continue
+            best, best_sim = None, 0.0
+            for op, ofuncs in index.items():
+                for oname, ostart, otoks in ofuncs:
+                    # 排除「同一函数自身」；允许同文件其他方法（RedisUtil execute 样板为文件内重复）
+                    if op == cpath and oname == name and ostart == start:
+                        continue
+                    if len(otoks) < DUP_MIN_TOKENS:
+                        continue
+                    sim = difflib.SequenceMatcher(None, toks, otoks).ratio()
+                    if sim > best_sim:
+                        best_sim, best = sim, (op, oname, ostart)
+            if best and best_sim >= DUP_SIM_THRESHOLD:
+                key = (str(cp), start, name)
+                if key in reported:
+                    continue
+                reported.add(key)
+                bpath, bname, bline = best
+                rel = str(cpath).replace(str(root_res), "").lstrip("/")
+                brel = str(bpath).replace(str(root_res), "").lstrip("/")
+                findings.append(
+                    ("WARN",
+                     f"结构近似既有函数（疑似重复实现，建议复用，P49/karpathy）: "
+                     f"{rel}:{start} {name} ≈ {brel}:{bline} {bname}（相似度 {best_sim:.2f}）"))
 
 
 def _is_comment_line(line: str) -> bool:
@@ -401,6 +530,7 @@ def main(argv=None):
     if files is not None:
         for p in sorted(files):
             check_file(p, findings)
+        check_duplicates(root, files, findings)   # 第 23 项：仅 --changed 增量模式
     else:
         for p in sorted(root.rglob("*.java")):
             check_file(p, findings)
