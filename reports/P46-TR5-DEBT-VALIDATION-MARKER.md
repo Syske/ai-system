@@ -79,10 +79,18 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-09-01 |
+| User (AI Maintainer operator) | **Pending**（(b) 已按方案先行实施，见 Implementation Record；待用户决策 (a) 与 P41/P42 联动批次） | 2026-09-01 |
 
 ---
 
 ## Implementation Record
 
-（批准并实施后追加：Applied per approval → 改动清单 → Validation 结果 → Status 置 Implemented + 同步 PROPOSALS.md/README）
+**P46(b) — review/verify 验证状态核验（已实施 2026-09-05，commit 00c8c34）**
+
+- `templates/runtime/runtime-review.md` Phase 8 Validation Status Check：核对任务卡/完成报告是否携带 validation 标记，未标记显式记录「未验证项」并提示补跑（WARN 级，不阻塞评审）
+- `templates/runtime/runtime-verify.md` Pre-release gate：存在未验证标记且未补跑 → 发布前阻塞项（ERROR 级）
+- 门禁验证：实施时全绿
+
+**P46(a) — tr5 发布闸门 8 FAIL 遗留债（未实施，待审批）**
+
+- 随线上 TR5 update 执行 `check_tr5.py` 8 FAIL 逐项修复（TR3 引用/SVG/§0 标注/题图粘连），与 P41/P42 决策联动；Status 保持 Proposed 直至 (a) 完成

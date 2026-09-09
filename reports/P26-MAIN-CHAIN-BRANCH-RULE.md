@@ -50,7 +50,7 @@
 - [x] `tools/checks/workflow.py` + `__init__.py`：`check_branch_parser` 契约自检（B3 简单 CI 强制）
 - [x] `cli/tests/test_branch_parser.py`：5 用例（有效/非法/never raise/render）
 - [ ] 分支扩展 provider（extensions/ 提供者，按需；契约已预留）
-- [ ] CI 增强（git 分支保护，后续）
+- [x] CI 增强（**已关闭 2026-09-09**：GitHub Actions CI 已移除 2026-09-04；替代防线 = 本地 check.py 门禁 + pre-commit hook（.githooks/pre-commit，英文纪律区语言门禁））
 
 ## 6. Validation Plan
 
