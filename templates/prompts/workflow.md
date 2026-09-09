@@ -30,6 +30,8 @@ All relative references in the body below (`ai-system/...`, `extensions/...`,
 
 {{external_capabilities}}
 
+{{language_discipline}}
+
 ---
 
 # Task

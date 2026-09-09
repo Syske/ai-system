@@ -415,6 +415,47 @@ def check_language(root, results):
                     file=str(p),
                 )
 
+    # Rule 4: templates/runtime/*.md + workflows/*.md — English-discipline zone
+    # (LANGUAGE_CONVENTION). AI flow-control prose must be English; CJK is
+    # allowed only as: inline-code literals (field names / product terms),
+    # English-dominant mixed lines (short CJK term reference), table cells
+    # (user-facing), and user-facing report/artifact templates (exempt file set).
+    report_exempt = {
+        "runtime-release.md",
+        "runtime-review.md",
+        "runtime-diagnostic-log.md",
+        "runtime-hotfix-test-doc.md",
+    }
+    for base_name, glob in (("templates/runtime", "*.md"), ("workflows", "*.md")):
+        base = root / base_name
+        if not base.exists():
+            continue
+        for p in sorted(base.glob(glob)):
+            if p.name in report_exempt:
+                continue  # user-facing report/artifact template
+            text = read_file(p)
+            cjk_lines = []
+            for ln in text.splitlines():
+                s = ln.strip()
+                if not s or s.startswith("|"):
+                    continue  # table row (user-facing)
+                if not CJK_RE.search(s):
+                    continue
+                no_code = re.sub(r"`[^`]*`", "", s)  # strip inline-code spans
+                if not CJK_RE.search(no_code):
+                    continue  # CJK only inside backticks (literal identifier)
+                cjk_n = len(CJK_RE.findall(s))
+                if cjk_n / len(s) < 0.3:
+                    continue  # English-dominant mixed line (term reference)
+                cjk_lines.append(ln)
+            if len(cjk_lines) >= 2:
+                results.warning(
+                    f"{p.name} contains Chinese flow-control prose "
+                    f"(LANGUAGE_CONVENTION: English-discipline zone; "
+                    f"{len(cjk_lines)} lines)",
+                    file=str(p),
+                )
+
 
 def check_line_endings(root, results):
     """Enforce cross-platform line-ending policy (P23, L1 storage layer).

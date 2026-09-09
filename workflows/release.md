@@ -5,8 +5,8 @@ workflow:
   inputs:
     required: []
     optional:
-      - name: Workspace ID    # 自动推导（主链已定 project/workspace）
-      - name: Release Version # 自动生成（git tag / 上一版本推导，可编辑）
+      - name: Workspace ID    # auto-derived (main chain has set project/workspace)
+      - name: Release Version # auto-generated (git tag / derived from last version, editable)
       - name: Environment
   next: [deployment, develop]
   outputs:
@@ -32,7 +32,7 @@ This workflow does not execute deployment.
 
 Required:
 
-（无——均由主链上下文自动推导）
+(None — all auto-derived from main-chain context)
 
 Optional:
 

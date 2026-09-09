@@ -324,7 +324,7 @@ Every Task Card must satisfy:
 - **Exact paths**: Every file reference includes the full repository-relative path
 - **Interface contracts**: Each task declares what it Consumes (from earlier tasks) and Produces (for later tasks) with exact signatures
 - **Branch rule**: Each Task Card carries a `branch` field — the branch-name
-  template for the main chain (default `cc{date}_ipd_{desc}_{service}`, 暂定;
+  template for the main chain (default `cc{date}_ipd_{desc}_{service}`, TBD;
   placeholders `{date}` / `{desc}` / `{service}`), fixed at requirement-
   confirmation time. Dev-setup creates/validates the service branch from it and
   freezes it (immutable after creation).

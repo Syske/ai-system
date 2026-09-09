@@ -45,7 +45,7 @@ Optional:
 - Issue ID
 - Logs
 - Stack Trace
-- Mode (standard / hotfix; default standard; hotfix 时基于 master 直接修复并走完整发布前链路，行为由 config/workflows/bugfix-modes.yaml 驱动)
+- Mode (standard / hotfix; default standard; hotfix fixes directly on master and runs the full pre-release chain, behavior driven by config/workflows/bugfix-modes.yaml)
 
 ## Context
 
@@ -84,4 +84,4 @@ Stop:
 ## Next
 
 - review
-- hotfix-test-doc — on hotfix mode & verify pass（按需生成转测文档，扩展提供者：extensions/hotfix-test-doc）
+- hotfix-test-doc — on hotfix mode & verify pass (generate the hotfix-test doc on demand; extension provider: extensions/hotfix-test-doc)

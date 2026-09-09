@@ -5,9 +5,9 @@ workflow:
   inputs:
     required: []
     optional:
-      - name: Project ID            # 自动推导（主链前序产物/wizard 已选项目）
-      - name: Task ID               # 自动推导（Task Card 读取）
-      - name: Specification Reference  # 自动推导（change 产物路径）
+      - name: Project ID            # auto-derived (main-chain predecessors / wizard-selected)
+      - name: Task ID               # auto-derived (from Task Card)
+      - name: Specification Reference  # auto-derived (change artifact path)
   next: [release, develop]
   outputs:
     base: "workspaces/<project-id>/"
@@ -30,7 +30,7 @@ Verify implementation correctness against specification and contract.
 
 Required:
 
-（无——均由主链上下文自动推导）
+(None — all auto-derived from main-chain context)
 
 Optional:
 

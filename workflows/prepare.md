@@ -5,7 +5,7 @@ workflow:
   inputs:
     required: [Change Request]
     optional:
-      - name: Change ID        # 自动生成（{YYYYMM}-{slug}，从 Change Request 派生，可编辑）
+      - name: Change ID        # auto-generated ({YYYYMM}-{slug} from Change Request, editable)
       - name: Requirement Documents
       - name: Existing Design
       - name: Related Issues

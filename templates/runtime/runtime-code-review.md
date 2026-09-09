@@ -66,7 +66,7 @@ Resolved by Code Review Runtime:
 Parse:
 
 - Projects (multi-select list from projects/)
-- Target Theme (需求主题; optional — used to fuzzy-match each project's
+- Target Theme (subject; optional — used to fuzzy-match each project's
 target branch)
 - Branch Mapping (optional explicit override: `project-a:branch-x, ...`)
 - Base Branch (default: master)

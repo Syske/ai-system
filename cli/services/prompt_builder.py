@@ -121,6 +121,8 @@ class PromptBuilder:
                     ),
                 "external_capabilities":
                     self._capabilities_section(workflow_name),
+                "language_discipline":
+                    self._language_discipline_section(),
                 "inputs":
                     self._inputs(context, declared),
                 "ai_system_root":
@@ -131,6 +133,31 @@ class PromptBuilder:
         )
 
         return self._resolve_root_placeholders(prompt)
+
+    def _language_discipline_section(self) -> str:
+        """Language discipline reminder (LANGUAGE_CONVENTION) injected into every
+        workflow prompt. AI flow control and English-discipline-zone files
+        (templates/runtime/, workflows/, governance/) must be English; CJK only as
+        inline-code literals / term references / user-facing cells. User-facing
+        text follows the system locale (config/menu.yaml → locale, default zh).
+        repo-lint Rule 4 is the static gate backing this up.
+        """
+
+        return (
+            "## Language Discipline (LANGUAGE_CONVENTION)\n"
+            "\n"
+            "- AI flow control (reasoning, steps, gates, prompts) stays English "
+            "in every reply.\n"
+            "- English-discipline zone files — `templates/runtime/*.md`, "
+            "`workflows/*.md`, `governance/*.md` — MUST be written in English. "
+            "CJK is allowed only as: inline-code literals (field names / product "
+            "terms), English-dominant mixed lines, and user-facing table cells.\n"
+            "- User-facing text (reports, interactive prompts, wizard labels, "
+            "diagnostic logs) follows the system locale — currently zh.\n"
+            "- Gate: `python3 tools/repo-lint.py` Rule 4 flags Chinese flow-control "
+            "prose in the English-discipline zone — self-check zone files before "
+            "presenting.\n"
+        )
 
     def _capabilities_section(
         self,

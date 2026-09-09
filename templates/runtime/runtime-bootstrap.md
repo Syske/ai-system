@@ -104,9 +104,9 @@ Derive all base paths from the environment configuration and bootstrap location.
 Config source order (merged by `cli/services/environment.py`):
 
 ```
-machine layer   ~/.config/ai-system/env.yaml   # 首启按系统生成，优先；用户可改（如 WSL 路径）
-workspace layer config/environments/{env}.yaml  # 工作区共享项（bugfix.mode 等）+ 旧版兼容
-fallback        自动推导（见下）                # 布局路径无需配置
+machine layer   ~/.config/ai-system/env.yaml   # auto-generated on first run, preferred; user-editable (e.g. WSL paths)
+workspace layer config/environments/{env}.yaml  # workspace-shared items (bugfix.mode etc.) + legacy compat
+fallback        auto-derived (see below)                # layout paths need no config
 ```
 
 Derivation:

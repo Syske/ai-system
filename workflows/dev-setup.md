@@ -5,9 +5,9 @@ workflow:
   inputs:
     required: []
     optional:
-      - name: Workspace ID  # 自动推导（wizard 已选项目）
-      - name: Project ID    # 自动推导（wizard 已选项目）
-      - name: Task ID       # 自动推导（Task Card 读取）
+      - name: Workspace ID  # auto-derived (wizard-selected project)
+      - name: Project ID    # auto-derived (wizard-selected project)
+      - name: Task ID       # auto-derived (from Task Card)
   next: [develop]
   outputs:
     base: "workspaces/<project-id>/"
@@ -31,7 +31,7 @@ Resolve project context and prepare development environment.
 
 Required:
 
-（无——均由主链上下文自动推导）
+(None — all auto-derived from main-chain context)
 
 Optional:
 

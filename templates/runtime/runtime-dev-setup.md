@@ -268,7 +268,7 @@ For available services:
   main-chain branch parser; see below)
 - git status
 
-## Branch Naming & Immutability (开发主链, 格式暂定 cc{date}_ipd_{desc}_{service})
+## Branch Naming & Immutability (main chain, format TBD cc{date}_ipd_{desc}_{service})
 
 - The branch naming RULE comes from the Task Card `branch` field (template with
   `{date}` / `{desc}` / `{service}` placeholders; default
