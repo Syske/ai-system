@@ -80,11 +80,45 @@ Resolve Development Context.
 Load:
 
 - Task
-- Plan
+- Plan (`tasks/plans/{task_id}-plan.md` — if present)
 - Specification
 - Architecture
 - Source Code
 - Existing Tests
+
+### Plan Gate (A1 — 计划定案门禁)
+
+Before any implementation, an **approved plan** must exist:
+
+- **Plan present and approved**: verify it still matches the Task Card (scope /
+  contracts / acceptance), then proceed to Phase 3.
+- **Plan absent**: planning is MANDATORY. Do NOT self-decide design during
+  context loading or investigation — every Task Card blank, cross-document
+  design decision and contract gap must be resolved inside the plan (Phase 2)
+  and confirmed by the user before any code is written.
+
+Prohibited:
+
+- Entering implementation with an unconfirmed, self-inferred design (the
+  T-009 anti-pattern: filling card blanks + cross-reading many docs + SDK field
+  research as an un-gated investigation, then implementing).
+- Treating context-loading investigation as a substitute for a confirmed plan.
+
+If the plan is missing and design gaps are found during investigation: STOP,
+  write them into the Phase 2 plan, and wait for user confirmation. <!-- @keep -->
+
+### Investigation Discipline (A2/A3 — 注意力与上下文纪律)
+
+During context loading / investigation:
+
+- Checkpoint every ~3 tool steps: briefly report progress / remaining / risks to
+  the user (ATTENTION_MANAGEMENT) — do NOT run a long un-briefed chain (the
+  T-009 interruption anti-pattern).
+- Read large source files (services / adapters > ~200 lines) by targeted
+  grep / method-locator, not full-file reads; load only what the Task needs.
+- Defer SDK / third-party API field verification to implementation-time
+  compile checks — do not unzip jars or research APIs during investigation
+  unless the confirmed plan depends on it. <!-- @keep -->
 
 ---
 
