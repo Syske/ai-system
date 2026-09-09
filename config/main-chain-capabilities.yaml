@@ -52,6 +52,10 @@ capabilities:
       path: extensions/archive-ipd-workspace
       desc: "IPD 周期归档同步：workspace 产物（openspec/tr5/source/spec/diagrams/完成报告）单向快照到 IPD 技术设计图纸归档仓（<period>/<stage>/<dir>）（release/变更集闭合时推荐执行；单维护源，不创建链接，自动排除二进制与 temp）"
       enabled: true
+    - skill: release-env-matrix
+      path: extensions/release-env-matrix
+      desc: "发布前逐环境 MQ 配置矩阵核验（t2/t7/tt/生产：topic 共用、tag 双端 producer==consumer 同值、groupId 跨环境独立、后缀约定 t2=_t2/t7=_t7/tt=_tt/生产无后缀）——配置类发布前对声明式矩阵（--sample 模板）跑 scripts/verify_env_matrix.py 至 PASS，防 _t2/_tt 错位与 groupId 竞争事故复现（2026-09 角色对账事故驱动）；触发词：环境矩阵/发布前核验/MQ tag/groupId/_tt"
+      enabled: true
 
 # 开发门禁（流程内执行，非推荐式）：会话按此配置运行；启停只改 enabled，不加不改模板。
 # env = 环境闭包标记（python3/jdt/checkstyle）；optional=true 且环境不就绪 → 显式 skip。
