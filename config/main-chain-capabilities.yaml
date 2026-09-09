@@ -54,7 +54,7 @@ capabilities:
       enabled: true
     - skill: release-env-matrix
       path: extensions/release-env-matrix
-      desc: "发布前逐环境 MQ 配置矩阵核验（t2/t7/tt/生产：topic 共用、tag 双端 producer==consumer 同值、groupId 跨环境独立、后缀约定 t2=_t2/t7=_t7/tt=_tt/生产无后缀）——配置类发布前对声明式矩阵（--sample 模板）跑 scripts/verify_env_matrix.py 至 PASS，防 _t2/_tt 错位与 groupId 竞争事故复现（2026-09 角色对账事故驱动）；触发词：环境矩阵/发布前核验/MQ tag/groupId/_tt"
+      desc: "发布前逐环境 MQ 配置矩阵核验（t2/t7/tt 共享实例+topic、hd 独立实例值同 blue、blue+bgy 同一实例；双端 tag 同值、同实例内 tag/groupId 互异、跨实例允许同值、bgy 独立 topic 默认 +_bgy）——配置类发布前对声明式矩阵（--sample 模板）跑 scripts/verify_env_matrix.py 至 PASS，防 _t2/_tt 错位、groupId 竞争与 bgy 独立 topic 误配事故复现（2026-09 角色对账事故驱动）；触发词：环境矩阵/发布前核验/MQ tag/groupId/_tt/_bgy"
       enabled: true
 
 # 开发门禁（流程内执行，非推荐式）：会话按此配置运行；启停只改 enabled，不加不改模板。
