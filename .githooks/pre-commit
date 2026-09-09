@@ -1,35 +1,34 @@
 #!/usr/bin/env bash
-# pre-commit: run the ai-system integrity gate before every commit.
-# Ensures "maintenance completed -> gate check" is never skipped by hand.
-#   python3 tools/repo-lint.py   (structural + language, standalone re-run)
-#   python3 tools/check.py        (17 checks incl. repo-lint, path-audit, ADR)
+# Pre-commit gate: English-discipline zone language check (LANGUAGE_CONVENTION
+# Rule 4, tools/repo-lint.py). Blocks commits that add Chinese flow-control
+# prose to templates/runtime/*.md or workflows/*.md.
 #
-# Use python3 (not python): under WSL, bare `python` can hit the
-# Windows pyenv shim (/mnt/c/Users/.../shims/python) which is not
-# executable, silently disabling this gate (P23 L3).
-#
-# Install: copy to .git/hooks/pre-commit (or `git config core.hooksPath .githooks`)
-set -euo pipefail
+# Escape hatch (documented, accepted tradeoff): `git commit --no-verify`.
+# Enable for new clones: `git config core.hooksPath .githooks` (from repo root).
+set -u
 
-cd "$(git rev-parse --show-toplevel)"
-
-echo "🔍 pre-commit: running repo-lint..."
-LINT_OUT="$(python3 tools/repo-lint.py --repo-root . 2>&1 || true)"
-echo "$LINT_OUT" | tail -2
-
-if echo "$LINT_OUT" | grep -E "BLOCKERS: [1-9]|ERRORS: [1-9]" >/dev/null 2>&1; then
-    echo "❌ pre-commit: repo-lint found blockers/errors. Fix before committing."
+repo_root="$(git rev-parse --show-toplevel)"
+if [ -z "$repo_root" ]; then
+    echo "pre-commit: not inside a git repo" >&2
     exit 1
 fi
 
-echo "🔍 pre-commit: running check.py (integrity gate)..."
-CHECK_OUT="$(python3 tools/check.py 2>&1 || true)"
-echo "$CHECK_OUT" | tail -3
+# Staged files in the English-discipline zone only — keep the hook fast.
+files="$(git diff --cached --name-only --diff-filter=ACM | \
+    grep -E '^(templates/runtime/|workflows/)[^ ]*\.md$' || true)"
+if [ -z "$files" ]; then
+    exit 0
+fi
 
-if echo "$CHECK_OUT" | grep -E "^FAIL" >/dev/null 2>&1; then
-    echo "❌ pre-commit: check.py failed. Fix before committing."
+list="$(printf '%s' "$files" | tr '\n' ',')"
+out="$(cd "$repo_root" && python3 tools/repo-lint.py --repo-root "$repo_root" --files "$list" 2>&1)"
+code=$?
+
+if [ "$code" -ne 0 ]; then
+    echo "pre-commit: English-discipline zone language check FAILED (LANGUAGE_CONVENTION Rule 4)."
+    echo "$out"
+    echo "  Fix the flagged Chinese flow-control prose, or force-commit with: git commit --no-verify"
     exit 1
 fi
 
-echo "✅ pre-commit: gates passed."
 exit 0

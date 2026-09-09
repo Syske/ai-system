@@ -256,6 +256,55 @@ def check_workflow_stages(skill_dir, results):
 CJK_RE = re.compile(r"[\u4e00-\u9fff]")
 
 
+RULE4_REPORT_EXEMPT = {
+    # User-facing report/artifact templates — language follows system locale
+    "runtime-release.md",
+    "runtime-review.md",
+    "runtime-diagnostic-log.md",
+    "runtime-hotfix-test-doc.md",
+}
+
+
+def rule4_file(root, p, results, strict=False):
+    """Rule 4: English-discipline zone — single-file check for
+    templates/runtime/*.md and workflows/*.md. AI flow-control prose must be
+    English (LANGUAGE_CONVENTION); CJK is allowed only as inline-code literals
+    (field names / product terms), English-dominant mixed lines (term
+    references), table cells (user-facing), and user-facing report templates
+    (RULE4_REPORT_EXEMPT). In strict mode (pre-commit hook) a hit is recorded
+    as an ERROR so the commit is blocked; otherwise WARN (heuristic,
+    human-reviewable).
+    """
+
+    if p.name in RULE4_REPORT_EXEMPT:
+        return
+    text = read_file(p)
+    cjk_lines = []
+    for ln in text.splitlines():
+        s = ln.strip()
+        if not s or s.startswith("|"):
+            continue  # table row (user-facing)
+        if not CJK_RE.search(s):
+            continue
+        no_code = re.sub(r"`[^`]*`", "", s)  # strip inline-code spans
+        if not CJK_RE.search(no_code):
+            continue  # CJK only inside backticks (literal identifier)
+        cjk_n = len(CJK_RE.findall(s))
+        if cjk_n / len(s) < 0.3:
+            continue  # English-dominant mixed line (term reference)
+        cjk_lines.append(ln)
+    if len(cjk_lines) >= 2:
+        msg = (
+            f"{p.name} contains Chinese flow-control prose "
+            f"(LANGUAGE_CONVENTION: English-discipline zone; "
+            f"{len(cjk_lines)} lines)"
+        )
+        if strict:
+            results.error(msg, file=str(p))
+        else:
+            results.warning(msg, file=str(p))
+
+
 def check_language(root, results):
     """Enforce governance/LANGUAGE_CONVENTION.md (方案 A / Batch L1).
 
@@ -416,45 +465,14 @@ def check_language(root, results):
                 )
 
     # Rule 4: templates/runtime/*.md + workflows/*.md — English-discipline zone
-    # (LANGUAGE_CONVENTION). AI flow-control prose must be English; CJK is
-    # allowed only as: inline-code literals (field names / product terms),
-    # English-dominant mixed lines (short CJK term reference), table cells
-    # (user-facing), and user-facing report/artifact templates (exempt file set).
-    report_exempt = {
-        "runtime-release.md",
-        "runtime-review.md",
-        "runtime-diagnostic-log.md",
-        "runtime-hotfix-test-doc.md",
-    }
+    # (LANGUAGE_CONVENTION). See rule4_file for exemptions; strict=False here
+    # (heuristic WARN inside the full-scan report).
     for base_name, glob in (("templates/runtime", "*.md"), ("workflows", "*.md")):
         base = root / base_name
         if not base.exists():
             continue
         for p in sorted(base.glob(glob)):
-            if p.name in report_exempt:
-                continue  # user-facing report/artifact template
-            text = read_file(p)
-            cjk_lines = []
-            for ln in text.splitlines():
-                s = ln.strip()
-                if not s or s.startswith("|"):
-                    continue  # table row (user-facing)
-                if not CJK_RE.search(s):
-                    continue
-                no_code = re.sub(r"`[^`]*`", "", s)  # strip inline-code spans
-                if not CJK_RE.search(no_code):
-                    continue  # CJK only inside backticks (literal identifier)
-                cjk_n = len(CJK_RE.findall(s))
-                if cjk_n / len(s) < 0.3:
-                    continue  # English-dominant mixed line (term reference)
-                cjk_lines.append(ln)
-            if len(cjk_lines) >= 2:
-                results.warning(
-                    f"{p.name} contains Chinese flow-control prose "
-                    f"(LANGUAGE_CONVENTION: English-discipline zone; "
-                    f"{len(cjk_lines)} lines)",
-                    file=str(p),
-                )
+            rule4_file(root, p, results)
 
 
 def check_line_endings(root, results):
@@ -504,6 +522,9 @@ def check_line_endings(root, results):
 def main():
     parser = argparse.ArgumentParser(description="Repository Governance Linter")
     parser.add_argument("--repo-root", required=True, help="Repository root directory")
+    parser.add_argument("--files", help="Comma-separated relative paths (subset mode: "
+                                         "English-discipline zone Rule 4 only, strict "
+                                         "ERROR-level — used by the pre-commit hook)")
     parser.add_argument("--json", action="store_true", help="Output JSON")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
     args = parser.parse_args()
@@ -512,6 +533,32 @@ def main():
     if not root.exists():
         print(f"Error: {root} does not exist", file=sys.stderr)
         sys.exit(2)
+
+    if args.files:
+        results = Results()
+        for f in args.files.split(","):
+            f = f.strip()
+            if not f:
+                continue
+            p = Path(f)
+            if not p.is_absolute():
+                p = root / p
+            p = p.resolve()
+            # Rule 4 applies to the English-discipline zone only
+            if (
+                p.is_relative_to(root / "templates/runtime")
+                or p.is_relative_to(root / "workflows")
+            ) and p.suffix == ".md":
+                rule4_file(root, p, results, strict=True)
+            else:
+                results.info(f"skipped (not English-discipline zone): {f}")
+        if args.json:
+            print(json.dumps(results.to_dict(), indent=2))
+        elif args.verbose:
+            for item in results.errors + results.warnings + results.infos:
+                loc = f" [{item['file']}]" if item["file"] else ""
+                print(f"  [{item['severity'].ljust(8)}] {item['message']}{loc}")
+        sys.exit(1 if results.errors else 0)
 
     results = Results()
     skills = find_skills(root)
