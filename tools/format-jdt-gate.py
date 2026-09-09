@@ -20,6 +20,7 @@ r"""C2 eclipse JDT formatter 干跑门禁（机器环境感知版，2026-09-02�
 """
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -106,21 +107,125 @@ def find_java(explicit):
 
 
 def _changed_java_files(src_dir):
-    """git status 驱动：已改动/新增 .java（返回相对路径列表）；非 git 或异常 → None。"""
+    """git status 驱动：已改动/新增 .java（返回**相对 src_dir** 路径列表，供
+    --files-file/--dump-dir 以 src_dir 为基解析）；非 git 或异常 → None。
+    注意：`git status --porcelain` 路径相对**仓库根**，src_dir 为子目录时须归一化。"""
     import subprocess as _sp
+    src_dir = str(src_dir)
     try:
-        r = _sp.run(["git", "status", "--porcelain"], cwd=str(src_dir),
+        r = _sp.run(["git", "status", "--porcelain"], cwd=src_dir,
                     capture_output=True, text=True, timeout=30)
     except Exception:
         return None
     if r.returncode != 0:
         return None
+    try:
+        top = _sp.run(["git", "rev-parse", "--show-toplevel"], cwd=src_dir,
+                      capture_output=True, text=True, timeout=10).stdout.strip()
+    except Exception:
+        top = ""
+    base = os.path.abspath(src_dir)
     rels = []
     for line in r.stdout.splitlines():
         p = line[3:].strip()
-        if p.endswith(".java"):
-            rels.append(p)
+        if not p.endswith(".java"):
+            continue
+        ap = os.path.abspath(os.path.join(top, p)) if top else os.path.abspath(p)
+        try:
+            rel = os.path.relpath(ap, base)
+        except Exception:
+            rel = p
+        if not rel.startswith(".."):
+            rels.append(rel)
     return sorted(set(rels))
+
+
+def _parse_hunk_ranges(diff_text, side):
+    """从 unified diff 文本解析每个 hunk 的行范围（P51 增量差分）。
+    side='old'/'new'；count 省略视为 1；返回 [(start, end)]，end 含。"""
+    ranges = []
+    for m in re.finditer(r"@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@", diff_text):
+        if side == "old":
+            s, c = int(m.group(1)), int(m.group(2) or 1)
+        else:
+            s, c = int(m.group(3)), int(m.group(4) or 1)
+        ranges.append((s, s + c - 1))
+    return ranges
+
+
+def _changed_line_ranges(src_dir, rel, total_lines):
+    """本 change 在 rel 文件中的实际改动行范围（工作区文件坐标，新侧）。
+    未跟踪/新增文件或无 HEAD 提交 → 整文件视为新增（保守：全部拦截）。"""
+    r = run(["git", "diff", "-U0", "HEAD", "--", rel], cwd=str(src_dir))
+    if r.returncode != 0:
+        return [(1, max(total_lines, 1))]
+    ranges = _parse_hunk_ranges(r.stdout, "new")
+    if ranges:
+        return ranges
+    # git diff HEAD 无输出：可能未跟踪（新增）文件 → 整文件为新增
+    st = run(["git", "status", "--porcelain", "--", rel], cwd=str(src_dir))
+    if st.stdout.strip().startswith("??"):
+        return [(1, max(total_lines, 1))]
+    return []
+
+
+def _jdt_diff_hunks(worktree_file, dumped_file):
+    """JDT 干跑差异 hunks（工作区文件坐标）：git diff --no-index -U0。
+    不用 -w：缩进/空白正是格式债主类，滤掉会使门禁失效；行级交集判定
+    已防止存量噪音误拦（P51 实施修正）。--no-index 有差异时 rc=1 属正常。"""
+    r = run(["git", "diff", "--no-index", "-U0", "--",
+             str(worktree_file), str(dumped_file)])
+    if r.returncode not in (0, 1):
+        return []
+    return _parse_hunk_ranges(r.stdout, "old")
+
+
+def _overlaps(jdt_ranges, changed_ranges):
+    """JDT hunk 行范围是否与改动行范围相交（行级判定，防误放行）。"""
+    for (a, b) in jdt_ranges:
+        for (c, d) in changed_ranges:
+            if a <= d and c <= b:
+                return True
+    return False
+
+
+def dry_run_incremental(java, lib_dir, build_dir, xml, src_dir, changed_files):
+    """P51 增量差分：仅扫本 change 改动文件；JDT hunk × 改动行交集——
+    存量基线豁免、新增行拦截。退出码：0 PASS / 1 WARN(≤5) / 2 FAIL(>5) / 3 ENV。"""
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="jdt-gate-") as td:
+        dump = Path(td) / "dump"
+        dump.mkdir()
+        rc = dry_run(java, lib_dir, build_dir, xml, src_dir,
+                     files_list=changed_files, dump_dir=dump)
+        if rc == 0:
+            log("PASS（本 change 改动文件全部与 profile 一致）")
+            return 0
+        if rc == 3:
+            return 3
+        new_diff_files = 0
+        baseline_files = 0
+        for rel in changed_files:
+            dumped = dump / rel
+            worktree = Path(src_dir) / rel
+            if not dumped.exists():
+                continue  # wrapper 未判 differ → 无需分析
+            try:
+                total = len(worktree.read_text(encoding="utf-8", errors="replace").splitlines())
+            except Exception:
+                total = 0
+            changed_ranges = _changed_line_ranges(src_dir, rel, total)
+            jdt_ranges = _jdt_diff_hunks(worktree, dumped)
+            if _overlaps(jdt_ranges, changed_ranges):
+                new_diff_files += 1
+                log(f"NEW-DIFF（本次新增格式差异，拦截）: {rel}")
+            elif jdt_ranges:
+                baseline_files += 1
+                log(f"BASELINE（存量基线豁免）: {rel}（JDT hunks {len(jdt_ranges)} 处均未触碰本次改动行）")
+        log(f"增量口径：新增差异 {new_diff_files} 文件 / 存量基线豁免 {baseline_files} 文件 / 本 change 改动 {len(changed_files)} 文件")
+        if new_diff_files == 0:
+            return 0
+        return 1 if new_diff_files <= DIFF_WARN_MAX_FILES else 2
 
 
 def find_lib_dir(explicit_jar):
@@ -144,9 +249,10 @@ def _closure_ready(lib):
 # ---------- 干跑 ----------
 
 def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False, ignore_file=None,
-          files_list=None):
+          files_list=None, dump_dir=None):
     """files_list：显式文件集（相对路径列表，对应 Java --files-file）。
-    提供时仅检查该子集（替代目录全量 walk）——用于 CI/外部工具精确指定文件。"""
+    提供时仅检查该子集（替代目录全量 walk）——用于 CI/外部工具精确指定文件。
+    dump_dir：--dump-dir 透传（wrapper 写 differ 文件 formatted 副本，P51 增量差分用）。"""
     lib_dir = Path(lib_dir)
     build_dir = Path(build_dir)
     cp = f"{lib_dir}/*:{build_dir}"   # 闭包 jar 目录通配
@@ -161,6 +267,8 @@ def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False, ignore_file=Non
     cmd = [str(java), "-cp", cp, "JdtFormatCheck", str(xml), str(src_dir)]
     if apply:
         cmd.append("--apply")
+    if dump_dir:
+        cmd += ["--dump-dir", str(dump_dir)]
     if ignore_file:
         cmd += ["--ignore-file", str(ignore_file)]
     if files_list:
@@ -240,7 +348,8 @@ def main(argv=None):
     ap.add_argument("--apply", action="store_true",
                     help="将 formatted 结果写回源文件（格式基线；配合 git diff -w 安全校验）")
     ap.add_argument("--changed", action="store_true",
-                    help="增量口径：git status 驱动——无改动 .java 快速 PASS；有改动全量扫描（口径日志）")
+                    help="增量口径（P51）：git status 驱动——无改动 .java 快速 PASS；"
+                         "有改动仅扫改动文件（JDT hunk × 改动行交集：存量基线豁免、新增行拦截）")
     ap.add_argument("--files-list", default=None,
                     help="显式 .java 文件集（相对 src_dir 路径，逗号/空格/换行分隔）；"
                          "提供时仅检查该子集（替代全量 walk）")
@@ -252,6 +361,7 @@ def main(argv=None):
         log(f"ERROR: 源目录不存在: {args.src_dir}")
         return 2
 
+    changed = None
     if args.changed:
         changed = _changed_java_files(Path(args.src_dir))
         if changed is None:
@@ -260,7 +370,7 @@ def main(argv=None):
             log("PASS（本 change 无改动 .java 文件）")
             return 0
         else:
-            log(f"--changed：本 change 改动 {len(changed)} 个 .java，全量扫描（口径日志）")
+            log(f"--changed：本 change 改动 {len(changed)} 个 .java，增量差分（hunk × 改动行交集）")
 
     if args.setup:
         java = find_java(args.java)
@@ -315,6 +425,12 @@ def main(argv=None):
     if args.files_list:
         import re as _re
         files_list = [f for f in _re.split(r"[,\s]+", args.files_list.strip()) if f]
+
+    # P51 增量差分：--changed（非 apply）且改动文件已知 → hunk × 改动行交集
+    if args.changed and changed and not args.apply:
+        return dry_run_incremental(java, lib, build, Path(args.xml), Path(args.src_dir), changed)
+    if args.changed and changed:
+        files_list = changed  # --apply + --changed：仅对改动文件写回
 
     return dry_run(java, lib, build, Path(args.xml), Path(args.src_dir), apply=args.apply,
                    ignore_file=args.ignore_file, files_list=files_list)

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Tools（format-jdt-gate 增量语义增强，C2 门禁） |
 | Author | AI Maintainer |
 | Created | 2026-09-09 |
@@ -68,4 +68,20 @@ C2（format-jdt-gate）`--changed` 现语义为「git status 有改动 .java →
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-09-09 |
+| User (AI Maintainer operator) | **Approved**（确认方案 A：hunk × 改动行交集） | 2026-09-09 |
+
+---
+
+## Implementation Record (2026-09-09)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate):
+1. `tools/format-jdt-gate.py`：新增 `_parse_hunk_ranges` / `_changed_line_ranges` / `_jdt_diff_hunks` / `_overlaps` / `dry_run_incremental`（hunk × 改动行交集：存量豁免 BASELINE + 新增拦截 NEW-DIFF，退出码按新增差异文件数映射）；`dry_run` 增 `--dump-dir` 透传；`--changed` 路由到增量差分（非 apply 时），`--changed --apply` 仅对改动文件写回；`--changed` 描述更新。
+2. `cli/tests/test_format_jdt_gate.py`：新增 9 用例（hunk 解析 / 交集 / 改动行范围 3 态 / 增量出口映射 4 态）。
+3. `templates/runtime/runtime-develop.md` C2 gate 描述同步（增量语义 + 存量豁免）；`tools/README.md` 登记。
+
+**L1 偏差（实施修正，均已核）**：
+- **去除 `-w`**（提案原述 git diff -w）：缩进/空白是格式债主类，`-w` 会滤掉全部缩进 hunks 使门禁失效；行级交集判定已防存量噪音误拦，无需 `-w`。
+- **未加 `--check-commit`**（提案 §5.2）：format-check-a（必查）已独占提交 subject 校验，C2（可选）重复属违反 Single Source of Truth。
+- **修复潜伏 bug**：`_changed_java_files` 原返回仓库根相对路径，src_dir≠仓库根时 `--files-file`/dump 全部解析失败（files=0）——已归一化为 src_dir 相对（真实回放暴露并修复）。
+
+**Validation**：unittest 251 OK（+9）；真实回放 4 场景全对——① 纯存量豁免 PASS(0) ② 新文件违规 NEW-DIFF WARN(1) ③ 真实新增违规拦截(1) ④ 混合（存量豁免 + 新文件拦截）；repo-lint 0/0/26；path-audit OK；check.py PASS（3 已知 WARN）。

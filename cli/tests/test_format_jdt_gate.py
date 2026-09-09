@@ -117,6 +117,84 @@ class TestJdtGate(unittest.TestCase):
                 self.assertEqual(dr.call_args.kwargs.get("files_list"),
                                  ["a.java", "b.java", "c.java"])
 
+class TestJdtGateIncremental(unittest.TestCase):
+    """P51 增量差分：hunk 解析 / 交集判定 / 改动行范围 / dry_run_incremental 出口映射。"""
+
+    def test_parse_hunk_ranges(self):
+        txt = "@@ -10 +10,5 @@\n@@ -1,3 +1,3 @@\n@@ -5 +6 @@\n"
+        self.assertEqual(fjg._parse_hunk_ranges(txt, "old"), [(10, 10), (1, 3), (5, 5)])
+        self.assertEqual(fjg._parse_hunk_ranges(txt, "new"), [(10, 14), (1, 3), (6, 6)])
+
+    def test_overlaps(self):
+        self.assertTrue(fjg._overlaps([(10, 15)], [(14, 20)]))
+        self.assertTrue(fjg._overlaps([(10, 15)], [(15, 15)]))
+        self.assertFalse(fjg._overlaps([(10, 15)], [(16, 20)]))
+        self.assertFalse(fjg._overlaps([], [(1, 5)]))
+
+    def test_changed_line_ranges_tracked(self):
+        with mock.patch.object(fjg, "run", return_value=mock.Mock(
+                returncode=0, stdout="@@ -10 +10,5 @@\n", stderr="")):
+            self.assertEqual(fjg._changed_line_ranges("/src", "A.java", 100), [(10, 14)])
+
+    def test_changed_line_ranges_untracked_full(self):
+        # git diff HEAD 空（未跟踪）→ git status ?? → 整文件视为新增
+        seq = [
+            mock.Mock(returncode=0, stdout="", stderr=""),                 # git diff HEAD
+            mock.Mock(returncode=0, stdout="?? src/A.java\n", stderr=""),  # git status
+        ]
+        with mock.patch.object(fjg, "run", side_effect=seq):
+            self.assertEqual(fjg._changed_line_ranges("/src", "src/A.java", 42), [(1, 42)])
+
+    def test_changed_line_ranges_no_head_full(self):
+        # 无 HEAD 提交（git diff HEAD 报错）→ 整文件保守拦截
+        with mock.patch.object(fjg, "run", return_value=mock.Mock(
+                returncode=128, stdout="", stderr="fatal: ambiguous")):
+            self.assertEqual(fjg._changed_line_ranges("/src", "A.java", 7), [(1, 7)])
+
+    def test_dry_run_incremental_new_diff_blocks(self):
+        # dry_run 报 differ；dumped 存在且 JDT hunk 命中改动行 → NEW-DIFF → WARN(1)
+        def fake_dry_run(_j, _l, _b, _x, src_dir, **kw):
+            dump = kw["dump_dir"]
+            (dump / "A.java").write_text("line1\nline2\nline3\n", encoding="utf-8")
+            return 1
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            src = root / "src"; src.mkdir()
+            (src / "A.java").write_text("line1\nline2\nline3\n", encoding="utf-8")
+            with mock.patch.object(fjg, "dry_run", side_effect=fake_dry_run), \
+                 mock.patch.object(fjg, "_changed_line_ranges", return_value=[(2, 2)]), \
+                 mock.patch.object(fjg, "_jdt_diff_hunks", return_value=[(1, 2)]):
+                rc = fjg.dry_run_incremental("/j", "/lib", "/build", "/x.xml", str(src), ["A.java"])
+        self.assertEqual(rc, 1)
+
+    def test_dry_run_incremental_baseline_exempt(self):
+        # JDT hunk 未触碰改动行 → BASELINE 豁免 → PASS(0)
+        def fake_dry_run(_j, _l, _b, _x, src_dir, **kw):
+            dump = kw["dump_dir"]
+            (dump / "A.java").write_text("line1\nline2\nline3\n", encoding="utf-8")
+            return 1
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            src = root / "src"; src.mkdir()
+            (src / "A.java").write_text("line1\nline2\nline3\n", encoding="utf-8")
+            with mock.patch.object(fjg, "dry_run", side_effect=fake_dry_run), \
+                 mock.patch.object(fjg, "_changed_line_ranges", return_value=[(10, 12)]), \
+                 mock.patch.object(fjg, "_jdt_diff_hunks", return_value=[(1, 2)]):
+                rc = fjg.dry_run_incremental("/j", "/lib", "/build", "/x.xml", str(src), ["A.java"])
+        self.assertEqual(rc, 0)
+
+    def test_dry_run_incremental_clean_pass(self):
+        # dry_run 全一致（0）→ 直接 PASS
+        with mock.patch.object(fjg, "dry_run", return_value=0):
+            rc = fjg.dry_run_incremental("/j", "/lib", "/build", "/x.xml", "/src", ["A.java"])
+        self.assertEqual(rc, 0)
+
+    def test_dry_run_incremental_env(self):
+        with mock.patch.object(fjg, "dry_run", return_value=3):
+            rc = fjg.dry_run_incremental("/j", "/lib", "/build", "/x.xml", "/src", ["A.java"])
+        self.assertEqual(rc, 3)
+
+
 if __name__ == "__main__":
     unittest.main()
     def test_dry_run_apply_flag(self):

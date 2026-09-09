@@ -54,7 +54,7 @@
 | [P48](P48-CONFIG-DEFAULT-SOURCING.md) | 配置默认值治理（@Value 单一默认源 + 对象化；L1 已实施，L2 配置 POJO 化待季度窗口）— **Proposed** | 2026-09-04 |
 | [P49](P49-RETURN-GRANULARITY-REUSE-CHECKLIST.md) | 返回值粒度可区分性 + 非必要不新增实体/方法 + 实现层复用核验（清单三落点）— **Implemented** 2026-09-09 | 2026-09-09 |
 | [P50](P50-METHOD-GRANULARITY-DUAL-CONFIRMATION.md) | 方法粒度双确认模型（开发主链前置方案确认 + 后置一致性确认，条件式触发）— **Implemented** 2026-09-09 | 2026-09-09 |
-| [P51](P51-JDT-GATE-INCREMENTAL-DIFF.md) | format-jdt-gate 增量差分语义（hunk × 改动行交集，存量豁免+新增拦截）— **Proposed** | 2026-09-09 |
+| [P51](P51-JDT-GATE-INCREMENTAL-DIFF.md) | format-jdt-gate 增量差分语义（hunk × 改动行交集，存量豁免+新增拦截）— **Implemented** 2026-09-09 | 2026-09-09 |
 | [P52](P52-SOFA-POWERMOCK-TEST-CONVENTIONS.md) | SOFA/PowerMock/jacoco 测试兼容性纪律 + 全量回归环境性基线登记 — **Proposed** | 2026-09-09 |
 | [P47](P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md) | develop 前置处理规则与产物目录约定（前置不满足→先跑 dev-setup；完成报告落 completion-reports/）— **Implemented** 2026-09-02 | 2026-09-02 |
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |

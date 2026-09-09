@@ -153,6 +153,9 @@ Formatting gate (Stage 6 Validation):
     ENV unavailable) — eclipse JDT formatter dry run against
     `tools/jdt-format-gate/eclipse-format.xml` (IDEA default-derived profile, 375
     settings, calibrated). Exit: 0 PASS / 1 WARN (≤5 files) / 2 FAIL / 3 ENV.
+    `--changed` 增量口径（P51）：git status 驱动，仅扫本 change 改动文件；
+    JDT hunk × 改动行交集——存量基线豁免（BASELINE 记录诊断日志）、新增行拦截
+    （NEW-DIFF），退出码按新增差异文件数映射（存量债不再整文件报 diff）。
   - `checkstyle-gate` (optional, environment-aware; runs when the repo carries
     `checkstyle.xml`/`suppressions.xml` and the checkstyle jar/JRE are present):
     `{checkstyle_java} -jar {checkstyle_jar} -c <repo>/checkstyle.xml <worktree>/src`
