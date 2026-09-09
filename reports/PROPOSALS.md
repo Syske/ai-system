@@ -38,7 +38,7 @@
 | Implemented | 日常运行中发现变更时的上下文加载触发规则（Issue Capture） | 2026-08-24 | `P33-ISSUE-CAPTURE-CONTEXT-LOADING.md` |
 | Implemented | maintenance 状态纳入 ai-system 提交（拆分：系统级入 git / 机器级留本地） | 2026-08-24 | `P34-MAINTENANCE-STATE-INTO-GIT.md` |
 | Implemented | python 解释器鲁棒性（`python` shim 在 WSL 不可用，scripts/docs 用法不一） | 2026-08-24 | `P35-PYTHON-INTERPRETER-ROBUSTNESS.md` |
-| Implemented | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定代码仓库；2026-09-03 增补触发层：aic 首次运行检测+确认） | 2026-08-25 | `P36-SETUP-ENV-INIT-SCAFFOLD.md` |
+| Implemented | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定代码仓库） | 2026-08-25 | `P36-SETUP-ENV-INIT-SCAFFOLD.md` |
 | Implemented | 工作流必填参数必要性评估（省掉不必要的必填项，提升用户使用效率） | 2026-08-25 | `P37-REQUIRED-INPUTS-TRIAGE.md` |
 | Implemented | 逐 aic 工作流用户交互审计（wizard 交互序列/确认节奏/呈现） | 2026-08-25 | `P38-WORKFLOW-INTERACTION-AUDIT.md` |
 | Implemented | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 污染 .git/.githooks） | 2026-08-25 | `P39-EXTENSIONS-LINT-HIDDEN-DIRS.md` |
@@ -48,9 +48,9 @@
 | Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |
 | Implemented | Worktree 约定完善（项目级隔离 + 生命周期管理） | 2026-08-31 | `P44-WORKTREE-CONVENTION.md` |
 | Implemented | 运行时语言门禁（completion-time language gate，方案 B 正式化） | 2026-09-01 | `P45-RUNTIME-LANGUAGE-GATE.md` |
-| Implemented | tr5 发布债收口 + review/verify 验证标记检查 | 2026-09-01 | `P46-TR5-DEBT-VALIDATION-MARKER.md` |
-| Implemented | 配置默认值治理（@Value 单一默认源 + 对象化路线；L1 + L2 治理层已实施，业务试点季度窗口） | 2026-09-04 | `P48-CONFIG-DEFAULT-SOURCING.md` |
+| Proposed | tr5 发布债收口 + review/verify 验证标记检查 | 2026-09-01 | `P46-TR5-DEBT-VALIDATION-MARKER.md` |
 | Implemented | develop 前置处理规则与产物目录约定 | 2026-09-02 | `P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md` |
+| Implemented | 配置默认值治理（@Value 单一默认源 + 对象化路线） | 2026-09-04 | `P48-CONFIG-DEFAULT-SOURCING.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |

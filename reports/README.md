@@ -86,6 +86,7 @@
 | 2026-09-01 | on-demand/workflows | 语言边界专项：根因定位（执行层未按 locale 转换）+ pilot A（aic-maintain 交互语言约束，自测+实测通过） | `MAINTENANCE-2026-09-01.md` | 方案 B/C 延后（待 §11）；P35 复现实锤建议实施 |
 | 2026-09-01 | on-demand | 最新改动诊断（提交 3580bb0 + 孤儿 runtime-base.md 改动）+ 最新运行日志巡检 | `MAINTENANCE-2026-09-01-logs.md` | 孤儿改动 B1/B2/B3 待决策（建议 B1）；README 索引补登；code-review.md 节序待 L2 |
 | 2026-09-03 | on-demand | pi-lens 扩展安装评估（结论：现在不安装，用户已确认）+ env-init 首次运行触发场景并入 P36（触发层增补）+ 迁移后基线重置（FIRST_RUN 全量审计顺延 09-07） | `MAINTENANCE-2026-09-03.md` | extensions 仓恢复待用户（aic extensions-init 已覆盖）；P47 索引补登（本次）；P36 增补待季度回顾决策是否提前 |
+| 2026-09-09 | weekly | 全量审计（delta FIRST_RUN→record）；工具门禁全绿（0/0/26，WARN 增量归因 k8s-logs 补跟踪）；一致性抽查 8 过/2 提示（合同图漏 logs/archived/、提案盘面）；3 开放提案 defer；P26:53 CI 项建议关闭；知识生命周期无新增捕获 | `MAINTENANCE-2026-09-09.md` | 合同 §2 图补两行需 §11 审批；P26:53/P46 状态收尾待用户确认；aic-maintain 133 行瘦身季度窗口；extensions 仓 1 条未提交归因见 logs/ |
 
 ---
 
