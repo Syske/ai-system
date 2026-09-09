@@ -86,7 +86,7 @@ Load:
 - Source Code
 - Existing Tests
 
-### Plan Gate (A1 — 计划定案门禁)
+### Plan Gate (A1 — confirmed-plan requirement)
 
 Before any implementation, an **approved plan** must exist:
 
@@ -107,7 +107,7 @@ Prohibited:
 If the plan is missing and design gaps are found during investigation: STOP,
   write them into the Phase 2 plan, and wait for user confirmation. <!-- @keep -->
 
-### Investigation Discipline (A2/A3 — 注意力与上下文纪律)
+### Investigation Discipline (A2/A3 — attention & context)
 
 During context loading / investigation:
 
@@ -120,7 +120,7 @@ During context loading / investigation:
   compile checks — do not unzip jars or research APIs during investigation
   unless the confirmed plan depends on it. <!-- @keep -->
 
-### Contradiction Stop (矛盾点门禁)
+### Contradiction Stop (conflict gate)
 
 During investigation / inference, if a **contradiction** is found — spec vs
 contract vs Task Card vs existing code conflicts, missing requirements,
@@ -202,9 +202,11 @@ Formatting gate (Stage 6 Validation):
     ENV unavailable) — eclipse JDT formatter dry run against
     `tools/jdt-format-gate/eclipse-format.xml` (IDEA default-derived profile, 375
     settings, calibrated). Exit: 0 PASS / 1 WARN (≤5 files) / 2 FAIL / 3 ENV.
-    `--changed` 增量口径（P51）：git status 驱动，仅扫本 change 改动文件；
-    JDT hunk × 改动行交集——存量基线豁免（BASELINE 记录诊断日志）、新增行拦截
-    （NEW-DIFF），退出码按新增差异文件数映射（存量债不再整文件报 diff）。
+    `--changed` incremental (P51): git status driven, scans only this
+    change's touched files; JDT hunk × changed-line intersection — baseline
+    hunks exempt (BASELINE recorded in the diagnostic log), new-line hits
+    blocked (NEW-DIFF); exit maps on the new-diff file count (no more whole-file
+    diff on baseline-debt files).
   - `checkstyle-gate` (optional, environment-aware; runs when the repo carries
     `checkstyle.xml`/`suppressions.xml` and the checkstyle jar/JRE are present):
     `{checkstyle_java} -jar {checkstyle_jar} -c <repo>/checkstyle.xml <worktree>/src`
@@ -223,11 +225,12 @@ Formatting gate (Stage 6 Validation):
 
 Post-Implementation Confirmation (P50, conditional — before the final commit):
 
-- Trigger: Task Card marked `实现后置确认: required` (interface/contract surface,
+- Trigger: Task Card marked with post-implementation confirmation
+  (`实现后置确认: required` — interface/contract surface,
   refactor / behavior change, cross-component / cross-repo contract — set by
   task-splitter; AI feature-detection as fallback). Mechanical cards (DTO / channel
   beans / config / docs) skip.
-- Confirmation scope (F 修正): this confirmation is **non-auto-pass in the
+- Confirmation scope (F refinement): this confirmation is **non-auto-pass in the
   user-authorized development stage** — for actual implementation (authorized
   development), present the method-granularity summary and wait for user
   confirmation BEFORE committing (P50 as-is). In the **inference stage** (Phase
