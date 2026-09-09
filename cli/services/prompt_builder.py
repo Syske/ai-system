@@ -6,12 +6,12 @@ from cli.utils.yaml import load_yaml
 
 class PromptBuilder:
 
-    def __init__(self):
+    def __init__(self, root=None):
 
         self.root = (
-            Path(__file__)
-            .resolve()
-            .parents[2]
+            Path(root).resolve()
+            if root
+            else Path(__file__).resolve().parents[2]
         )
 
         self.registry = (
@@ -136,13 +136,23 @@ class PromptBuilder:
         self,
         workflow_name: str
     ) -> str:
-        """Build the optional-external-capabilities note for a main-chain stage.
+        """Build the external-capabilities note for a main-chain stage (config-driven).
 
-        Injected at the `{{external_capabilities}}` anchor (before `# Task`),
-        so the agent sees it before execution starts. Returns an empty string
-        when the stage has no enabled entry or none of its paths resolve — a
-        missing extensions/ repo must NOT leak a dangling relative path into
-        the generated prompt (machine/environment-level fact, not a capability).
+        Injected at the `{{external_capabilities}}` anchor (before `# Task`), so
+        the agent sees it before execution starts. Entries with
+        `priority: high` are injected as **bound skills that must be loaded**
+        (read the actual SKILL.md / references at the given path — never assume
+        content, hallucination guard); their per-extension `prompt` text,
+        authored directly in the config, is used verbatim (fallback: a generic
+        load instruction). Other entries stay optional (may use on demand;
+        per-extension `prompt` preferred over `desc`). The injected section is
+        AI control flow, so framing is English (LANGUAGE_CONVENTION); the
+        config-authored `prompt` field must also be English.
+
+        Returns an empty string when the stage has no enabled entry or none of
+        its paths resolve — a missing extensions/ repo must NOT leak a dangling
+        relative path into the generated prompt (machine/environment-level fact,
+        not a capability).
         """
 
         from cli.services import main_chain_caps
@@ -165,23 +175,45 @@ class PromptBuilder:
             if not path:
                 continue
 
-            desc = c.get("desc") or ""
-
-            resolved.append(
-                f"- {c.get('skill', '')} ({path}) — {desc}"
-            )
+            resolved.append({
+                "skill": c.get("skill", ""),
+                "path": path,
+                "desc": c.get("desc") or "",
+                "prompt": c.get("prompt") or "",
+                "priority": c.get("priority", "normal"),
+            })
 
         if not resolved:
 
             return ""
 
-        lines = [
-            "## Optional External Capabilities",
-            "You may use these registered external skills on demand for "
-            "this stage:",
-            "",
-            *resolved,
-        ]
+        high = [r for r in resolved if r.get("priority") == "high"]
+        normal = [r for r in resolved if r.get("priority") != "high"]
+        lines = []
+        if high:
+            lines += [
+                "## High-Priority Bound Skills (must load)",
+                "Load and follow these registered skills for this stage: read "
+                "the actual SKILL.md / references at the given path (never "
+                "assume their content — hallucination guard) and execute per "
+                "their procedure; record usage in the diagnostic log.",
+                "",
+            ]
+            for r in high:
+                tip = r["prompt"] or (
+                    f"Load {r['path']}/SKILL.md and follow it (desc: {r['desc']})"
+                )
+                lines.append(f"- {r['skill']} ({r['path']}) — {tip}")
+        if normal:
+            lines += [
+                "## Optional External Capabilities",
+                "You may use these registered external skills on demand for "
+                "this stage:",
+                "",
+            ]
+            for r in normal:
+                tip = r["prompt"] or r["desc"]
+                lines.append(f"- {r['skill']} ({r['path']}) — {tip}")
 
         return "\n".join(lines)
 

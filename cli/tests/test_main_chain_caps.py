@@ -53,3 +53,20 @@ class TestMainChainCaps(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_extra_fields_pass_through(self):
+        # priority/prompt 等扩展字段随整条 dict 透传（prompt_builder 消费）
+        (self.root / "config" / "main-chain-capabilities.yaml").write_text(
+            "capabilities:\n"
+            "  release:\n"
+            "    - skill: release-env-matrix\n"
+            "      path: extensions/release-env-matrix\n"
+            "      desc: x\n"
+            "      priority: high\n"
+            "      prompt: Load me\n"
+            "      enabled: true\n",
+            encoding="utf-8",
+        )
+        caps = main_chain_caps.external_capabilities(self.root, "release")
+        self.assertEqual(caps[0]["priority"], "high")
+        self.assertEqual(caps[0]["prompt"], "Load me")

@@ -15,7 +15,9 @@ CAPS_FILE = "config/main-chain-capabilities.yaml"
 def external_capabilities(root, stage):
     """Enabled external skills for a main-chain stage (e.g. 'prepare').
 
-    Returns a list of dicts {skill, path, desc, enabled}. Empty by default.
+    Returns the full enabled entries (dicts carrying skill/path/desc plus any
+    extra config fields such as `priority` / `prompt` that prompt_builder reads).
+    Empty by default.
     """
 
     path = Path(root) / CAPS_FILE

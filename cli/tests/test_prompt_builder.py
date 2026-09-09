@@ -227,5 +227,48 @@ class TestFieldContract(unittest.TestCase):
 
 
 
+class TestCapabilitiesPriority(unittest.TestCase):
+    """Config-driven capability injection: priority=high -> must-load section
+    with the per-extension prompt; normal -> optional note (dynamically assembled)."""
+
+    def _mk_root(self):
+        import tempfile
+        td = tempfile.TemporaryDirectory()
+        root = Path(td.name)
+        (root / "config").mkdir(parents=True)
+        (root / "config" / "main-chain-capabilities.yaml").write_text(
+            "capabilities:\n"
+            "  release:\n"
+            "    - skill: release-env-matrix\n"
+            "      path: extensions/release-env-matrix\n"
+            "      desc: trigger-desc\n"
+            "      priority: high\n"
+            "      prompt: Load SKILL.md + references; run verify until PASS.\n"
+            "      enabled: true\n"
+            "    - skill: archive-ipd-workspace\n"
+            "      path: extensions/archive-ipd-workspace\n"
+            "      desc: normal-desc\n"
+            "      enabled: true\n",
+            encoding="utf-8",
+        )
+        for s in ("release-env-matrix", "archive-ipd-workspace"):
+            (root / "extensions" / s).mkdir(parents=True)
+            (root / "extensions" / s / "SKILL.md").write_text("x", encoding="utf-8")
+        return td, root
+
+    def test_high_priority_gets_must_load_with_custom_prompt(self):
+        td, root = self._mk_root()
+        try:
+            section = PromptBuilder(root=str(root))._capabilities_section("release")
+        finally:
+            td.cleanup()
+        self.assertIn("High-Priority Bound Skills (must load)", section)
+        self.assertIn("Load SKILL.md + references; run verify until PASS.", section)
+        self.assertIn("hallucination guard", section)
+        self.assertIn("Optional External Capabilities", section)
+        self.assertIn("normal-desc", section)
+
+
 if __name__ == "__main__":
+
     unittest.main()
