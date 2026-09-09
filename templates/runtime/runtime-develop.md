@@ -212,6 +212,14 @@ Post-Implementation Confirmation (P50, conditional — before the final commit):
   refactor / behavior change, cross-component / cross-repo contract — set by
   task-splitter; AI feature-detection as fallback). Mechanical cards (DTO / channel
   beans / config / docs) skip.
+- Confirmation scope (F 修正): this confirmation is **non-auto-pass in the
+  user-authorized development stage** — for actual implementation (authorized
+  development), present the method-granularity summary and wait for user
+  confirmation BEFORE committing (P50 as-is). In the **inference stage** (Phase
+  1/2 planning, investigation, self-checks), the AI's self-checks (P49,
+  method-granularity analysis, reuse verification) are **internal auto-pass** —
+  they do NOT create user confirmation round-trips (inference must not be slowed
+  by confirmation overhead).
 - Present the implementation method-granularity summary and wait for user
   confirmation before committing:
   - new/changed methods + signatures
