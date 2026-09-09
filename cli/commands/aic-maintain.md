@@ -9,12 +9,10 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 **Interaction language (mandatory):** All user-facing text (questions, choices, confirmations, completion/review reports) MUST follow the system language per `AI_OPERATING_RULES` §Language Boundary + `governance/LANGUAGE_CONVENTION.md` (current `config/menu.yaml → locale` = `zh`). AI control flow stays English; only the text shown to the user is localized.
 
 **AI scheduling** (ADR-0009):
-- At session start the AI runs `python3 tools/quick-check.py` (read-only,
-  seconds); issues are reported and recorded to
-  metrics/quick-check-{date}.json.
-- The AI checks `config/maintenance.yaml → next_maintenance`;
-  when due, it prompts the user for authorization before running this command.
-- The user decides only whether to run and which Mode/Scope.
+- Session start: run `python3 tools/quick-check.py` (read-only), record issues
+  to metrics/quick-check-{date}.json.
+- Check `config/maintenance.yaml → next_maintenance`; when due, prompt the
+  user for authorization before running. User decides only whether to run and Mode/Scope.
 
 **Steps**
 
@@ -27,9 +25,8 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    ```
 
    - `maintain-delta.py --check` verdicts: FIRST_RUN → full audit; NO_CHANGES
-     (no commits since the last full run) → skip the heavy audits in Step 1/2,
-     keep only quick-check + state hygiene + report; CHANGED → run only the
-     affected-area tool subset (see the `suggested` line)
+     (no commits since last full run) → skip heavy audits (quick-check + state
+     hygiene + report); CHANGED → affected-area subset (`suggested` line)
 
 1. **Tool checks** (run in the ai-system directory)
 
@@ -47,86 +44,54 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    ```
 
 2. **Mode-based inspection** (per skills/repository-maintainer and OPERATIONS.md section 9)
-   - weekly: duplication report, dependency graph, orphan assets, health score
-   - monthly: architecture review, capability matrix, lifecycle report, evolution suggestions
-   - quarterly: workflow redesign assessment, capability restructuring, Playbook consolidation, knowledge cleanup
+   - weekly: duplication / dependency graph / orphan assets / health score
+   - monthly: architecture review / capability matrix / lifecycle report / evolution
+   - quarterly: workflow redesign / capability restructuring / Playbook / knowledge cleanup
    - on-demand: run the corresponding items above per Scope
-   - Scope=extensions (any mode): run the extensions domain inspection —
-     `python3 tools/extensions-lint.py` (conventions + tracked artifacts),
-     `python3 tools/extensions-lint.py --fix-missing-log` (scaffold logs),
-     verify extensions repo sync (`git -C <workspace>/extensions status`),
-     and report per-extension health (SKILL.md / OPTIMIZATION_LOG coverage)
+   - Scope=extensions: `extensions-lint.py` (+ `--fix-missing-log`), verify repo sync (`git -C <workspace>/extensions status`), report per-extension health (SKILL.md / OPTIMIZATION_LOG coverage)
 
-2.5 **AI system health (analysis workflow, internal)** — run the analysis
-   workflow's checks (structure/quality/consistency) as an internal stage;
-   the analysis workflow is not a standalone menu entry.
+2.5 **AI system health (analysis workflow, internal)** — run its checks
+   (structure/quality/consistency) as an internal stage; not a menu entry.
 
 2.6 **Knowledge lifecycle (internal)** — per OPERATIONS 1.7: collect (after
    release/retrospective), review (monthly: de-dup/contradiction/stale),
-   archive (quarterly). Managed by AI as part of the maintenance cycle.
-   - **logs recycle**: during review, also scan `logs/` for **recurring (≥2x)**
-     observations never captured to Coding Memory / env.yaml / a proposal →
-     decide capture (memory-capture) / machine-config (~/.config env.yaml,
-     only if a consumer exists) / proposal (per Issue Capture triage). Skip
-     single-shot transient observations (avoid turning logs into a second
-     pending-review queue).
+   archive (quarterly). Managed by AI in the maintenance cycle.
+   - **logs recycle**: scan `logs/` for **recurring (≥2x)** observations never
+     captured to Coding Memory / env.yaml / a proposal → decide capture /
+     machine-config / proposal (Issue Capture triage). Skip single-shot
+     transient observations.
 
 3. **Governance consistency spot check** (always, to prevent recurrence of past issues)
    - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches workflows/README.md selection table; Runtime reference files exist; Preconditions/Next chain closes
    - config/workflows/*.yaml: registry stays minimal (name/workflow/runtime), no re-bloating into inputs/outputs/next (prevent A1 recurrence)
-   - Referenced paths exist: files referenced in governance/standards/, loaders/, templates/prompts/, cli/commands/ all exist (prevent stangards / runtime-workspace style broken links)
-   - Link health: junction/symlink target dirs like projects/ exist and are accessible (`Get-Item -Force` to check LinkType and Target)
+   - Referenced paths exist (governance/standards/, loaders/, templates/prompts/, cli/commands/); link health: junction/symlink targets like projects/ accessible (`Get-Item -Force` for LinkType/Target)
    - Doc-vs-reality: AGENTS.md workspace structure diagram, AI_DEVELOPMENT_CONTRACT architecture diagram, OPERATIONS entry sections match the actual directory layout
    - State hygiene: project/change references in workspaces/.aic-state.yaml still exist
    - **Run-log coverage**: cross-check uncommitted git changes vs logs/ diagnostic records — changes with no corresponding run log (e.g. tracked files modified outside a logged run) are flagged for attribution before commit (2026-09-01 maintain finding)
    - **Proposal leftovers**: run `python3 tools/proposal-audit.py` — evaluate open proposals (Status ≠ Implemented/Approved/Rejected/Archived) and unclosed `- [ ]` action items in reports/; refresh the index (`--refresh-index`) and report each leftover's disposition (approve / implement / reject / defer)
 
 4. **Persist report**
-   - Generate the report skeleton first (auto sections: tool checks / metric diff / trend / proposals):
-
-     ```bash
-     python3 tools/maintain-report.py --date {date}
-     ```
-
-     Then the AI fills the narrative sections (findings by severity / consistency
-     spot-check results / fix list). Non-destructive: existing file is not overwritten.
-   - Write to ai-system/reports/MAINTENANCE-{date}.md: findings list (by severity), fix suggestions, metric comparison (vs previous snapshot)
-   - Run the language gate on the report before presenting (P45 pilot chain):
-     `python3 tools/language-gate.py reports/MAINTENANCE-{date}.md` — PASS → present;
-     WARN → review `--list-suspicious`; FAIL → rewrite the user-facing sections in the
-     system language and re-run the gate. Gate outcome recorded in the per-run
-     diagnostic log.
-   - Minor issues (typos, broken links, doc drift) may be fixed in place after confirmation and recorded
-   - Structural changes (directory adjustments, module merges, contract modifications) **output suggestions only**, go through the OPERATIONS section 11 change management flow (Analyze → Propose → Review → Approve)
+   - Generate the skeleton first: `python3 tools/maintain-report.py --date {date}`,
+     then fill narrative sections (findings / consistency / fix list).
+     Non-destructive: existing file is not overwritten.
+   - Write to ai-system/reports/MAINTENANCE-{date}.md: findings (by severity), fix
+     suggestions, metric comparison (vs previous snapshot).
+   - Run the language gate on the report before presenting (P45 pilot chain,
+     runtime-base Complete step): `python3 tools/language-gate.py reports/MAINTENANCE-{date}.md`
+   - Minor issues (typos, broken links, doc drift) may be fixed in place after
+     confirmation and recorded; structural changes **output suggestions only**
+     (OPERATIONS §11: Analyze → Propose → Review → Approve)
 
 **Output**
 
 ## Maintenance Report
 
-- 工具校验结果（lint BLOCKER/ERROR/WARN 计数、指标变化）
-- 巡检发现（按严重度分级）
-- 一致性抽查结论（逐项通过/失败）
-- 修复动作与建议清单
-- quick-check 趋势（近 N 日快照对比）
-
-完成后更新 `ai-system/config/maintenance.yaml`（提交态，系统级；跨机维护连续性）：
-
-```yaml
-last_run: {date}
-mode: {mode}
-next_maintenance: {date + interval}   # weekly:+7d monthly:+30d quarterly:+90d
-last_findings: [...]                    # 本次问题摘要（系统级 only）
-```
-
-**last_findings 纪律**：只放系统级（指标/工具门禁/提案/修复）。机器/环境观察
-（如本机 python shim、extensions 仓未提交、本机是否生成 ~/.config）**只进 per-run
-diagnostic-log（logs/，本地）**，不写入此提交态文件。判定触发词：含
-`当前机器` / `WSL` / `shim` / `extensions 仓...未提交` → 机器级 → 排除。
+报告字段、`config/maintenance.yaml` 更新与 last_findings 纪律见
+`skills/repository-maintainer/health.md` §Maintenance State Update（aic-maintain Output）。
 
 **Guardrails**
 
-- Follow AI_DEVELOPMENT_CONTRACT: no architecture redesign, no moving responsibilities across modules, structural changes prohibited from direct implementation
-- Confirm before each batch of fixes (Change Control)
+- Follow AI_DEVELOPMENT_CONTRACT (no redesign / no responsibility moves / structural changes → suggestions only); confirm before each batch of fixes (Change Control)
 - Inspection is read-first; modifications limited to confirmed minor fixes
 - This command maintains ai-system ARCHITECTURE only; aic-tool health runs separately via quick-check (OPERATIONS 1.8.1)
 - Maintenance experience (CI env, pyc cache, repo layout) is recorded in reports/ — consult the index, not this file
