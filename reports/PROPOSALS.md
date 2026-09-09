@@ -51,6 +51,8 @@
 | Proposed | tr5 发布债收口 + review/verify 验证标记检查 | 2026-09-01 | `P46-TR5-DEBT-VALIDATION-MARKER.md` |
 | Implemented | develop 前置处理规则与产物目录约定 | 2026-09-02 | `P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md` |
 | Implemented | 配置默认值治理（@Value 单一默认源 + 对象化路线） | 2026-09-04 | `P48-CONFIG-DEFAULT-SOURCING.md` |
+| Proposed | 返回值粒度可区分性 + 非必要不新增实体/方法 + 实现层复用核验（清单三落点） | 2026-09-09 | `P49-RETURN-GRANULARITY-REUSE-CHECKLIST.md` |
+| Proposed | 方法粒度双确认模型（开发主链前置方案确认 + 后置一致性确认） | 2026-09-09 | `P50-METHOD-GRANULARITY-DUAL-CONFIRMATION.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
