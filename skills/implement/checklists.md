@@ -126,6 +126,7 @@ Use during Stage 4.
 - [ ] Changes remain minimal and maintainable.
 - [ ] Return-granularity check (P49): failure branches distinguishable? Boolean-collapse anti-pattern → enum / reason code (technical code + user-facing message mapping).
 - [ ] Non-necessary entities/methods (karpathy Read Existing Code): every new class/method — could an existing implementation be reused/extended? State the rationale; no silent re-implementation of existing behavior.
+- [ ] Action-semantic reuse scan (P49/T-009 实证 2026-09-09): before adding a method/class, scan existing code for the same action semantics (source-fetch / upload / query / convert / validate …) — a 119-line self-built source adapter was replaced by reusing the existing `queryVideoPlayInfo(type=source)`; reuse wins over self-build even when the existing signature differs (extend it instead).
 
 ## Minimal Diff
 

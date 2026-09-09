@@ -61,7 +61,11 @@ Phases:
 3. Code Review — readability, naming, complexity, duplication, error handling, logging
    - False Completion Detection: verify every [x] in Task Card against actual implementation
    - Return-Granularity Verification (P49): return semantics of new/changed methods — failure branches distinguishable (boolean-collapse anti-pattern → enum / reason code with user-facing mapping)?
-   - Implementation-Layer Reuse Verification (P49): new methods re-invent existing implementations instead of reusing/delegating existing behavior (Single Source of Truth)?
+   - Implementation-Layer Reuse Verification (P49): new methods re-invent existing
+     implementations instead of reusing/delegating existing behavior (Single Source
+     of Truth)? Check by action semantics (source-fetch / upload / query / convert):
+     a self-built adapter that duplicates an existing method's semantics is a finding
+     (T-009 实证 2026-09-09: 119-line buildSourceAdapter → reuse queryVideoPlayInfo)
 4. Standards Review — coding standards, documentation standards, testing standards
 5. Quality Review — security, performance, compatibility, maintainability
 6. Review Summary — classify all findings
