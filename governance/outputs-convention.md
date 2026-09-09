@@ -66,11 +66,12 @@ Chinese.
 
 ## 5. Scope
 
-| Domain | Convention reference |
+| domain | `outputs/{domain}/{yyMMdd}-{descriptor}/` convention reference |
 |--------|---------------------|
 | scan / trace / bugfix | this file (command/workflow docs) |
 | change-impact / code-review / proposal | already aligned; this file standardizes wording |
 | skill | `outputs/skill/{yyMMdd}-{descriptor}/skill-launch-report.md` (2026-08-18) |
+| task | `outputs/task/{yyMMdd}-{descriptor}/` — ad-hoc daily-chore deliverables (one-off scripts / data-analysis products / small tools; 2026-09-09 convention-layer extension, AI_OPERATING_RULES §Ad-hoc Daily Tasks) |
 
 Operational maintenance (maintain / analysis / extensions-init /
 extensions-lint) records to `ai-system/reports/`, NOT `outputs/`.
