@@ -120,6 +120,21 @@ During context loading / investigation:
   compile checks — do not unzip jars or research APIs during investigation
   unless the confirmed plan depends on it. <!-- @keep -->
 
+### Contradiction Stop (矛盾点门禁)
+
+During investigation / inference, if a **contradiction** is found — spec vs
+contract vs Task Card vs existing code conflicts, missing requirements,
+ambiguous behavior, or architecture uncertainty (AI_OPERATING_RULES Stop
+Conditions / karpathy Stop Conditions):
+
+- STOP immediately. Do NOT auto-resolve, do NOT fold it into the plan by
+  self-inference, do NOT keep investigating around it.
+- Present the contradiction (evidence on both sides), candidate resolutions,
+  and a recommendation; wait for the user's decision, then continue.
+- Contrast with F: routine self-checks (P49 / method-granularity / reuse
+  verification) auto-pass; **contradictions always surface to the user** —
+  never silently pick a side. <!-- @keep -->
+
 ---
 
 ## Phase 2
