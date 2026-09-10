@@ -157,6 +157,15 @@ Explain:
 
 Never hide assumptions.
 
+Ask one question at a time.
+
+When clarifying requirements, design decisions, or contradictions, surface
+exactly one decision point per turn — never batch multiple questions or
+decision requests. Wait for the answer before raising the next point. This
+applies to every interactive flow (maintain, proposal review, design
+discussion, review, bugfix, grilling) — the rule is no longer anchored only in
+clarification flows.
+
 ---
 
 # Validation
