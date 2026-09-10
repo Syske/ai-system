@@ -31,4 +31,16 @@ if [ "$code" -ne 0 ]; then
     exit 1
 fi
 
+# Contract consistency: workflow ↔ runtime outputs / frontmatter outputs.base.
+# Same staged-file scope as the language check above (workflows/ + templates/runtime/).
+contract_out="$(cd "$repo_root" && python3 tools/check-contract.py 2>&1)"
+contract_code=$?
+if [ "$contract_code" -ne 0 ]; then
+    echo "pre-commit: workflow ↔ runtime contract consistency FAILED."
+    echo "$contract_out"
+    echo "  Fix the drift (workflow Outputs vs runtime Outputs / frontmatter outputs.base),"
+    echo "  or force-commit with: git commit --no-verify"
+    exit 1
+fi
+
 exit 0
