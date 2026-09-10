@@ -49,7 +49,7 @@ If the user mentions a specific change name, read its artifacts for context.
 Think freely. When an insight crystallizes, you might offer:
 
 - "This feels solid enough to start a change. Want me to create one?"
-  → can transition to `/aic-propose` or `/aic-apply`
+  → can transition to `/aic-propose`
 - Or keep exploring — no formal pressure
 
 ## When a change exists
@@ -142,7 +142,7 @@ Depending on what the user brings, you might:
 
 No required ending. Exploration might:
 
-- **Flow into action**: "Ready to start? `/aic-propose` or `/aic-apply`"
+- **Flow into action**: "Ready to start? `/aic-propose`"
 - **Result in artifact updates**: "Updated design.md with these decisions"
 - **Provide clarity only**: the user got what they needed, moved on
 - **Continue later**: "We can pick this thread up anytime"

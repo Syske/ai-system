@@ -83,7 +83,7 @@ openspec/changes/<change-name>/
 └── design.md
 ```
 
-> **tasks.md 已淘汰**：任务权威源是 `tasks/cards/*.md`，不再生成变更根目录的 `tasks.md` 用户入口索引（避免与 cards/ 双源）。归档时完成度以 `tasks/cards/*.md` 为准（见 `archive-openspec` skill）。
+> **tasks.md 已淘汰**：任务权威源是 `tasks/cards/*.md`，不再生成变更根目录的 `tasks.md` 用户入口索引（避免与 cards/ 双源）。归档时完成度以 `tasks/cards/*.md` 为准。
 
 > **Task Card 位置约定**：CLI 提供方按 `*/tasks/cards/*.md` 枚举任务 ID（`cli/services/providers.py:task_ids`），develop/dev-setup 从这些卡片读取 `branch` / `Completion Definition` / 代码质量检查。因此每张任务卡必须落在 `tasks/cards/T-{id}.md`。
 

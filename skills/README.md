@@ -43,9 +43,9 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | idea-build | Optional IDEA MCP compile backend (`build.backend=idea`) | Config-driven (bugfix), manual |
 | handoff | Session handoff summary (compaction / task switch / cross-tool), per CONTEXT_RETENTION Keep/Drop | Manual (before /compact or new session) |
 | explore | OpenSpec-aware exploration support (loaded by aic-explore) | Command-loaded (aic-explore) |
-| archive-openspec | OpenSpec change archive procedure (loaded by aic-archive) | Command-loaded (aic-archive) |
+| archive-openspec | ~~OpenSpec change archive procedure (archived 2026-09-09, zero usage)~~ | removed |
 | propose-openspec | OpenSpec change creation procedure (loaded by aic-propose) | Command-loaded (aic-propose) |
-| apply-openspec | OpenSpec implementation procedure, develop contract (loaded by aic-apply) | Command-loaded (aic-apply) |
+| apply-openspec | ~~OpenSpec implementation procedure, develop contract (archived 2026-09-09, zero usage)~~ | removed |
 | memory-capture | Capture verified session experience into Coding Memory (MEMORY_GUIDELINES, dedupe via index) | Session end / explicit request |
 
 ## Optimization & Benchmarking Skills (6)

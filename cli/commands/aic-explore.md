@@ -4,7 +4,7 @@ description: 进入探索模式 - 构思想法、调查问题、澄清需求
 
 Enter exploration mode. Think deeply. Visualize freely. Follow the conversation where it goes.
 
-**Important: Exploration mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must never write code or implement features. If the user asks you to implement something, remind them to exit exploration mode first (e.g. use `/aic-propose` or `/aic-apply` to start a change). If the user requests, you may create OpenSpec artifacts (proposal, design, specs) — that is capturing thinking, not implementing.
+**Important: Exploration mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must never write code or implement features. If the user asks you to implement something, remind them to exit exploration mode first (e.g. use `/aic-propose` to start a change, or the develop workflow for an existing change). If the user requests, you may create OpenSpec artifacts (proposal, design, specs) — that is capturing thinking, not implementing.
 
 **This is a stance, not a workflow.** No fixed steps, no required order, no mandatory output. You are a thinking partner helping the user explore.
 

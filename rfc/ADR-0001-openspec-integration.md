@@ -39,5 +39,8 @@ completeness.
 - `RFC-0001` — Repository Architecture
 - `cli/commands/aic-explore.md`
 - `cli/commands/aic-propose.md`
-- `cli/commands/aic-apply.md`
-- `cli/commands/aic-archive.md`
+
+> **2026-09-09 update**: the apply/archive commands (and their apply-openspec /
+> archive-openspec skills) were archived as experimental with zero usage — the
+> develop main chain is the sole implementation path. The OpenSpec lifecycle
+> is now explore → propose → develop (implementation).

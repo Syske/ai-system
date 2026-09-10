@@ -9,7 +9,7 @@ I will create a change containing these artifacts:
 - design.md (how)
 - tasks/cards/ (task cards: implementation steps)
 
-When ready to implement, run /aic-apply
+When ready to implement, run the develop workflow (main chain) for the change.
 
 ---
 
@@ -38,7 +38,7 @@ After all artifacts are created, summarize:
 - Change name and location
 - List of created artifacts with brief descriptions
 - Readiness: "All artifacts created! Ready to implement."
-- Prompt: "Run `/aic-apply` to start implementation."
+- Prompt: "Use the develop workflow to implement the change."
 
 **Artifact Creation Guidelines**
 
