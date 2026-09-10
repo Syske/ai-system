@@ -18,6 +18,7 @@ chains:
     label: 分析并发布到wiki
     icon: "🧬"
     scenario: 分析代码并把结果发到 wiki
+    keywords: [分析代码, 发布到 wiki, 发到 wiki]
     project: required
     blocks:
       - type: command
@@ -36,6 +37,7 @@ chains:
     label: 改bugfix并出转测文档
     icon: "🔧"
     scenario: 改 bug 并出转测文档 + MR
+    keywords: [修 bug, 修bug, 转测文档]
     project: required
     blocks:
       - type: workflow
@@ -50,6 +52,7 @@ chains:
     label: bugfix转测并发布
     icon: "🔧"
     scenario: 修 bug 并出转测文档并发布到 wiki
+    keywords: [发布转测, 转测并发布]
     project: required
     blocks:
       - type: workflow
@@ -70,6 +73,7 @@ chains:
     label: 日常杂务
     icon: "🛠️"
     scenario: 写脚本/分析数据/一次性任务（日常杂务兜底，可作任意一次性杂务）
+    keywords: [写脚本, 分析数据, 统计, 转换, 转成, 生成脚本, 帮我写, 算一下, 处理数据, 一次性任务, 分析, 处理, 生成, 整理, 提取, 清洗, 计算]
     project: none
     blocks:
       - type: command

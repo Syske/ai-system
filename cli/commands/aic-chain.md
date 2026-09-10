@@ -20,7 +20,9 @@ without guessing paths.
    - Show named chains (config/chains.yaml, AI-maintained chains via
      .aic-state.yaml → ai_chains when added).
    - User picks one, or describes the scenario; the AI matches label/scenario/name
-     (and block names) with a zero-dependency keyword resolver.
+     (and block names / spoken keywords) with a zero-dependency keyword resolver.
+     `keywords` are short spoken triggers (e.g. 写脚本 / 分析数据) that match
+     when they appear inside the user's free text — see config/chains.yaml.
    - No match → prompt the user to pick a named chain or register one; never quiet-guess.
 
 2. **Create the run context (handoff record)**

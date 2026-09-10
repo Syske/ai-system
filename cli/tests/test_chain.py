@@ -20,6 +20,7 @@ class TestChain(unittest.TestCase):
             "  - name: analyze-and-publish\n"
             "    label: 分析并发布到wiki\n"
             "    scenario: 分析代码并把结果发到 wiki\n"
+            "    keywords: [分析代码, 发布到 wiki]\n"
             "    blocks:\n"
             "      - {type: command, name: scan}\n"
             "      - {type: skill, name: confluence-markdown-publisher}\n"
@@ -27,7 +28,14 @@ class TestChain(unittest.TestCase):
             "    label: 改bugfix并出转测文档\n"
             "    scenario: 改 bug 并出转测文档 + MR\n"
             "    blocks:\n"
-            "      - {type: workflow, name: bugfix}\n",
+            "      - {type: workflow, name: bugfix}\n"
+            "  - name: adhoc-task\n"
+            "    label: 日常杂务\n"
+            "    scenario: 写脚本/分析数据/一次性任务\n"
+            "    keywords: [写脚本, 分析数据, 统计, 转换, 转成, 分析, 生成]\n"
+            "    project: none\n"
+            "    blocks:\n"
+            "      - {type: command, name: task}\n",
             encoding="utf-8",
         )
 
@@ -36,7 +44,7 @@ class TestChain(unittest.TestCase):
 
     def test_load_chains(self):
         chains = chain.load_chains(self.root)
-        self.assertEqual(len(chains), 2)
+        self.assertEqual(len(chains), 3)
         self.assertEqual(chains[0]["name"], "analyze-and-publish")
 
     def test_load_chains_missing_config(self):
@@ -64,6 +72,27 @@ class TestChain(unittest.TestCase):
     def test_resolve_none(self):
         chains = chain.load_chains(self.root)
         self.assertIsNone(chain.resolve_chain("做一顿晚饭", chains))
+
+    def test_resolve_by_keywords(self):
+        chains = chain.load_chains(self.root)
+        # 口语触发词 ∈ 用户输入 → 命中
+        self.assertEqual(
+            chain.resolve_chain("帮我写个脚本统计 outputs 文件数", chains)["name"],
+            "adhoc-task",
+        )
+        self.assertEqual(
+            chain.resolve_chain("分析一下这份 csv", chains)["name"],
+            "adhoc-task",
+        )
+        self.assertEqual(
+            chain.resolve_chain("帮我把这个 json 转成 yaml", chains)["name"],
+            "adhoc-task",
+        )
+        # 精确链优先（宽词「分析」不抢 analyze-and-publish 的「分析代码」）
+        self.assertEqual(
+            chain.resolve_chain("分析代码并发布到 wiki", chains)["name"],
+            "analyze-and-publish",
+        )
 
     def test_block_names(self):
         chains = chain.load_chains(self.root)

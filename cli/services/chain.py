@@ -37,7 +37,8 @@ def load_chains(root):
 
 
 def resolve_chain(text, chains):
-    """Match free text against a chain's label/scenario/name (or block names).
+    """Match free text against a chain's label/scenario/name (or block names
+    / keywords).
 
     Zero-dependency keyword match. Returns the chain dict or None.
     """
@@ -51,6 +52,12 @@ def resolve_chain(text, chains):
             value = str(chain.get(key, "")).lower()
 
             if value and value in low:
+                return chain
+
+        # 口语触发词：链声明的短关键词 ∈ 用户输入即命中（如「写脚本」「分析数据」）
+        for kw in chain.get("keywords", []):
+
+            if str(kw).lower() in low:
                 return chain
 
         # 块名也参与匹配：如 "scan 发布" / "bugfix 转测"
