@@ -46,3 +46,10 @@ without guessing paths.
 - Builtin chains live in config/chains.yaml; AI-created chains are recorded in
   .aic-state.yaml (runtime state), not in the tracked config.
 - If a scenario can't be matched, stop and ask — never invent a chain.
+
+**Output**
+
+- Run context: `outputs/chain/{yyMMdd}-{descriptor}/chain-manifest.yaml` —
+  ordered blocks with each block's produced artifact registered (record_artifact),
+  so downstream blocks locate upstream artifacts from the manifest, never by
+  guessing paths.

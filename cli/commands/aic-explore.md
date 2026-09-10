@@ -40,3 +40,9 @@ artifact (proposal/design/specs/tasks).
 - **Do visualize** - a good diagram beats a thousand words
 - **Do explore the codebase** - ground the discussion in reality
 - **Do question assumptions** - the user's and your own
+**Output**
+
+- Thinking / investigation conclusions stay in the conversation (stance mode,
+  no mandatory deliverable).
+- Optional capture: OpenSpec artifacts (proposal / design / specs — capturing
+  thinking, not implementing); offer to save, do not auto-write.
