@@ -58,13 +58,17 @@ Never load the entire repository tree into context.
 
 ## Outputs
 
+Generate (required — consumed by spec):
+
 - Requirement Summary
-- Repository Summary
 - Architecture Summary
-- Dependency Report
 - Impact Report
-- Risk Report
 - Preparation Report
+
+Generate on-demand only (skip unless the change warrants them):
+
+- Dependency Report — cross-service / multi-repo dependency changes
+- Risk Report — high-risk changes (release re-assesses independently otherwise)
 - **Location**: Preparation Report → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/preparation-report.md`;
   sub-reports → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/`; captured/temp sources → `workspaces/<project-id>/temp/`
 

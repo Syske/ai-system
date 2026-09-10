@@ -149,7 +149,10 @@ Architecture Summary
 
 ---
 
-## Phase 4 — Dependency Analysis
+## Phase 4 — Dependency Analysis (on-demand)
+
+Run only when the change spans services / repos or has non-trivial external
+dependencies; otherwise skip (the Dependency Report is not consumed by spec).
 
 Analyze:
 
@@ -179,7 +182,10 @@ Impact Report
 
 ---
 
-## Phase 6 — Risk Assessment
+## Phase 6 — Risk Assessment (on-demand)
+
+Run only for high-risk changes; otherwise skip (release re-assesses risk
+independently).
 
 Identify:
 
@@ -225,15 +231,17 @@ Status = Blocked
 
 ## Outputs
 
-Generate:
+Generate (required — consumed by spec):
 
 - Requirement Summary
-- Repository Summary
 - Architecture Summary
-- Dependency Report
 - Impact Report
-- Risk Report
 - Preparation Report
+
+Generate on-demand only (skip unless the change warrants them):
+
+- Dependency Report — cross-service / multi-repo dependency changes
+- Risk Report — high-risk changes (release re-assesses independently otherwise)
 - **Location**: Preparation Report → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/preparation-report.md`;
   sub-reports → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/`; captured/temp sources → `workspaces/<project-id>/temp/`
 
