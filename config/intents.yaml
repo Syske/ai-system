@@ -54,11 +54,6 @@ intents:
     prompt: 提供要评估的 skill 来源 URL
     builtin: true
 
-  - name: package-system
-    label: 打包 AI 系统
-    icon: "📦"
-    commands: [pack]
-    builtin: true
 
   - name: create-workflow
     label: 新建工作流

@@ -31,8 +31,6 @@ Automated governance tooling for the AI repository.
 | `format-baseline.py` | 业务仓格式基线（CLI，零 build 配置）：干净 worktree → C2 apply/check（known-ignore）→ **去注释后 token 级对比**做内容零变化安全证明（状态机词法：字符串/注释互不侵扰）→ 统计与 style: 提交提示；`--check-only` 日常验证；exit 0=通过/1=非干净/2=存在非格式差异（中止） |
 | `format-jdt-gate.py` | eclipse JDT formatter 干跑门禁（C2）——ToolFactory + eclipse-format.xml（tab=4 space）对源目录干跑（默认不写盘，与 IDEA 默认 Java 格式化同源）；`--apply` 将 formatted 写回源文件（迭代至 fixpoint，配合 `git diff -w` 安全校验）；`--ignore-file` 跳过已知无 fixpoint 边界文件（仓内 known-ignore.txt）；环境感知：JDK 自动探测（JAVA_HOME/~/.jdks/PATH//usr/lib/jvm，`--java` 可用户提供）、JDT 闭包缺失时交互授权 setup（下载 12 jar 到 ~/.local/lib/jdt-gate + javac 编译 wrapper）/skip/abort；配置持久化 ~/.config/ai-system/env.yaml（runtime.jdt.*）；exit 0=PASS/1=WARN(≤5 文件)/2=FAIL/3=ENV 不可用（apply 模式 exit 0=写回完成）；`--changed` 增量差分（P51）：git status 驱动，仅扫本 change 改动文件，JDT hunk × 改动行交集——存量基线豁免（BASELINE 记录诊断日志）、新增行拦截（NEW-DIFF），退出码按新增差异文件数映射；
 |
-| `pack.py` | AI System packaging (output dir, zip) |
-
 Run order after a change:
 
 ```text

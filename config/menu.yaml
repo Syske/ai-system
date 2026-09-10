@@ -125,9 +125,6 @@ sections:
       - name: command
         kind: command
         icon: "📝 "
-      - name: pack
-        kind: command
-        icon: "📦 "
       - name: extensions-init
         kind: command
         icon: "🧰 "
@@ -164,11 +161,6 @@ command_fields:
     - - "Workspace Root"
       - false
     - - "Workspace Root"
-      - false
-  pack:
-    - - "Output Directory"
-      - false
-    - - "Zip"
       - false
   scan:
     - - "Operation"

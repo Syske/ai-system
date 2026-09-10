@@ -40,7 +40,7 @@ This document defines naming conventions for all components in the repository.
 |---|---|---|---|
 | Skill name | Describe what it does | `bugfix`, `java-maven`, `mock-test` | `my-skill`, `utils`, `helper` |
 | Workflow name | Describe the process | `develop`, `bugfix`, `release` | `dev-workflow`, `process` |
-| Command name | Describe the operation | `scan`, `trace`, `pack` | `cmd`, `tool`, `do-stuff` |
+| Command name | Describe the operation | `scan`, `trace` | `cmd`, `tool`, `do-stuff` |
 | Playbook name | Describe the topic | `mockito`, `maven`, `spring-boot-test` | `testing-tips`, `random` |
 | RFC title | Describe the specification | `repository-architecture`, `skill-specification` | `new-idea`, `stuff` |
 

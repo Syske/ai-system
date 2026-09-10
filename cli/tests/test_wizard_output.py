@@ -23,7 +23,7 @@ from cli.services.wizard.fields import WizardFields  # noqa: E402
 
 # 无项目命令集合（用于测试 record_usage 白名单；与 intake 保持一致）
 _PROJECTLESS = {"maintain", "scan", "extensions-init", "skill-source",
-                "pack", "workflow", "command", "skill"}
+                "workflow", "command", "skill"}
 
 
 class FakeWizard(WizardOutput):
