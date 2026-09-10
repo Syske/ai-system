@@ -103,6 +103,9 @@ sections:
       - name: task
         kind: command
         icon: "🛠️ "
+      - name: explore
+        kind: command
+        icon: "🧭 "
   - title: commands_skills
     items:
       - name: skill
