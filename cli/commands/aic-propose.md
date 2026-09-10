@@ -34,6 +34,10 @@ When ready to implement, run the develop workflow (main chain) for the change.
 
 **Output**
 
+> Note: this command is distinct from the `proposal` workflow (solution.md
+> optimization proposal). This command creates an OpenSpec change set
+> (proposal / design / task cards) and then routes to develop.
+
 After all artifacts are created, summarize:
 - Change name and location
 - List of created artifacts with brief descriptions

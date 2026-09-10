@@ -10,6 +10,8 @@ workflow:
       - name: Related Materials
       - name: Output Directory
   next: [None]
+  outputs:
+    base: "outputs/proposal/{yyMMdd}-{title}/"
 ---
 # Workflow: Proposal
 

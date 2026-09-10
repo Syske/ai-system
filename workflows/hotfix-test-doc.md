@@ -9,6 +9,8 @@ workflow:
       - name: Document Title
       - name: 发布内容
   next: [None]
+  outputs:
+    base: "outputs/hotfix-test-doc/{yyMMdd}-{desc}/"
 ---
 # Workflow: HotFix Test Doc
 
@@ -22,7 +24,7 @@ Generate a HotFix test document (转测文档) for a committed hotfix branch.
 
 ## Preconditions
 
-- BugFix completed in hotfix mode with a committed branch (Phases 4.6/6.5/6.6)
+- BugFix completed in hotfix mode with a committed branch (hotfix branch committed, regression passed)
 - Regression verification passed
 
 ## Inputs
@@ -49,7 +51,7 @@ Never load the entire repository tree into context.
 ## Outputs
 
 - HotFix test document (转测文档) on Confluence
-- 转测文档 markdown (local copy when Confluence API fails)
+- 转测文档 markdown (local copy when Confluence API fails) → `outputs/hotfix-test-doc/{yyMMdd}-{desc}/`
 
 ## Exit Criteria
 

@@ -225,7 +225,7 @@ default_command_fields:
 # 命令 → 推荐的下一个工作流（向导推荐逻辑用）
 command_next:
   trace: verify
-  propose: spec
+  propose: develop
 
 # 从选中项目自动填充的字段
 auto_fields:

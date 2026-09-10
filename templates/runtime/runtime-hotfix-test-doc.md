@@ -159,7 +159,7 @@ Report URL to user. Save local file on failure.
 # Outputs
 
 - HotFix test document (转测文档) on Confluence
-- 转测文档 markdown (local copy when Confluence API fails)
+- 转测文档 markdown (local copy when Confluence API fails) → `outputs/hotfix-test-doc/{yyMMdd}-{desc}/`
 
 ---
 

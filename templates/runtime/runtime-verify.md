@@ -255,6 +255,7 @@ Generate:
 - contract-verification.md
 - scenario-verification.md
 - test-verification.md
+- quality-verification-report.md (Phase 6)
 - **Location**: → `workspaces/<project-id>/` (workspace-anchored)
 
 # Reflection

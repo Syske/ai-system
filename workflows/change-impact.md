@@ -11,6 +11,8 @@ workflow:
       - name: Change ID
       - name: Output Directory
   next: [prepare, develop, None]
+  outputs:
+    base: "outputs/change-impact/{yyMMdd}-{target}/"
 ---
 # Workflow: Change Impact
 

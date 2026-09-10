@@ -87,7 +87,7 @@ class TestWorkflowReaderInputs(unittest.TestCase):
             "workspaces/<project-id>/",
         )
         # 无 outputs 字段 → 空
-        self.assertEqual(workflow_reader.output_base(ROOT, "proposal"), "")
+        self.assertEqual(workflow_reader.output_base(ROOT, "analysis"), "")
 
 
 if __name__ == "__main__":
