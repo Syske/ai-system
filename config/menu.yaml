@@ -100,6 +100,9 @@ sections:
       - name: chain
         kind: command
         icon: "🧬 "
+      - name: task
+        kind: command
+        icon: "🛠️ "
   - title: commands_skills
     items:
       - name: skill

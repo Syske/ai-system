@@ -110,32 +110,6 @@ Never skip a phase.
 
 ---
 
-# Ad-hoc Daily Tasks (convention layer)
-
-Daily chores — one-off scripts, data analysis, small conversions/tools — need
-neither an OpenSpec chain nor a command entry. When the user requests one
-directly in conversation (e.g. "write a script that …", "analyze this data"),
-follow this mode:
-
-- **Clarify the goal** (vague request → ask one question at a time, karpathy;
-  contradiction / ambiguity → STOP and ask, never silently pick a side).
-- **Execute directly** — no plan gate (A1 targets develop Task Cards, not
-  chores); BUT design-decision tasks (cross-file design, contract-relevant
-  choices, multi-step pipelines) get a short plan confirmed first.
-- **Deliverables** go to `outputs/task/{yyMMdd}-{descriptor}/` per
-  governance/outputs-convention.md (domain: `task`); same-day reruns append
-  `-2`, `-3`.
-- **Report briefly**: what was done, where the deliverables live, how to
-  verify. Optionally record one line in the per-run diagnostic log.
-
-This is the convention-layer answer to an ad-hoc entry point: reuse the
-conversation + the existing outputs/ one-off convention instead of adding a
-command (Evolution Principle / Value-Burden Check). If usage later shows the
-convention is not remembered or a menu entry is truly needed, upgrade to a
-thin `aic-task` command then.
-
----
-
 # Repository First
 
 Before modifying code, follow governance/REPOSITORY_FIRST.md.

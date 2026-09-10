@@ -65,3 +65,15 @@ chains:
         args:
           task: 发布转测文档（含 MR/页面）到 Confluence wiki
     builtin: true
+
+  - name: adhoc-task
+    label: 日常杂务
+    icon: "🛠️"
+    scenario: 写脚本/分析数据/一次性任务（日常杂务兜底，可作任意一次性杂务）
+    project: none
+    blocks:
+      - type: command
+        name: task
+        args:
+          task: 用户描述的日常任务（由 aic-task 澄清后执行，产物登记入 chain-manifest）
+    builtin: true
