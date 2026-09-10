@@ -13,7 +13,7 @@ workflow:
       - name: Mode
   next: [spec]
   outputs:
-    base: "workspaces/<change-id>/"
+    base: "workspaces/<project-id>/"
 ---
 # Workflow: Prepare
 
@@ -65,8 +65,8 @@ Never load the entire repository tree into context.
 - Impact Report
 - Risk Report
 - Preparation Report
-- **Location**: Preparation Report → `workspaces/<change-id>/openspec/changes/<change-id>/proposal.md`;
-  sub-reports → `workspaces/<change-id>/reports/`; captured/temp sources → `workspaces/<change-id>/temp/`
+- **Location**: Preparation Report → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/preparation-report.md`;
+  sub-reports → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/`; captured/temp sources → `workspaces/<project-id>/temp/`
 
 ## Exit Criteria
 

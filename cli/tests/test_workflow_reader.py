@@ -84,7 +84,7 @@ class TestWorkflowReaderInputs(unittest.TestCase):
         )
         self.assertEqual(
             workflow_reader.output_base(ROOT, "prepare"),
-            "workspaces/<change-id>/",
+            "workspaces/<project-id>/",
         )
         # 无 outputs 字段 → 空
         self.assertEqual(workflow_reader.output_base(ROOT, "proposal"), "")

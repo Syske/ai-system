@@ -234,8 +234,8 @@ Generate:
 - Impact Report
 - Risk Report
 - Preparation Report
-- **Location**: Preparation Report → `workspaces/<change-id>/openspec/changes/<change-id>/proposal.md`;
-  sub-reports → `outputs/prepare/{yyMMdd}-{desc}/`; captured/temp sources → `workspaces/<change-id>/temp/`
+- **Location**: Preparation Report → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/preparation-report.md`;
+  sub-reports → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/`; captured/temp sources → `workspaces/<project-id>/temp/`
 
 ## Reflection
 
