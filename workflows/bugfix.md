@@ -31,6 +31,8 @@ Diagnose and fix software defects.
 ## Preconditions
 
 - Dev Setup completed (Project Context and Workspace Context available)
+  — if missing, run dev-setup first (independent entry: the user may not have
+  set up the workspace yet)
 - Bug is observable or described in enough detail to analyze
 
 ## Inputs

@@ -229,9 +229,13 @@ Steps:
 - Gate: `tools/checks/bugfix_modes.py` (check.py item 15) enforces that a configured
   parser resolves to an existing script with the exact contract signature.
 
+---
+
+# Phase 5 — Implement
+
 Invoke:
 
-- implement
+- implement (develop contract: skills/implement/SKILL.md)
 
 Requirements:
 

@@ -157,7 +157,10 @@ Location:
 ai-system/config/environments/context.yaml
 ```
 
-Note: environments/context.yaml should be added to .gitignore.
+Note: environments/context.yaml should be added to .gitignore. The authoritative
+bootstrap status lives in `workspaces/.aic-state.yaml` (`bootstrap.status`, see
+workflows/bootstrap.md Preconditions); context.yaml is the Environment Context
+cache resolved per session, not the state of record.
 
 ---
 

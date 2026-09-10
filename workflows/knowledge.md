@@ -69,4 +69,5 @@ Stop:
 - Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
-- None
+- None (maintenance-internal stage: reusable findings feed analysis → prepare
+  through governance/memory/, not a separate chain step)

@@ -54,7 +54,7 @@ Never load the entire repository tree into context.
 - contract-verification.md
 - scenario-verification.md
 - test-verification.md
-- **Location**: → `workspaces/<project-id>/` (workspace-anchored)
+- **Location**: → `workspaces/<project-id>/` (workspace-anchored; verification artifacts under `openspec/changes/<change-id>/` or `release/` per runtime-verify)
 
 ## Exit Criteria
 

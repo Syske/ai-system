@@ -84,8 +84,8 @@ The report is written in the system language (config/menu.yaml → locale, per g
 ## Spec-Comparison Review Mode
 
 When the caller provides a Confluence Spec Page Id (e.g. a HotFix one-pager),
-this workflow runs the spec-comparison variant defined in the `coolreview`
-skill (SKILL.md → Spec-Comparison Review Mode):
+this workflow runs the spec-comparison variant (steps below, inlined — no
+external skill):
 
 1. Fetch spec page via `confluence-markdown-publisher`
    (`get_confluence_page.py --page-id <id> --output page.html --json`).

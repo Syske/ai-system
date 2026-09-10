@@ -8,7 +8,7 @@ workflow:
       - name: Workspace ID    # auto-derived (main chain has set project/workspace)
       - name: Release Version # auto-generated (git tag / derived from last version, editable)
       - name: Environment
-  next: [deployment, develop]
+  next: [develop]
   outputs:
     base: "workspaces/<project-id>/"
 ---
@@ -69,7 +69,7 @@ For multi-project releases, the Runtime must iterate over each project/service i
 - configuration-canal.md            # Canal/binlog config changes for new/renamed fields
 - dependency-checklist.md           # Service dependencies, RPC, MQ, deploy order
 - risk-report.md                    # Risk registry with severity and mitigation
-- **Location**: → `workspaces/<project-id>/` (workspace-anchored; sql/ + checklists + reports co-located)
+- **Location**: → `workspaces/<project-id>/` (workspace-anchored; sql/ + checklists + reports co-located; per-task review artifacts under `openspec/changes/<change-id>/release/`)
 
 ## Exit Criteria
 

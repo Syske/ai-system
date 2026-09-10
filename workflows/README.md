@@ -80,7 +80,7 @@ Conditional transitions:
 Independent entry:
 
 - bugfix → review → verify
-- hotfix-test-doc (from bugfix hotfix mode; standalone entry also available)
+- hotfix-test-doc (from bugfix hotfix mode via bugfix-modes trigger; no standalone entry)
 
 Standalone:
 

@@ -1,5 +1,5 @@
 ---
-description: 初始化/校验环境配置（workspace local.yaml + 机器层 ~/.config/ai-system/env.yaml，跨平台按系统生成）— 新环境/首次运行/环境配置丢失时使用
+description: 初始化/校验环境配置（workspace config/environments/{env}.yaml + 机器层 ~/.config/ai-system/env.yaml，跨平台按系统生成）— 新环境/首次运行/环境配置丢失时使用
 ---
 
 Initialize or verify the environment configuration (cross-platform).
@@ -53,7 +53,8 @@ auto-derived — parent of `ai-system/`, never hardcode).
 - Machine-specific paths (`build.*`, `workspace.root` anchor) live in the
   home config, never in the repository.
 - Workspace-scoped keys (`bugfix.mode`, `layers`) stay in the workspace
-  `local.yaml` — do not move them to the home config (cross-platform drift).
+  `config/environments/{env}.yaml` — do not move them to the home config
+  (cross-platform drift).
 - Full provisioning (directory scaffold, repo links, metrics baseline,
   path audit) belongs to `python3 tools/setup.py`; `--env-init` is
   config-focused only.

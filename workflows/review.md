@@ -7,7 +7,7 @@ workflow:
     optional:
       - name: Project ID   # auto-derived (wizard-selected project)
       - name: Task ID      # auto-derived (from Task Card)
-  next: [verify, develop]
+  next: [verify, develop, bugfix, spec]
   outputs:
     base: "workspaces/<project-id>/"
 ---
@@ -65,7 +65,7 @@ Never load the entire repository tree into context.
 - design-review.md
 - code-review.md
 - quality-review.md
-- **Location**: reports → `workspaces/<project-id>/` (workspace-anchored); Task Card → `workspaces/<project-id>/openspec/tasks/`
+- **Location**: reports → `workspaces/<project-id>/` (workspace-anchored); Task Card → `workspaces/<project-id>/openspec/changes/<change-id>/tasks/cards/`
 
 ## Exit Criteria
 

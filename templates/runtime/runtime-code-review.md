@@ -75,7 +75,7 @@ For every project, resolve and record two branches:
 
 | Branch | Source | Default |
 |---|---|---|
-| Target Branch | Target Theme fuzzy match → Branch Mapping override → ask user | Base Branch |
+| Target Branch | Target Theme fuzzy match → Branch Mapping override → ask user | ask user |
 | Base Branch | Base Branch input | master |
 
 ### Target Branch by theme (rules)
