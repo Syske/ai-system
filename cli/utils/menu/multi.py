@@ -10,12 +10,11 @@ from cli.utils.menu.select import _handle_filter_key, _handle_no_match, _visible
 from cli.utils.menu.theme import get as _theme
 
 
-def _paint_many(opt, selected, marked, selected_theme="selected", marker_theme="marker"):
+def _paint_many(opt, selected, marked, selected_theme="selected"):
 
     marker = "[x]" if marked else "[ ]"
 
     selected_s = _theme(selected_theme)
-    marker_s = _theme(marker_theme)
     name_s = _theme("name")
     desc_s = _theme("desc")
     reset_s = _theme("reset")
@@ -31,12 +30,13 @@ def _paint_many(opt, selected, marked, selected_theme="selected", marker_theme="
 
     if selected:
 
+        # 选中行：整行统一选中样式（字体色随 selected 主题，勾选标记/名称/描述不再单独着色）
         return (
-            f"{selected_s}> {marker_s}{marker} {name_s}{name}{reset_s}"
-            f"{selected_s} {desc_s}— {desc}{reset_s}"
+            f"{selected_s}> {marker} {name}{reset_s}"
+            f"{selected_s} — {desc}{reset_s}"
         )
 
-    # 非选中行：勾选标记不带背景色（白底 marker 仅选中行生效）
+    # 非选中行：勾选标记不带背景色（纯文本）
     return (
         f"  {marker} {name_s}{name}{reset_s}"
         f" {desc_s}— {desc}{reset_s}"
@@ -50,8 +50,7 @@ def choose_many(
     note=None,
     enter_selects_current=False,
     max_visible=None,
-    selected_theme="selected",
-    marker_theme="marker"
+    selected_theme="selected"
 ):
     """Multi-select menu (checkbox).
 
@@ -91,8 +90,7 @@ def choose_many(
         note,
         enter_selects_current,
         max_visible,
-        selected_theme,
-        marker_theme
+        selected_theme
     )
 
 
@@ -103,8 +101,7 @@ def _interactive_many(
     note=None,
     enter_selects_current=False,
     max_visible=None,
-    selected_theme="selected",
-    marker_theme="marker"
+    selected_theme="selected"
 ):
 
     selectable = [
@@ -174,8 +171,7 @@ def _interactive_many(
                         opt,
                         i == idx,
                         i in selected,
-                        selected_theme,
-                        marker_theme
+                        selected_theme
                     )
                 )
 

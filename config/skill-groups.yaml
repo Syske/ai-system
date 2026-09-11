@@ -38,12 +38,12 @@ groups:
     skills:
       - codeup-submit-mr
       - hotfix-test-doc
-  - title: skill_group_core
-    type: source
-    value: core
   - title: skill_group_company
     type: source
     value: extensions
+  - title: skill_group_core
+    type: source
+    value: core
   - title: skill_group_global
     type: source
     value: global

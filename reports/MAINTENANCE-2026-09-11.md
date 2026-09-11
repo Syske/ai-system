@@ -200,13 +200,16 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - 回归：`test_menu_package.py` 新增 4 用例（CJK 解码/ASCII/ESC/孤立 lead byte 不崩溃）
    - 验证：全 CLI 单测 263 OK（+4）、compile OK、check.py PASS、lint 0/0/25、quick-check OK
 
-**F5 [已执行（修订 2）] skill 菜单勾选标记样式**（用户需求驱动）：
-   - `config/ui.yaml` + `theme.py`：`marker_box`（\e[47;30m 白底黑字，勾选标记选中时白底）
-   - `cli/utils/menu/multi.py`：`_paint_many` 非选中行去掉 marker 背景（白底仅选中行生效）；
-     `choose_many` 增 `selected_theme`/`marker_theme` 参数（其他菜单不受影响）
-   - `skill_launcher.py`：`marker_theme="marker_box"`；每屏限制 max_visible 10→20（用户需求）
-   - 最终效果：选中行=反显背景+白底勾选标记；非选中行=无任何背景（勾选标记纯文本）
-   - 验证：渲染模拟正确（选中 bg+白标 / 非选中无背景）；全 CLI 单测 263 OK、compile OK
+**F5 [已执行（修订 3）] skill 菜单选中样式 + 分组顺序**（用户需求驱动）：
+   - 选中行字体黑色：新增 `selected_black`（\e[30;47m 黑字白底）；`_paint_many` 选中分支整行
+     统一选中样式（勾选标记/名称/描述不再单独着色，字体色随 selected 主题）；skill launcher 传
+     `selected_theme="selected_black"`；`marker_box`/`marker_theme` 移除（无使用方）
+   - 每屏限制 max_visible=20（用户需求）；非选中行无背景（勾选标记纯文本）
+   - 分组顺序：`skill-groups.yaml` 公司技能（extensions）组提前一级 ——
+     常用组合 → 公司技能 → 核心按需技能 → 全局 → 项目
+   - 最终效果：选中行=黑字白底整行高亮；非选中=纯文本无背景；公司技能位于第 2 组
+   - 验证：渲染模拟正确（选中黑字白底/非选中无背景/默认菜单反显保留）、分组顺序正确、
+     全 CLI 单测 263 OK、compile OK
 
 **F4 [已执行] aic 向导项目菜单置顶无项目入口**（用户需求驱动）：
    - `cli/services/wizard/selection.py` `_select_project`：💻 system（no project）+ 🤖 AI 引导

@@ -229,7 +229,7 @@ class SkillLauncher(InteractiveCommand):
             options,
             enter_selects_current=True,
             max_visible=20,
-            marker_theme="marker_box"
+            selected_theme="selected_black"
         )
 
         if picked is BACK:
