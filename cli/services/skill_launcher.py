@@ -24,6 +24,9 @@ from cli.utils.file import read_text
 
 _PROMPT_TEMPLATE = Path("templates") / "prompts" / "skill-launch.md"
 
+# 菜单行描述截断长度（完整描述在选中后的预览步骤展示）
+_DESC_MAX = 50
+
 
 def _source_mark(source):
 
@@ -43,8 +46,14 @@ def _skill_label(skill):
 
     label += f" [{_source_mark(skill['source'])}]"
 
-    if skill["description"]:
-        label += f" — {skill['description']}"
+    desc = skill["description"]
+
+    if desc:
+
+        if len(desc) > _DESC_MAX:
+            desc = desc[: _DESC_MAX - 1].rstrip() + "…"
+
+        label += f" — {desc}"
 
     return label
 
@@ -135,7 +144,8 @@ def _group_skills(config, skills):
 
 
 def _preview_skills(skills):
-    """Print the selected skills' details (name, source, usage, trigger)."""
+    """Print the selected skills' details (name, source, full description,
+    usage, trigger)."""
 
     print()
     print(f"{e('🔍 ')}Selected skills:")
@@ -143,6 +153,9 @@ def _preview_skills(skills):
     for s in skills:
 
         print(f"  • {s['name']} [{_source_mark(s['source'])}]")
+
+        if s.get("description"):
+            print(f"    description: {s['description']}")
 
         if s.get("usage"):
             print(f"    usage: {s['usage']}")
@@ -214,7 +227,10 @@ class SkillLauncher(InteractiveCommand):
         picked = choose_many(
             f"{e('🧩 ')}Select skills (Space toggles, Enter confirms, empty Enter = current)",
             options,
-            enter_selects_current=True
+            enter_selects_current=True,
+            max_visible=10,
+            selected_theme="selected_soft",
+            marker_theme="marker_soft"
         )
 
         if picked is BACK:

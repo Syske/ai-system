@@ -1,12 +1,16 @@
 version: 1
 locale: zh
 
-# ai-system/skills 中需在 aic-skill 菜单暴露的 on-demand 技能（core 源）。
-# launcher 默认只扫 extensions/global/local；此处显式登记 core 技能供菜单可达。
-# 已登记的技能须在 ai-system/skills/<name>/ 下有 skill.md 或 SKILL.md。
-core_skills:
-  - deepseek-share-to-md
-  - wayfinder   # 临时登记（item7 trial）：让 launcher 可达、供主链 prepare/spec 试用；评估后定去留
+# 可配置技能源目录（配置驱动发现，2026-09-11 扩展）：aic-skill 按本表扫描来源目录，
+# 需要新增技能目录时在此登记即可，无需改代码（先配置 core + extensions）。
+# - key = 来源标记（菜单分组 source，如 core / extensions）
+# - value = 目录路径；占位符 {ai_system_root}=ai-system 根、{workspace_root}=工作区根
+# - 叶子技能 = 目录下含 SKILL.md 或 skill.md 的子目录；无 SKILL.md 的目录（如分组容器）自动跳过
+# - extensions 未在此登记时回退 config/environments/{env}.yaml → layers.skills（per-env 灵活）
+# - 内置源（平台标准路径，不可配置）：global=~/.agents/skills、local=项目内 .opencode|.claude|.agents/skills
+skill_roots:
+  core: "{ai_system_root}/skills"
+  extensions: "{workspace_root}/extensions"
 
 # skill 分组/组合配置（配置驱动，模式对齐 config/menu.yaml）。
 # - 本文件只存结构 + key；用户可见分组标题在 config/i18n/{locale}.yaml 的

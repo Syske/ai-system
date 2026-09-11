@@ -81,7 +81,18 @@ class WizardSelection:
 
         from cli.services.providers import project_repos
 
+        # 置顶两个无项目入口：💻 system（无项目）/ 🤖 AI 引导（无项目任务），
+        # 其后才是项目列表（用户要求置顶，2026-09-11）。
         options = []
+
+        options.append(
+            f"{_e(self._menu_option('project', 'system'))}"
+            "system (no project)"
+        )
+
+        options.append(
+            f"{_e('🤖 ')}AI 引导（无项目任务）"
+        )
 
         for p in projects:
 
@@ -106,21 +117,13 @@ class WizardSelection:
                 f"{_e(self._menu_option('project', 'item'))}{p}{suffix}"
             )
 
-        options.append(
-            f"{_e(self._menu_option('project', 'system'))}"
-            "system (no project)"
-        )
-
-        options.append(
-            f"{_e('🤖 ')}AI 引导（无项目任务）"
-        )
-
-        default = 0
+        # 默认停在最近项目（index 偏移 2，因前两项为无项目入口）；无则第一个项目。
+        default = 2 if projects else 0
 
         last = self.state.get("last_project")
 
         if last in projects:
-            default = projects.index(last)
+            default = projects.index(last) + 2
 
         options[default] = (
             f"{_e(self._menu_option('project', 'default_mark'))}"
@@ -138,13 +141,13 @@ class WizardSelection:
         if idx is BACK:
             return BACK
 
-        if idx == len(projects):
+        if idx == 0:
             return None
 
-        if idx == len(projects) + 1:
+        if idx == 1:
             return "__AI_GUIDE__"
 
-        return projects[idx]
+        return projects[idx - 2]
 
     def _select_target(
         self,

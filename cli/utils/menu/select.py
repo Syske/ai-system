@@ -213,7 +213,7 @@ def _interactive(title, options, default, allow_skip, header, note=None, max_vis
             if isinstance(opt, Section):
 
                 body.append(
-                    f"{_theme('note')}{opt.text}{_theme('reset')}"
+                    f"{_theme('section')}{opt.text}{_theme('reset')}"
                 )
 
             elif i not in visible:

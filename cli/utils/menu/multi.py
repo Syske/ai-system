@@ -10,12 +10,12 @@ from cli.utils.menu.select import _handle_filter_key, _handle_no_match, _visible
 from cli.utils.menu.theme import get as _theme
 
 
-def _paint_many(opt, selected, marked):
+def _paint_many(opt, selected, marked, selected_theme="selected", marker_theme="marker"):
 
     marker = "[x]" if marked else "[ ]"
 
-    selected_s = _theme("selected")
-    marker_s = _theme("marker")
+    selected_s = _theme(selected_theme)
+    marker_s = _theme(marker_theme)
     name_s = _theme("name")
     desc_s = _theme("desc")
     reset_s = _theme("reset")
@@ -48,7 +48,9 @@ def choose_many(
     header=None,
     note=None,
     enter_selects_current=False,
-    max_visible=None
+    max_visible=None,
+    selected_theme="selected",
+    marker_theme="marker"
 ):
     """Multi-select menu (checkbox).
 
@@ -87,7 +89,9 @@ def choose_many(
         header or [],
         note,
         enter_selects_current,
-        max_visible
+        max_visible,
+        selected_theme,
+        marker_theme
     )
 
 
@@ -97,7 +101,9 @@ def _interactive_many(
     header,
     note=None,
     enter_selects_current=False,
-    max_visible=None
+    max_visible=None,
+    selected_theme="selected",
+    marker_theme="marker"
 ):
 
     selectable = [
@@ -153,7 +159,7 @@ def _interactive_many(
             if isinstance(opt, Section):
 
                 body.append(
-                    f"{_theme('note')}{opt.text}{_theme('reset')}"
+                    f"{_theme('section')}{opt.text}{_theme('reset')}"
                 )
 
             elif i not in visible:
@@ -166,7 +172,9 @@ def _interactive_many(
                     _paint_many(
                         opt,
                         i == idx,
-                        i in selected
+                        i in selected,
+                        selected_theme,
+                        marker_theme
                     )
                 )
 

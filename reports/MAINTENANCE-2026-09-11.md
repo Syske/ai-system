@@ -111,7 +111,7 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
 
 ## 四、修复动作与建议清单（AI 填写）
 
-本专项为 read-first：除已批准的建议 1（L2）外未做其他就地修改，输出建议待用户决策。
+本专项 read-first，除已批准/确认执行项外未做其他就地修改；已执行项标注 [已执行]，其余输出建议待决策。
 
 1. **建议 1 [已执行（L2 批准）]**：code-review.md 节归位 —— `Target Branch Resolution` 降为
    Context 子节、`Spec-Comparison Review Mode` 降为 Outputs 子节，恢复八段顶层契约顺序。
@@ -129,6 +129,12 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
       为满足 RFC-0003 ≤100 行门限，同步压缩 Projects bullet 说明行（frontmatter↔正文一致性
       检查通过）。验证：check.py PASS、audit 0/0、lint 0/0/25、path OK、quick-check OK、
       正文 99 行。
+
+3. **建议 3 [已执行（用户确认）] review/verify 报告写前冲突保护**：`templates/runtime/
+   runtime-review.md` + `runtime-verify.md` 的 Outputs 新增 `## Report-Write Guard
+   (overwrite protection)` —— 写报告前检查目标文件是否已存在（T-011 事故防护，workspaces 无
+   git 不可恢复），冲突时不静默覆盖：展示旧文件 → 改名/备份后写 → 诊断日志记录。验证：check.py
+   PASS、audit 0/0、lint 0/0/25。
 
 0. **建议 0 [评估完成，交互层建议待决策] aic code-review 菜单交互流程评估**（执行建议 1
    前置项，用户指示）：
@@ -172,13 +178,61 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
       「Target Branch by theme」同步改写
    5c runtime Phase 3：注明「用户 focus 项获得评审优先级，其余维度仍覆盖；默认全面审查=全维度」
    验证：check.py PASS、audit 0/0、lint 0/0/25、path OK、quick-check OK、正文 99 行
-2. **建议 2（需确认，doc 修正两处）**：
-   a) `workflows/code-review.md` HotFix loop 的 wiki 更新行 → 改为「远程 wiki 用户自管；
-      agent 只产出本地 change-summary-wiki.md」；
-   b) `templates/runtime/runtime-code-review.md` 补 spec-comparison 授权扩展路径说明（修复→
-      merge→build→push 阶段）或收敛 "does not modify" 声明 —— 消除 M2 自相矛盾。
-3. **建议 3（需确认，review/verify 域）**：写 verification/review 报告前检查目标文件是否已
-   存在，存在则改名/备份（源自 T-011 覆盖事故，2026-09-10 报告不可恢复）。
+
+**F2 [已执行] 可配置技能源目录（用户需求驱动）**：
+   - 背景：aic-skill 菜单 core 组只能识别 2 个技能（`core_skills` 白名单仅 deepseek-share-to-md +
+     wayfinder），ai-system/skills 下 30 个技能中 29 个叶子技能不可达
+   - 设计：`config/skill-groups.yaml` 新增 `skill_roots`（配置驱动发现）—— key=来源标记、
+     value=目录（占位符 {ai_system_root}/{workspace_root}）；需要新增技能目录时登记即可，无需改代码
+   - 配置：先配置 `core: {ai_system_root}/skills` + `extensions: {workspace_root}/extensions`；
+     extensions 未登记时回退 env layers.skills（per-env 灵活）；内置源 global/local 不变
+   - 改动：`skill_scan.py` `_core_skills`（白名单）→ `_skill_roots`（配置目录扫描，str/Path 兼容）；
+     `skill-groups.yaml` `core_skills` 白名单退役
+   - 验证：扫描 core 29 + extensions 9（共 38）；`architecture/` 分组容器正确跳过；launcher 菜单
+     core 组 29 项全量可达；全 CLI 单测 259 OK；check.py PASS、lint 0/0/25、path OK、quick-check OK
+
+**F5 [已执行] skill 菜单选项去掉背景色**（用户需求驱动）：
+   - `config/ui.yaml` + `theme.py`：新增 `selected_soft`（\e[1;36m 粗体青前景，无背景）+
+     `marker_soft`（\e[1;32m 粗体绿勾，无背景）
+   - `cli/utils/menu/multi.py`：`choose_many` / `_interactive_many` / `_paint_many` 增
+     `selected_theme` / `marker_theme` 参数（默认保持原反显背景，其他菜单不受影响）
+   - `skill_launcher.py`：skill 选择菜单传 `selected_theme="selected_soft"` +
+     `marker_theme="marker_soft"`（选中行前景高亮 + 绿色勾选标记，无背景色）
+   - 验证：skill 行渲染无 \x1b[7m 背景（默认菜单仍保留反显）；全 CLI 单测 259 OK、compile OK
+
+**F4 [已执行] aic 向导项目菜单置顶无项目入口**（用户需求驱动）：
+   - `cli/services/wizard/selection.py` `_select_project`：💻 system（no project）+ 🤖 AI 引导
+     （无项目任务）两个无项目入口由列表末尾置顶到前两项，项目列表后置
+   - 索引映射同步：idx 0→None（system）、idx 1→__AI_GUIDE__、idx≥2→projects[idx-2]；
+     默认项仍停在最近项目（index+2 偏移），无最近项目则默认第一个项目
+   - 验证：索引映射模拟正确（含默认偏移）、全 CLI 单测 259 OK、compile OK、check.py PASS、
+     lint 0/0/25、quick-check OK
+
+**F3 [已执行] skill 菜单分组高亮 + 每屏 10 项可筛选 + 长描述截断**（用户需求驱动）：
+   - `config/ui.yaml` + `cli/utils/menu/theme.py`：新增 `section` 主题色（\e[1;36m 粗体青，与现有
+     name/divider 配色一致，用户要求保持配色统一）
+   - `cli/utils/menu/select.py` + `multi.py`：Section 分组头渲染由 `note`（暗色）→ `section`（高亮）
+   - `cli/services/skill_launcher.py`：`_step_pick_skills` 的 choose_many 增 `max_visible=10`
+     （每屏最多 10 项，输入关键字过滤全量列表；分组头在截断时始终可见）
+   - `cli/services/skill_launcher.py`：`_skill_label` 描述截断 `_DESC_MAX=50`（长描述技能如
+     agent-browser 925 字符不再撑爆菜单行，38/38 技能描述超限均截断）+ `_preview_skills`
+     预览步骤展示完整描述（选中后可见全文）
+   - 验证：标签最大行宽 ≤88 字符（原最大 1000+）、截断/预览模拟正确、全 CLI 单测 259 OK、
+     compile OK、check.py PASS、lint 0/0/25、path OK、quick-check OK
+
+**F1 [已修复] skill 加载缺陷 —— extension skill 描述块标量解析错误**（用户报告驱动）：
+   - 症状：`aic-skill` 菜单中 hotfix-test-doc / release-config-review / release-env-matrix /
+     yapi-openapi 等扩展技能描述显示为 `— >`（而非真实描述）；10+ ai-system core 技能同受影响
+   - 根因：`cli/services/skill_scan.py` `_read_frontmatter` 用单行正则
+     `^description:\s*(.+)$` 解析 frontmatter，遇 `description: >`（YAML 折叠块标量）把 `>`
+     当描述值；未复用共享 YAML 解析器 `cli/services/frontmatter.py`（P25 单一解析器）
+   - 修复：`_read_frontmatter` 改用共享 `read_frontmatter`（PyYAML，正确处理 `>`/`|` 块标量、
+     引号、多行），无 frontmatter 块时回退旧单行正则；usage/trigger 收敛为 `_single_line_field`
+     （保留 `triggers?` 复数兼容）；清理死代码
+   - 验证：扫描 11 技能描述全部正确加载（0 残留 `>`）；skill 单测 14/14 OK；全 CLI 单测
+     259 OK；compile OK；check.py PASS、lint 0/0/25、quick-check OK
+   - 说明：嵌套子技能（如 hotfix-test-doc/skills/create、skills/update）不入 launcher 菜单属
+     设计行为（router 主技能调度 executor 子技能），非缺陷
 4. **建议 4（可选，工具增强）**：workflow-command-audit 增「非契约顶层节」检测（当前八段
    违规不报警）。
 5. **建议 5（信息，业务侧）**：qa_boss/qa_client 等 python 仓补 .gitattributes 行尾符规范，

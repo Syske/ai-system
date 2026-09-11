@@ -21,6 +21,7 @@ import subprocess
 from pathlib import Path
 
 from cli.services import environment as env
+from cli.services.frontmatter import read_frontmatter
 
 FRONTMATTER_NAME = re.compile(r"^name:\s*(.+?)\s*$", re.MULTILINE)
 FRONTMATTER_DESC = re.compile(r"^description:\s*(.+?)\s*$", re.MULTILINE)
@@ -37,8 +38,31 @@ def _realpath(path):
     return Path(os.path.realpath(path))
 
 
+def _single_line_field(text, key):
+    """Single-line frontmatter field (usage / trigger), regex fallback."""
+
+    m = re.search(
+        rf"^{key}:\s*(.+)$",
+        text,
+        re.MULTILINE | re.IGNORECASE
+    )
+
+    if not m:
+        return ""
+
+    value = m.group(1).strip().strip("'\"")
+
+    return re.sub(r"\s+", " ", value)
+
+
 def _read_frontmatter(skill_path):
     """Parse a SKILL.md frontmatter.
+
+    Uses the shared YAML parser (cli/services/frontmatter.py, P25) so folded
+    / literal block scalars (`description: >` / `description: |`) resolve to
+    their real text instead of the `>` / `|` marker (2026-09-11: four
+    extensions skills showed `— >` in the aic-skill menu). Falls back to the
+    legacy single-line regexes for files without a frontmatter block.
 
     Returns a dict with at least name/description; includes usage and
     trigger lines when present (for detail preview).
@@ -57,50 +81,36 @@ def _read_frontmatter(skill_path):
             "trigger": "",
         }
 
-    name = None
+    data, _ = read_frontmatter(text)
 
-    m = FRONTMATTER_NAME.search(text)
+    if not isinstance(data, dict):
+        data = {}
 
-    if m:
-        name = m.group(1).strip()
+    name = str(data.get("name") or "").strip()
 
-    desc = ""
+    if not name:
 
-    m = FRONTMATTER_DESC.search(text)
+        m = FRONTMATTER_NAME.search(text)
 
-    if m:
-        desc = m.group(1).strip().strip("'\"")
-        desc = re.sub(r"\s+", " ", desc)
+        if m:
+            name = m.group(1).strip()
 
-    usage = ""
+    desc = str(data.get("description") or "").strip()
 
-    um = re.search(
-        r"^usage:\s*(.+)$",
-        text,
-        re.MULTILINE | re.IGNORECASE
-    )
+    if not desc:
 
-    if um:
-        usage = um.group(1).strip().strip("'\"")
-        usage = re.sub(r"\s+", " ", usage)
+        m = FRONTMATTER_DESC.search(text)
 
-    trigger = ""
+        if m:
+            desc = m.group(1).strip().strip("'\"")
 
-    tm = re.search(
-        r"^trigger[s]?:\s*(.+)$",
-        text,
-        re.MULTILINE | re.IGNORECASE
-    )
-
-    if tm:
-        trigger = tm.group(1).strip().strip("'\"")
-        trigger = re.sub(r"\s+", " ", trigger)
+    desc = re.sub(r"\s+", " ", desc)
 
     return {
         "name": name or skill_path.parent.name,
         "description": desc,
-        "usage": usage,
-        "trigger": trigger,
+        "usage": _single_line_field(text, "usage"),
+        "trigger": _single_line_field(text, "triggers?"),
     }
 
 
@@ -136,42 +146,52 @@ def _skills_in(root):
         yield meta["name"], meta, str(skill_md)
 
 
-def _core_skills(root):
-    """Yield core on-demand skills registered in config/skill-groups.yaml
-    `core_skills` (ai-system/skills/<name>/skill.md|SKILL.md).
+def _skill_roots(root, environment):
+    """Config-driven skill source dirs (skill-groups.yaml → `skill_roots`).
 
-    Yields (name, meta, path) consistent with `_skills_in`.
+    Placeholders: `{ai_system_root}` → the ai-system root passed in,
+    `{workspace_root}` → its parent. `extensions` falls back to the
+    environment's `layers.skills` when not configured (per-env flexibility).
+    Returns {source: dir} in config order.
     """
+
+    roots = {}
 
     try:
 
         from cli.utils.yaml import load_yaml
 
+        root_path = Path(root)
+
         cfg = load_yaml(
-            Path(root) / "config" / "skill-groups.yaml"
+            root_path / "config" / "skill-groups.yaml"
         ) or {}
+
+        for source, raw in (cfg.get("skill_roots") or {}).items():
+
+            raw = str(raw)
+
+            raw = raw.replace(
+                "{ai_system_root}",
+                str(root_path)
+            ).replace(
+                "{workspace_root}",
+                str(root_path.parent)
+            )
+
+            roots[source] = raw
 
     except Exception:
 
-        return
+        pass
 
-    names = cfg.get("core_skills") or []
+    if "extensions" not in roots:
+        roots["extensions"] = env.skills_root(
+            root,
+            environment
+        )
 
-    skills_root = Path(root) / "skills"
-
-    for name in names:
-
-        for md_name in ("skill.md", "SKILL.md"):
-
-            p = skills_root / str(name) / md_name
-
-            if p.exists():
-
-                meta = _read_frontmatter(p)
-
-                yield meta.get("name") or str(name), meta, str(p)
-
-                break
+    return roots
 
 
 def _git_root(start):
@@ -202,15 +222,11 @@ def scan(root, environment=None, include_local=True):
 
     Returns a list of dicts:
     {name, description, usage, trigger, path, source}.
-    source is one of "extensions" | "global" | "local".
+    source is one of the configured `skill_roots` keys (core / extensions /
+    ...) plus the built-in "global" | "local".
     """
 
     environment = environment or env.DEFAULT_ENV
-
-    skills_root = env.skills_root(
-        root,
-        environment
-    )
 
     seen = set()
 
@@ -234,15 +250,17 @@ def scan(root, environment=None, include_local=True):
             "source": source,
         })
 
-    for name, meta, path in _skills_in(skills_root):
-        add(meta, path, "extensions")
+    # 配置驱动来源（skill-groups.yaml → skill_roots）：先按配置顺序扫 core /
+    # extensions 等已登记目录；extensions 未登记时回退环境 layers.skills。
+    for source, source_root in _skill_roots(
+        root,
+        environment
+    ).items():
 
-    # core: ai-system/skills 中登记给 launcher 的 on-demand 技能
-    #（config/skill-groups.yaml `core_skills`）。core 技能不被 agent 自动扫描；
-    # 在此登记后可从 aic-skill 菜单列出，与 extensions/global/local 并列。
-    for name, meta, path in _core_skills(root):
-        add(meta, path, "core")
+        for name, meta, path in _skills_in(source_root):
+            add(meta, path, source)
 
+    # 内置源（平台标准路径）：global = ~/.agents/skills
     home = Path.home()
 
     global_root = home / ".agents" / "skills"
