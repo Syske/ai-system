@@ -61,6 +61,7 @@ def run(wizard, agent=None, project=None):
         f"{c.get('icon', '✨')} {c.get('label', c.get('name'))}"
         for c in chains
     ]
+    options.append("💬  描述你的场景（AI 匹配链路）")
     options.append("❌  取消")
 
     idx = choose(
@@ -72,19 +73,44 @@ def run(wizard, agent=None, project=None):
     if idx is BACK or idx == len(options) - 1:
         return None
 
-    chain = chains[idx]
+    if idx == len(options) - 2:
 
-    # 先选链路，再输入内容（2026-09-11 用户反馈：先选链，避免不知道输入什么）。
-    # 菜单不再混入「描述你的场景」自由文本项。
-    task_text = ask_text(
-        "任务内容 — 该链路具体要做什么？",
-        note=f"如：{chain.get('scenario') or ''}",
-    )
+        # 自由文本场景：AI 匹配链路，文本即任务内容（不再二次询问）
+        text = ask_text(
+            "描述你的场景: ",
+            note="如：分析代码并把结果发到 wiki / 改 bug 并出转测文档",
+        )
 
-    if task_text is BACK:
-        return None
+        if text is BACK or not text:
+            return None
 
-    task_text = (task_text or "").strip()
+        chain = chain_util.resolve_chain(text, chains)
+
+        if chain is None:
+
+            print(
+                "未匹配到已知链路。可使用列表中的命名链路，或在 "
+                "config/chains.yaml 登记后重试。"
+            )
+
+            return None
+
+        task_text = text.strip()
+
+    else:
+
+        chain = chains[idx]
+
+        # 先选链路，再输入内容（2026-09-11 用户反馈：先选链，避免不知道输入什么）
+        task_text = ask_text(
+            "任务内容 — 该链路具体要做什么？",
+            note=f"如：{chain.get('scenario') or ''}",
+        )
+
+        if task_text is BACK:
+            return None
+
+        task_text = (task_text or "").strip()
 
     # 按链解析项目需求（required 才要求项目，none/optional 跳过 —— 不再一刀切）。
     # 项目优先取 wizard 菜单透传值；required 且无项目时必须提供（留空 = 取消），

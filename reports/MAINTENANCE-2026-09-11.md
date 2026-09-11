@@ -200,14 +200,14 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - 回归：`test_menu_package.py` 新增 4 用例（CJK 解码/ASCII/ESC/孤立 lead byte 不崩溃）
    - 验证：全 CLI 单测 263 OK（+4）、compile OK、check.py PASS、lint 0/0/25、quick-check OK
 
-**F9 [已执行] chain 交互逻辑调整：先选链再输入内容**（用户反馈驱动）：
-   - 菜单去掉「💬 描述你的场景（AI 匹配链路）」自由文本项（用户困惑不知道输入什么）——
-     仅保留命名链路 + ❌ 取消
+**F9 [已执行（修订）] chain 交互逻辑调整：先选链再输入内容（保留场景选项）**（用户反馈驱动）：
    - 选链后新增「任务内容 — 该链路具体要做什么？」输入（note 提示该链 scenario 示例），
      内容注入组装 prompt 头部 `任务内容: ...`（供 AI 作为整体任务执行各块）
-   - `resolve_chain` 保留在 chain.py（纯函数，测试仍过；AI 意图链如需可复用）
-   - 验证：选链→输入内容→透传项目→prompt 含任务内容；全 CLI 单测 263 OK、compile OK、
-     check.py PASS、lint 0/0/25、quick-check OK
+   - 「💬 描述你的场景（AI 匹配链路）」选项**保留**（用户指出选项不应删除）：自由文本 →
+     resolve_chain 匹配 → 匹配成功则文本即任务内容（不再二次询问）；未匹配 → 提示并中止
+   - 验证：两条路径（选命名链→问内容 / 描述场景→文本即内容）prompt 均含任务内容；
+     未匹配场景提示中止；全 CLI 单测 263 OK、compile OK、check.py PASS、lint 0/0/25、
+     quick-check OK
 
 **F8 [已执行] chain 链路无项目无用问题**（用户实测驱动）：
    - 症状：4 条链中 3 条 `project: required`，但 chain_launcher 允许 Enter 跳过项目 →
