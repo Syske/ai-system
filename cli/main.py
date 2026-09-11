@@ -89,11 +89,12 @@ _INTERACTIVE_COMMANDS = {
 }
 
 
-def _run_interactive(builder, args, name, mode=None):
-    """Run an interactive command (skill / skill-launch).
+def _run_interactive(builder, args, name, mode=None, project=None):
+    """Run an interactive command (skill / chain).
 
     Returns (prompt, agent) or None (cancelled/quit).
-    mode is the wizard-collected Mode field for /aic-skill.
+    mode is the wizard-collected Mode field for /aic-skill;
+    project is the wizard-collected Project ID for /aic-chain.
     """
 
     import importlib
@@ -115,6 +116,14 @@ def _run_interactive(builder, args, name, mode=None):
                 wizard,
                 args.agent,
                 mode or args.mode
+            )
+
+        if name == "chain":
+
+            return module.run(
+                wizard,
+                args.agent,
+                project=project
             )
 
         return module.run(
@@ -309,12 +318,14 @@ def main():
 
                 if isinstance(context, dict):
                     mode = context.get("Mode")
+                    project = context.get("Project ID")
 
                 result = _run_interactive(
                     builder,
                     args,
                     name,
-                    mode=mode
+                    mode=mode,
+                    project=project
                 )
 
                 if result is None:

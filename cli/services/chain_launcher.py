@@ -39,10 +39,12 @@ def _render_skill_prompt(root, skill_name, task):
     return template
 
 
-def run(wizard, agent=None):
+def run(wizard, agent=None, project=None):
     """Pick/describe a chain, create the run context, assemble the prompt.
 
-    Returns (prompt, agent) or None (cancelled).
+    `project` is the wizard-selected Project ID (forwarded from the wizard
+    flow); falls back to wizard.project, then asks when the chain requires
+    one. Returns (prompt, agent) or None (cancelled).
     """
 
     root = wizard.root
@@ -96,19 +98,27 @@ def run(wizard, agent=None):
 
         chain = chains[idx]
 
-    # 按链解析项目需求（required 才要求项目，none/optional 跳过 —— 不再一刀切）
+    # 按链解析项目需求（required 才要求项目，none/optional 跳过 —— 不再一刀切）。
+    # 项目优先取 wizard 菜单透传值；required 且无项目时必须提供（留空 = 取消），
+    # 避免无项目上下文跑出无用链路（2026-09-11 用户实测）。
     project_req = chain_util.project_requirement(chain)
 
-    project = getattr(wizard, "project", None) or None
+    project = project or getattr(wizard, "project", None) or None
 
     if project_req == "required" and not project:
 
         project = ask_text(
-            "该链路需要项目上下文，请输入 Project ID / 仓库路径（Enter 跳过，由 AI 从仓库解析）: ",
+            "该链路需要项目上下文，请输入 Project ID / 仓库路径（留空 = 取消）: ",
         )
 
         if project is not None:
             project = project.strip()
+
+        if not project:
+
+            print("该链路需要项目上下文；未提供项目，链路不运行。")
+
+            return None
 
     if project_req in ("required", "optional") and project:
 

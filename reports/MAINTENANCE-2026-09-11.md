@@ -200,6 +200,16 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - 回归：`test_menu_package.py` 新增 4 用例（CJK 解码/ASCII/ESC/孤立 lead byte 不崩溃）
    - 验证：全 CLI 单测 263 OK（+4）、compile OK、check.py PASS、lint 0/0/25、quick-check OK
 
+**F8 [已执行] chain 链路无项目无用问题**（用户实测驱动）：
+   - 症状：4 条链中 3 条 `project: required`，但 chain_launcher 允许 Enter 跳过项目 →
+     块无项目上下文跑出无用链路
+   - 修复：`chain_launcher.run(wizard, agent, project=None)` —— required 链无项目时必须提供
+     （留空=取消，打印提示并中止）；项目透传：wizard 菜单选中的 Project ID 经 main.py
+     `_run_interactive(..., project=context["Project ID"])` 转发给 launcher（不再丢失）
+   - `project: none` 链（adhoc-task）不受影响；optional 链有项目才注入
+   - 验证：required+空项目→中止返回 None；透传项目→不再询问直接运行；全 CLI 单测 263 OK、
+     compile OK、check.py PASS、lint 0/0/25、quick-check OK
+
 **F7 [已执行] 非开发主链菜单体检（用户需求驱动）**：
    - A1 [修复] `env-init` command_fields 重复「Workspace Root」字段（向导会重复询问）→ 去重
    - A2 [修复] 缺失字段备注/图标补齐：extensions-init（Remote URL/Committer Email/Committer Name）、
