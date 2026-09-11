@@ -21,7 +21,6 @@ _THEME = None
 # 默认值（ui.yaml 缺失时兜底，与历史硬编码一致）
 _DEFAULTS = {
     "selected": "\x1b[7m",
-    "selected_soft": "\x1b[1;36m",
     "marker_soft": "\x1b[1;32m",
     "name": "\x1b[1;36m",
     "desc": "\x1b[2;90m",

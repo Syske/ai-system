@@ -126,3 +126,56 @@ class TestMenuFallbacks(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRawKeyUtf8(unittest.TestCase):
+    """Regression: raw-mode key reading must survive multi-byte UTF-8 input
+    (2026-09-11: typing a CJK filter char crashed _read_raw with
+    UnicodeDecodeError on the lead byte)."""
+
+    def _call_read_raw(self, bytes_seq):
+        """Feed bytes one at a time via a fake os.read, skip _data_ready
+        (continuation bytes always available)."""
+
+        from unittest import mock
+
+        import cli.utils.menu.keys as keys
+
+        pending = list(bytes_seq)
+
+        def fake_read(fd, n):
+            if pending:
+                return pending.pop(0)
+            return b""
+
+        with mock.patch.object(keys.os, "read", side_effect=fake_read), \
+                mock.patch.object(keys, "_data_ready", return_value=True):
+            return keys._read_raw(0, 1)
+
+    def test_cjk_char_decodes(self):
+        # '测' = e6 b5 8b
+        self.assertEqual(
+            self._call_read_raw([b"\xe6", b"\xb5", b"\x8b"]),
+            "测",
+        )
+
+    def test_ascii_single_byte(self):
+        self.assertEqual(self._call_read_raw([b"a"]), "a")
+
+    def test_esc_byte_unchanged(self):
+        self.assertEqual(self._call_read_raw([b"\x1b"]), "\x1b")
+
+    def test_lone_lead_byte_falls_back_without_crash(self):
+        # 孤立 lead byte（无续字节）不得抛 UnicodeDecodeError
+        from unittest import mock
+
+        import cli.utils.menu.keys as keys
+
+        with mock.patch.object(keys.os, "read", return_value=b"\xe3"), \
+                mock.patch.object(keys, "_data_ready", return_value=False):
+            value = keys._read_raw(0, 1)
+            self.assertTrue(isinstance(value, str))
+
+
+if __name__ == "__main__":
+    unittest.main()

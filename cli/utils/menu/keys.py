@@ -57,7 +57,41 @@ def _data_ready(fd):
 
 def _read_raw(fd, n):
 
-    return os.read(fd, n).decode()
+    data = os.read(fd, n)
+
+    if not data:
+        return ""
+
+    # raw 模式下输入过滤中文等多字节 UTF-8 字符时，首字节是 lead byte，
+    # 单独解码会 UnicodeDecodeError（2026-09-11 实测 aic 崩溃）。
+    # 按 UTF-8 编码规则补齐续字节后再解码；异常字节回退 latin-1（不崩溃）。
+    lead = data[0]
+
+    need = 1
+
+    if lead >= 0xF0:
+        need = 4
+    elif lead >= 0xE0:
+        need = 3
+    elif lead >= 0xC0:
+        need = 2
+
+    while len(data) < need and _data_ready(fd):
+
+        more = os.read(fd, 1)
+
+        if not more:
+            break
+
+        data += more
+
+    try:
+
+        return data.decode("utf-8")
+
+    except UnicodeDecodeError:
+
+        return data.decode("latin-1")
 
 
 def _unix_read_key():

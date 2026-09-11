@@ -1,7 +1,6 @@
 version: 1
 theme:
   selected: "\e[7m"
-  selected_soft: "\e[1;36m"
   marker_soft: "\e[1;32m"
   name: "\e[1;36m"
   desc: "\e[2;90m"

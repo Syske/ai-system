@@ -229,7 +229,6 @@ class SkillLauncher(InteractiveCommand):
             options,
             enter_selects_current=True,
             max_visible=10,
-            selected_theme="selected_soft",
             marker_theme="marker_soft"
         )
 

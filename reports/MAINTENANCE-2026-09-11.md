@@ -191,14 +191,23 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - 验证：扫描 core 29 + extensions 9（共 38）；`architecture/` 分组容器正确跳过；launcher 菜单
      core 组 29 项全量可达；全 CLI 单测 259 OK；check.py PASS、lint 0/0/25、path OK、quick-check OK
 
-**F5 [已执行] skill 菜单选项去掉背景色**（用户需求驱动）：
-   - `config/ui.yaml` + `theme.py`：新增 `selected_soft`（\e[1;36m 粗体青前景，无背景）+
-     `marker_soft`（\e[1;32m 粗体绿勾，无背景）
+**F6 [已修复] aic 菜单输入中文过滤崩溃（UnicodeDecodeError）**（用户实测驱动）：
+   - 症状：`aic` 向导菜单（skill 选择等）输入中文过滤字符时崩溃 —— `keys.py _read_raw`
+     单字节 `os.read(fd,1).decode()`，raw 模式下 UTF-8 多字节字符首字节（如 0xe3）单独解码失败
+   - 修复：`_read_raw` 按 UTF-8 lead byte 补齐续字节（0xC0→2、0xE0→3、0xF0→4，配合
+     `_data_ready` 0.1s 超时避免阻塞）后再 decode；异常字节回退 latin-1（不崩溃）；ESC 序列
+     检测路径不受影响（0x1b < 0xC0 单字节）
+   - 回归：`test_menu_package.py` 新增 4 用例（CJK 解码/ASCII/ESC/孤立 lead byte 不崩溃）
+   - 验证：全 CLI 单测 263 OK（+4）、compile OK、check.py PASS、lint 0/0/25、quick-check OK
+
+**F5 [已执行（修订）] skill 菜单选项去背景色 —— 勾选标记无背景、选中行保留背景**（用户需求驱动）：
+   - `config/ui.yaml` + `theme.py`：新增 `marker_soft`（\e[1;32m 粗体绿勾，无背景）
    - `cli/utils/menu/multi.py`：`choose_many` / `_interactive_many` / `_paint_many` 增
      `selected_theme` / `marker_theme` 参数（默认保持原反显背景，其他菜单不受影响）
-   - `skill_launcher.py`：skill 选择菜单传 `selected_theme="selected_soft"` +
-     `marker_theme="marker_soft"`（选中行前景高亮 + 绿色勾选标记，无背景色）
-   - 验证：skill 行渲染无 \x1b[7m 背景（默认菜单仍保留反显）；全 CLI 单测 259 OK、compile OK
+   - `skill_launcher.py`：skill 选择菜单传 `marker_theme="marker_soft"`（勾选标记无背景）；
+     **选中行保留默认反显背景**（用户修订：选择时背景色需保留）；`selected_soft` 主题键移除
+     （无使用方，Value-Burden）
+   - 验证：选中行含 \x1b[7m 背景、勾选标记无背景；全 CLI 单测 263 OK、compile OK
 
 **F4 [已执行] aic 向导项目菜单置顶无项目入口**（用户需求驱动）：
    - `cli/services/wizard/selection.py` `_select_project`：💻 system（no project）+ 🤖 AI 引导
