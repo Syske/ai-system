@@ -158,8 +158,6 @@ command_fields:
       - false
     - - "Workspace Root"
       - false
-    - - "Workspace Root"
-      - false
   scan:
     - - "Operation"
       - false
@@ -289,6 +287,13 @@ field_icons:
   "Topic": "🎯 "
   "Related Materials": "📎 "
   "Zip": "🗜️ "
+  "Workspace Root": "📁 "
+  "Remote URL": "🌐 "
+  "Committer Email": "📧 "
+  "Committer Name": "👤 "
+  "Change Name": "📛 "
+  "Report Name": "📄 "
+  "Agent": "🤖 "
 
 # 静态字段候选（动态候选如 Workspace/Projects/Branch 由代码按目录/git 生成）
 field_choices:

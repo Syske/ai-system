@@ -200,6 +200,21 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - 回归：`test_menu_package.py` 新增 4 用例（CJK 解码/ASCII/ESC/孤立 lead byte 不崩溃）
    - 验证：全 CLI 单测 263 OK（+4）、compile OK、check.py PASS、lint 0/0/25、quick-check OK
 
+**F7 [已执行] 非开发主链菜单体检（用户需求驱动）**：
+   - A1 [修复] `env-init` command_fields 重复「Workspace Root」字段（向导会重复询问）→ 去重
+   - A2 [修复] 缺失字段备注/图标补齐：extensions-init（Remote URL/Committer Email/Committer Name）、
+     propose（Change Name）、skill（Agent）、skill-source（Report Name）、env-init（Workspace Root）
+     —— field_notes + field_icons 全部补齐（0 缺失）
+   - A3 [发现，待决策] 交互层硬编码英文用户文案（语言边界违规）：skill_launcher（"Select skills..." /
+     "Selected skills:" / "No skills found."）、agent_picker（"No agents enabled..." / "Select an
+     agent"）、wizard/output.py（"Output — where to send..." / "copy to clipboard" / "finish (no
+     launch)" / "Launch — open an agent..."）—— 建议统一走 i18n 或本地化为 zh（待确认后批量改）
+   - A4 [信息] Review Focus field_choices 值本身为中文自解释，多选菜单不渲染 option_descriptions，无需补
+   - A5 [通过] 菜单注册完备：无 fallback 其他流程/其他命令残留；sections 标题 i18n 全覆盖；条目图标齐全
+   - A6 [通过] skill 命令无双重询问（fields_for 对 skill 返回空，launcher 全权处理）；check.py 菜单
+     引用完整性 PASS
+   - 验证：字段 i18n 覆盖 0 缺失；check.py PASS、lint 0/0/25、quick-check OK、全 CLI 单测 263 OK
+
 **F5 [已执行（修订 3）] skill 菜单选中样式 + 分组顺序**（用户需求驱动）：
    - 选中行字体黑色：新增 `selected_black`（\e[30;47m 黑字白底）；`_paint_many` 选中分支整行
      统一选中样式（勾选标记/名称/描述不再单独着色，字体色随 selected 主题）；skill launcher 传
