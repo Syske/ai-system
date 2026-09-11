@@ -148,20 +148,20 @@ def _preview_skills(skills):
     usage, trigger)."""
 
     print()
-    print(f"{e('🔍 ')}Selected skills:")
+    print(f"{e('🔍 ')}已选技能：")
 
     for s in skills:
 
         print(f"  • {s['name']} [{_source_mark(s['source'])}]")
 
         if s.get("description"):
-            print(f"    description: {s['description']}")
+            print(f"    描述：{s['description']}")
 
         if s.get("usage"):
-            print(f"    usage: {s['usage']}")
+            print(f"    用法：{s['usage']}")
 
         if s.get("trigger"):
-            print(f"    trigger: {s['trigger']}")
+            print(f"    触发：{s['trigger']}")
 
     print()
 
@@ -215,7 +215,7 @@ class SkillLauncher(InteractiveCommand):
 
         if not skills:
 
-            print("No skills found.")
+            print("未找到技能。")
 
             return QUIT
 
@@ -225,7 +225,7 @@ class SkillLauncher(InteractiveCommand):
         )
 
         picked = choose_many(
-            f"{e('🧩 ')}Select skills (Space toggles, Enter confirms, empty Enter = current)",
+            f"{e('🧩 ')}选择技能（空格选中/取消，Enter 确认，空 Enter = 当前项）",
             options,
             enter_selects_current=True,
             max_visible=20,
@@ -293,7 +293,7 @@ class SkillLauncher(InteractiveCommand):
             options.append(f"{e('✏️ ')}custom...")
 
             idx = choose(
-                f"{e('📝 ')}Select a task",
+                f"{e('📝 ')}选择任务",
                 options,
                 default=0
             )
@@ -308,7 +308,7 @@ class SkillLauncher(InteractiveCommand):
                 return NEXT
 
             task = ask_text(
-                f"{e('📝 ')}Task — describe the task: "
+                f"{e('📝 ')}任务 — 描述要执行的任务： "
             )
 
             if task is BACK:
@@ -319,7 +319,7 @@ class SkillLauncher(InteractiveCommand):
             return NEXT
 
         task = ask_text(
-            f"{e('📝 ')}Task — what should the agent do with the selected skills? (empty = skip): "
+            f"{e('📝 ')}任务 — 代理应如何使用所选技能？（留空 = 跳过）： "
         )
 
         if task is BACK:
@@ -343,14 +343,14 @@ class SkillLauncher(InteractiveCommand):
         )
 
         print()
-        print(f"{e('📋 ')}Prompt summary:")
-        print(f"  skills: {', '.join(s['name'] for s in skills)}")
-        print(f"  agent:  {agent}")
-        print(f"  task:   {task or '(none)'}")
+        print(f"{e('📋 ')}提示词摘要：")
+        print(f"  技能：{', '.join(s['name'] for s in skills)}")
+        print(f"  代理：{agent}")
+        print(f"  任务：{task or '(无)'}")
         print()
 
         confirm = ask_text(
-            f"{e('🚀 ')}Launch {agent} with these skills? (Enter to confirm, or type no): "
+            f"{e('🚀 ')}使用这些技能启动 {agent}？（Enter 确认，或输入 no）： "
         )
 
         if confirm is BACK:
@@ -423,14 +423,14 @@ class SkillLauncher(InteractiveCommand):
 
             print()
             print(
-                f"{e('💾 ')}Skill Launch Report saved: "
+                f"{e('💾 ')}技能启动报告已保存："
                 f"{report_dir / 'skill-launch-report.md'}"
             )
 
         except Exception as exc:
 
             print(
-                f"{e('⚠️ ')}无法落盘 Skill Launch Report: {exc}"
+                f"{e('⚠️ ')}技能启动报告落盘失败：{exc}"
             )
 
     steps = [

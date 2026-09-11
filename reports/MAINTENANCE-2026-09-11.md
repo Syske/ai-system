@@ -205,10 +205,10 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - A2 [修复] 缺失字段备注/图标补齐：extensions-init（Remote URL/Committer Email/Committer Name）、
      propose（Change Name）、skill（Agent）、skill-source（Report Name）、env-init（Workspace Root）
      —— field_notes + field_icons 全部补齐（0 缺失）
-   - A3 [发现，待决策] 交互层硬编码英文用户文案（语言边界违规）：skill_launcher（"Select skills..." /
-     "Selected skills:" / "No skills found."）、agent_picker（"No agents enabled..." / "Select an
-     agent"）、wizard/output.py（"Output — where to send..." / "copy to clipboard" / "finish (no
-     launch)" / "Launch — open an agent..."）—— 建议统一走 i18n 或本地化为 zh（待确认后批量改）
+   - A3 [已修复] 交互层英文文案本地化（用户确认）：skill_launcher（选择技能/已选技能/描述/用法/触发/
+     任务/提示词摘要/技能启动报告等）、agent_picker（选择代理/未启用任何代理）、wizard/output.py
+     （输出标题/复制到剪贴板/保存到/结束（不启动）/在 ai-workspace 打开 X）—— 全部本地化为 zh，
+     内部返回值（copy/print/save 等 token）保持不变；全 CLI 单测 263 OK
    - A4 [信息] Review Focus field_choices 值本身为中文自解释，多选菜单不渲染 option_descriptions，无需补
    - A5 [通过] 菜单注册完备：无 fallback 其他流程/其他命令残留；sections 标题 i18n 全覆盖；条目图标齐全
    - A6 [通过] skill 命令无双重询问（fields_for 对 skill 返回空，launcher 全权处理）；check.py 菜单

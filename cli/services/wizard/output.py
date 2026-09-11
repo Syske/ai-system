@@ -33,13 +33,13 @@ class WizardOutput:
     ):
 
         save_label = (
-            "save to .ai-system/generated/"
+            "保存到 .ai-system/generated/"
         )
 
         try:
 
             save_label = (
-                f"save to {self.outputs_root / 'generated'}/"
+                f"保存到 {self.outputs_root / 'generated'}/"
             )
 
         except AttributeError:
@@ -47,15 +47,15 @@ class WizardOutput:
 
         options = [
             f"{_e(self._menu_option('output', 'copy'))}"
-            "copy to clipboard",
+            "复制到剪贴板",
             f"{_e(self._menu_option('output', 'print'))}"
-            "print",
+            "打印",
             f"{_e(self._menu_option('output', 'save'))}"
             f"{save_label}"
         ]
 
         idx = choose(
-            "Output — where to send the generated prompt",
+            "输出 — 生成的提示词发送到哪里",
             options,
             header=header
         )
@@ -74,14 +74,14 @@ class WizardOutput:
 
         options = [
             f"{_e(self._menu_option('launch', 'finish'))}"
-            "finish (no launch)"
+            "结束（不启动）"
         ]
 
         for name in providers:
 
             options.append(
                 f"{_e(self._menu_option('launch', name))}"
-                f"open {name} in ai-workspace"
+                f"在 ai-workspace 打开 {name}"
             )
 
         default = self.config.default_provider()
@@ -97,7 +97,7 @@ class WizardOutput:
             default_idx = 0
 
         idx = choose(
-            "Launch — open an agent at the workspace root",
+            "启动 — 在工作区根目录打开代理",
             options,
             default=default_idx,
             header=header

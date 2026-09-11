@@ -8,7 +8,7 @@ by skill-launch and any other flow that needs to pick a launch agent.
 from cli.utils.menu import BACK, choose, e
 
 
-def pick_agent(config, title="Select an agent", default=None):
+def pick_agent(config, title="选择代理", default=None):
     """Present an agent-selection menu from enabled providers.
 
     Returns the chosen agent name, or None when cancelled / no providers.
@@ -18,7 +18,7 @@ def pick_agent(config, title="Select an agent", default=None):
 
     if not enabled:
 
-        print("No agents enabled in config/providers.yaml.")
+        print("未在 config/providers.yaml 中启用任何代理。")
 
         return None
 
