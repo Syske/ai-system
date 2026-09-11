@@ -11,33 +11,18 @@
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
 
-last_run: 2026-09-09
-mode: weekly
-next_maintenance: '2026-09-16'   # weekly 节奏：+7d
+last_run: 2026-09-11
+mode: on-demand
+next_maintenance: '2026-09-16'   # weekly 节奏：+7d（本次 on-demand 专项，不推进计划内下次）
 last_findings:
-- 全量审计执行（delta FIRST_RUN→record 新增量基线；quick-check 趋势自本次重建，上期 09-03 迁移后无历史快照）
-- 工具门禁全绿：lint 0/0/26（WARN 25→26 增量归因：k8s-logs/SKILL.md 09-05 补入 git 跟踪→新增 1 条 no-workflow.md 同类 WARN，非质量回归）；path-audit 719 refs 0 broken；check.py PASS（4 WARN：本报告索引+开放提案自我归因、aic-maintain 133 行超 thin-command、P26/P28 开放项）；workflow-command-audit 0 blocker/1 WARN；unittest 242 OK；extensions-lint 0/0（10 扩展逐项健康，company-standards/hotfix-branch-parser 按 extension-rules.yaml 显式豁免）
-- 提案盘面：0 gate error；3 开放提案（P41/P42/P46 TR5 家族）defer 季度回顾；P26:53「CI 增强」因 GitHub Actions CI 已移除（2026-09-04）失效→建议关闭（待用户确认）；P46 Status 未反映 (b) 已实施（00c8c34）→建议收尾（待用户决策）
-- 一致性抽查：8 过/2 提示——合同 §2 架构图漏 logs//archived/（DIRECTORY-RESPONSIBILITY 已登记，改动需 §11 审批，建议不改）；其余（workflows 八段 15/15、注册表瘦身、链接健康、状态卫生、运行日志覆盖 ai-system git 干净、扩展域、知识生命周期）全过
-- 指标与 09-03 基线持平：Skills 31（repo-lint 口径）/ Workflows 15 / RFC 14 / Governance 59 / Templates 22（WARN +1 归因见上）
-- 机器/环境观察（extensions 仓 1 条未提交改动、python shim 等）见 logs/ per-run diagnostic-log，不入本文件
-- pi-lens 扩展评估（on-demand 专项，历史）：结论「现在不安装」已获用户确认（2026-09-03）——与 Stage-6 门禁链能力重叠、google-java-format 与 IDEA profile/spotless 双格式权威冲突、自主 reformat/autofix 绕过变更控制、git-guard 会因存量债阻塞提交；重估触发条件与缓解底线已入 MAINTENANCE-2026-09-03.md §7；机器级观察见 logs/ 诊断日志；P47/本报告 README 索引已补登（WARN 归零）；衍生场景「env-init 首次运行触发」经用户指示增补进 P36（触发层 T-b 方案，内容层先行）不另立提案
-- 最新改动诊断：3580bb0（pilot A）流程规范；孤儿改动 templates/runtime/runtime-base.md 经确认后按用户决策 B3 并入 P45 Phase 1 正式化（完成报告语言声明 + 语言门禁步骤）——流程闭环
-- README 索引 WARN 已修复：MAINTENANCE-2026-09-01.md 与本次报告补登 reports/README.md（proposal-policy §6），check.py WARN 4→3
-- 工具门禁：0 BLOCKER / 0 ERROR / 25 WARN；path-audit 688 refs OK；workflow-command-audit 0 blocker；proposal-audit 0 gate error，索引刷新 38 提案
-- 提案：P35、P45 已 Implemented；开放 5（P28/P36/P37/P41/P42）defer 季度回顾；4 个 action items（P26×2/P28×2）保持开放
-- code-review.md 节顺序违规仍开放（08-31 已知，需 L2 审批）；机器/环境观察见 logs/ per-run diagnostic-log，不入此文件
-- L1 语言声明优化已实施（确认后执行）：LANGUAGE_CONVENTION v1.1（用户面向输出 SHOULD→MUST 跟随系统语言；新增 system language 单一事实源；self-check 扩展语言选择+简体两层；交互约束收敛回约定）+ AI_OPERATING_RULES v1.5（§Language Boundary 入口收敛点）+ aic-maintain pilot A 改引用式；gate 全绿（lint 0/0/25、path OK、check 3 提示 WARN）；机制级语言门禁（L2）仍待 OPERATIONS §11 提案
-- P35 已实施（用户授权）：9 文件命令文档统一 python3、shebang/subprocess 核对零改动、env.yaml 未动；验证全绿（check PASS 3 提示 WARN、lint 0/0/25、path OK、unittest 164 OK、quick-check OK）；状态 → Implemented，PROPOSALS/README 索引已同步
-- P45 已实施（用户批准，B3 并入）：runtime-base 语言门禁步骤（PASS/WARN/FAIL 三步 + diag log 记录）+ 新工具 language-gate.py（启发式 CJK 占比，阈值 20/10，双语标题白名单，exit 0/1/2）+ tools/README.md 登记 + LANGUAGE_CONVENTION v1.2/AI_OPERATING_RULES v1.6（self-check 升级运行门禁）+ aic-maintain 试点链接入；验证：单元样例 3 类通过 + 历史回归 5 文档 PASS（0.28-0.56）+ 全量 gate 绿（lint 0/0/25、path OK、check PASS 3 提示、unittest 164 OK、quick-check OK）；R1 补丁（运行日志核查驱动）：发现 Extends 无加载器合并、门禁步骤对 AI 不可见 → prompt_builder 新增 _merge_runtime_base（base @keep 机制并入骨架）+ base 门禁段单行 @keep + 回归单测（unittest 164→165 OK）；另落 aic-maintain「Run-log coverage」巡检检查项；#5 核查：review/verify 无未验证标记形式化检查（缺口留建议）
-- P46 已起草（待审批，日志全扫描驱动）：tr5 发布债收口（check_tr5 8 FAIL：TR3 引用/缺 SVG/§0 标注/题图行粘连，随线上 TR5 update 执行）+ review/verify 验证标记检查（review WARN 级 / verify 阻塞级）；与 P41/P42 联动声明；待 Review Log 用户决策
-- A 层格式自检工具已交付（用户问询驱动）：tools/format-check.py（纯 python3 无 JDK——单行 Javadoc/中文方法名/注释 T-xxx 泄漏/Map payload(main)/4 空格比例；--changed 仅查本 change、--check-commit；目录防护）；接入 runtime-develop Formatting gate；单测 171 OK；存量债全量扫 34 FAIL/149 WARN 待批量治理；B 层 spotless（业务仓 pom）草稿已交付转业务侧
-- C2 eclipse JDT 干跑门禁已交付（用户选型 + 环境感知需求）：tools/jdt-format-gate/（JdtFormatCheck wrapper + eclipse-format.xml 初始 tab=4、12 jar 运行闭包）+ format-jdt-gate.py（JDK 自动探测/用户提供，组件缺失交互授权 setup/skip/abort，--batch 需 --skip，配置持久化 env.yaml runtime.jdt.*；exit 0/1/2/3）；runtime-develop 接入；单测 176 OK；实测样例正确，真实 worktree 1010/1690 文件 differ＝存量与初始 profile 差距待 IDEA profile 校准
-- 日志内容规范已补（用户报告驱动）：新写 log.error（CoolBsDataHandler:168「落 bs_fail_task 失败，跳过该条」）中文 + 口语指代违规 → documentation.md 新增 Log Content（error/warn 及新写 info 英文；语义模板动作+对象+后果+参数；末参带异常）+ format-check #6 检查（error/warn 中文 FAIL、info 中文 WARN，实测精确检出）+ checklists 项 + 单测 178 OK；全仓存量 53 处中文 error/warn log 待批量清理
-- IPD 周期归档方案落地（用户需求 + junction 事故复盘）：junction 嵌 workspace 会破坏主链（git 边界渗入/状态耦合）→ 改单向快照（workspace 唯一维护源）；extensions/archive-ipd-workspace（SKILL + archive_sync.py：白名单 copy→git add 目录→commit→push，Windows python 执行绕 drvfs 读缓存怪癖）；main-chain-capabilities.yaml release 段注册扩展点（更新时推荐执行）；归档仓已入库推送（迭代项目产物：openspec 40/tr5 7 等，gitignore 补 tr5 xml 例外）；教训入 OPTIMIZATION_LOG
-- task-splitter 分支占位符修复（用户检查驱动）：202610-cool-italent-sync-plus 24/24 任务卡 branch 字段 `{date}` 未替换（半渲染，desc/service 已填）→ 存量批量补全为 20260820（投影 project-context 冻结分支名，0 残留）+ workflow.md 补 date 写入规则（已建分支写全名/未建写需求确认日/禁占位符）+ Verify 强化；门禁全绿
-- 代码注释/提交任务编号泄漏规范（用户报告驱动）：develop 产出 9+ 处 Javadoc 带 `（T-001）` 等 + 2 条提交标题以 T-xxx 开头 → 根因 = traceability 误读（溯源应存 Task Card 非代码注释）+ documentation.md 无内容对象约束 → 新增 Comment Content / Commit Content 规范 + implement checklists 检查项；存量 worktree 清理待用户决策
-- 语言规范门禁自查（用户提醒驱动，2026-09-03）：本轮模板改动混入中文 → 已按模板英文纪律修复
+- on-demand 专项：按今日 code-review 日志 review code-review 流程（scope 指定）；工具门禁全绿（lint 0/0/25、path 715 refs 0 broken、workflow-command-audit 0/0、proposal-audit 0 gate error、quick-check OK）
+- 指标：Skills 32→30（repo-metrics 口径，apply-openspec/archive-openspec 随 639494b 移除）；Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平；implement +46 / repository-maintainer +26 / review +6 为近 2 日流程修订
+- 核心发现：M2 runtime-code-review「不修改业务实现」声明 vs spec-comparison 实际执行 fix+merge+push+wiki（今日三仓推送 origin）自相矛盾 → **已修复（用户确认）**：声明改为「默认 review-only、显式授权可扩展」+ 新增 Spec-Comparison Fix-Apply Extension 阶段（Sync→Fix-Apply→Build/Check→Commit&Push→Record，授权规则：未授权永不运行 + L1 登记 + 未解决项不静默实施）；L1 HotFix loop wiki 行为 → **已同步**（远程 wiki 用户自管，agent 仅写本地 change-summary-wiki.md）；M1 code-review.md 节顺序违规已修复（用户 L2 批准：Target Branch Resolution→Context 子节、Spec-Comparison Review Mode→Outputs 子节，内容逐字保留，门禁全绿）；M3（相邻 review/verify）T-011 重跑覆盖 2026-09-10 verification-report（workspaces 无 git 不可恢复）→ 建议写报告前目标文件冲突检查（待确认）
+- 交互层评估（执行建议 1 前置）：aic code-review 菜单交互链路（menu flow_analysis → wizard frontmatter 字段收集 → prompt_builder → opencode 会话）评估完成，4 项发现：P1 i18n 缺口（Target Theme/Confluence Spec Page Id 无 field_note；Output Directory 备注默认值错配）→ 已补齐（field_note/icon）+ Output Directory 输入已移除（错配消除）+ P2 分支解析双重询问 → 已减少（Branch Mapping 直接采用、Target Theme 唯一命中直接采用）；P3 review/code-review 条目易混淆 + P4 Target Theme/Branch Mapping 无动态候选 provider → 交互层结构建议待变更管理；Review Focus 优化已落地（10 预置候选 + 多选 + 默认全面审查）
+- 一致性抽查 8 项：6 过 / 2 失败（workflows 八段=code-review.md、doc-vs-reality=code-review runtime 声明），其余（注册表最小化/链接/状态卫生/run-log 覆盖/提案）全过；ai-system git 干净
+- 提案：P41/P42/P46 保持 defer 季度回顾；P26/P28 action items 无新触发；无新增提案
+- 报告索引：MAINTENANCE-2026-09-11.md 已补登 reports/README.md；语言门禁 PASS（cjk 0.35）
+- 本专项 read-first：除已批准执行的建议 1（L2 节归位）+ 建议 2（用户确认的 runtime/loop 文档修正）外未做其他就地修改，其余输出建议待用户决策
   （runtime-develop.md Stage 6 gates 段 7 行 + workflows/develop.md 存量 3 行）；自查范围结论：
   yaml desc/工具注释/报告中文惯例合法保留；LANGUAGE_CONVENTION 中文为规范自身示例与简体要求；
   用户可见输出遵循系统语言 zh；运行时语言门禁由 runtime-base Complete 步骤执行（P45）

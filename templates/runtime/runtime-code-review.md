@@ -13,7 +13,10 @@ Review arbitrary code under projects/ and produce a structured review result.
 The Code Review Runtime reviews multiple projects, each on its declared branch,
 without requiring a Task Card, Specification, or Dev Setup.
 
-The Runtime does not modify business implementation.
+The Runtime does not modify business implementation by default. In spec-comparison
+mode the user may explicitly authorize a fix-apply extension
+(see "Spec-Comparison Fix-Apply Extension" below); without that authorization
+the runtime stays review-only.
 
 ---
 
@@ -82,18 +85,20 @@ For every project, resolve and record two branches:
 
 When a Target Theme is given, resolve each project's target branch by fuzzy
 matching the theme against `workspace.yaml → repository.available[].dev_branch`
-and local git branches, then PRESENT the matches for user selection:
+and local git branches:
 
-- For each selected project, collect candidate branches containing the theme
-  (case-insensitive substring). Candidates come from (in order): the project's
+- If `Branch Mapping` covers a project, adopt that branch directly — do NOT
+  re-present candidates (explicit override, no double-ask).
+- Otherwise collect candidate branches containing the theme (case-insensitive
+  substring). Candidates come from (in order): the project's
   `workspace.yaml dev_branch`, then `git -C <repo> branch --format=%(refname:short)`.
-- Show the matched branches grouped by project; let the user pick per project.
-  The `cc{date}` prefix is taken from the REAL matched branch — do not invent a
-  date. If several date variants exist, list them and let the user choose.
+- A SINGLE real candidate (or only one `cc{date}` variant) is adopted directly.
+- Present the matched branches for user selection only when 0 or several
+  distinct candidates exist. The `cc{date}` prefix is taken from the REAL
+  matched branch — do not invent a date.
 - Single project also uses this flow (theme → its own branch candidates).
 - If a project has NO match for the theme, and no Branch Mapping override,
   ASK the user for that project's branch name — never guess.
-- Branch Mapping explicitly overrides the theme match for the named projects.
 - Validate both target and base exist in the repo before review; otherwise
   report and stop that project's review.
 
@@ -135,6 +140,11 @@ Review:
 - Error Handling
 - Logging
 - Resource Management
+
+Review priority follows the user's `Review Focus` selection: the provided
+focus areas (e.g. 性能/安全/并发) are examined first and in depth; the other
+dimensions above still get coverage. Default (全面审查) = full review across
+all dimensions.
 
 Cross-reference against the applied standards and the smell baseline
 (skills/review/smell-baseline.md):
@@ -199,6 +209,26 @@ The report contains, per project:
 - Findings by severity, each marked as introduced-by-branch or pre-existing
 - Improvement suggestions
 - Merge recommendation
+
+---
+
+## Spec-Comparison Fix-Apply Extension (user-authorized)
+
+The base runtime is review-only. When the caller runs the spec-comparison
+variant (see workflows/code-review.md "Spec-Comparison Review Mode") and the
+user explicitly authorizes applying the recommended fixes, the runtime extends
+Phase 6 with:
+
+1. Sync — merge the base branch into each target branch before applying fixes.
+2. Fix-Apply — implement the user-authorized review findings on the target branch.
+3. Build/Check — compile and/or smoke-verify the fixes (e.g. py_compile, unit tests).
+4. Commit & Push — commit the fixes on the target branch and push to origin.
+5. Record — append a fix-applied disposition table to review-report.md.
+
+Authorization rule: this extension NEVER runs without explicit user
+authorization. Any such run records an L1 deviation in the diagnostic log;
+unresolved findings (capacity/ops questions, structural debt) are recorded for
+later, not silently implemented.
 
 ---
 

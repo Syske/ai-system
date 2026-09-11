@@ -235,6 +235,7 @@ auto_fields:
 # 多选字段（空格切换）
 multi_select_fields:
   - Projects
+  - Review Focus
 
 # 字段图标（可选）
 field_icons:
@@ -283,6 +284,8 @@ field_icons:
   "Analysis Scope": "📏 "
   "Branch Mapping": "🌿 "
   "Review Focus": "🔍 "
+  "Target Theme": "🌿 "
+  "Confluence Spec Page Id": "📄 "
   "Topic": "🎯 "
   "Related Materials": "📎 "
   "Zip": "🗜️ "
@@ -322,6 +325,17 @@ field_choices:
     - governance
     - templates
     - cli
+  "Review Focus":
+    - 性能
+    - 安全
+    - 正确性
+    - 并发
+    - 兼容性
+    - 错误处理
+    - 日志
+    - 资源管理
+    - 标准合规
+    - 代码质量
 
 # 固定选项菜单的图标
 menu_options:

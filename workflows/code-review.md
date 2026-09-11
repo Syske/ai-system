@@ -10,7 +10,7 @@ workflow:
       - name: Base Branch
         default: master
       - name: Review Focus
-      - name: Output Directory
+        default: 全面审查
       - name: Confluence Spec Page Id
   next: [None]
   outputs:
@@ -35,31 +35,15 @@ Review arbitrary code under projects/ and produce a structured review result.
 Required:
 
 - Projects
-
-  (one-time task: user provides repo path/URL(s), comma-separated; or selects
-  from workspace.yaml mapping)
+  (one-time task: repo paths/URLs comma-separated, or select from workspace.yaml mapping)
 
 Optional:
 
 - Target Theme
 - Branch Mapping
 - Base Branch (default: master)
-- Review Focus
-- Output Directory
+- Review Focus (default: 全面审查)
 - Confluence Spec Page Id
-
-## Target Branch Resolution
-
-(Contract: resolve each project's target branch per runtime Phase 1; ASK the
-user rather than guessing when a branch is missing/ambiguous.)
-
-1. `Target Theme` (e.g. `wecom_live`) → fuzzy-match each repo's `dev_branch`
-   + local git branches by theme; present real-`cc{date}` candidates, user picks.
-2. `Branch Mapping` → explicit per-project override.
-3. No match → ASK the user; do not guess.
-4. Base Branch defaults to `master` (override via environments/config).
-5. Validate target & base exist before reviewing; else stop that project.
-
 
 ## Context
 
@@ -71,6 +55,19 @@ Load only:
 
 Never load the entire repository tree or every branch into context.
 
+### Target Branch Resolution
+
+(Contract: resolve each project's target branch per runtime Phase 1; ASK the
+user rather than guessing when a branch is missing/ambiguous.)
+
+1. `Branch Mapping` → explicit per-project override; adopt directly, no re-ask.
+2. `Target Theme` (e.g. `wecom_live`) → fuzzy-match each repo's `dev_branch`
+   + local git branches by theme; a single real-`cc{date}` candidate is adopted
+   directly, choices shown only when 0 or several match.
+3. No match → ASK the user; do not guess.
+4. Base Branch defaults to `master` (override via environments/config).
+5. Validate target & base exist before reviewing; else stop that project.
+
 ## Outputs
 
 - review-report.md
@@ -81,7 +78,7 @@ same target append `-N`.
 The report records, per project, the base branch and target branch used.
 The report is written in the system language (config/menu.yaml → locale, per governance/LANGUAGE_CONVENTION.md).
 
-## Spec-Comparison Review Mode
+### Spec-Comparison Review Mode
 
 When the caller provides a Confluence Spec Page Id (e.g. a HotFix one-pager),
 this workflow runs the spec-comparison variant (steps below, inlined — no
@@ -99,8 +96,11 @@ external skill):
 
 HotFix one-pager workflows close the loop after fixes:
 `fetch wiki → sync branch → diff review → fix → build (idea-build) → commit →
-push → update wiki page (update_confluence_page.py) → report version`
-(see confluence-markdown-publisher skill "HotFix one-pager update workflow").
+push → report version`.
+
+The remote Confluence wiki is user-managed: the agent only writes a local
+`change-summary-wiki.md`; fix-apply requires explicit user authorization (see
+runtime-code-review.md "Spec-Comparison Fix-Apply Extension").
 
 ## Exit Criteria
 

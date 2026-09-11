@@ -258,6 +258,17 @@ Generate:
 - quality-verification-report.md (Phase 6)
 - **Location**: → `workspaces/<project-id>/` (workspace-anchored)
 
+## Report-Write Guard (overwrite protection)
+
+Before writing any report file, check whether the target path already exists
+(T-011 2026-09-11: a rerun silently overwrote a prior verification report —
+workspaces has no git, so the original was unrecoverable). On conflict:
+
+1. Do NOT overwrite silently — surface the existing file (path + mtime).
+2. Either write to a suffixed name (e.g. `-{HHMMSS}`) or back up the existing
+   file first, per the user's choice.
+3. Record the outcome in the diagnostic log.
+
 # Reflection
 
 Before declaring completion, execute Reflection according to governance/REFLECTION_RULES.md.
