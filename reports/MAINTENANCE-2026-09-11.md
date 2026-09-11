@@ -200,14 +200,13 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - 回归：`test_menu_package.py` 新增 4 用例（CJK 解码/ASCII/ESC/孤立 lead byte 不崩溃）
    - 验证：全 CLI 单测 263 OK（+4）、compile OK、check.py PASS、lint 0/0/25、quick-check OK
 
-**F5 [已执行（修订）] skill 菜单选项去背景色 —— 勾选标记无背景、选中行保留背景**（用户需求驱动）：
-   - `config/ui.yaml` + `theme.py`：新增 `marker_soft`（\e[1;32m 粗体绿勾，无背景）
-   - `cli/utils/menu/multi.py`：`choose_many` / `_interactive_many` / `_paint_many` 增
-     `selected_theme` / `marker_theme` 参数（默认保持原反显背景，其他菜单不受影响）
-   - `skill_launcher.py`：skill 选择菜单传 `marker_theme="marker_soft"`（勾选标记无背景）；
-     **选中行保留默认反显背景**（用户修订：选择时背景色需保留）；`selected_soft` 主题键移除
-     （无使用方，Value-Burden）
-   - 验证：选中行含 \x1b[7m 背景、勾选标记无背景；全 CLI 单测 263 OK、compile OK
+**F5 [已执行（修订 2）] skill 菜单勾选标记样式**（用户需求驱动）：
+   - `config/ui.yaml` + `theme.py`：`marker_box`（\e[47;30m 白底黑字，勾选标记选中时白底）
+   - `cli/utils/menu/multi.py`：`_paint_many` 非选中行去掉 marker 背景（白底仅选中行生效）；
+     `choose_many` 增 `selected_theme`/`marker_theme` 参数（其他菜单不受影响）
+   - `skill_launcher.py`：`marker_theme="marker_box"`；每屏限制 max_visible 10→20（用户需求）
+   - 最终效果：选中行=反显背景+白底勾选标记；非选中行=无任何背景（勾选标记纯文本）
+   - 验证：渲染模拟正确（选中 bg+白标 / 非选中无背景）；全 CLI 单测 263 OK、compile OK
 
 **F4 [已执行] aic 向导项目菜单置顶无项目入口**（用户需求驱动）：
    - `cli/services/wizard/selection.py` `_select_project`：💻 system（no project）+ 🤖 AI 引导

@@ -36,8 +36,9 @@ def _paint_many(opt, selected, marked, selected_theme="selected", marker_theme="
             f"{selected_s} {desc_s}— {desc}{reset_s}"
         )
 
+    # 非选中行：勾选标记不带背景色（白底 marker 仅选中行生效）
     return (
-        f"  {marker_s}{marker} {name_s}{name}{reset_s}"
+        f"  {marker} {name_s}{name}{reset_s}"
         f" {desc_s}— {desc}{reset_s}"
     )
 

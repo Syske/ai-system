@@ -1,7 +1,7 @@
 version: 1
 theme:
   selected: "\e[7m"
-  marker_soft: "\e[1;32m"
+  marker_box: "\e[47;30m"
   name: "\e[1;36m"
   desc: "\e[2;90m"
   note: "\e[1;2m"

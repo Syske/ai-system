@@ -228,8 +228,8 @@ class SkillLauncher(InteractiveCommand):
             f"{e('🧩 ')}Select skills (Space toggles, Enter confirms, empty Enter = current)",
             options,
             enter_selects_current=True,
-            max_visible=10,
-            marker_theme="marker_soft"
+            max_visible=20,
+            marker_theme="marker_box"
         )
 
         if picked is BACK:
