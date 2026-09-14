@@ -229,7 +229,15 @@ class WizardSteps:
 
                 target_name = target[0]
 
-                if target_name in ("skill", "skill-launch"):
+                # 交互命令（skill / chain）：wizard 不收集字段/不弹输出菜单，
+                # 直接返回交给 launcher 内部菜单（skill 先例；chain 2026-09-11 用户反馈：
+                # 选 chain 后应直接跳到「选择链路」菜单）。
+                if target_name in (
+                    "skill",
+                    "skill-launch",
+                    "chain",
+                    "chain-launch"
+                ):
 
                     self._save_state(
                         project,

@@ -209,6 +209,15 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
      未匹配场景提示中止；全 CLI 单测 263 OK、compile OK、check.py PASS、lint 0/0/25、
      quick-check OK
 
+**F10 [已执行] chain 从 wizard 菜单直达链路选择**（用户反馈驱动）：
+   - 症状：从 wizard 菜单选 chain 时，wizard 先收集默认字段（Change ID/Change Request）并弹输出
+     菜单，不直接跳「选择链路（积木组合）」
+   - 修复：`fields.py _fields_for` 将 chain/chain-launch 加入跳过列表（与 skill 一致，返回空字段）；
+     `steps.py` 早返分支同样加入 chain/chain-launch（不弹输出菜单，直接交给 launcher）
+   - 效果：选 chain → 立即进入「选择链路（积木组合）」菜单；`aic chain` 直接命令行路径不变
+   - 验证：chain 在跳过列表、无 hooks 依赖；全 CLI 单测 263 OK、compile OK、check.py PASS、
+     lint 0/0/25、quick-check OK
+
 **F8 [已执行] chain 链路无项目无用问题**（用户实测驱动）：
    - 症状：4 条链中 3 条 `project: required`，但 chain_launcher 允许 Enter 跳过项目 →
      块无项目上下文跑出无用链路

@@ -25,7 +25,15 @@ class WizardFields:
 
             self._field_defaults = {}
 
-            if name in ("skill", "skill-launch"):
+            # 交互命令（skill / chain）：字段收集交给 launcher 内部菜单，
+            # wizard 不收集默认字段，直接进入交互流程（2026-09-11 用户反馈：
+            # 选 chain 后应直接跳到「选择链路」菜单而非 Change ID 等字段询问）。
+            if name in (
+                "skill",
+                "skill-launch",
+                "chain",
+                "chain-launch"
+            ):
                 return []
 
             return self._command_fields(name)
