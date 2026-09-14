@@ -200,6 +200,17 @@ review 160→166（+6）、task-splitter 285→288（+3），均为近 2 日流�
    - 回归：`test_menu_package.py` 新增 4 用例（CJK 解码/ASCII/ESC/孤立 lead byte 不崩溃）
    - 验证：全 CLI 单测 263 OK（+4）、compile OK、check.py PASS、lint 0/0/25、quick-check OK
 
+**F11 [已执行] chain 重复链路合并 + 可选块支持**（用户需求驱动，方案 B）：
+   - 合并：删除 hotfix-doc-publish（bugfix转测并发布），并入 bugfix-release-doc（改bugfix并出转测文档）
+     —— 两条链重叠约 80%，差异仅发布 wiki；且 hotfix-doc-publish 显式 hotfix-test-doc 块与
+     bugfix hotfix 模式内置 doc phase 重复（会出两份转测文档）
+   - chains.yaml：bugfix-release-doc 增可选块 `confluence-markdown-publisher`（optional: true，
+     发布转测文档到 wiki）；keywords 并入（转测并发布/发布转测）；label/scenario 标注可选发布
+   - chain_launcher.py：可选块（optional: true）逐块询问「是否执行？（Enter=是，no=跳过）」；
+     跳过则不入链；块编号按实际包含块数重排（1/N）
+   - 验证：跳过→仅 bugfix 块 1/1；确认→bugfix+wiki 2/2；全 CLI 单测 263 OK、compile OK、
+     check.py PASS、lint 0/0/25、quick-check OK
+
 **F9 [已执行（修订）] chain 交互逻辑调整：先选链再输入内容（保留场景选项）**（用户反馈驱动）：
    - 选链后新增「任务内容 — 该链路具体要做什么？」输入（note 提示该链 scenario 示例），
      内容注入组装 prompt 头部 `任务内容: ...`（供 AI 作为整体任务执行各块）

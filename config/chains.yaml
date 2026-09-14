@@ -36,8 +36,8 @@ chains:
   - name: bugfix-release-doc
     label: 改bugfix并出转测文档
     icon: "🔧"
-    scenario: 改 bug 并出转测文档 + MR
-    keywords: [修 bug, 修bug, 转测文档]
+    scenario: 改 bug 并出转测文档 + MR（可选发布到 wiki）
+    keywords: [修 bug, 修bug, 转测文档, 转测并发布, 发布转测]
     project: required
     blocks:
       - type: workflow
@@ -46,27 +46,12 @@ chains:
           # hotfix 模式已自动绑定 codeup-submit-mr + hotfix-test-doc（见
           # config/workflows/bugfix-modes.yaml）
           mode: hotfix
-    builtin: true
-
-  - name: hotfix-doc-publish
-    label: bugfix转测并发布
-    icon: "🔧"
-    scenario: 修 bug 并出转测文档并发布到 wiki
-    keywords: [发布转测, 转测并发布]
-    project: required
-    blocks:
-      - type: workflow
-        name: bugfix
-        args:
-          mode: hotfix
-      - type: skill
-        name: hotfix-test-doc
-        args:
-          task: 编写发布转测文档
       - type: skill
         name: confluence-markdown-publisher
+        optional: true
         args:
-          task: 发布转测文档（含 MR/页面）到 Confluence wiki
+          # 可选块：仅当用户确认时执行（chain_launcher 逐块询问）
+          task: 将 bugfix 产出的转测文档（含 MR/页面）发布到 Confluence wiki
     builtin: true
 
   - name: adhoc-task

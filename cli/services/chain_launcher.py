@@ -169,7 +169,36 @@ def run(wizard, agent=None, project=None):
         parts.append(f"任务内容: {task_text}")
         parts.append("")
 
-    for i, b in enumerate(chain.get("blocks", [])):
+    # 可选块（optional: true）逐块询问，跳过则不入链（2026-09-11 用户需求：
+    # 合并重复链路，发布 wiki 作为可选块）。
+    included = []
+
+    for b in chain.get("blocks", []):
+
+        if not b.get("optional"):
+
+            included.append(b)
+
+            continue
+
+        include = ask_text(
+            f"可选块 {b.get('name')}（{b.get('type')}）——是否执行？（Enter=是，no=跳过）: ",
+        )
+
+        if include is BACK:
+            return None
+
+        if include and include.strip().lower() in ("no", "n", "cancel", "取消"):
+
+            print(f"  ⏭️  跳过可选块: {b.get('name')}")
+
+            continue
+
+        included.append(b)
+
+    total = len(included)
+
+    for i, b in enumerate(included):
 
         btype = b.get("type")
         bname = b.get("name")
@@ -185,7 +214,7 @@ def run(wizard, agent=None, project=None):
                 if key not in bargs:
                     bargs[key] = project
 
-        parts.append(f"===== 块 {i + 1}/{len(chain.get('blocks', []))} [{btype}] {bname} =====")
+        parts.append(f"===== 块 {i + 1}/{total} [{btype}] {bname} =====")
 
         if btype in ("workflow", "command"):
 
