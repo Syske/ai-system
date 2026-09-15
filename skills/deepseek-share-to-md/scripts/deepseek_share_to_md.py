@@ -461,7 +461,7 @@ def main(argv=None) -> int:
                 base_dir = os.path.dirname(os.path.abspath(out_path))
             else:
                 default_name = build_markdown(biz_data, share_id, messages, False)[1]
-                out_path = f"{args.dir.rstrip('/')}/{default_name}.md"
+                out_path = os.path.join(args.dir, f"{default_name}.md")
                 base_dir = os.path.abspath(args.dir)
 
             attach_dir = os.path.join(base_dir, "attachments")

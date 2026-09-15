@@ -41,14 +41,16 @@ class TestHomeConfigPath(unittest.TestCase):
         )
 
     def test_env_override(self):
-        os.environ["AI_HOME_CONFIG"] = "/tmp/ai-test-env.yaml"
-        try:
-            self.assertEqual(
-                home_config_path(),
-                Path("/tmp/ai-test-env.yaml"),
-            )
-        finally:
-            os.environ.pop("AI_HOME_CONFIG", None)
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = Path(tmp) / "ai-test-env.yaml"
+            os.environ["AI_HOME_CONFIG"] = str(cfg)
+            try:
+                self.assertEqual(
+                    home_config_path(),
+                    cfg,
+                )
+            finally:
+                os.environ.pop("AI_HOME_CONFIG", None)
 
 
 class TestDeepMerge(unittest.TestCase):

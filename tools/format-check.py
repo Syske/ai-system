@@ -212,8 +212,8 @@ def check_duplicates(root, changed_files, findings):
                     continue
                 reported.add(key)
                 bpath, bname, bline = best
-                rel = str(cpath).replace(str(root_res), "").lstrip("/")
-                brel = str(bpath).replace(str(root_res), "").lstrip("/")
+                rel = str(cpath).replace(str(root_res), "").lstrip("\\/")
+                brel = str(bpath).replace(str(root_res), "").lstrip("\\/")
                 findings.append(
                     ("WARN",
                      f"结构近似既有函数（疑似重复实现，建议复用，P49/karpathy）: "
