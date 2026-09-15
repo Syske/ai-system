@@ -1,46 +1,26 @@
 #!/usr/bin/env bash
-# Pre-commit gate: English-discipline zone language check (LANGUAGE_CONVENTION
-# Rule 4, tools/repo-lint.py). Blocks commits that add Chinese flow-control
-# prose to templates/runtime/*.md or workflows/*.md.
+# Pre-commit gate shim → Python body (tools/pre_commit_gate.py).
+# The shim only probes the interpreter and execs the Python body, which runs
+# the actual gates (language Rule 4 + workflow↔runtime contract consistency).
+#
+# Why a shim: Unix ships python3, Windows Python ships only python.exe — a
+# single shebang cannot cover both. bash itself is always available (native on
+# Unix/macOS, Git-Bash ships with Git for Windows), so this shim runs everywhere.
 #
 # Escape hatch (documented, accepted tradeoff): `git commit --no-verify`.
 # Enable for new clones: `git config core.hooksPath .githooks` (from repo root).
 set -u
 
-repo_root="$(git rev-parse --show-toplevel)"
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -z "$repo_root" ]; then
     echo "pre-commit: not inside a git repo" >&2
     exit 1
 fi
 
-# Staged files in the English-discipline zone only — keep the hook fast.
-files="$(git diff --cached --name-only --diff-filter=ACM | \
-    grep -E '^(templates/runtime/|workflows/)[^ ]*\.md$' || true)"
-if [ -z "$files" ]; then
-    exit 0
-fi
-
-list="$(printf '%s' "$files" | tr '\n' ',')"
-out="$(cd "$repo_root" && python3 tools/repo-lint.py --repo-root "$repo_root" --files "$list" 2>&1)"
-code=$?
-
-if [ "$code" -ne 0 ]; then
-    echo "pre-commit: English-discipline zone language check FAILED (LANGUAGE_CONVENTION Rule 4)."
-    echo "$out"
-    echo "  Fix the flagged Chinese flow-control prose, or force-commit with: git commit --no-verify"
+py="$(command -v python3 || command -v python || true)"
+if [ -z "$py" ]; then
+    echo "pre-commit: python3/python not found in PATH" >&2
     exit 1
 fi
 
-# Contract consistency: workflow ↔ runtime outputs / frontmatter outputs.base.
-# Same staged-file scope as the language check above (workflows/ + templates/runtime/).
-contract_out="$(cd "$repo_root" && python3 tools/check-contract.py 2>&1)"
-contract_code=$?
-if [ "$contract_code" -ne 0 ]; then
-    echo "pre-commit: workflow ↔ runtime contract consistency FAILED."
-    echo "$contract_out"
-    echo "  Fix the drift (workflow Outputs vs runtime Outputs / frontmatter outputs.base),"
-    echo "  or force-commit with: git commit --no-verify"
-    exit 1
-fi
-
-exit 0
+exec "$py" "$repo_root/tools/pre_commit_gate.py" "$@"

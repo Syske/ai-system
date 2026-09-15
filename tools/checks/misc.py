@@ -237,7 +237,7 @@ def check_tools_readme(c):
     text = readme.read_text(encoding="utf-8")
 
     listed = set(
-        re.findall(r"`([a-z-]+\.py)`", text)
+        re.findall(r"`([a-z0-9_-]+\.py)`", text)
     )
 
     actual = {
