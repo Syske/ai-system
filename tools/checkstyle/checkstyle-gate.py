@@ -23,6 +23,7 @@ git status 驱动只查本 change 的 .java，避免 develop 每会话全量扫�
 - jar：--jar → ~/.local/lib/checkstyle/checkstyle-*-all.jar
 """
 import argparse
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -37,9 +38,9 @@ def _find_java(explicit):
     if JRE_DEFAULT.exists():
         return str(JRE_DEFAULT)
     for cand in ("java", "/usr/bin/java"):
-        r = subprocess.run(["bash", "-lc", f"command -v {cand}"], capture_output=True, text=True)
-        if r.returncode == 0 and r.stdout.strip():
-            return r.stdout.strip()
+        hit = shutil.which(cand)
+        if hit:
+            return hit
     return None
 
 

@@ -255,7 +255,7 @@ def dry_run(java, lib_dir, build_dir, xml, src_dir, apply=False, ignore_file=Non
     dump_dir：--dump-dir 透传（wrapper 写 differ 文件 formatted 副本，P51 增量差分用）。"""
     lib_dir = Path(lib_dir)
     build_dir = Path(build_dir)
-    cp = f"{lib_dir}/*:{build_dir}"   # 闭包 jar 目录通配
+    cp = f"{lib_dir}/*{os.pathsep}{build_dir}"   # 闭包 jar 目录通配（分隔符按平台 os.pathsep）
     cls = build_dir / "JdtFormatCheck.class"
     if not cls.exists():
         log("编译 wrapper（javac）...")

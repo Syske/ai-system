@@ -7,6 +7,7 @@ and the bootstrap runtime share one source of truth.
 """
 
 import os
+import sys
 from pathlib import Path
 
 from cli.utils.yaml import load_yaml
@@ -155,11 +156,15 @@ def load_merged_environment(
 def _normalize_path(value):
     """Windows 风格绝对路径（D:\\...）归一化为 WSL 路径（/mnt/d/...）。
 
-    防止 PosixPath 把反斜杠路径当作相对路径而伪造目录
-    （如 /home/.../D:\\workspace\\...）。与 providers._linux_path 同构。
+    仅 Posix 平台（WSL/Linux/macOS）生效——PosixPath 会把反斜杠路径当作
+    相对路径而伪造目录（如 /home/.../D:\\workspace\\...）；原生 Windows 上
+    Path 原生支持盘符路径，原样返回。与 providers._linux_path 同构。
     """
 
     s = str(value)
+
+    if sys.platform == "win32":
+        return s
 
     if len(s) < 3 or s[1] != ":" or s[2] not in ("\\", "/"):
         return s
