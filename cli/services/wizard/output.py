@@ -70,27 +70,47 @@ class WizardOutput:
         header
     ):
 
-        providers = self.config.enabled_providers()
+        from cli.services.agent_detect import (
+            merge_picker_entries,
+            sort_by_usage,
+        )
+
+        entries = [
+            ent
+            for ent in merge_picker_entries(
+                self.config
+            )
+            if ent["installed"]
+        ]
+
+        entries = sort_by_usage(
+            entries,
+            self.agent_usage(),
+        )
 
         options = [
             f"{_e(self._menu_option('launch', 'finish'))}"
             "结束（不启动）"
         ]
 
-        for name in providers:
+        names = [None]
+
+        for ent in entries:
 
             options.append(
-                f"{_e(self._menu_option('launch', name))}"
-                f"在 ai-workspace 打开 {name}"
+                f"{_e(ent['icon'])}"
+                f"在 ai-workspace 打开 {ent['label']}"
             )
+
+            names.append(ent["name"])
 
         default = self.config.default_provider()
 
         try:
 
-            default_idx = providers.index(
+            default_idx = names.index(
                 default
-            ) + 1
+            )
 
         except ValueError:
 
@@ -106,7 +126,13 @@ class WizardOutput:
         if idx is BACK:
             return BACK
 
-        return (None, *providers)[idx]
+        chosen = names[idx]
+
+        if chosen:
+
+            self.record_agent_usage(chosen)
+
+        return chosen
 
     def _project_exists(
         self,

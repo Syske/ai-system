@@ -5,6 +5,13 @@ providers:
   # label: 用户可见显示名（可选，缺省用 name）；description: 一句话描述（可选）。
   # command: 实际启动命令（可选，缺省用 name 本身）。当可执行文件不在
   #   PATH 时配置（如 `npx pi`）；_launch 使用该命令启动。
+  # detect: 自动检测开关（可选，缺省 true）。detect: false 时该 agent 即使
+  #   已安装也不进入自动检测列表（但 enabled: true 仍会正常显示）；
+  #   enabled: false 为显式退出（既不显示也不自动检测）。
+  # 自动检测（2026-09-17 方案 B）：扫描 PATH + 已知安装位置 + 配置目录
+  #   （cli/services/agent_detect.py KNOWN_AGENTS）。检测到的未配置 agent
+  #   （如 qoder）自动加入选择列表，标注「（检测到）」；已配置项显示
+  #   安装状态徽标（✓ / ⚠）。
 
   opencode:
 

@@ -258,7 +258,9 @@ class SkillLauncher(InteractiveCommand):
         agent = agent_picker.pick_agent(
             self.wizard.config,
             title=f"{e('🤖 ')}Select an agent",
-            default=self.wizard.config.default_provider()
+            default=self.wizard.config.default_provider(),
+            usage=self.wizard.agent_usage(),
+            record=self.wizard.record_agent_usage,
         )
 
         if agent is None:

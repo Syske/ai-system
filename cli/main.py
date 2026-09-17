@@ -3,6 +3,7 @@ import sys
 import subprocess
 from pathlib import Path
 
+from cli.services.agent_detect import resolve_launch_command
 from cli.services.prompt_builder import PromptBuilder
 from cli.services.wizard import Wizard
 from cli.utils.clipboard import copy
@@ -282,7 +283,10 @@ def main():
         )
 
         _launch(
-            wizard.config.provider_command(agent),
+            resolve_launch_command(
+                wizard.config,
+                agent,
+            ),
             builder.root.parent
         )
 
@@ -342,7 +346,10 @@ def main():
                     args.environment
                 )
 
-                launch = wizard.config.provider_command(agent)
+                launch = resolve_launch_command(
+                    wizard.config,
+                    agent,
+                )
 
             else:
 

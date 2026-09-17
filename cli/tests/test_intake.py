@@ -120,6 +120,17 @@ class TestIntents(unittest.TestCase):
         w.record_usage("trace")
         self.assertNotIn("trace", w.state["projectless_usage"])
 
+    def test_record_agent_usage(self):
+        w = FakeWizard()
+        w.record_agent_usage("pi")
+        w.record_agent_usage("pi")
+        w.record_agent_usage("qoder")
+        w.record_agent_usage(None)  # 取消选择不记录
+        self.assertEqual(w.state["agent_usage"]["pi"], 2)
+        self.assertEqual(w.state["agent_usage"]["qoder"], 1)
+        self.assertEqual(w.agent_usage()["pi"], 2)
+        self.assertEqual(w.state["agent_usage"]["last_used"]["agent"], "qoder")
+
     def test_slug(self):
         w = FakeWizard()
         self.assertEqual(w._slug("排查MQ消费延迟"), "排查mq消费延迟")

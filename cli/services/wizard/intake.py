@@ -316,6 +316,35 @@ class WizardIntake:
 
         return None
 
+    def record_agent_usage(self, name):
+        """Increment the usage counter for a launched agent.
+
+        Powers the launch-menu / agent-picker usage ordering
+        (agent_detect.sort_by_usage). Recorded on actual selection.
+        """
+
+        if not name:
+            return
+
+        usage = self.state.setdefault(
+            "agent_usage", {}
+        )
+
+        usage[name] = usage.get(name, 0) + 1
+
+        usage.setdefault("last_used", {})
+        usage["last_used"]["agent"] = name
+        usage["last_used"]["at"] = __import__(
+            "datetime"
+        ).datetime.now().isoformat(timespec="seconds")
+
+        self.store.save()
+
+    def agent_usage(self):
+        """Return the agent usage counter dict {name: count}."""
+
+        return self.state.get("agent_usage") or {}
+
     def record_usage(self, target):
         """Increment the usage counter for a project-less command."""
 
