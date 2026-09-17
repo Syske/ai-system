@@ -65,7 +65,7 @@ Never load the entire repository tree into context.
 - design-review.md
 - code-review.md
 - quality-review.md
-- **Location**: reports → `workspaces/<project-id>/` (workspace-anchored); Task Card → `workspaces/<project-id>/openspec/changes/<change-id>/tasks/cards/`
+- **Location**: reports → `workspaces/<project-id>/review/<task-id>/` (per-task subdir); Task Card → `workspaces/<project-id>/openspec/changes/<change-id>/tasks/cards/`
 
 ## Exit Criteria
 

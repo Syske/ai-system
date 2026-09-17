@@ -256,7 +256,7 @@ Generate:
 - scenario-verification.md
 - test-verification.md
 - quality-verification-report.md (Phase 6)
-- **Location**: → `workspaces/<project-id>/` (workspace-anchored)
+- **Location**: verification artifacts → `workspaces/<project-id>/verify/<task-id>/` (per-task subdir)
 
 ## Report-Write Guard (overwrite protection)
 

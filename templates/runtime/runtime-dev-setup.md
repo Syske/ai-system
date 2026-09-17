@@ -359,13 +359,40 @@ Persist:
 - Project Knowledge Context
 - Workspace Context
 - Workspace State
+- Repository Mapping (workspace.yaml, ADR-0008) — see below
 
 Location:
 
 ```
 workspaces/{workspace-id}/
 workspaces/{project_id}/contexts/project-context.yaml
+workspaces/{project_id}/workspace.yaml   (repository mapping, ADR-0008)
 ```
+
+## Repository Mapping (workspace.yaml)
+
+Generate or refresh `workspaces/{project_id}/workspace.yaml` (ADR-0008 logical
+mapping) from the Project Context built in the phases above. It is the single
+repo-mapping source the wizard and code-review / change-impact / release consume:
+
+- `repository.available` — for every service with an operable worktree (Phase 7):
+  - `service`: service id
+  - `path`: Phase 6 repository path (authoritative master checkout)
+  - `branch`: `master`
+  - `dev_branch`: Phase 1 `branches[{service}]` (frozen branch name)
+  - `remote`: git URL from `{workspace_root}/repositories/{service}.yaml`
+- `repository.unavailable` — services involved in the change but NOT operable
+  (no worktree / read-only reference / path missing), each with a `note` giving
+  the ADR-0008 classification reason (e.g. "branch not wired in")
+- `task` — current task id / service / status / spec_ref / contract_ref from
+  Project Context (multi-task projects: list the range / current phase honestly)
+- `specification.reference` — main openspec reference
+
+Refresh triggers (dev-setup rerun): keep available/unavailable in sync with the
+current worktree set; drop stale entries from previous runs; never fabricate
+path/remote (read from project-context repository section and
+`repositories/{service}.yaml`) and never list services that do not participate
+in the change (ADR-0008).
 
 ---
 
@@ -378,7 +405,8 @@ Generate:
 - Project Knowledge Context
 - Workspace Context
 - Workspace State
-- **Location**: → `workspaces/<project-id>/` (workspace context/state); applied standards per `loaders/standards-loader.md`
+- Repository Mapping (`workspaces/<project-id>/workspace.yaml`, ADR-0008 — wizard / code-review / change-impact / release consume)
+- **Location**: → `workspaces/<project-id>/` (workspace context/state + repository mapping); applied standards per `loaders/standards-loader.md`
 
 # Reflection
 

@@ -69,7 +69,7 @@ For multi-project releases, the Runtime must iterate over each project/service i
 - configuration-canal.md            # Canal/binlog config changes for new/renamed fields
 - dependency-checklist.md           # Service dependencies, RPC, MQ, deploy order
 - risk-report.md                    # Risk registry with severity and mitigation
-- **Location**: → `workspaces/<project-id>/` (workspace-anchored; sql/ + checklists + reports co-located; per-task review artifacts under `openspec/changes/<change-id>/release/`)
+- **Location**: → `workspaces/<project-id>/release/` (release package: sql/ + checklists + reports + aggregated branch review); per-task branch-diff reviews → `workspaces/<project-id>/review/<task-id>/` (unified with review-workflow reports)
 
 ## Exit Criteria
 

@@ -237,7 +237,7 @@ Generate one report per task:
 **审查时间**: {timestamp}
 ```
 
-Save to: `workspaces/{project_id}/openspec/changes/{change_id}/release/review-{task-id}.md`
+Save to: `workspaces/{project_id}/review/{task-id}/review-{task-id}.md`
 
 #### Findings Classification
 
@@ -320,7 +320,7 @@ After all tasks reviewed, generate `release-branch-review.md`:
 | 全部 BLOCKER 清零 | Release Readiness = READY → 继续 release Phase 2 |
 ```
 
-Save to: `workspaces/{project_id}/openspec/changes/{change_id}/release/release-branch-review.md`
+Save to: `workspaces/{project_id}/release/release-branch-review.md`
 
 If any BLOCKER finding exists: Release Readiness = BLOCKED, stop and return findings to user for resolution.
 
@@ -599,7 +599,7 @@ Generate:
 - configuration-canal.md            # Canal/binlog config changes for new/renamed fields
 - dependency-checklist.md           # Service dependencies, RPC, MQ, deploy order
 - risk-report.md                    # Risk registry with severity and mitigation
-- **Location**: → `workspaces/<project-id>/` (workspace-anchored; sql/ + checklists + reports co-located)
+- **Location**: → `workspaces/<project-id>/release/` (release package: sql/ + checklists + reports + aggregated branch review); per-task branch-diff reviews → `workspaces/<project-id>/review/<task-id>/` (unified with review-workflow reports)
 
 # Reflection
 

@@ -57,7 +57,8 @@ Never load repository source code in this workflow.
 - Project Knowledge Context
 - Workspace Context
 - Workspace State
-- **Location**: → `workspaces/<project-id>/` (workspace context/state); applied standards per `loaders/standards-loader.md`
+- Repository Mapping (`workspaces/<project-id>/workspace.yaml`, ADR-0008 — wizard / code-review / change-impact / release consume)
+- **Location**: → `workspaces/<project-id>/` (workspace context/state + repository mapping); applied standards per `loaders/standards-loader.md`
 
 ## Exit Criteria
 
@@ -65,6 +66,7 @@ Success:
 
 - All service branches confirmed
 - Workspace Context persisted
+- Repository Mapping (`workspace.yaml`) generated/refreshed per ADR-0008
 
 Stop:
 

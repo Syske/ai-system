@@ -11,10 +11,70 @@
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
 
-last_run: 2026-09-11
+last_run: 2026-09-17
 mode: on-demand
-next_maintenance: '2026-09-16'   # weekly 节奏：+7d（本次 on-demand 专项，不推进计划内下次）
+next_maintenance: '2026-09-16'   # weekly 节奏：+7d（on-demand 专项不推进计划内下次；2026-09-16 已到期待另排 weekly）
 last_findings:
+- on-demand 专项：aic 项目菜单 (no repo mapped) 根因 = 映射存储源与显示源脱节——
+  dev-setup 只持久化 contexts/project-context.yaml（Phase 6 repository/worktrees），从不写
+  workspace.yaml（ADR-0008 执行步骤悬空，2026-08-08 遗留未接）；wizard 显示仅读
+  providers.project_repos() → workspace.yaml → repository.available；已复现 7/8 项目显示
+  (no repo mapped)，其中 4 个业务项目（cool-test/italent-sync-plus/security-storage/
+  qa-housekeeping）实际已绑定仓库；次级：project_meta 读 contexts/project.yaml（全工作区
+  不存在）、repo_path_for 回退 projects_root/<pid> 不命中（P22/2026-08-14 来源统一遗留未解）
+- 修复建议（read-first，未就改）：A 显示回退 project-context.yaml（L2 待确认）；B dev-setup
+  Phase 10 生成/刷新 workspace.yaml（推荐，恢复 ADR-0008 契约，结构待提案）；C 数据源统一
+  （季度候选）；run-log 覆盖 1 观察项（governance/memory/java/integration.md 2026-09-16 修改
+  无当日日志，记忆捕获归属性提交前确认）；next_maintenance 2026-09-16 已到期建议另排 weekly
+- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+  （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
+  ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
+  （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
+  验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
+  P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
+- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+  （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
+  ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
+  （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
+  验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
+  P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
+- 方案 X 已实施（用户确认 2026-09-17，细化「统一落 review」）：release 产物布局显式化——release 包
+  （sql、checklists、聚合 release-branch-review、变更/风险/环境矩阵）→ workspace 下 release 子目录；
+  逐卡分支差异审查 review-{task-id}.md → workspace 下 review 子目录按任务分目录（与 review 工作流报告
+  统一）；verify 报告 → verify 子目录；runtime-release、runtime-review、runtime-verify 三份模板的
+  Save-to 与 Location 全部显式化、workflows 同步、AGENTS.md 工件约定澄清；security-storage 全量迁移
+  （14 根散文件 → release 子目录、openspec change 目录内旧 release 目录清空、30 逐卡报告 →
+  review/verify 子目录、会话快照 → temp、34 处 task cards 与日志引用更新）；italent 18 个 release 下
+  review-T-*.md 同步归入 review 子目录；验证：check.py PASS、单测 268 OK、path-audit 0 broken、
+  0 残留旧路径引用、security-storage openspec validate 通过、无新增 CJK
+- 遗留观察项：italent openspec-cn validate 存量失败（reconcile-state/spec.md 7 需求缺 Scenario 块，
+  spec 合规债，建议走 spec/grilling，与迁移无关）；security-storage reports/ 保留 prepare 期分析子报告
+  （非 release 产物）；方案 C（repo 数据源统一）季度候选；run-log 覆盖观察项（memory 文件归属）仍待提交前确认
+- agent 自动检测已实施（方案 B，用户确认 2026-09-17，三轮迭代）：新建 cli/services/agent_detect.py
+  （PATH + 已知安装位置 + 配置目录信号，7 个已知 agent：opencode/pi/claude/codex/qoder/aider/gemini，
+  进程内缓存）；启动菜单与 skill-launch 选择器统一走 merge_picker_entries；未安装 agent 不展示、
+  图标用 providers.yaml/KNOWN_AGENTS（TTY 显示）；按使用次数排序（wizard record_agent_usage/agent_usage
+  → state.agent_usage，sort_by_usage 稳定降序，配置序>检测序并列保持）；+15 单测（全量 286 OK）；
+  验证：真实系统渲染（opencode/pi/qoder，claude 隐藏）、模拟 ×12/×5/×2 排序正确、check.py PASS、
+  lint 25 基线、path 0 broken
+- Windows/npm 检测已补齐（反馈 5）：npm 全局 bin（win32 不拼 /bin + APPDATA\npm；WSL 扫
+  /mnt/c/Users/*/AppData/Roaming/npm）+ Windows PATH 目录 + 全平台 .exe/.cmd/.bat/.com 变体 +
+  OSError 防护（/mnt/c 不可读目录实测拦截）；单测 294 OK
+- 检测路径接入启动层（反馈 6）：resolve_launch_command（providers.yaml command 覆盖 → 检测路径 →
+  名字；WSL 下 .cmd/.bat 自动 cmd.exe /c + 路径转换）；main.py 两处启动调用接入；实测
+  opencode/pi/qoder 解析到真实检测路径，Windows npm agent 可一键启动
+- 顺带 minor-fix：governance/memory/java/integration.md 2026-09-16 追加块 8 CJK 字符（memory 必须
+  英文，check.py FAIL）→ 已英文化；该文件 2026-09-16 追加内容归属仍需提交前确认（未提交）
+- 工具门禁全绿：quick-check OK / lint 0/0/25 / path 712 refs 0 broken / workflow-command-audit
+  0/0（15 workflows 13 commands）/ proposal-audit 0 gate error / extensions-lint 0/0
+- 指标：Skills 30 / Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平（上期
+  maintain-2026-09-11 口径）；快照 metrics/maintain-2026-09-17.json；15 commits 涉及 cli、config、
+  reports、skills、templates、tools、workflows 七个区域，以流程修订/平台修复为主
+- 一致性抽查 8 项：7 过 / 1 失败（doc-vs-reality=映射数据源 workspace.yaml vs
+  project-context.yaml，即本专项发现）；状态卫生（.aic-state 引用全存）过、注册表最小化过、
+  链接健康过、提案遗留过（P41/P42/P46 保持 defer 季度回顾，P26/P28 无新触发）
+- 报告：MAINTENANCE-2026-09-17.md 已补登 reports/README.md；语言门禁 PASS（cjk 0.33）
+- 本专项 read-first：除报告/索引/状态外未做任何就地修改，方案 A/B/C 输出建议待用户决策
 - on-demand 专项：按今日 code-review 日志 review code-review 流程（scope 指定）；工具门禁全绿（lint 0/0/25、path 715 refs 0 broken、workflow-command-audit 0/0、proposal-audit 0 gate error、quick-check OK）
 - 指标：Skills 32→30（repo-metrics 口径，apply-openspec/archive-openspec 随 639494b 移除）；Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平；implement +46 / repository-maintainer +26 / review +6 为近 2 日流程修订
 - 核心发现：M2 runtime-code-review「不修改业务实现」声明 vs spec-comparison 实际执行 fix+merge+push+wiki（今日三仓推送 origin）自相矛盾 → **已修复（用户确认）**：声明改为「默认 review-only、显式授权可扩展」+ 新增 Spec-Comparison Fix-Apply Extension 阶段（Sync→Fix-Apply→Build/Check→Commit&Push→Record，授权规则：未授权永不运行 + L1 登记 + 未解决项不静默实施）；L1 HotFix loop wiki 行为 → **已同步**（远程 wiki 用户自管，agent 仅写本地 change-summary-wiki.md）；M1 code-review.md 节顺序违规已修复（用户 L2 批准：Target Branch Resolution→Context 子节、Spec-Comparison Review Mode→Outputs 子节，内容逐字保留，门禁全绿）；M3（相邻 review/verify）T-011 重跑覆盖 2026-09-10 verification-report（workspaces 无 git 不可恢复）→ 建议写报告前目标文件冲突检查（待确认）

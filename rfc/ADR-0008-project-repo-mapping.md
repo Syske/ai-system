@@ -75,9 +75,10 @@ workspace view. Candidate approaches:
 
 ## workspace.yaml Initialization
 
-**Executor: the AI (during the development flow)** — when a new workspace
-project begins, the AI creates and maintains workspace.yaml in the
-spec/develop phase.
+**Executor: the Dev Setup Runtime (Phase 10 — Repository Mapping)** — the
+Dev Setup Runtime generates/refreshes workspace.yaml when a workspace project
+begins (2026-09-17: wired into runtime-dev-setup.md Phase 10; previously a
+manual AI step that was never automated).
 
 ```
 Trigger: a new workspace project is detected (dev-setup / prepare phase
