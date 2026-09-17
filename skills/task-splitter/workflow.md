@@ -24,6 +24,8 @@
 
 **实现后置确认**: required / skip（P50 触发标记——接口/契约面（RPC/MQ/REST 返回语义、枚举/错误码）、重构/行为变更、跨组件/跨仓契约 = required；机械类 DTO/通道 bean/配置/文档 = skip）
 
+**证据等级**: E1 代码事实 / E2 文档事实 / E3 推断 / E4 假设——完成定义与验收中的技术结论须标注等级；证据不足写 `⚠️ 待确认: {owner}/{deadline}` 占位符，禁止捏造（见 governance/standards/common/evidence-levels.md）
+
 **完成定义**:
 - [ ] {完成项}
 

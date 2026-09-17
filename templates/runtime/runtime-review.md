@@ -334,4 +334,13 @@ Review Result synced to the Task Card. Present the next-action choices to the us
 | 行为与预期规格不符，疑似需求缺口 | → **spec 重新进入**（L3：实现正确前可能需要更新规格/契约） |
 | 代码表层质量问题（lint、命名、风格） | → **develop**（修复后重新审查） |
 
+## Fix-Reverify Circuit (fix-reverify circuit breaker)
+
+The reject → fix → re-review loop for the same task is capped at **2 rounds**;
+on the 3rd reject, stop the automatic loop and present all three rounds of
+findings and fixes to the user for a decision (continue / different reviewer /
+back to spec) — prevents review-fix spin (2026-09-17, absorbed from SenSpec's
+correction-quota idea). Every round's fix must be re-verified fresh (re-run the
+checks); never reuse the previous round's conclusion.
+
 Fallback: Status = Changes Required defaults to return to develop.

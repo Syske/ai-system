@@ -150,6 +150,25 @@ schemas silently consume it. Follow these rules to keep headroom:
    quality drops, audit context consumption (inventory loaded components,
    classify always/sometimes/rarely, rank token savings) before continuing.
 
+## Read Discipline (read ledger + hard read limits)
+
+Reading is the main token sink after MCP schemas. Apply a read ledger and
+numeric hard limits per task (2026-09-17, absorbed from SenSpec's
+backend-ai-behavior-rules):
+
+1. **Read ledger**: keep a mental ledger of files already fully read this
+   task (path + purpose). Do not re-read what the ledger already covers.
+2. **Hard limits**: the same file may be `Read` at most **2× within one Step**,
+   and fully read at most **1× per task**. Hitting the limit with still
+   insufficient info: **stop re-reading**, proceed with what has been read, or
+   write a `⚠️ 待确认:` placeholder (see standards/common/evidence-levels.md).
+3. **Search before read**: use the three-tier code search
+   (CodeGraph → ast-grep → grep) before reading files; a semantic query that
+   answers the question replaces multiple file reads.
+4. **Summarize after read**: big file / search dumps are replaced by a short
+   summary in working notes (see Context Budget Discipline); never carry the
+   raw output forward.
+
 ## Layered Context Management
 
 Prevention beats compression. Route work by operation type so the main

@@ -71,6 +71,14 @@ Phases:
 6. Review Summary — classify all findings
 7. Task Card Verification — update Review Result status
 
+### Evidence Levels (证据等级) in Findings
+
+Every review finding that asserts a fact (code location, behavior, impact,
+compatibility) must carry an evidence level: `E1` 代码事实（文件:行）/ `E2` 文档事实
+（文档+章节）/ `E3` 推断 / `E4` 假设。依据在对应检查步骤已实测的代码/文档位置。
+未标等级的事实性 finding 视为 E4；证据不足时写 `⚠️ 待确认: {owner}/{deadline}`
+占位符，不得编造（见 governance/standards/common/evidence-levels.md）。
+
 ---
 
 ## Output

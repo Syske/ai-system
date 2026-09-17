@@ -86,6 +86,12 @@ Load:
 - Source Code
 - Existing Tests
 
+**Pointer discipline (no re-copy)**: the Task Card and Plan are the single source
+of truth — implementation notes / commit messages / completion artifacts must
+**reference** card id + plan path, never re-copy task content, file lists,
+completion criteria or code skeletons into working documents (2026-09-17,
+aligned with SenSpec pointer-reference practice).
+
 ### Plan Gate (A1 — confirmed-plan requirement)
 
 Before any implementation, an **approved plan** must exist:

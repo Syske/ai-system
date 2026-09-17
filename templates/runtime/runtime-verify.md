@@ -244,6 +244,15 @@ validation gap):
 
 Status = FAIL
 
+## Fix-Reverify Circuit (修复重验熔断)
+
+The fix → re-verify loop for the same task is capped at **2 rounds**; on the
+3rd FAIL, stop the automatic loop and present all three rounds of failures
+and fixes to the user for a decision (continue / back to develop / back to
+spec) — prevents verify-fix spin (2026-09-17, absorbed from SenSpec's
+correction-quota idea). Every re-verify run must be fresh (new unit tests /
+compile / checks); never reuse the previous round's results.
+
 ---
 
 # Outputs
