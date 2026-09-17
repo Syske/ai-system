@@ -1,6 +1,6 @@
 # Task Splitter Workflow
 
-本文件定义 task-splitter 的能力执行指令（T1-T5）。SKILL.md 为入口摘要、能力表与工作流总览，本文件为分步执行细节。所有 Task Card 必须与 `methodologies/providers/openspec-cn/templates/tasks-template.md` 字段结构一致，位置为 `tasks/cards/T-{id}.md`。
+本文件定义 task-splitter 的能力执行指令（T1-T5）。SKILL.md 为入口摘要、能力表与工作流总览，本文件为分步执行细节。所有 Task Card 必须与 `templates/prompts/tasks-template.md` 字段结构一致，位置为 `tasks/cards/T-{id}.md`。
 
 ---
 

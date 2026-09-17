@@ -70,7 +70,6 @@ Thumbs.db
 /temp/
 /worktrees/
 /launch/
-/methodologies/
 /repositories/
 /.pi/
 /.codescope/

@@ -8,13 +8,13 @@ version: 1.1.0
 
 ## 核心职责
 
-将已确认的 OpenSpec 规范和 `interop_contract.yml` 契约转化为**可独立执行、可验证、严格遵循契约约束**的原子开发任务（Task Card），并按服务依赖关系编排为全局有序的执行计划。Task Card 是主链 develop/dev-setup 的统一消费单位，必须与 `methodologies/providers/openspec-cn/templates/tasks-template.md` 格式一致。
+将已确认的 OpenSpec 规范和 `interop_contract.yml` 契约转化为**可独立执行、可验证、严格遵循契约约束**的原子开发任务（Task Card），并按服务依赖关系编排为全局有序的执行计划。Task Card 是主链 develop/dev-setup 的统一消费单位，必须与 `templates/prompts/tasks-template.md` 格式一致。
 
 ## 依赖
 
 | 依赖 | 说明 |
 |------|------|
-| `spec-updater` Skill (methodologies/providers/openspec-cn/skills/spec-updater/) | 提供更新后的 Spec 文件路径和本次迭代涉及的服务列表 |
+| `spec-updater` Skill (ai-system/skills/spec-updater/) | 提供更新后的 Spec 文件路径和本次迭代涉及的服务列表 |
 | `contract-maintainer` Skill | 提供最新 `interop_contract.yml`（由 `generate_contract.py` 保证一致性） |
 | `repositories/{service_id}.yaml` | 服务技术栈（用于 Code Quality 推导：protocol → MQ/RPC 检查项） |
 | `openspec/changes/<change-name>/` | 项目规范源文件目录结构 |
@@ -97,7 +97,7 @@ openspec/changes/<change-name>/
 - T4: 契约片段注入（自动执行）
 - T5: 验收标准生成
 
-Task Card 采用 `methodologies/providers/openspec-cn/templates/tasks-template.md` 的字段结构与代码质量检查清单（见 workflow.md「Task Card 字段」）。
+Task Card 采用 `templates/prompts/tasks-template.md` 的字段结构与代码质量检查清单（见 workflow.md「Task Card 字段」）。
 
 ## 与 spec-updater 和 contract-maintainer 的协作
 

@@ -50,7 +50,7 @@ The Runtime is responsible for:
 
 Provided by Bootstrap Runtime:
 
-- Environment Context (repository_root, workspaces_root, methodologies_root)
+- Environment Context (repository_root, workspaces_root)
 
 Optional, only if a previous Dev Setup exists for this project:
 

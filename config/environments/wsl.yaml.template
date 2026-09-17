@@ -30,9 +30,6 @@ layers:
   projects:
     path: {wsl_workspace_root}/projects
     description: all code repository
-  methodologies:
-    path: {wsl_workspace_root}/methodologies
-    description: governance standards, openspec, specs, contracts
   skills:
     path: {wsl_workspace_root}/extensions
     description: company/platform skill extensions (not auto-scanned by agents)

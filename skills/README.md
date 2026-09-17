@@ -25,7 +25,7 @@ These skills are directly invoked by at least one Workflow Runtime.
 | repository-maintainer | analysis | Governance |
 | contract-maintainer | spec | Governance |
 
-## On-Demand Skills (7)
+## On-Demand Skills (10)
 
 These skills are useful but are manually invoked. They are NOT bound to any Workflow.
 
@@ -38,6 +38,9 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | debug-issue | Knowledge-graph-driven issue debugging | Manual |
 | index-project | Rebuild code semantic index | Manual |
 | open-cli | Web API → CLI adapter generation | Manual |
+| spec-updater | 需求变更录入（S1-S3）→ 联动 contract-maintainer（从 methodologies 迁入 2026-09-17） | Manual |
+| openspec-archive-change | 归档已完成的 OpenSpec 变更（从 methodologies 迁入 2026-09-17） | Manual |
+| openspec-explore | OpenSpec 变更前探索模式（想法/问题/需求澄清，从 methodologies 迁入 2026-09-17） | Manual |
 | wayfinder | 大块模糊构想 → 决策图（规划，非执行） | Manual |
 | deepseek-share-to-md | DeepSeek 分享会话 → Markdown（stdout 供 AI 读取 / 导出为文件+附件内嵌）。触发词：`deepseek 分享转 md`、`导出 deepseek 对话`、`分享链接转 markdown`、`存档 AI 对话`（`chat.deepseek.com/share/<id>`）。外部 AI 结论进入消息流时优先路由至此拉取文本再核验（配合 P3 外部结论核查）。 | Manual |
 | idea-build | Optional IDEA MCP compile backend (`build.backend=idea`) | Config-driven (bugfix), manual |

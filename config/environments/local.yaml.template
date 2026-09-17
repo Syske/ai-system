@@ -30,8 +30,6 @@ layers:
     description: AI Operating System core
   projects:
     description: all code repository
-  methodologies:
-    description: governance standards, openspec, specs, contracts
   skills:
     description: company/platform skill extensions (not auto-scanned by agents)
   company_standards:

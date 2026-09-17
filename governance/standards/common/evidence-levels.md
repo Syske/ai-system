@@ -50,8 +50,8 @@ backend-ai-behavior-rules) and promoted to the main chain (2026-09-17).
 
 - **Task Cards** (`tasks/cards/T-{id}.md`) — each card carries an
   `**证据等级**` field; 完成定义/验收 items annotate factual claims with a
-  level (see `skills/task-splitter/workflow.md` and the openspec
-  `tasks-template.md`).
+  level (see `skills/task-splitter/workflow.md` and the template
+  `templates/prompts/tasks-template.md`).
 - **Review findings** — findings in review reports annotate their basis with
   a level (`skills/review/SKILL.md`); a finding without an evidence level is
   treated as E4 until verified.

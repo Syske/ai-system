@@ -65,7 +65,7 @@ last_findings:
   opencode/pi/qoder 解析到真实检测路径，Windows npm agent 可一键启动
 - SenSpec 价值吸收 1+2（用户确认）：①E1-E4 证据等级上提主链——新建
   governance/standards/common/evidence-levels.md（E1 代码事实/E2 文档事实/E3 推断/E4 假设 +
-  ⚠️ 待确认 占位符），任务卡模板（task-splitter + openspec tasks-template 两处对齐）新增证据等级
+  ⚠️ 待确认 占位符），任务卡模板（task-splitter + templates/prompts/tasks-template.md 两处对齐）新增证据等级
   字段、review SKILL findings 要求标等级；②读账本+硬上限——CONTEXT_LOADING.md 新增 Read
   Discipline（同文件 Step ≤2 次/整篇 ≤1 次、触限停止改占位符、检索优先、读后总结，全英文）；
   门禁全绿（lint 25 基线、check.py PASS、单测 294 OK）
@@ -74,6 +74,10 @@ last_findings:
   （runtime-review/verify 新增 Fix-Reverify Circuit：同任务驳回/FAIL 循环 ≤2 轮，第 3 次停
   交用户裁决，每轮 fresh）；③ 指针不重抄禁令（runtime-develop Phase 1 Pointer discipline，
   任务卡/计划单一事实源只引用不重抄）；门禁全绿
+- methodologies 整体移除（用户确认，非强依赖判定）：tasks-template.md 迁至 templates/prompts/
+  （早前）；3 skill 迁入 ai-system/skills（spec-updater/openspec-archive-change/openspec-explore，
+  On-Demand，spec-updater 为 task-splitter 输入硬依赖）；2 skill 不迁（propose/apply 与主链重复）；
+  22 处引用清理（代码/配置/模板/工作区）；methodologies/ 目录删除；门禁全绿
 - 顺带 minor-fix：governance/memory/java/integration.md 2026-09-16 追加块 8 CJK 字符（memory 必须
   英文，check.py FAIL）→ 已英文化；该文件 2026-09-16 追加内容归属仍需提交前确认（未提交）
 - 工具门禁全绿：quick-check OK / lint 0/0/25 / path 712 refs 0 broken / workflow-command-audit

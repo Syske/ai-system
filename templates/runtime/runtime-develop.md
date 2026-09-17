@@ -46,7 +46,7 @@ Responsibilities:
 
 Provided by Bootstrap Runtime:
 
-- Environment Context (repository_root, workspaces_root, methodologies_root)
+- Environment Context (repository_root, workspaces_root)
 
 Provided by Dev Setup Runtime:
 

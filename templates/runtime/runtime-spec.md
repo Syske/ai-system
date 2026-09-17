@@ -50,7 +50,7 @@ The Runtime is responsible for:
 
 Provided by Bootstrap Runtime:
 
-- Environment Context (repository_root, workspaces_root, methodologies_root)
+- Environment Context (repository_root, workspaces_root)
 
 Provided by Prepare Runtime:
 
@@ -195,8 +195,6 @@ Objective:
 
 Generate implementation-ready specifications.
 
-Invoke configured Methodology Provider (from config/providers.yaml → methodology.defaultProvider; provider assets at {methodologies_root}/providers/{provider}/).
-
 Generate:
 
 - Proposal
@@ -288,7 +286,7 @@ Each Task must:
 - Be independently verifiable
 
 Generation uses the template from:
-methodologies/providers/openspec-cn/templates/tasks-template.md
+templates/prompts/tasks-template.md
 
 ### 6.X — Code Quality Check Derivation
 

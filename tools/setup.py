@@ -17,7 +17,7 @@ repo links / baseline / audit (those belong to the full setup flow).
 
 Steps:
 1. Generate config/environments/{environment}.yaml from template structure (if missing)
-2. Scaffold workspace base directories (workspaces/ projects/ repositories/ methodologies/ extensions/)
+2. Scaffold workspace base directories (workspaces/ projects/ repositories/ extensions/)
 3. Ensure ai-system runtime dirs exist (metrics/ logs/)
 4. Auto-detect code repositories at the workspace root and link them into projects/
 5. Record a metrics baseline snapshot (metrics/baseline-{date}.json, if missing)
@@ -50,7 +50,6 @@ SYSTEM_DIRS = {
     "workspaces",
     "projects",
     "repositories",
-    "methodologies",
     "archived",
     "logs",
     "metrics",
@@ -81,7 +80,6 @@ BASE_DIRS = (
     "workspaces",
     "projects",
     "repositories",
-    "methodologies",
     "extensions",
 )
 
@@ -212,10 +210,6 @@ def generate_env(
             "projects": {
                 "path": str(repository_root),
                 "description": "all code repository",
-            },
-            "methodologies": {
-                "path": str(workspace_root / "methodologies"),
-                "description": "governance standards, openspec, specs, contracts",
             },
             "skills": {
                 "path": str(workspace_root / "extensions"),

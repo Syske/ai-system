@@ -58,7 +58,7 @@ Never load project repositories or workspace content in this workflow.
 
 ## Outputs
 
-- Environment Context (workspace_root, repository_root, workspaces_root, ai_system_root, methodologies_root)
+- Environment Context (workspace_root, repository_root, workspaces_root, ai_system_root)
 - Workspace Metadata (initialized, no project binding)
 
 ## Exit Criteria

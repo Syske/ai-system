@@ -80,7 +80,6 @@ EXAMPLE_ONLY = {
 # 审计跳过它们（除非目标也存在于o exists inside
 # AI System 仓库内）。
 RUNTIME_ROOTS = (
-    "methodologies/",
     "workspaces/",
     "projects/",
     "repositories/",
@@ -90,7 +89,7 @@ PATH_RE = re.compile(
     r"(?:[A-Za-z]:[\\/][^\s`'\")\]，。；;|]+"
     r"|(?:\.\./)+[\w./\-]+"
     r"|(?:ai-system|governance|workflows|templates|skills|loaders|cli|config|tools|"
-    r"metrics|reports|methodologies|workspaces|projects|repositories)"
+    r"metrics|reports|workspaces|projects|repositories)"
     r"/[\w{}$./*\-]+)"
 )
 
@@ -98,7 +97,7 @@ PATH_RE = re.compile(
 def is_runtime_reference(tok):
     """True if tok points into a runtime data root outside the repo.
 
-    Runtime roots (methodologies/workspaces/projects/repositories) hold
+    Runtime roots (workspaces/projects/repositories) hold
     content created at run time under the workspace root. They are not
     source-code dependencies, so references into them are not audited.
     """

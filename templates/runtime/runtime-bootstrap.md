@@ -82,7 +82,7 @@ If environment configuration is missing:
 
 1. Guide the user to run `python tools/setup.py [--environment {environment}]`:
    - Generates `config/environments/{environment}.yaml` interactively
-   - Scaffolds workspace base directories (workspaces/ projects/ repositories/ methodologies/ extensions/)
+   - Scaffolds workspace base directories (workspaces/ projects/ repositories/ extensions/)
    - Ensures ai-system runtime dirs (metrics/ logs/)
    - Links detected code repositories into projects/
    - Records the metrics baseline snapshot (metrics/baseline-{date}.json, if missing)
@@ -117,7 +117,6 @@ repository_root   = {local.yaml → workspace.repository_root}
 repositories_root = {workspace_root}/repositories
 workspaces_root      = {workspace_root}/workspaces
 ai_system_root       = {workspace_root}/ai-system
-methodologies_root   = {workspace_root}/methodologies
 ```
 
 Do not hardcode absolute paths.
@@ -140,7 +139,6 @@ environment:
   repositories_root:
   workspaces_root:
   ai_system_root:
-  methodologies_root:
 ```
 
 ---
@@ -200,7 +198,7 @@ Project binding and repository resolution belong to Dev Setup Runtime.
 
 Generate:
 
-- Environment Context (workspace_root, repository_root, workspaces_root, ai_system_root, methodologies_root)
+- Environment Context (workspace_root, repository_root, workspaces_root, ai_system_root)
 - Workspace Metadata (initialized, no project binding)
 
 # Reflection

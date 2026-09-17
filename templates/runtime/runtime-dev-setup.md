@@ -63,7 +63,7 @@ The Dev Setup Runtime is responsible for:
 
 ## Provided by Bootstrap Runtime
 
-- Environment Context (workspace_root, repository_root, workspaces_root, methodologies_root)
+- Environment Context (workspace_root, repository_root, workspaces_root)
 - Workspace Metadata (workspace ID, workspace path)
 
 ## Provided by Spec Runtime

@@ -44,9 +44,3 @@ providers:
 default:
 
   provider: opencode
-
-methodology:
-
-  defaultProvider: openspec-cn
-
-  registry: "{methodologies_root}/providers"
