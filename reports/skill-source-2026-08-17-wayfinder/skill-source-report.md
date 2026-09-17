@@ -157,3 +157,80 @@ AGENTS.md/CLAUDE.md 写作纪律与 skill-author 重叠。
 - 本地对照: ai-system skills/grilling、skills/task-splitter、workflows/prepare、templates/runtime
 - 前轮框架: reports/THIRD-PARTY-SKILL-ASSESSMENT-2026-08-01.md（已读：评估框架与 wayfinder 前评）
 - 临时克隆已删除（见清理记录）
+
+---
+
+## 九、复审与 TRIAL 终止记录（2026-09-17）
+
+### 9.1 复审背景
+
+08-17 决策直接吸收（On-Demand 起步）；08-25 按方案 A 登记 TRIAL（prepare/spec/develop 三处主链注入，
+硬截止 08-30，判定标准：≥1 真实案例 + 决策图/工单产物 + ≥1 决策被 spec/develop 消费）。
+截止逾期未评估，2026-09-17 用户要求重新评估并走 skill-source 流程处置。
+
+### 9.2 复审判定（证据）
+
+| 判定项 | 结果 | 证据位置 |
+|---|---|---|
+| OPTIMIZATION_LOG 实战记录（08-25 起强制） | **0 条** | skills/wayfinder/OPTIMIZATION_LOG.md 记录区 |
+| `.wayfinder/` 决策图产物 | **0** | 全工作区 find |
+| 被 spec/develop 消费的决策 | **0** | 无任何引用 |
+| 08-30 硬截止评估 | 未执行（周维护逾期） | maintenance 记录 |
+
+价值重评估结论：**低频高价值**——方法论要素大多已被 grilling / task-splitter / 确认纪律覆盖，
+独有价值仅「跨会话持久决策图」；零案例不满足升格条件。详见
+`reports/wayfinder-value-reevaluation-2026-09-17.md`。
+
+### 9.3 处置决策（用户确认，2026-09-17）
+
+| 项 | 动作 |
+|---|---|
+| 主链注入 | **终止 TRIAL 形态**：撤销 config/main-chain-capabilities.yaml 三处 TRIAL 条目（prepare/spec/develop）及头部注释 |
+| skill 本体 | **保留 On-Demand**（skills/wayfinder/ 不动；菜单经 skill_roots 扫描可达，见 skills/README.md 索引） |
+| OPTIMIZATION_LOG | 归档终止结论（零案例 → 未通过试用） |
+| 升格条件 | 未来真实「跨会话大块模糊构想」案例 + 决策图被消费后再评估绑定 prepare |
+
+**9.3b 最终处置修订（用户决策，同日）**：经第三方仓库复核（§五）、日常工作价值分析
+（原则已由 grilling/task-splitter/指针纪律/E1-E4 吸收兑现，本体为低频备用）、阶段适配评估
+（develop 等执行阶段错配，prepare 为唯一合理候选）后，用户决定：
+
+| 项 | 最终动作 |
+|---|---|
+| **prepare** | **接入**（use-skill 方案，显式触发 desc：跨会话雾区构想 → 生成 .wayfinder/ 决策图；具体需求 → 明确跳过） |
+| spec / develop | **保持终止**，不注入（雾区应在 spec 前解决） |
+| 触发方式 | 显式判断句（非低显式度可选附注），解决前次 TRIAL 0 案例的入口错配问题 |
+| 记录 | 实战使用后记入 skills/wayfinder/OPTIMIZATION_LOG.md |
+| 升格条件 | 真实案例被 spec/develop 消费后再评估绑定更多阶段 |
+
+**为什么不再需要试用（价值论证，2026-09-17 用户追问后补记）**：
+
+1. TRIAL 已验证的结论 = **触发频率 ≈ 0**（23 天主链三阶段注入，0 案例；酷学院主链需求以具体
+   Change Request / TR3/TR4 文档 / 工单进入，雾区场景本身稀缺，非提示注入方式问题）；
+2. TRIAL 无法验证的 = 「低频高价值」——低频场景价值无法靠短期试用统计验证（样本量趋零），
+   继续试用边际收益 ≈ 0；
+3. 试用成本为负：三阶段注入 = 提示词噪音 + 记录管道维护；
+4. 故保留形态 = **On-Demand 备用工具**（零成本，SKILL.md description 已写清触发条件，
+   AI 遇雾区场景可手动调用），与低频高价值定位匹配。
+
+### 9.4 执行记录（2026-09-17 完成）
+
+| 项 | 结果 | 验证 |
+|---|---|---|
+| 撤销三处 TRIAL 注入 + 注释 | 已完成（终止 TRIAL 形态） | grep main-chain-capabilities spec/develop 0 命中 |
+| **prepare 接入（use-skill）** | 已添加显式触发条目（skill/path/desc/enabled） | prepare 提示词含 /skills/wayfinder（测试断言恢复） |
+| OPTIMIZATION_LOG | 终止结论 + 最终处置修订（prepare 接入） | 记录区 2026-09-17 条目 |
+| skill 保留 On-Demand | 未改动 | skills/README.md On-Demand 表含 wayfinder |
+| 门禁 | 全绿 | check.py PASS、lint、path-audit 0、单测 294 OK |
+
+### 9.5 变更文件
+
+- 修改 `config/main-chain-capabilities.yaml`（撤销 TRIAL 3 条目 + 注释；prepare 新增 use-skill 条目）
+- 修改 `skills/wayfinder/OPTIMIZATION_LOG.md`（归档结论 + 最终处置修订）
+- 修改 `skills/wayfinder/SKILL.md`（补 Refer by name 纪律）
+- 修改 `cli/tests/test_maintain_tools.py`（断言恢复 skills/wayfinder 绝对路径）
+- 修改本报告（补记录）
+- 新增 `reports/wayfinder-value-reevaluation-2026-09-17.md`（价值重评估 + 第三方复核 §五）
+
+### 9.6 变更控制
+
+L1（配置/文档级撤销 + skill 未动），无 workflow/templates 改动。

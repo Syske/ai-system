@@ -8,13 +8,6 @@ version: 1
 #   附注注入，运行时/agent 按需加载（如 prepare 用 confluence-markdown-publisher 摄取内网 wiki 需求）。
 # - 与 config/chains.yaml（积木链路）、config/skill-groups.yaml core_skills 互补：本注册表
 #   面向「开发主链各阶段」的可选能力，链与分组面向任意任务组合/技能启动。
-#
-# > TRIAL(临时)：wayfinder 为主链 prepare/spec/develop 的**临时外部能力**（item7），便于评估
-# > 其决策图方法论。触发条件：检测到「大块模糊构想 / 迷雾 / 路线未知 / 远超单会话」时才前置
-# > 生成 .wayfinder/ 决策图；未命中触发条件时**明确跳过且不生成决策图**；每次实际触发后
-# > **必须在 skills/wayfinder/OPTIMIZATION_LOG.md 顶部追加记录**（评估判定输入，08-25）。
-# > 评估截止：2026-08-30 weekly 维护——无 ≥1 真实案例或未被 spec/develop 消费 → 移除临时登记。
-# > （直接吸收 / 派生扩展 / 移除），对应 core_skills 里 wayfinder 的临时登记。
 
 capabilities:
   prepare:
@@ -22,29 +15,21 @@ capabilities:
       path: extensions/confluence-markdown-publisher
       desc: Fetch intranet wiki requirement documents (e.g. pageId pages, tr3/tr4 product/architecture designs)
       enabled: true
-    - skill: wayfinder
-      path: skills/wayfinder
-      desc: "[TRIAL] Vague large-scale idea/fog → generate .wayfinder/ decision map before spec; if no such scenario detected, SKIP (do not generate); on real use, log to skills/wayfinder/OPTIMIZATION_LOG.md"
-      enabled: true
     - skill: tr5
       path: extensions/tr5
       desc: "Backend TR5 pipeline preparation (TR3/TR4 + iteration-page ID entry, openspec requirement ingestion & clarification): forward-pipeline entry for the 4-stage tr5 flow; skip for non-backend-TR5 scenarios"
       enabled: true
-  spec:
     - skill: wayfinder
       path: skills/wayfinder
-      desc: "[TRIAL] Requirements still vague → clarify design route with a decision ticket; if not vague, SKIP; on real use, log to skills/wayfinder/OPTIMIZATION_LOG.md"
+      desc: "Pre-spec fog planning (2026-09-17 接入): if the requirement is a cross-session vague/large-scale idea with unclear route (exceeds one session, fog of war) → use wayfinder to generate a .wayfinder/ decision map BEFORE spec; if the requirement is concrete/CR-driven/small → explicitly SKIP (do not generate); on real use, log to skills/wayfinder/OPTIMIZATION_LOG.md"
       enabled: true
+  spec:
     - skill: tr5
       path: extensions/tr5
       desc: "Backend TR5 one-pager design (mid-platform context + enhanced coolSpec quality gate): TR3/TR4 + iteration-page ID entry, forward-pipeline generation & publish; skip for non-backend-TR5 scenarios"
       enabled: true
   dev-setup: []
-  develop:
-    - skill: wayfinder
-      path: skills/wayfinder
-      desc: "[TRIAL] Align boundaries with a .wayfinder/ decision map before large changes; if small, SKIP; on real use, log to skills/wayfinder/OPTIMIZATION_LOG.md"
-      enabled: true
+  develop: []
   review: []
   verify: []
   release:

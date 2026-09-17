@@ -78,6 +78,11 @@ last_findings:
   （早前）；3 skill 迁入 ai-system/skills（spec-updater/openspec-archive-change/openspec-explore，
   On-Demand，spec-updater 为 task-splitter 输入硬依赖）；2 skill 不迁（propose/apply 与主链重复）；
   22 处引用清理（代码/配置/模板/工作区）；methodologies/ 目录删除；门禁全绿
+- wayfinder 终局（用户决策，skill-source 流程）：先 TRIAL 终止（0 案例）→ 第三方仓库复核（上游
+  5 次提交全为打磨、无方法论变化）→ 日常价值分析（原则已由 grilling/task-splitter/指针纪律/
+  E1-E4 吸收兑现）→ 阶段适配评估（develop 等执行阶段错配）→ **接入 prepare**（use-skill 显式
+  触发 desc，非低显式度可选附注；spec/develop 保持终止）；本地副本补 Refer by name；
+  测试断言恢复 skills/wayfinder；门禁全绿
 - 顺带 minor-fix：governance/memory/java/integration.md 2026-09-16 追加块 8 CJK 字符（memory 必须
   英文，check.py FAIL）→ 已英文化；该文件 2026-09-16 追加内容归属仍需提交前确认（未提交）
 - 工具门禁全绿：quick-check OK / lint 0/0/25 / path 712 refs 0 broken / workflow-command-audit
