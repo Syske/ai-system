@@ -25,6 +25,41 @@ def _frame(header, body):
     sys.stdout.flush()
 
 
+def _paint_note(text):
+    """Render a menu note: base note style (bold-dim), with `**...**`
+    segments promoted to the name style (bold cyan — "高亮加粗").
+    """
+
+    note_s = _theme("note")
+    name_s = _theme("name")
+    reset_s = _theme("reset")
+
+    if "**" not in text:
+        return f"{note_s}{text}{reset_s}"
+
+    chunks = text.split("**")
+
+    out = [note_s]
+
+    for i, chunk in enumerate(chunks):
+
+        if not chunk:
+            continue
+
+        if i % 2 == 1:
+
+            # reset 先清除 dim，再用 name 主题（bold cyan）高亮关键术语
+            out.append(f"{reset_s}{name_s}{chunk}{reset_s}{note_s}")
+
+        else:
+
+            out.append(chunk)
+
+    out.append(reset_s)
+
+    return "".join(out)
+
+
 def _paint(opt, selected):
 
     selected_s = _theme("selected")

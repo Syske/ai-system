@@ -128,7 +128,7 @@ class WizardIntake:
 
         options = [
             f"✅ 确认：{intent.get('icon', '✨')} {intent.get('label', intent.get('name'))}"
-            f" → {', '.join(intent.get('commands', []))}",
+            f" → {', '.join(intent.get('commands', []))} — 按此理解继续",
             "💬  重新描述",
             "❌  取消",
         ]
@@ -154,7 +154,7 @@ class WizardIntake:
         inferred = self._infer_command(text)
 
         options = [
-            "✅ 创建新意图并进入引导",
+            "✅ 创建新意图并进入引导 — 记录该意图，之后可直接唤起",
             "💬  重新描述",
             "❌  取消",
         ]

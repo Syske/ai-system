@@ -106,6 +106,61 @@ def task_ids(wizard, values, project):
     )
 
 
+def task_card_summaries(wizard, values, project):
+    """每张任务卡 → 一行概述（标题 + 服务），供 Task ID 选项描述。
+
+    从卡片首行 `# T-{id}: {标题}` 与 `**服务**` 字段解析；无标题时回退卡名。
+    """
+
+    cards = (
+        wizard.workspaces
+        / project
+        / "openspec"
+        / "changes"
+    ).glob("*/tasks/cards/*.md")
+
+    out = {}
+
+    for card in cards:
+
+        text = card.read_text(encoding="utf-8", errors="replace")
+
+        title = ""
+
+        for line in text.splitlines():
+
+            line = line.strip()
+
+            if line.startswith("# T-"):
+
+                _, _, title = line.partition(":")
+                title = title.strip()
+                break
+
+        svc = ""
+
+        for line in text.splitlines():
+
+            stripped = line.strip()
+
+            if stripped.startswith("**服务**") and ":" in stripped:
+                svc = stripped.split(":", 1)[1].strip()
+                break
+
+            if stripped.startswith("**服务**：") :
+                svc = stripped.split("：", 1)[1].strip()
+                break
+
+        summary = title or card.stem
+
+        if svc:
+            summary = f"{summary}（{svc}）"
+
+        out[card.stem] = summary
+
+    return out
+
+
 def git_branches(wizard, values):
 
     projects = values.get("Projects")

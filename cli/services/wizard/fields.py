@@ -246,6 +246,22 @@ class WizardFields:
 
             labels = self._option_descriptions(field)
 
+            # Task ID 选项动态描述：读任务卡标题/服务，让用户不用点开卡片就知道选哪张
+            if field == "Task ID" and not labels:
+
+                project = (
+                    values.get("Project ID")
+                    or values.get("Workspace ID")
+                    or self.project
+                )
+
+                if project:
+                    labels = providers.task_card_summaries(
+                        self,
+                        values,
+                        project
+                    )
+
             options = []
 
             for c in choices:
@@ -285,9 +301,25 @@ class WizardFields:
 
                 return value
 
+            # Task ID 专属动作标签：手动输入可写任务描述/指定卡片；skip = AI 自行选卡
+            manual_label = self._t(
+                "field_actions.manual",
+                "type manually"
+            )
+
+            skip_label = self._t(
+                "field_actions.skip",
+                "skip"
+            )
+
+            if field == "Task ID":
+
+                manual_label = "手动输入（任务描述或指定卡片）"
+                skip_label = "AI 自行选择"
+
             options.append(
                 f"{_e(self._menu_option('field_actions', 'manual'))}"
-                f"{self._t('field_actions.manual', 'type manually')}"
+                f"{manual_label}"
             )
 
             manual_index = len(choices)
@@ -298,7 +330,7 @@ class WizardFields:
 
                 options.append(
                     f"{_e(self._menu_option('field_actions', 'skip'))}"
-                    f"{self._t('field_actions.skip', 'skip')}"
+                    f"{skip_label}"
                 )
 
                 skip_index = manual_index + 1

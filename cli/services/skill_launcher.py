@@ -292,7 +292,7 @@ class SkillLauncher(InteractiveCommand):
 
             options = list(dict.fromkeys(presets))
 
-            options.append(f"{e('✏️ ')}custom...")
+            options.append(f"{e('📝 ')}custom...")
 
             idx = choose(
                 f"{e('📝 ')}选择任务",

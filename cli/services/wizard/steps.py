@@ -360,29 +360,48 @@ class WizardSteps:
 
         self._apply_field_defaults(fields, values)
 
-        print(
-            f"\n🔎 {name}：已按上下文推导以下输入"
-            "（未列出的可选项留空）："
-        )
+        # Task ID 未推导（项目内 0 张或多张任务卡，无法安全猜测要开发哪张）
+        # → 回退正常逐项收集：Task ID 走任务卡选择菜单，可选字段 Enter 可跳过。
+        # （修复 P38 遗留：多卡场景确认「使用推导值（实际全空）」会跳过收集，
+        #   develop 在无 Task ID 下运行）
+        if any(
+            f == "Task ID" and not values.get(f)
+            for f, _ in fields
+        ):
+            return False
 
-        for field, _ in fields:
+        derived = [
+            (f, values[f])
+            for f, _ in fields
+            if values.get(f)
+        ]
 
-            value = values.get(field)
+        if derived:
 
-            print(
-                f"   {field}: {value if value else '（空）'}"
+            header = [
+                f"🔎 {name}：已按上下文推导以下输入"
+                "（推导值 = 根据已选项目/工作区 + 现有产物"
+                "（任务卡/变更/git 版本）自动填写，非 AI 推测；"
+                "未列出的可选项留空）：",
+            ]
+
+            for f, v in derived:
+                header.append(f"   {f}: {v}")
+
+            idx = choose(
+                "直接使用推导值继续？",
+                [
+                    "✅ 使用推导值，继续 — 直接采用上方推导的建议值，进入下一步",
+                    "📝 逐项修改 — 返回逐项输入界面，可修改任意字段后再继续",
+                ],
+                0,
+                header=header,
             )
 
-        idx = choose(
-            "直接使用推导值继续？",
-            [
-                "✅ 使用推导值，继续",
-                "✏️ 逐项修改",
-            ],
-            0,
-        )
+            return idx == 0
 
-        return idx == 0
+        # 无可推导字段且无关键字段：全部可选留空，静默继续（P38 摩擦消除意图）
+        return True
 
     def _resume_change(
         self,

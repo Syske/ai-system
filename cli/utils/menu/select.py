@@ -5,7 +5,7 @@ Split from cli/utils/menu.py (P1 modularization, C4).
 
 from cli.utils.menu.base import BACK, Section, _t
 from cli.utils.menu.keys import _normalize, _read_key
-from cli.utils.menu.render import _frame, _paint
+from cli.utils.menu.render import _frame, _paint, _paint_note
 from cli.utils.menu.theme import get as _theme
 
 
@@ -77,7 +77,7 @@ def _handle_no_match(title, note, filter_buf, header):
     if note:
 
         body.append(
-            f"{_theme('note')}{note}{_theme('reset')}"
+            _paint_note(note)
         )
 
         body.append("")
@@ -203,7 +203,7 @@ def _interactive(title, options, default, allow_skip, header, note=None, max_vis
         if note:
 
             body.append(
-                f"{_theme('note')}{note}{_theme('reset')}"
+                _paint_note(note)
             )
 
             body.append("")
@@ -327,7 +327,7 @@ def _fallback(title, options, default, allow_skip, note=None, max_visible=None):
     print(f"{title}:")
 
     if note:
-        print(f"  {note}")
+        print(f"  {note.replace("**", "")}")
         print()
 
     for i, opt in enumerate(options):

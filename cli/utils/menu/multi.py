@@ -5,7 +5,7 @@ Split from cli/utils/menu.py (P1 modularization, C4).
 
 from cli.utils.menu.base import BACK, Section, _t
 from cli.utils.menu.keys import _normalize, _read_key
-from cli.utils.menu.render import _frame
+from cli.utils.menu.render import _frame, _paint_note
 from cli.utils.menu.select import _handle_filter_key, _handle_no_match, _visible_indices
 from cli.utils.menu.theme import get as _theme
 
@@ -147,7 +147,7 @@ def _interactive_many(
         if note:
 
             body.append(
-                f"{_theme('note')}{note}{_theme('reset')}"
+                _paint_note(note)
             )
 
             body.append("")

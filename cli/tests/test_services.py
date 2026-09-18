@@ -182,3 +182,41 @@ class TestSkillModeRouting(unittest.TestCase):
         with patch("cli.services.skill_launcher.run", return_value=("p", "a")):
             result = skill_launcher.run_skill(None, None, "optimize")
             self.assertEqual(result, ("p", "a"))
+
+
+class TestTaskCardSummaries(unittest.TestCase):
+    """task_card_summaries 解析卡片标题/服务（Task ID 选项描述）。"""
+
+    def _make(self, files):
+        import tempfile
+        from pathlib import Path
+        tmp = Path(tempfile.mkdtemp())
+        for rel, content in files.items():
+            p = tmp / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(content, encoding="utf-8")
+        class W:
+            pass
+        w = W()
+        w.workspaces = tmp
+        return w, tmp
+
+    def test_parses_title_and_service(self):
+        w, tmp = self._make({
+            "p1/openspec/changes/c1/tasks/cards/T-001.md":
+                "# T-001: 迁移提交受理（权限校验 + 落库）\n\n**服务**: knowledge-api\n",
+            "p1/openspec/changes/c1/tasks/cards/T-002.md":
+                "# T-002: 批次状态机\n**服务**: resource-manager\n",
+        })
+        from cli.services import providers
+        out = providers.task_card_summaries(w, {}, "p1")
+        self.assertEqual(out["T-001"], "迁移提交受理（权限校验 + 落库）（knowledge-api）")
+        self.assertEqual(out["T-002"], "批次状态机（resource-manager）")
+
+    def test_fallback_to_stem_without_title(self):
+        w, tmp = self._make({
+            "p1/openspec/changes/c1/tasks/cards/T-009.md": "**服务**: svc-x\n",
+        })
+        from cli.services import providers
+        out = providers.task_card_summaries(w, {}, "p1")
+        self.assertEqual(out["T-009"], "T-009（svc-x）")
