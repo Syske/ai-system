@@ -9,7 +9,7 @@ governance/memory/java/
 
 Contains:
 
-- `coding-memory.md` — general Java coding experience (strategy pattern, ordering of operations)
+- `coding-memory.md` — general Java coding experience (strategy pattern, ordering of operations, Maven publishing/deploy)
 - `mq.md` — MQ experience
 - `integration.md` — integration (WeCom) experience
 - `spring.md` — Spring experience
