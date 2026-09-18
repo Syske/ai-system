@@ -43,6 +43,8 @@
 | Implemented | 逐 aic 工作流用户交互审计（wizard 交互序列/确认节奏/呈现） | 2026-08-25 | `P38-WORKFLOW-INTERACTION-AUDIT.md` |
 | Implemented | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 污染 .git/.githooks） | 2026-08-25 | `P39-EXTENSIONS-LINT-HIDDEN-DIRS.md` |
 | Implemented | OpenSpec-CN Change Name 字母开头约束与 workspace 命名惯例冲突 | 2026-08-25 | `P40-OPENSPEC-CHANGE-NAME-NAMING.md` |
+| Implemented | methodologies 整体移除（价值资产迁入 ai-system：tasks-template/spec-updater/archive/explore；24 处引用清理） | 2026-09-17 | `P55-METHODOLOGIES-REMOVAL.md` |
+| Implemented | SenSpec 价值吸收上链（证据等级/读取纪律/熔断/指针/图形规则，来源路径已脱敏） | 2026-09-17 | `P56-SENSPEC-VALUE-ABSORPTION.md` |
 | Proposed | tr5 脚本健壮性批次（§1 语义 + 工时校验 + 服务名正则 + tr4_url 条件化） | 2026-08-26 | `P41-TR5-SECTION1-SEMANTICS.md` |
 | Proposed | 新增 tr5_template.md 一页纸骨架模板 | 2026-08-26 | `P42-TR5-TEMPLATE-SKELETON.md` |
 | Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |

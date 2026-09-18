@@ -138,3 +138,19 @@ Applied per approval (OPERATIONS §12 → Implement → Validate)：
 - ✅ 已实施 ①「静默推导 + recap」：`cli/services/wizard/steps.py` 新增 `SILENT_DERIVE_WORKFLOWS` 白名单（dev-setup/develop/review/verify/release）+ `_try_derive_silent()`——满足条件（workflow 类、无必填、有项目/工作区锚点）时跳过逐项提问，默认值+推导（Task Card/git/产物路径）预填后单次 recap 确认；选「逐项修改」或 BACK 回退常规逐项流程（覆盖权保留）
 - ⏳ defer ② 非 main-chain 工作流澄清行为约束评估；③ bugfix「3+ 失败 STOP」行 @keep 化
 - 验证：mock 单测全路径通过（白名单外/含必填/无锚点回退 × 确认/逐项修改/BACK）；CLI 164 tests OK；repo-lint / quick-check 绿
+
+**批次 2 收口（2026-09-17，用户反馈驱动）**
+- 推导确认可读性全链路：
+  1. **清屏修复**：choose() `_frame` 每帧 `\x1b[2J\x1b[H` 清屏，菜单前 print 全部被吞（字段列表
+     TTY 从未显示）→ 字段列表 + 术语说明移入 `header` 槽（frame 组成部分，重绘保留）；
+  2. **三分支**：Task ID 未推导（0 张/多张任务卡，无法安全猜测）→ 回退正常逐项收集（任务卡
+     选择菜单）——修复批次 2 遗留：多卡场景确认「使用推导值（实际全空）」跳过收集，
+     develop 在无 Task ID 下运行；已推导 → recap 确认；无可推导字段 → 静默继续；
+  3. **选项说明**：推导确认两选项 + intake 确认（AI 理解/新意图）补 `— 说明`；
+  4. **✏️→📝**：U+270F+U+FE0F 变体选择符渲染失败，换 U+1F4DD（其余 VS16 保留待观察）；
+  5. **Task ID 选择器**：`providers.task_card_summaries` 动态读卡片标题/服务做选项概述
+     （16 卡实测）；专属动作标签「⌨️ 手动输入（任务描述或指定卡片）/ ⏭️ AI 自行选择」
+     （skip = develop 按执行计划自动选未完成卡，多卡建议显式选择）；
+  6. **note 内联高亮**：`_paint_note` 组件（`**` 段 → bold-cyan，其余 dim；fallback 剥标记），
+     Task ID / Related Issue(s) note 加详 + 关键术语高亮。
+- 验证：296 OK（+2 task_card_summaries 测试）、check.py PASS、pty 实测（header 保留/无重复 manual）
