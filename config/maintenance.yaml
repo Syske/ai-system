@@ -89,6 +89,11 @@ last_findings:
   Task ID 选择器：task_card_summaries 卡片概述 + 专属标签（手动输入=描述/指定卡、AI 自行选择）；
   i18n note 加详 + `**` 内联高亮组件（_paint_note，bold-cyan 关键术语）；296 OK（+2 测试）、
   check.py PASS、pty 实测
+- README pack.py 残留清理（用户报告）：README.md:49/95 + README_MIGRATION.md 引用已删除的
+  pack 打包脚本（04ea2cf 移除时漏清）——README_MIGRATION 重构为 git 迁移载体说明（Setup on a New Machine，
+  删 Packed/Excluded/Run pack 段）；README.md 删 pack 命令行 + 维护说明更新
+- memory 英文门禁（2026-09-18 会话写入中文）：integration.md 跨库表归属实测 + coding-memory.md
+  跨分支合并冲突纪律 → 英文翻译；check.py PASS（基线 2 WARN）
 - 顺带 minor-fix：governance/memory/java/integration.md 2026-09-16 追加块 8 CJK 字符（memory 必须
   英文，check.py FAIL）→ 已英文化；该文件 2026-09-16 追加内容归属仍需提交前确认（未提交）
 - 工具门禁全绿：quick-check OK / lint 0/0/25 / path 712 refs 0 broken / workflow-command-audit
