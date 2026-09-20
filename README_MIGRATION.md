@@ -1,4 +1,6 @@
-# AI System — Migration Package
+# AI System — Setup on a New Machine
+
+> 2026-09-10 起无打包命令：`tools/pack.py` 已移除，ai-system 以 **git 远端为备份/迁移载体**（clone + `pip install -e`）。本文档为迁移后的机器安装步骤。
 
 ## What's Here
 
@@ -26,36 +28,8 @@ ai-system/ — the full AI Runtime Engine (workflows, skills, governance, CLI)
      aic                 # interactive wizard (no arguments)
      python tools/path-audit.py
 
-## Packed On
+## 迁移载体（2026-09-10 起）
 
-2026-07-31
-
-## Included Directories
-
-  aic.egg-info/
-  archived/
-  cli/
-  config/
-  frameworks/
-  governance/
-  loaders/
-  logs/
-  maintainers/
-  metrics/
-  reports/
-  rfc/
-  routing/
-  skills/
-  templates/
-  tools/
-  workflows/
-
-## Excluded
-
-- logs/, metrics/, .egg-info, __pycache__, *.pyc
-- node_modules/, package*.json, link.txt
-- archived/ai-runtime/opencode/node_modules/
-- local.yaml (saved as .template — contains absolute paths)
-
-Run tools/pack.py on the new machine after the first migration to create
-subsequent migration packages.
+- 克隆 git 远端（github.com:Syske/ai-system）到目标机器，`cd ai-system && pip install -e .`
+  即可获得完整引擎；不再生成/拷贝 zip 迁移包（原 `tools/pack.py` 移除，git 远端即备份）。
+- `workspaces/` 与工作区级产物不入库，随项目工作区各自维护。

@@ -46,7 +46,7 @@ analysis / knowledge（支撑：系统分析、知识沉淀）
 |---|---|---|
 | `README.md` | 入口 / 概览（结构、快速命令） | 手动 |
 | `OPERATIONS.md` | 运维手册 — 入口流程、lint/check 用法、菜单维护、工作流规则 | 手动 |
-| `README_MIGRATION.md` | 迁移包清单（随打包副本发布） | **由 `tools/pack.py` 生成**，勿手动改 |
+| `README_MIGRATION.md` | 新机器安装步骤（迁移说明） | 手动（原由 `tools/pack.py` 生成；2026-09-10 移除，git 远端即备份） |
 
 工作流链 / 选择表：唯一来源为 `workflows/README.md`（OPERATIONS 与本文档均引用，不重复维护）。
 
@@ -90,9 +90,8 @@ python tools/path-audit.py
 # 健康指标
 python tools/repo-metrics.py --repo-root .
 
-# 依赖图 / 迁移打包
+# 依赖图
 python tools/dependency-graph.py --repo-root .
-python tools/pack.py [--zip]
 ```
 
 ## 技术栈
