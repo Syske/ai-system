@@ -142,7 +142,7 @@ Scope:
 - Any SOFABoot / Spring repo with a domain entity named `Resource`
 - Lombok `@Slf4j` usage combined with `@Resource` injection
 
-## [Java] Standalone Maven Module Needs Inline distributionManagement to Deploy
+## [Java] Standalone Maven Modules Must Inline Inherited Build Config
 
 Date: 2026-09-18
 
@@ -150,37 +150,51 @@ Priority: P1
 
 Context:
 
-Service repos commonly publish a `*-facade` contract module that sibling services consume as a Maven dependency from the internal Nexus. Some repos declare `distributionManagement` once in the repo root POM so every child module inherits it; others deliver the service as a container image and host a few standalone library modules instead.
+Service repos commonly publish a `*-facade` contract module that sibling services consume as a Maven dependency from the internal Nexus. A repo root POM may declare build config once so every child module inherits it — `distributionManagement` (publish target) and `<repositories>`/`<pluginRepositories>` (dependency resolution). Modules that set `<parent>` inherit it; standalone (parent-less) modules inherit nothing. Some repos deliver the service as a container image and host a few standalone library modules instead.
 
 Problem:
 
-`mvn deploy` on a newly added facade module failed:
+Two symptoms on the same newly added standalone facade module (same day), both from the missing inheritance:
+
+1. `mvn deploy` failed:
 
 `Failed to execute goal ... maven-deploy-plugin:deploy (default-deploy) on project <facade>: Deployment failed: repository element was not specified in the POM inside distributionManagement element or in -DaltDeploymentRepository=id::url parameter`
 
-The same command worked for a sibling repo's facades, which made it look like a Nexus connectivity or permission problem.
+2. The pipeline build failed while resolving dependencies: `Could not resolve dependencies for project ...: Could not find artifact net.coolcollege.platform.service:platform-util:jar:<version> in alimaven (http://maven.aliyun.com/nexus/content/groups/public/)` — the module depends on an internal artifact, but in CI `central` is mirrored to a public mirror, so internal artifacts cannot be found. Local builds did not reproduce it (the local settings mirror `central` to the company Nexus).
+
+Both commands worked for a sibling repo's facades, which made it look like a Nexus connectivity or permission problem.
 
 Root Cause:
 
-The new facade POM has no `<parent>`, so it inherits nothing; and its own repo root POM declares no `distributionManagement` either (that service ships as a container image, so it never needed Maven publishing). The sibling repo's facades worked only because their root POM declares `distributionManagement` and all their modules set `<parent>`.
+The module POM has no `<parent>`, so it inherits **nothing** from the repo root POM — neither `distributionManagement` nor `<repositories>`/`<pluginRepositories>`. The repo root POM itself declares no `distributionManagement` (that service ships as a container image, so it never needed Maven publishing), while it does declare the internal repository. Sibling-repo facades worked only because their root POM declares the config and all their modules set `<parent>`. Because the standalone module is published to consumers, adding a `<parent>` is NOT the fix: the parent POM would then also have to be published for consumers to resolve it.
 
 Solution:
 
-- Declare `<distributionManagement>` inline in the standalone module POM, mirroring an existing precedent library module in the same repo that already deploys.
+- Inline every piece of build config the module actually needs — publish target (`distributionManagement`) and dependency/plugin repositories (`<repositories>`/`<pluginRepositories>`) — mirroring an existing precedent in the same repo (a library module that already deploys) or the repo root POM.
 - Do NOT try to fix it by adding `<parent>` when the parent POM declares no `distributionManagement`: nothing would be inherited, and the parent BOM would be pulled in, changing the module build.
 - Verify offline first: `mvn -o install -pl <module> -DskipTests` (exit 0, artifact lands in the local repo). Then confirm the distribution id matches a `<server><id>` entry in the Maven `settings.xml`, and probe the remote repository (an unauthenticated HTTP 401 means it is reachable and only needs credentials).
 - Keep the two goals apart: `install` fills only the local repository (enough when the consumer builds on the same agent); `deploy` publishes to the remote repository (required for cross-agent / cross-pipeline consumption).
+- To reproduce a CI resolution failure locally, run from a directory whose POM declares no repositories (an empty dir) and point `central` at a public mirror with an empty local repository: internal artifacts then fail to resolve. Running in the repo root masks it, because the root POM supplies the repository.
 
 Lesson:
 
-A Maven module whose own POM and every ancestor POM lack `distributionManagement` must declare it inline, otherwise `mvn deploy` fails with "repository element was not specified".
+A standalone (parent-less) Maven module inherits nothing from the repo root POM, so it must inline every build config it needs — `distributionManagement` (else `mvn deploy` fails with "repository element was not specified") and `<repositories>`/`<pluginRepositories>` (else internal dependencies fail to resolve in CI, where `central` is mirrored to a public repository).
 
 Scope:
 
 - Standalone (parent-less) Maven modules in multi-module service repos — e.g. facade / common library artifacts
 - Repos whose root POM declares no `distributionManagement` because the service is delivered as a container image
-- Check with: `mvn help:effective-pom -pl <module> | grep -A6 distributionManagement`
+- Check with: `mvn help:effective-pom -pl <module> | grep -A6 distributionManagement` and `... | grep -A6 '<repositories>'`
+- Symptom fingerprints: "repository element was not specified in the POM inside distributionManagement element"; "Could not find artifact <internal groupId> in alimaven"
 
 Related:
 
 - No governance standard for Maven publishing yet (candidate: a company-standard Maven conventions doc); incident record: `ai-system/logs/env-maven-distmgmt-deploy-20260918-110006.md`
+
+## Cross-branch merge conflict resolution discipline (2026-09 evidence)
+
+- **Resolve conflicts against the upstream's own unit-test assertions as the contract baseline**, never by semantic intuition "take the union". Counter-example: when two upstream fixes touch the same method, a union-introduced fallback branch breaks the other fix's own test (`DynamicDataSource#getDbServerByDbName`: `getCurrentDbName(false)` default-DB fallback vs the test-required "blank delegates as null and does not write back").
+- **Immediately run that file's unit test after resolving** (`mvn -o -pl <module> -am test -Dtest=<Case>`) as the verdict evidence; compilation alone does not prove semantic correctness.
+- **Two branches resolving the same core method differently will conflict again on the next merge**; converge on a "single version" (prefer the upstream owner's version), not both sides keeping their own.
+- **Test sources that fail to compile cannot be skipped with `@Ignore`** (`@Ignore` only affects execution, not compilation): exclude them at the **test compile phase** (`maven-compiler-plugin` `testExcludes`); if the project disables surefire ignore-test-failures, prefer compile-phase exclusion and document the removal condition.
+- **Do not commit tool artifacts**: `git rm --cached <artifact-dir>` + append `.gitignore`, otherwise every cross-branch merge drags them in (e.g. CodeGraph index 170MB).
