@@ -12,8 +12,11 @@ MODULES = ["memory", "reflection", "planning", "action", "system"]
 SEVERITIES = {"high", "medium", "low"}
 
 SHELL_TOOL_RE = re.compile(r"(bash|shell|exec|python|node|npm|pnpm|yarn|pip)", re.I)
+# 危险命令守卫。注意尾随 \b 在 "/" 后不成词边界，会把 `rm -rf /` 整条分支变成死分支
+# （2026-09-21 外部盲检 V5 实测：`rm -rf /`、`rm -rf /tmp` 均未被检出），
+# 故 rm 分支不加尾随边界，仅靠左边界防误伤；其余关键词命令保留 \b。
 DANGEROUS_COMMAND_RE = re.compile(
-    r"\b(rm\s+-rf\s+/(?:\s|$)|git\s+push\s+--force|drop\s+table|mkfs|shutdown|reboot)\b",
+    r"(?:^|[^\w-])(?:rm\s+-rf\s+/|git\s+push\s+--force\b|drop\s+table\b|mkfs\b|shutdown\b|reboot\b)",
     re.I,
 )
 WRITE_TOOL_RE = re.compile(r"(edit|write|patch|apply|save|create|delete|remove)", re.I)

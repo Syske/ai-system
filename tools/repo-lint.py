@@ -405,7 +405,7 @@ def check_language(root, results):
                 # — flow-control terminology is English by convention
                 if re.match(
                     r"^(Purpose|Runtime|Preconditions|Inputs|Context|Outputs|"
-                    r"Exit Criteria|Next|Trigger|Stopping Conditions|Steps|Guardrails|Workflow)\\b",
+                    r"Exit Criteria|Next|Trigger|Stopping Conditions|Steps|Guardrails|Workflow)\b",
                     body,
                 ):
                     continue

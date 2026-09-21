@@ -51,7 +51,9 @@ def _parse_summary(out: str, pattern: str) -> int:
 
 
 def run_checks() -> dict:
-    lint = _run([sys.executable, str(HERE / "repo-lint.py"), "--repo-root", "."])
+    # 用仓根而非 cwd：否则在非仓根目录运行时 repo-lint 会扫错目录，
+    # 产出“虚假健康”结果（2026-09-21 外部盲检 V4）。
+    lint = _run([sys.executable, str(HERE / "repo-lint.py"), "--repo-root", str(ROOT)])
     path = _run([sys.executable, str(HERE / "path-audit.py")])
     ext = _run([sys.executable, str(HERE / "extensions-lint.py")])
 
