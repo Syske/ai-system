@@ -143,7 +143,7 @@
 | D8 | 声称的安全门禁无载体 | ✅ | `policies/security-policy.md:36` 称 release 含 secret scan 并指向 `review-standard.md`；后者与 `runtime-release.md` **均无**该项 |
 | D9 | 模板含组织专有内容 | ❌→部分保留 | 仅剩 `runtime-hotfix-test-doc.md`（CoolAcademy / 内网域名 / 集群名 / `@VerifyPathGuard` / Redis SET）——**该 runtime 本身即组织专用流程**，判定为有意为之；`tasks-template.md` 已泛化为「配置中心（如 Apollo / Nacos）」 |
 
-### 6.4 代码层遗留 —— **已逐条落位核实**（结论已更新）
+### 6.4 代码层遗留 —— 已逐条落位核实 → **已于 T6a 批次修复**（`0606d64`，+18 回归测试）
 
 | ID | 主题 | 结论 | 证据 |
 |---|---|---|---|
@@ -159,6 +159,14 @@
 | C10 | 静默吞 YAML 错误 | ✅ | `generate_contract.py:48-50` `except yaml.YAMLError: pass` |
 | C11 | 字段校验语义错位 | ✅ | `generate_contract.py:159` 取 `切库规则`（**描述串**）与 `spec["_fields"]`（**字段名列表**）做成员判断 |
 | C12 | governor 引用缺失脚本 | ❌ | `tools/repo-lint.py` 等三个脚本**均存在**；该包只投喂了 `skills/`，`tools/` 不在包内 → **分域盲区**，非缺陷 |
+
+### 6.4.1 T6a 实施中的**新发现**（超出盲检主张）
+
+| # | 发现 | 说明 |
+|---|---|---|
+| 1 | **`suppressions.xml` 不是合法 XML** | 注释内含 `-----------` 分隔线；XML 注释中 `--` 非法 → 该文件**无法被任何 XML 解析器读取**。即使 C5 的接线修好也永不生效（比盲检主张更深一层） |
+| 2 | 模板文档的用法本身写错 | 头部原写 `-p suppressions.xml`（checkstyle 的 `-p` 是 **properties** 文件），且 `${config_loc}` 在 checkstyle 10.x **已移除** → 两处均已更正，并改为「配置内 SuppressionFilter + 相对仓根 + `optional=true`」 |
+| 3 | **C6 修复暴露 68 条被掩盖的违规** | 单行 docstring 曾让其后的注释整段漏检；修正后 repo-lint 的英文注释 WARN 由 12 → 80（总数 28 → 96），**均为真阳性**（`cli/**/*.py` 与 `tools/*.py` 注释应为中文）。属"暴露存量债"，非质量回退 |
 
 ### 6.5 误读清单（6 条）——交叉盲法的必要代价
 
