@@ -179,6 +179,20 @@ Applied per approval (OPERATIONS §12 → Implement → Validate)。
 - **端到端冒烟**：依文档化命令重建 doc 层包（136k tokens）+ 按隔离开关启动一次判官运行（后台），
   用于校验 Phase 3/4（隔离 + 形状校验）
 
+### 端到端冒烟结果（2026-09-21 20:45，P61 §6 验证项 2/3）
+
+| 项 | 结果 |
+|---|---|
+| 包来源 | `tools/blind-bundle.py --layers doc`（新工具）→ doc 层 136k tokens |
+| 提示词来源 | `templates/prompts/external-blind-review.md` Pass A（新提示词库） |
+| 隔离 | 空目录 + 工具/上下文/扩展/技能/模板全禁 + 无会话持久化（runtime Phase 3 的文档化开关） |
+| 形状校验 | **通过**：`rc=0`、15,075 bytes、**0 个 tool_call 标记**、耗时 ~11 分钟 |
+| 产出 | 1 BLOCKER / 13 ERROR / 19 WARN / 4 INFO |
+| 复现性 | 复现了已知项（治理版本漂移、spec 前置口径 → P64、归档路径冲突）；**另新增 ~9 条**（`OPERATIONS` 与 `SOURCE_OF_TRUTH` 的优先级冲突、`runtime-bugfix` 的 push/verify 步骤缺口、`branch_parser` 路径写错、`release`/`review` 的 frontmatter Next 与正文 Next 不一致、`REFLECTION_RULES` 适用范围列表遗漏等） |
+
+结论：新工作流/工具/提示词可独立复跑并产生增量发现；新增发现已登记到
+`reports/EXTERNAL-BLIND-REVIEW-2026-09-21.md` §6.6。
+
 ### 实施中当场抓到的 4 个问题（都是本次新增机制报出来的）
 
 1. **新卫生门禁抓到自己的假阳性**：裸仓库名 `ai-system` 在本制品内是**合法路径前缀**（doc 层出现 113 次）

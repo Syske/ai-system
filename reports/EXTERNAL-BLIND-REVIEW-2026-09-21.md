@@ -157,6 +157,26 @@
 | `format-check` FAIL=2 | **既有问题**（与本次无关，worktree 基线比对同为 FAIL=2）；不在 maintain 门禁集内 |
 | 真实 TTY 复测 | V8 修复后建议人工复测交互菜单 |
 
+### 6.6 2026-09-21 冒烟复跑（P61 验证）新增发现
+
+经 P61 新工作流（`tools/blind-bundle.py` + `templates/prompts/external-blind-review.md` Pass A）复跑
+doc 层（136k tokens，单判官，形状校验通过），在复现已知项之外新增：
+
+| ID | 主题 | 证据 |
+|---|---|---|
+| N-1 | 治理权威冲突（另一处） | `OPERATIONS.md`「Governance always …」↔ `SOURCE_OF_TRUTH.md`「Contract is Supreme」 |
+| N-2 | hotfix 提交后缺独立 verify | `OPERATIONS.md`（verify → doc）↔ `runtime-bugfix.md`（无提交后 verify 阶段） |
+| N-3 | push 步骤缺口 | `runtime-bugfix.md` MR 阶段要求「committed and pushed」↔ commit 阶段「Do NOT push」，push 未定义 |
+| N-4 | branch parser 路径写错 | `OPERATIONS.md`「`scripts/branch_parser.py`」↔ 实际 `cli/services/branch_parser.py` |
+| N-5 | memory 条目字段缺失 | `MEMORY_GUIDELINES.md` 要求必备字段 ↔ `memory/java/coding-memory.md` 部分条目缺 `Date` 等 |
+| N-6 | 质量门禁自相矛盾 | `policies/quality-gates.md`「No absolute paths」↔ `MEMORY_GUIDELINES.md` 示例 `/home/<user>/` |
+| N-7 | frontmatter Next ↔ 正文 Next 不一致 | `workflows/release.md`（frontmatter `next: [develop]` ↔ 正文含 `deployment`） |
+| N-8 | 同上 | `workflows/review.md`（frontmatter `next: [bugfix, spec]` ↔ 正文 `verify`/`develop`） |
+| N-9 | Reflection 适用范围列表遗漏 | `REFLECTION_RULES.md` 称适用所有工作流 ↔ 列表缺 `code-review`/`change-impact` 等 |
+
+> N-7/N-8 属**可机器校验**的契约漂移（frontmatter ↔ 正文），值得纳入门禁候选；
+> N-1..N-9 均为单判官命中，按盲检纪律**需逐条落位核实**后方可计为缺陷。
+
 ## 七、复现与资产
 
 **持久记录（入库）**
