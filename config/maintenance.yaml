@@ -12,9 +12,23 @@
 # write last_run / mode / next_maintenance / last_findings at run end.
 
 last_run: 2026-09-21
-mode: on-demand
-next_maintenance: '2026-09-16'   # weekly 节奏：+7d（on-demand 专项不推进计划内下次；2026-09-16 已到期待另排 weekly）
+mode: weekly
+next_maintenance: '2026-09-28'   # weekly 节奏：+7d（本次 2026-09-21 补做 09-16 到期周检）
 last_findings:
+- 计划内周检（weekly，2026-09-21 补做，原排期 2026-09-16 逾期 5 天）：工具门禁全绿
+  （check.py PASS/325 单测/八段 15/15/path 0 broken/extensions 0-0/workflow-command-audit 0-0）。
+  周度专项：依赖图 33 技能/4 层、真实依赖无环（3 条 doc-only 提及环复核为指引非依赖）；
+  孤儿资产 0；权威层（199 文件）跨资产标题级重复 0（唯一重合=八段契约结构）、逐字重复段 0；
+  健康评分 13 通过/0 失败/2 N/A（无 playbooks//checklists/）→ 固定公式 86.7 落 DEGRADED 但扣分
+  全为 N/A，生效维度 13/13=HEALTHY（建议 health.md 明确 N/A 口径）。指标 09-17→09-21：
+  Skills 30→33（methodologies 迁移 3 技能）、Governance 59→60、Templates 22→24（tasks-template
+  + templates/README）、平均行数 494→478（复杂度下降）；lint WARN 26→28 全为「无 workflow.md」类
+  （+3 迁移/-1 归档），非质量回归。新发现 2 低：①maintain-report.py 上期快照误选
+  maintain-delta-state.json（无 timestamp）致上期全为 ?、变化列硬编码 =（历次靠手工回填）；
+  ②P26 CI 项 checkbox 已关闭但同文件开放项段落仍列 defer（文案矛盾）。09-09 遗留 2 项核验已闭环
+  （合同 §2 图已含 logs//archived/、aic-maintain 98 行 ≤100）。知识生命周期：203 条日志高频主题
+  均已有捕获载体，无新增捕获项。机器/环境观察（metrics 快照命名两口径、D 盘池、extensions 历史
+  遗留）仅入诊断日志。小修 2 项待用户确认。
 - on-demand 全链闭环（2026-09-21，用户逐项确认）：核心产出——P57/P58/P59 立项并全部实施；
   P57 候选驱动 service 选择（Projects 候选=容器 workspace.yaml 映射服务）+ 死循环出口；
   P58 projects/ 真实目录 + repositories 源按需 clone（含本机解链迁移 + worktree repair）；
