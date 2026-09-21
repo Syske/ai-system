@@ -14,7 +14,7 @@ Trigger words: `外部 AI 结论`, `第三方结论`, `DeepSeek/其他 AI 的结
 ## Procedure
 
 1. **Fetch the raw source text** — for share links use the local export path
-   (`skills/deepseek-share-to-md`）to pull the exact conversation into Markdown;
+   (`skills/deepseek-share-to-md`) to pull the exact conversation into Markdown;
    do NOT treat the summary as the source.
 
 2. **Claim-by-claim evidence check** — split the external conclusion into discrete

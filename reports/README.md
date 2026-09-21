@@ -60,6 +60,7 @@
 | [P56](P56-SENSPEC-VALUE-ABSORPTION.md) | SenSpec 价值吸收上链（来源路径已脱敏） | 2026-09-17 |
 | [P57](P57-SCAN-SERVICE-SELECTION.md) | scan 命令 service 级选择 + 字段收集死循环出口（参照 code-review 交互流程）— **Implemented** 2026-09-21 | 2026-09-21 |
 | [P58](P58-PROJECTS-REPOSITORIES-ONDELIVERY.md) | projects/ 真实目录 + repositories 源按需 clone（消除软链/双副本）— **Implemented** 2026-09-21 | 2026-09-21 |
+| [P59](P59-TEMPLATE-AUTHORING-DISCIPLINE.md) | 模板层作者纪律（折行≠token 优化；实测收益 0.03% → 回退）— **Implemented** 2026-09-21 | 2026-09-21 |
 | [P54](P54-DEDUP-PLANNING.md) | 消除双重计划（implement Stage 2 复用已确认计划，每卡省 1 次推断+确认）— **Implemented** 2026-09-09 | 2026-09-09 |
 | [P47](P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md) | develop 前置处理规则与产物目录约定（前置不满足→先跑 dev-setup；完成报告落 completion-reports/）— **Implemented** 2026-09-02 | 2026-09-02 |
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |
