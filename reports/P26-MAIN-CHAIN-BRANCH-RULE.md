@@ -79,5 +79,6 @@
   `tools/checks/__init__.py`/`workflow.py` check_branch_parser 门禁 + AI_OPERATING_RULES Workspace
   Discipline 分支纪律 + `runtime-spec.md` Task Card `branch` 字段 + `aic-trace.md` 解析复用
 - 验证：CLI 135 测试 OK / check.py PASS / repo-lint 25 WARN 无新增
-- 开放项（defer，触发再评估）：分支扩展 provider（extensions/ 提供者，按需；契约已预留）、
-  CI 增强（git 分支保护，后续）——2026-08-23 maintain 巡检核验后维持 defer
+- 开放项（defer，触发再评估）：分支扩展 provider（extensions/ 提供者，按需；契约已预留）
+  ——2026-08-23 maintain 巡检核验后维持 defer；
+  CI 增强（git 分支保护）**已于 2026-09-09 关闭**（GitHub Actions CI 已移除，见上 checkbox）

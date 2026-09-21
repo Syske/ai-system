@@ -130,13 +130,15 @@
 | 1 | 收尾（例行） | 本报告登记 reports/README.md 索引（proposal-policy §6，关闭自举 WARN） | ✅ 本次执行 |
 | 2 | 收尾（例行） | `maintain-delta.py --record` 建立新增量基线 | ✅ 本次执行 |
 | 3 | 收尾（例行） | 计划内周检补做：`maintenance.yaml` last_run=2026-09-21 / mode=weekly / next_maintenance=**2026-09-28** | ✅ 本次执行 |
-| 4 | 小修（待确认） | `tools/maintain-report.py` 上期快照误选 `maintain-delta-state.json` + 变化列硬编码（发现-1） | ⏸ 待确认 |
-| 5 | 小修（待确认） | P26 开放项段落同步 CI 项已关闭文案（发现-2，1 行） | ⏸ 待确认 |
-| 6 | 建议（标准文本） | `health.md` 明确 N/A 维度计分口径（信息-6，避免 HEALTHY 被算成 DEGRADED） | ⏸ 建议 |
+| 4 | 小修（已确认并实施） | `tools/maintain-report.py` 上期快照误选 `maintain-delta-state.json` + 变化列硬编码（发现-1）→ 已修：跳过无 `timestamp` 的文件、按 timestamp 选最接近上期、**计算真实增量**；补 6 常驻测试 | ✅ 本次执行 |
+| 5 | 小修（已确认并实施） | P26 开放项段落同步 CI 项已关闭文案（发现-2） | ✅ 本次执行 |
+| 6 | 建议（已确认并实施） | `skills/repository-maintainer/health.md` 明确 N/A 维度计分口径：`Score = passing / (15 - N/A) * 100` | ✅ 本次执行 |
 | 7 | 例行无操作 | 无新增提案、无新增知识捕获、无单点 typo/死链需就地修复 | — |
 | 8 | 已闭环核查 | 09-09 遗留：合同 §2 图（已含 logs//archived/）、aic-maintain 行数门禁（98 行） | ✅ 均闭环 |
 
-本次除例行收尾（索引 / delta 基线 / 维护态）外**未就地修改任何资产**。
+本次除例行收尾（索引 / delta 基线 / 维护态）外，就地修改 **3 处已确认小修**（修复清单 4/5/6，均经用户确认）：
+`tools/maintain-report.py` 指标对比取值 + `reports/P26-MAIN-CHAIN-BRANCH-RULE.md` 文案 + 
+`skills/repository-maintainer/health.md` N/A 计分口径；其余未动。
 
 ---
 

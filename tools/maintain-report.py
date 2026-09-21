@@ -56,40 +56,68 @@ def metrics_diff_section(date):
     if snap is None:
         return "- 指标快照 maintain-{date}.json 缺失\n"
 
-    # 上期 = 快照 timestamp 小于本期的最新一份（文件名含 20260820 无横线形态，
-    # 不能按字典序选）
+    # 上期 = timestamp 小于本期且**最接近**的一份指标快照。
+    # 注意：metrics/ 下有旁路状态文件（如 maintain-delta-state.json）**不带 timestamp**，
+    # 不能当作上期快照（否则上期列全为 ?）；快照文件名形态不一（含无横线形态），
+    # 也不能按字典序选，只能按 timestamp 比较。
     cur_ts = snap.get("timestamp", "")
     prev_data = None
+    prev_ts = ""
     for p in sorted(glob.glob(str(METRICS / "maintain-*.json"))):
         if "maintain-" + date + ".json" in p:
             continue
         d = load_json(Path(p))
-        if d and d.get("timestamp", "") < cur_ts:
+        if not d:
+            continue
+        ts = d.get("timestamp", "")
+        if not ts or ts >= cur_ts:
+            continue
+        if ts > prev_ts:
+            prev_ts = ts
             prev_data = d
 
-    def get(d, k, sub=None):
-        if d is None:
-            return "?"
-        v = d.get(k)
-        if sub and isinstance(v, dict):
-            return v.get(sub, "?")
-        return v if isinstance(v, (int, float, str)) else "?"
+    def value(data, key):
+        """取指标计数：快照中既可能是 {'count': N}，也可能是裸数值。"""
+        if data is None:
+            return None
+        v = data.get(key)
+        if isinstance(v, dict):
+            v = v.get("count")
+        return v if isinstance(v, (int, float)) else None
 
-    def size(d, name):
-        if d is None:
+    def cell(v):
+        return "?" if v is None else f"{v}"
+
+    def delta(prev_v, cur_v):
+        """真实增量（不再是硬编码 '='）：缺任一侧则为 '?'。"""
+        if not isinstance(prev_v, (int, float)) or not isinstance(cur_v, (int, float)):
             return "?"
-        s = d.get("skills", {}).get("sizes", {})
-        return s.get(name, "?")
+        d = cur_v - prev_v
+        if d == 0:
+            return "="
+        return f"{d:+g}"
 
     lines = [
         "| 指标 | 上期 | 本期 | 变化 |",
         "|---|---|---|---|",
-        f"| Skills | {prev_data and prev_data.get('skills', {}).get('count') or '?'} | {snap.get('skills', {}).get('count')} | = |",
-        f"| Workflows | {prev_data and prev_data.get('workflows', {}).get('count') or '?'} | {snap.get('workflows', {}).get('count')} | = |",
-        f"| RFC | {prev_data and prev_data.get('rfc', {}).get('count') or '?'} | {snap.get('rfc', {}).get('count')} | = |",
-        f"| Governance | {prev_data and prev_data.get('governance', {}).get('count') or '?'} | {snap.get('governance', {}).get('count')} | = |",
-        f"| Templates | {prev_data and prev_data.get('templates', {}).get('count') or '?'} | {snap.get('templates', {}).get('count')} | = |",
     ]
+    for label, key in (
+        ("Skills", "skills"),
+        ("Workflows", "workflows"),
+        ("RFC", "rfc"),
+        ("Governance", "governance"),
+        ("Templates", "templates"),
+    ):
+        pv, cv = value(prev_data, key), value(snap, key)
+        lines.append(f"| {label} | {cell(pv)} | {cell(cv)} | {delta(pv, cv)} |")
+
+    if prev_data is None:
+        lines.append(
+            "\n（未找到可用的上期快照——请核对 metrics/ 是否存在更早的 maintain-*.json）"
+        )
+    else:
+        lines.append(f"\n（上期快照 timestamp: {prev_ts}）")
+
     return "\n".join(lines) + "\n"
 
 

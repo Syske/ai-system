@@ -122,6 +122,76 @@ class TestMaintainReport(unittest.TestCase):
         self.assertIn("工具校验结果", target.read_text(encoding="utf-8"))
 
 
+class TestMaintainReportMetricsDiff(unittest.TestCase):
+    """指标对比：上期快照选择 + 真实增量（2026-09-21 修复的回归测试）。
+
+    修复前缺陷：维护状态旁路文件 maintain-delta-state.json 无 timestamp，
+    被当作「上期快照」→ 上期列全为 ?；且变化列硬编码 '='。
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.report = _load("maintain-report")
+        self.report.METRICS = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def _snap(self, name, ts, **metrics):
+        data = {"timestamp": ts}
+        for k, v in metrics.items():
+            data[k] = {"count": v}
+        (self.report.METRICS / name).write_text(
+            json.dumps(data), encoding="utf-8"
+        )
+
+    def test_picks_latest_older_snapshot_and_computes_delta(self):
+        self._snap("maintain-2099-03-01.json", "2099-03-01T10:00:00", skills=10, workflows=5)
+        self._snap("maintain-2099-03-05.json", "2099-03-05T10:00:00", skills=12, workflows=5)
+        self._snap("maintain-2099-03-08.json", "2099-03-08T10:00:00", skills=13, workflows=5)
+        out = self.report.metrics_diff_section("2099-03-08")
+        self.assertIn("| Skills | 12 | 13 | +1 |", out)
+        self.assertIn("| Workflows | 5 | 5 | = |", out)
+        self.assertIn("2099-03-05T10:00:00", out)
+
+    def test_delta_state_file_is_not_used_as_previous(self):
+        # 旁路状态文件（无 timestamp）必须先于已存在的方法被跳过
+        (self.report.METRICS / "maintain-delta-state.json").write_text(
+            json.dumps({"head": "abc", "skills": {"count": 999}}), encoding="utf-8"
+        )
+        self._snap("maintain-2099-03-01.json", "2099-03-01T10:00:00", skills=10)
+        self._snap("maintain-2099-03-08.json", "2099-03-08T10:00:00", skills=13)
+        out = self.report.metrics_diff_section("2099-03-08")
+        self.assertIn("| Skills | 10 | 13 | +3 |", out)
+        self.assertNotIn("999", out)
+
+    def test_decrease_shows_signed_delta(self):
+        self._snap("maintain-2099-03-01.json", "2099-03-01T10:00:00", templates=24)
+        self._snap("maintain-2099-03-08.json", "2099-03-08T10:00:00", templates=22)
+        out = self.report.metrics_diff_section("2099-03-08")
+        self.assertIn("| Templates | 24 | 22 | -2 |", out)
+
+    def test_no_previous_snapshot_marks_unknown(self):
+        self._snap("maintain-2099-03-08.json", "2099-03-08T10:00:00", skills=13)
+        out = self.report.metrics_diff_section("2099-03-08")
+        self.assertIn("| Skills | ? | 13 | ? |", out)
+        self.assertIn("未找到可用的上期快照", out)
+
+    def test_missing_current_snapshot(self):
+        out = self.report.metrics_diff_section("2099-03-08")
+        self.assertIn("缺失", out)
+
+    def test_accepts_flat_numeric_metric(self):
+        # 兼容裸数值形态（非 {'count': N}）
+        (self.report.METRICS / "maintain-2099-03-01.json").write_text(
+            json.dumps({"timestamp": "2099-03-01T10:00:00", "rfc": 14}),
+            encoding="utf-8",
+        )
+        self._snap("maintain-2099-03-08.json", "2099-03-08T10:00:00", rfc=15)
+        out = self.report.metrics_diff_section("2099-03-08")
+        self.assertIn("| RFC | 14 | 15 | +1 |", out)
+
+
 class TestPromptMetrics(unittest.TestCase):
 
     def setUp(self):

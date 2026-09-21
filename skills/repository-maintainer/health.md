@@ -146,8 +146,16 @@ recommendation, priority, and estimated impact.
 ## Health Score Calculation
 
 ```
-Score = (passing_dimensions / 15) * 100
+Score = (passing_dimensions / applicable_dimensions) * 100
+applicable_dimensions = 15 - N/A
 ```
+
+- **N/A 维度**：仓库中**不存在该维度对应资产类**时（例如既无 `playbooks/` 也无
+  `checklists/` 目录 → Dim 7 / Dim 8 不适用），该维度**不计入分母**，并在报告中显式
+  记录 N/A 数量与原因。
+  否则把 HEALTHY 仓算成 DEGRADED（例：13 通过 + 2 N/A → 13/15 = 86.7 落 DEGRADED，
+  实际应为 13/13 = 100 HEALTHY）。
+- 当 15 维度均适用时 `applicable_dimensions = 15`，与历史评分口径一致。
 
 | Score | Status | Meaning |
 |---|---|---|
