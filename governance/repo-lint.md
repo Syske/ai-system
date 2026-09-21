@@ -69,3 +69,33 @@ name: java-maven  # Must match
 
 Naming conventions are enforced by `tools/repo-lint.py` and must pass at
 BLOCKER or ERROR level before any component is accepted.
+
+## Gate Self-Verification (P60)
+
+A gate that silently stops working is worse than no gate: it manufactures false
+confidence. The 2026-09-21 external blind review found five such failures at once
+(silently uncollected tests, a dead exemption regex, an uncollected `[BLOCKER]`
+severity, a fail-open registry check, an unreachable dangerous-command branch) —
+none of which produced any signal in the existing gates.
+
+Three rules apply to every gate, guard, regex, whitelist and registry check:
+
+1. **Fail loud.** A gate must never degrade into "pass" when its own rule cannot
+   be evaluated (missing key, empty pattern, unreadable target). Missing input is
+   an ERROR, not a skip.
+2. **Declarative rules need positive *and* negative cases.** Every regex /
+   whitelist / keyword exemption carries a self-test asserting what it must match
+   **and what it must not** — see `cli/tests/test_gate_self_verification.py`
+   (repo-lint keyword exemption, dangerous-command guard, path-audit relative
+   reference rule, tests-collected checker).
+3. **Declared and effective must be reconciled.** What a file *declares* and what
+   the runtime *collects* are two different worlds; they are compared by
+   `tools/checks/tests_collected.py` (declared `def test_` vs unittest collection),
+   wired into `tools/check.py`.
+
+Boundary: `tools/path-audit.py` audits explicit relative references (a dot-slash
+prefixed path, written in placeholders as `./<file>.md`) against the referring
+file's directory; *bare* relative forms (for example `references/x.md`, no
+dot-slash prefix) are intentionally out of scope (false-positive risk in prose).
+Note: because prose examples are audited too, documentation must write such
+references with a placeholder segment (`./<file>.md`) rather than a concrete path.

@@ -255,6 +255,14 @@ def check_workflow_stages(skill_dir, results):
 
 CJK_RE = re.compile(r"[\u4e00-\u9fff]")
 
+# 工作流关键词豁免：flow-control 术语（Purpose/Runtime/…）按约定为英文，出现在
+# 注释/字符串中不属语言违规。提到模块级常量以便正反例自测（P60；原为函数内联正则，
+# 曾因 raw 串中 `\\b` 写成字面反斜杠而静默失效——2026-09-21 外部盲检 V3）。
+WORKFLOW_KEYWORD_RE = re.compile(
+    r"^(Purpose|Runtime|Preconditions|Inputs|Context|Outputs|"
+    r"Exit Criteria|Next|Trigger|Stopping Conditions|Steps|Guardrails|Workflow)\b"
+)
+
 
 RULE4_REPORT_EXEMPT = {
     # User-facing report/artifact templates — language follows system locale
@@ -403,11 +411,7 @@ def check_language(root, results):
                     continue
                 # Allow workflow-section keywords (Purpose/Runtime/Inputs/...)
                 # — flow-control terminology is English by convention
-                if re.match(
-                    r"^(Purpose|Runtime|Preconditions|Inputs|Context|Outputs|"
-                    r"Exit Criteria|Next|Trigger|Stopping Conditions|Steps|Guardrails|Workflow)\b",
-                    body,
-                ):
+                if WORKFLOW_KEYWORD_RE.match(body):
                     continue
                 results.warning(
                     f"English comment (LANGUAGE_CONVENTION: code comments → Chinese): "

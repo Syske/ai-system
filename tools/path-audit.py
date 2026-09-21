@@ -93,6 +93,15 @@ PATH_RE = re.compile(
     r"/[\w{}$./*\-]+)"
 )
 
+# 显式相对引用（`./x.md`）：以文件自身目录为基准解析。
+# 原实现只解析 `../` 与「仓库顶层目录名开头」两种形态，技能内相对引用（如
+# skills/open-cli/SKILL.md 的 `./references/CLI-ONESHOT.md`）完全是审计盲区
+# （2026-09-21 外部盲检 V6 + P60 §5.3）。只收 `./` 前缀：语义无歧义。
+# 负向后顾：避免命中省略号路径 `.../x.java` 的尾部（实测误报）。
+DOT_REL_RE = re.compile(
+    r"(?<![\w./])\./[\w{}$./*\-]+\.(?:md|yaml|yml|py|sh|json|txt|xml|java|js|template)"
+)
+
 
 def is_runtime_reference(tok):
     """True if tok points into a runtime data root outside the repo.
@@ -156,6 +165,23 @@ def main():
 
         text = f.read_text(encoding="utf-8", errors="replace")
         rel = str(f.relative_to(WS))
+
+        # 显式相对引用（./x）以文件目录为基准解析（P60 §5.3）
+        for m in DOT_REL_RE.finditer(text):
+
+            tok = m.group(0).rstrip(".,;:)`'\"*")
+
+            if "{" in tok or "*" in tok or "$" in tok or "<" in tok:
+                placeholders += 1
+                continue
+
+            if tok in FALSE_POSITIVES or tok in EXAMPLE_ONLY:
+                continue
+
+            checked += 1
+
+            if not (f.parent / tok).resolve().exists():
+                missing.setdefault(tok, set()).add(rel)
 
         for m in PATH_RE.finditer(text):
 

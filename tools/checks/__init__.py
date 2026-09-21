@@ -19,6 +19,7 @@ from .misc import (
 )
 from .menu import check_menu, check_wizard_dry_run
 from .memory import check_memory
+from .tests_collected import check_tests_collected
 from .workflow import (
     check_branch_parser,
     check_frontmatter_consistency,
@@ -39,6 +40,7 @@ def run_all():
     check_imports(c)
     check_tuple_return_arity(c)
     check_cli_tests(c)
+    check_tests_collected(c)
     check_menu(c, workflows, commands)
     check_registry(c)
     check_next_sections(c, workflows)

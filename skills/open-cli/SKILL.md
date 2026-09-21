@@ -16,10 +16,20 @@ OpenCLI is a CLI framework that wraps website APIs into local command-line tools
 ## Workflow Modes
 
 
-**Quick mode** (single command): Follow [CLI-ONESHOT.md](./references/CLI-ONESHOT.md) — just a URL + description, 4 steps.
+**Quick mode** (single command): for a single command with a known URL + description, follow the
+Standard Workflow below directly — create the directory, generate the adapter, verify.
 
 
-**Full mode** (complex adapters): Read [CLI-EXPLORER.md](./references/CLI-EXPLORER.md) before writing any code. It covers: browser exploration workflow, auth strategy decision tree, platform SDKs (e.g. Bilibili `apiGet`/`fetchJson`), YAML vs TS selection, `tap` step debugging, cascading request patterns, and common pitfalls.
+**Full mode** (complex adapters): for complex adapters, work through: browser exploration to
+discover the request chain → auth strategy selection (Cookie / Public / Intercept / Header)
+→ platform SDK choice (e.g. Bilibili `apiGet` / `fetchJson`) → YAML vs TS selection
+→ `tap` step debugging → cascading request patterns.
+
+
+> Note: the two upstream detail docs previously linked here (`CLI-ONESHOT.md`,
+> `CLI-EXPLORER.md`) were **never vendored** into this repository, so the links were removed
+> (they were dangling paths — 2026-09-21 external blind review V6 / P60 §5.3). The guidance
+> above is the actionable fallback until those docs are vendored.
 
 
 ## Output Specification
