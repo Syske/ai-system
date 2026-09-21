@@ -92,7 +92,8 @@ Identify all projects/services in the release scope.
 
 For EACH project:
 
-- Locate repository root and active branch from workspace metadata (`.aic-workspace.yaml`) or repository config (`repositories/{service}.yaml`)
+- Locate repository root and active branch from workspace metadata
+  (`workspaces/{project_id}/workspace.yaml`, ADR-0008) or repository config (`repositories/{service}.yaml`)
 - Collect:
     - Completed tasks associated with this project
     - New dependencies (pom.xml, build.gradle, package.json changes)

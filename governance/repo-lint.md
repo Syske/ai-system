@@ -22,8 +22,9 @@ This document defines naming conventions for all components in the repository.
 
 | Component | Entrypoint | Pattern |
 |---|---|---|
-| Skill entrypoint | `skill.md` | Lowercase only |
-| Workflow entrypoint | `workflow.md` | Lowercase only |
+| Skill entrypoint | `SKILL.md` (also accepted: `skill.md`) | Case-insensitive |
+| Workflow entrypoint | `workflows/<name>.md` | Lowercase, kebab-case |
+| Skill-internal workflow (optional) | `workflow.md` inside the skill dir | Lowercase only |
 | Command entrypoint | `aic-<name>.md` in `cli/commands/` | Lowercase, kebab-case |
 | Playbook | `<topic>.md` | Lowercase only |
 | Knowledge | `<topic>.md` | Lowercase only |

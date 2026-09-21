@@ -68,10 +68,13 @@ other teams who read the code without access to internal task context.
 
 ## Commit Content（提交信息内容规范）
 
-- Subject 以**业务语义**开头（动词宾语短语），**禁止以任务编号开头**
-  （`feat(platform-api): T-001 …` 应写为 `feat(platform-api): 新增同步到北森的 REST 端点 syncToBeisen`；
-  `fix(订单): 修复并发超卖`）。
-- 需要关联内部任务时，任务编号仅可放 **body 尾部作关联注记**（`关联 T-002`），不进 subject。
+- Subject 以**业务语义**开头（动词宾语短语）。
+- **非任务卡提交**：禁止以任务编号开头（`fix(订单): 修复并发超卖`）。
+- **任务卡提交**：遵循 `commit-content.md` 的 `<type>(<scope>): T-<id> <subject>`——`T-<id>`
+  位于 subject 前缀，由 `tools/format-check.py --check-commit` 强制。
+  （两份标准的适用域曾相互冲突，2026-09-21 外部盲检 V7/ERR-02 已按“门禁优先”消歧：
+  任务卡提交以 `commit-content.md` 为准，本文件管非任务卡提交。）
+- 非任务卡提交需要关联内部任务时，任务编号仅可放 **body 尾部作关联注记**（`关联 T-002`），不进 subject。
 
 ---
 

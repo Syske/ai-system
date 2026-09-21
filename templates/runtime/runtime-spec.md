@@ -82,7 +82,7 @@ Resolved by Specification Runtime:
 Before Phase 1, verify the prepare deliverable is at the expected location and
 non-empty:
 
-- Check that `workspaces/<change-id>/openspec/changes/<change-id>/proposal.md`
+- Check that `workspaces/<project_id>/openspec/changes/<change-id>/proposal.md`
   (or the current change's Preparation Report) exists and is non-empty.
 - If missing or misplaced (e.g. mistargeted to `outputs/proposal/…`) → **Stop**:
   report that the precondition isn't met / path is wrong, reconcile the artifact
