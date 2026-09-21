@@ -50,6 +50,8 @@
 | Implemented | projects/ 真实目录 + repositories 源按需 clone（消除软链/双副本，repositories 先于 projects） | 2026-09-21 | `P58-PROJECTS-REPOSITORIES-ONDELIVERY.md` |
 | Implemented | 门禁自校验（声明 vs 收集测试数 / 关键规则正反例 / 显式相对引用） | 2026-09-21 | `P60-GATE-SELF-VERIFICATION.md` |
 | Proposed | 外部盲检纳入运维形式（新工作流 + 命令 + 盲检纪律入库 + 季度节奏） | 2026-09-21 | `P61-EXTERNAL-BLIND-REVIEW-AS-MAINTENANCE.md` |
+| Proposed | 任务提交信息 `T-<id>` 强制性与实践脱节（标准↔实践↔门禁三方不一致；以分支名做机器判据） | 2026-09-21 | `P62-TASK-COMMIT-TRACEABILITY.md` |
+| Proposed | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 | 2026-09-21 | `P63-BRANCH-NAMING-NON-ITERATION.md` |
 | Implemented | tr5 脚本健壮性批次（§1 语义 + §18 工时校验 + tr4_url 条件化；服务名正则项已失效） | 2026-08-26 | `P41-TR5-SECTION1-SEMANTICS.md` |
 | Proposed | 新增 tr5_template.md 一页纸骨架模板 | 2026-08-26 | `P42-TR5-TEMPLATE-SKELETON.md` |
 | Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |
