@@ -12,6 +12,7 @@
 - C9 spec_updater：生成脚本路径按仓根解析且存在
 - C10 generate_contract：YAML 解析失败被记录（不再静默）
 - C11 generate_contract：描述型「切库规则」不再恒定 ERROR
+- 附：外部盲检 BLOCKER —— deepseek_share_to_md.is_binary 中文误判（两评委均命中）
 
 Run:
     python -m unittest cli/tests/test_t6a_hardening.py
@@ -240,3 +241,39 @@ class TestSkillScriptFixes(unittest.TestCase):
         scenarios = [{"场景引用": "S1", "服务": "svc", "切库规则": "notAField"}]
         errs = gc.validate_fields(specs, scenarios)
         self.assertTrue(any("notAField" in e for e in errs), errs)
+
+class TestIsBinaryBlockerFix(unittest.TestCase):
+    """外部盲检 BLOCKER（两评委均命中）：中文 UTF-8 不得被判为二进制。
+
+    原口径「解码字符数/字节数 < 0.9」在中文上约 0.33 → 中文文本误判为二进制，
+    导致含中文附件的分享导出把文本附件按二进制处理。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load(
+            "deepseek_share_to_md",
+            REPO_ROOT / "skills" / "deepseek-share-to-md" / "scripts"
+            / "deepseek_share_to_md.py",
+        )
+
+    def test_chinese_text_is_not_binary(self):
+        for payload in ("这是中文内容。", "中文" * 500, "中文 ABC 🚀 混排"):
+            self.assertFalse(self.mod.is_binary(payload.encode("utf-8")), payload[:12])
+
+    def test_truncated_multibyte_tail_tolerated(self):
+        self.assertFalse(self.mod.is_binary(("中" * 2000).encode("utf-8")[:4096]))
+
+    def test_english_text_is_not_binary(self):
+        self.assertFalse(self.mod.is_binary(b"plain english text"))
+
+    def test_binary_payloads_detected(self):
+        for payload in (b"\x89PNG\r\n\x1a\n" + bytes(range(256)),
+                        bytes(range(256)) * 8):
+            self.assertTrue(self.mod.is_binary(payload))
+
+    def test_nul_marks_binary(self):
+        self.assertTrue(self.mod.is_binary(b"abc\x00def"))
+
+    def test_empty_is_not_binary(self):
+        self.assertFalse(self.mod.is_binary(b""))

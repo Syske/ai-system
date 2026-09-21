@@ -265,13 +265,35 @@ def save_file(data: bytes, dest_dir: str, fname: str) -> str:
 
 
 def is_binary(data: bytes) -> bool:
-    """检测是否二进制内容（含 NUL 或大量不可解码字节）。"""
+    """检测是否二进制内容。
+
+    判定口径（2026-09-21 外部盲检 BLOCKER 修正）：**不得**用「解码字符数/字节数」——
+    UTF-8 中文每字 3 字节，该比值约 0.33，会把中文文本**误判为二进制**
+    （qwen B3 F-01 + glm B2/B3 两评委均命中）。现改为：
+    1) 含 NUL → 二进制
+    2) 按「不可解码占比」判定（errors="replace" 的替换字符比）——
+       容忍 4096 边界截断的多字节字符（占比极小），真实二进制则占比极高
+    3) 兜底：非打印控制字符占比 > 5% → 二进制
+    """
     if not data:
         return False
-    if b"\x00" in data[:4096]:
+
+    sample = data[:4096]
+
+    if b"\x00" in sample:
         return True
-    sample = data[:4096].decode("utf-8", errors="ignore")
-    return len(sample) / max(len(data[:4096]), 1) < 0.9
+
+    text = sample.decode("utf-8", errors="replace")
+
+    if not text:
+        return False
+
+    if text.count("\ufffd") / len(text) > 0.02:
+        return True
+
+    ctrl = sum(1 for ch in text if ord(ch) < 32 and ch not in "\t\n\r\f\b")
+
+    return ctrl / len(text) > 0.05
 
 
 def inline_file(data: bytes, fname: str) -> str:
