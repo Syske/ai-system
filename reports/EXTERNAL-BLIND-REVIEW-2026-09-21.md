@@ -103,17 +103,59 @@
 
 ---
 
-## 六、存量与未裁决（诚实交接）
+## 六、存量与未裁决（2026-09-21 复核后更正）
+
+> **更正**：本节初版只登记了「135 WARN / 48 INFO 未逐条裁决」，**漏记了 42 条 BLOCKER/ERROR 级遗留**
+> （其中含 16 条已修/已由提案覆盖，26 条为真实待处置）。下表为复核后的完整账目。
+
+### 6.1 全部 BLOCKER/ERROR（58 条）的处置账目
+
+| 状态 | 条数 | 内容 |
+|---|---|---|
+| 已修复（本会话） | 16 | 嵌套测试方法（V1）· 重复 `suggest_change_id`（V2）· repo-lint 豁免正则（V3）· quick-check cwd（V4）· 危险命令守卫（V5）· open-cli 悬空引用（V6）· termios 索引（V8）· quick-check `[BLOCKER]` 采集 / checkstyle rename / `checks/workflow` fail-open（T4）· idea-mcp `isSuccess`（T4）· 文档层 5 项（提交约定消歧 / repo-lint Files 表 / `workspaces/<project_id>` / `workspace.yaml` / 模板去具体化） |
+| 已由提案覆盖 | 4 类 | 提交 `T-<id>` 系统性 → **P62** · 分支命名两形态 → **P63** · spec 前置/ prepare 产物 → **P64** · 验证标记 → **P46** |
+| **待处置（已核实为真）** | 5 | 见 6.2 |
+| **待处置（未核实）** | 33 | 见 6.3 / 6.4 |
+
+### 6.2 待处置且**已核实为真**（建议作 T5 批次）
+
+| # | 缺陷 | 证据 | 后果 |
+|---|---|---|---|
+| 1 | `tools/checks/bugfix_modes.py:229` 门禁**执行** provider 的 `submit()` probe | `probe = getattr(mod, CONTRACT_METHOD)("__contract_probe__")` | `check.py` 期间运行第三方 provider 代码 → 非 probe-safe 者产生外部副作用 |
+| 2 | `tools/checks/bugfix_modes.py:230` **fail-open**：probe 返回 `None` 即通过 | `if probe is None:` → 通过 | 永远返回 `None` 的 provider 也能过契约门禁（**P60 同族**） |
+| 3 | `cli/services/prompt_builder.py:614` `lines.index(line)` 取**首次出现**位置 | `for nxt in lines[lines.index(line) + 1:]` | 同一行文本在模板中重复时，骨架化拼接错位 → prompt 与 Phase 不对应 |
+| 4 | `skills/skill-sync/scripts/pull.js:81` shell 字符串内插 | ``execSync(`unzip -o "${tempZip}" -d "${targetDir}"`)`` | `targetDir`（argv）含 `"`/`$(…)`/反引号 → 命令注入 |
+| 5 | `skills/deepseek-share-to-md/...`: `save_file()` 无 basename 清洗 | `os.path.join(dest_dir, fname)`，`fname` 来自远端 `file_name` | 远端可控文件名 `../` → 路径穿越写出 `attachments/` 之外 |
+
+### 6.3 待处置（未核实）— 文档层（**两模型共同命中**，信号强）
+
+| 主题 | 证据 |
+|---|---|
+| 治理索引版本漂移 | `governance/README.md` 称核心规则 v1.3 ↔ `AI_OPERATING_RULES.md` 自称 `Version: 1.6` |
+| 优先级冲突 | `karpathy-guidelines.md`「1. Approved Task Card」↔ `SOURCE_OF_TRUTH.md`「1. Contract」（两模型均命中） |
+| "单一事实源"双定义 | `ai-coding-rules.md`「Spec is the Single …」↔ SOT Contract-first |
+| 归档路径冲突 | `policies/skill-lifecycle.md` `archive/skills/` ↔ `DIRECTORY-RESPONSIBILITY.md` `archived/` |
+| 归档语义冲突 | `OPERATIONS.md`「No automatic archival」↔ `skill-lifecycle.md` 将 Archive 标为 `Automated` |
+| 已移除命令仍在册 | `README.md` / `OPERATIONS §1.10.2` 仍列 `pack` ↔ `README_MIGRATION.md` 声明已移除 |
+| 主链图含 bootstrap | `README.md` 图示 `bootstrap → prepare` ↔ `workflows/README.md`（唯一来源）冷启动与主链分离 |
+| 声称的安全门禁无载体 | `policies/security-policy.md` 称 release 含 secret scan 并指向 `review-standard.md`，而后者无该条目 |
+| 模板含组织专有内容 | `runtime-hotfix-test-doc.md`（Confluence space key / 内网域名 / 集群名 / `@VerifyPathGuard` / Redis SET）；`tasks-template.md`（Apollo，已泛化）↔ 判定：hotfix 属组织固有，其余待逐一确认 |
+
+### 6.4 待处置（未核实）— 代码层（单侧命中为主）
+
+- `cli`: `main.py` `subprocess.call(..., shell=True)` + 未引号路径（空格路径失效 / 注入面）；`PromptBuilder._resolve_root_placeholders` 未接环境参数（与 `main.py::_config_files` 硬编码 `local.yaml` 互相佐证）；`cli/utils/clipboard.py` 模块级硬依赖 `pyperclip` + 事后无条件 `copy()`
+- `tools`: `pre_commit_gate` 调 `check-contract.py` 不带 staged 集（无关漂移也阻断）；`checkstyle-gate` 未接 `suppressions.xml`（注释声称的抑制未生效）；`repo-lint` 三引号状态机不辨同行闭合；`setup.py --env-init` 实际会建目录/软链
+- `skills`: `deepseek_share_to_md` 的 `--no-frontmatter` 在文件导出分支被忽略；`spec_updater.py` 写死 `.opencode/skills/…` 路径；`generate_contract.py` 静默吞 `YAMLError`；`validate_fields` 用描述串与字段名做成员判断
+- 可能误读（待确认）：`repository-governor` 引用 `tools/*.py` —— 该包只投喂了 `skills/`，`tools/` 不在包内，属**分域盲区**而非缺陷
+
+### 6.5 其余
 
 | 项 | 状态 |
 |---|---|
-| 135 WARN / 48 INFO | **未逐条裁决**（241 条全量明细属运行期留痕，未入库）；建议按严重度分批，WARN 优先 |
-| `agentdebug_static.previous_record` 精确 `step-1` 查找 | 复核为**非缺陷**（`detect_reflection` 显式接受 `prev=None`，step 连续）→ 关闭 |
-| `runtime-hotfix-test-doc.md` 的 `codeup.aliyun.com` / `CoolAcademy` | 判定为**本组织 hotfix 流程固有内容**，不改（避免过度泛化） |
-| `format-check` FAIL=2（单行 Javadoc） | **既有问题**（与本次无关）；不在 maintain 门禁集内 → 建议纳入或修掉 |
-| 真实 TTY 复测 | V8 修复后建议人工复测一次交互菜单（本次仅静态 + 单测） |
-
----
+| 135 WARN / 48 INFO | 未逐条裁决（跨模型共同命中已在本节按主题聚类） |
+| `previous_record` 精确 `step-1` | 复核为**非缺陷**（`detect_reflection` 显式接受 `prev=None`；step 由遍历 turns 构造、连续） |
+| `format-check` FAIL=2 | **既有问题**（与本次无关，worktree 基线比对同为 FAIL=2）；不在 maintain 门禁集内 |
+| 真实 TTY 复测 | V8 修复后建议人工复测交互菜单 |
 
 ## 七、复现与资产
 
