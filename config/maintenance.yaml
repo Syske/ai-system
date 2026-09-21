@@ -22,7 +22,7 @@ last_findings:
   健康评分 13 通过/0 失败/2 N/A（无 playbooks//checklists/）→ 固定公式 86.7 落 DEGRADED 但扣分
   全为 N/A，生效维度 13/13=HEALTHY（建议 health.md 明确 N/A 口径）。指标 09-17→09-21：
   Skills 30→33（methodologies 迁移 3 技能）、Governance 59→60、Templates 22→24（tasks-template
-  + templates/README）、平均行数 494→478（复杂度下降）；lint WARN 26→28 全为「无 workflow.md」类
+  + templates/README.md）、平均行数 494→478（复杂度下降）；lint WARN 26→28 全为「无 workflow.md」类
   （+3 迁移/-1 归档），非质量回归。新发现 2 低：①maintain-report.py 上期快照误选
   maintain-delta-state.json（无 timestamp）致上期全为 ?、变化列硬编码 =（历次靠手工回填）；
   ②P26 CI 项 checkbox 已关闭但同文件开放项段落仍列 defer（文案矛盾）。09-09 遗留 2 项核验已闭环
