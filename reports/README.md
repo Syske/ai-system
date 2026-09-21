@@ -46,7 +46,7 @@
 | [P39](P39-EXTENSIONS-LINT-HIDDEN-DIRS.md) | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 向 .git/.githooks 写入脚手架；修复：枚举过滤 `.` 开头目录）— **Implemented** | 2026-08-25 |
 | [P40](P40-OPENSPEC-CHANGE-NAME-NAMING.md) | OpenSpec-CN change name 字母开头约束与 workspace `<YYYYMM>-` 命名惯例冲突（openspec changes 目录用字母开头，workspace 目录不变 + 映射注明）— **Implemented** | 2026-08-25 |
 | [P60](P60-GATE-SELF-VERIFICATION.md) | 门禁自校验：声明 vs 收集测试数一致性 + 关键声明式规则正反例自测 + 显式相对引用存在性 — **Implemented** 2026-09-21（`2adcf4a`，三项「弄坏→必报」实证） | 2026-09-21 |
-| [P61](P61-EXTERNAL-BLIND-REVIEW-AS-MAINTENANCE.md) | 外部盲检纳入运维形式：新工作流/命令 + 盲检纪律入库 + 季度节奏（补内部门禁盲区）— **Proposed** | 2026-09-21 |
+| [P61](P61-EXTERNAL-BLIND-REVIEW-AS-MAINTENANCE.md) | 外部盲检纳入运维形式：新工作流/命令 + 盲检纪律入库 + 季度节奏（补内部门禁盲区）— **Implemented** 2026-09-21（6 件产物 + 卫生门禁化 + 4 处自抓问题） | 2026-09-21 |
 | [P41](P41-TR5-SECTION1-SEMANTICS.md) | tr5 脚本健壮性批次：§1 语义特判 + §18 工时 4-8h 自动校验 + tr4_url 技改降级 info（服务名正则项已失效）— **Implemented** 2026-09-21（extensions 6d8a176） | 2026-08-26 |
 | [P42](P42-TR5-TEMPLATE-SKELETON.md) | tr5 templates 缺 markdown 骨架（新增 19 节骨架模板 + SKILL 拷贝指引）— **Proposed（用户确认 defer 至 tr5 专项会话 2026-09-21；接手要点已备妥）** | 2026-08-26 |
 | [P43](P43-TR5-SECTION0-INLINE-BODIES.md) | tr5 §0 数据槽位恒空（`_split_section0` 不识别头行内联正文 → 0_1/0_2/0_3 恒空且 merge 僵尸保留 → 发布页 §0 露引导占位符；推荐解析器支持 inline）— **Implemented** | 2026-08-28 |

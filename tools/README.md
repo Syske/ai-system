@@ -12,6 +12,7 @@ Automated governance tooling for the AI repository.
 | `repo-metrics.py` | Health metrics collector and snapshot comparison |
 | `context-audit.py` | Session context consumption auditor — token usage, largest messages, ACTIVE vs FULL history, Session Health Level (per CONTEXT_LOADING 40/60/80 thresholds) |
 | `dependency-graph.py` | Skill dependency visualizer |
+| `blind-bundle.py` | 外部盲检投喂包构建器 + 卫生校验（P61）：按层（doc/cli/tools-config/skills）打包 git 跟踪文件；排除内部结论（reports/logs/metrics/workspaces/archived）与二进制；身份脱敏（远端 owner/repo、主机、机器用户名、家目录 → `<redacted>`）；`--check` 机器校验卫生（tier-A 泄漏/排除目录文件头/二进制），`--strict-name` 把仓库裸名升为硬失败 |
 | `path-audit.py` | Path reference integrity audit (skips runtime/placeholder/generated refs) |
 | `proposal-audit.py` | Proposal/action-item audit + proposal-policy gate (Status/Review/Implementation consistency) |
 | `setup.py` | Environment configuration provision (generates config/environments/*.yaml) |

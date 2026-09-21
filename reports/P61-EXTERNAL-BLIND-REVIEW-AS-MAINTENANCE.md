@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (new workflow + capability + maintenance form) |
 | Author | AI Maintainer |
 | Created | 2026-09-21 |
@@ -148,4 +148,52 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 指示"考虑将外部评审作为一种运维形式"） | 2026-09-21 |
+| User (AI Maintainer operator) | **Approved**（按 D1–D4 推荐：组合形态 + 季度节奏 + 全套 6 件入库 + 盲检纪律升格为强制） | 2026-09-21 |
+
+---
+
+## Implementation Record (2026-09-21)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate)。
+
+### 产物（6 件 + 3 处注册 + OPERATIONS）
+
+| # | 落点 | 内容 |
+|---|---|---|
+| 1 | `workflows/external-review.md` | 八段契约 + front-matter（无必填输入、`outputs.base`=`reports/`）；盲检协议摘要与硬停条件 |
+| 2 | `templates/runtime/runtime-external-review.md` | Phase 1–8（Scope/Judges → Bundle hygiene → 隔离运行 → 形状校验 → 跨模型对账 → 逐条核实 → 拣选报告 → 入站闸门）+ 执行纪律表 + Reflection/Completion |
+| 3 | `cli/commands/aic-external-review.md` | thin 命令：步骤 + Output（两层落盘）+ Guardrails（只读、卫生即门禁、禁同族评委、外部结论未验证） |
+| 4 | `tools/blind-bundle.py` | 分域打包（doc/cli/tools-config/skills）+ 排除清单 + **两级身份模型** + `--check` 卫生校验 + `--strict-name` |
+| 5 | `templates/prompts/external-blind-review.md` | Pass A/B/C 三段（**2026-09-21 已验证过的原提示词**）+ 盲检纪律 8 条 + 形状校验 + 对账规则 |
+| 6 | `OPERATIONS.md §9.4` | 维护形式"外部盲检"：季度 + 重大结构变更后；产物两层落盘 |
+| 注册 | `config/workflows/external-review.yaml` · `config/workflow-registry.yaml` · `config/menu.yaml`（`hidden_commands` + `command_fields`） | 与既有命令一致；hidden = AI 按需触发，不进用户菜单 |
+
+### 验证
+
+- **包卫生（D4 门禁化）**：对 ai-system 自建 4 包（doc/cli/tools-config/skills，≈607k tokens）→ `--check` **PASS**
+  （0 tier-A 身份泄漏 / 0 排除目录文件头 / 0 二进制）；`--strict-name` 下仓名出现即 **FAIL**（已实测）
+- **注册闭合**：`check.py`（注册表 / frontmatter / 八段 / outputs 一致性 / 命令 / 菜单 / wizard dry-run）**PASS**；
+  `workflow-command-audit` **0 blockers / 0 warnings**（16 workflows / 14 commands）
+- **提示词前缀稳定**：`prompt-metrics` **16/16**
+- **单测** 357 OK；`repo-lint` 28 WARN 无新增；`path-audit` 0 broken；`quick-check` OK；`proposal-audit` 0/0
+- **端到端冒烟**：依文档化命令重建 doc 层包（136k tokens）+ 按隔离开关启动一次判官运行（后台），
+  用于校验 Phase 3/4（隔离 + 形状校验）
+
+### 实施中当场抓到的 4 个问题（都是本次新增机制报出来的）
+
+1. **新卫生门禁抓到自己的假阳性**：裸仓库名 `ai-system` 在本制品内是**合法路径前缀**（doc 层出现 113 次）
+   → 改为**两级身份模型**：Tier A（远端 URL / owner-repo / 主机 / 机器用户名 / 家目录）命中即阻断；
+   Tier B（仓名）默认仅提示，`--strict-name` 可升为硬失败。
+2. **`path-audit` 抓到文档里的"斜杠连写"**：如 `prose/specs/templates/loaders/governance` 被解析为路径
+   → 3 处已改成逗号分隔（教训：散文里不要用 `dir/subdir` 串联枚举）。
+3. **`prompt-metrics` 的同名覆盖缺陷**（本提案的 workflow/command 同名配对首次暴露）：工作流行被同名命令行静默覆盖
+   → 行键改为 `kind:name`，并让稳定前缀的分母只统计工作流（修后 **16/16**）。
+4. **workflow↔runtime Outputs 一致性**：`## Outputs` 段里的**散文 bullet** 被当作产物条目
+   → 改为"纯列表 + 散文段落"，并在 runtime 增设 `## Output Placement` 承载落盘说明。
+
+### 与提案文本的两处偏差（已记录）
+
+1. **运行手册落点**：提案 §5.7 写 `docs/`（或 skill 内）；实施改为**并入 runtime 模板**
+   （ai-system 无 `docs/` 目录；runtime 即"怎么做"的归属层，且避免新增未纳入审计的目录/孤儿文件）。
+2. **命令注册形态**：提案写"默认 `hidden_commands`"；实施按 `menu.yaml` 自带说明补齐
+   `hidden_commands` + `command_fields`（`check_wizard_dry_run` 会遍历所有命令）。

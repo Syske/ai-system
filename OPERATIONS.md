@@ -556,6 +556,33 @@ Focus:
 * playbook consolidation
 * knowledge cleanup
 
+## 9.4 External Blind Review (quarterly + after major structural change)
+
+Run:
+
+```text
+aic-external-review
+```
+
+Purpose: an **independent outside view** of the artifact, because internal gates and the author
+share the same blind spots (the 2026-09-21 run surfaced 11 real defects — five of them "the gate
+itself silently stopped working" — that every internal gate had missed).
+
+Cadence: **at least once per quarter**, plus on demand after a major structural change. Trigger
+words: `外部盲检` / `第三方盲检` / `external review`.
+
+Outputs (two-tier — deliberate):
+
+* durable record → `reports/EXTERNAL-BLIND-REVIEW-{date}.md` (committed, indexed in the reports
+  index); this is the only carrier that enters the system's history
+* run-time evidence (bundles, raw judge outputs, findings index, run logs) → a workspace run
+  directory, **not committed and not indexed**; committed documents must not reference it
+
+Discipline: cross-vendor judges that never come from the artifact's authoring model family;
+bundle hygiene (no internal conclusions, no repository identity) is a gate, not a hope; every
+finding is verified before it counts; all conclusions pass the inbound gate
+(`templates/prompts/external-ai-review.md`) before entering the system.
+
 ---
 
 # 10. repo-lint.py Usage

@@ -42,6 +42,7 @@ project_required:
 hidden_commands:
   - propose       # 变更集创建（spec 环节 CLI 触发器, AI 在 prepare/spec 时调用）
   - explore       # 构思入口（AI 推荐流程时按需触发, 用户无需选命令）
+  - external-review   # 外部盲检（第三方模型独立评审，AI 按需触发；P61）
 
 sections:
   - title: flow_main
@@ -132,6 +133,13 @@ sections:
 
 # 各命令的字段定义（[[字段名, 是否必填], ...]）；未注册的命令用 default。
 command_fields:
+  external-review:
+    - - "Artifact"
+      - false
+    - - "Scope"
+      - false
+    - - "Judges"
+      - false
   trace:
     - - "Project ID"
       - false

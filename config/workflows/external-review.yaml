@@ -1,0 +1,6 @@
+version: 1
+
+name: external-review
+
+workflow: workflows/external-review.md
+runtime: templates/runtime/runtime-external-review.md

@@ -18,3 +18,4 @@ workflows:
   proposal: config/workflows/proposal.yaml
   change-impact: config/workflows/change-impact.yaml
   hotfix-test-doc: config/workflows/hotfix-test-doc.yaml
+  external-review: config/workflows/external-review.yaml

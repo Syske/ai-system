@@ -37,7 +37,8 @@ def measure(workflows, commands):
         p2 = b.build(name, {"Project ID": "prefix-probe"})
         i = p1.find("# Task")
         prefix = p1[:i] if i > 0 else p1
-        rows[name] = {
+        rows[f"workflow:{name}"] = {
+            "name": name,
             "kind": "workflow",
             "size": len(p1),
             "tokens_est": len(p1) // 4,
@@ -48,7 +49,10 @@ def measure(workflows, commands):
     for f in sorted(glob.glob(str(ROOT / "cli" / "commands" / "aic-*.md"))):
         name = Path(f).stem[len("aic-"):]
         p1 = b.build(name, {})
-        rows[name] = {
+        # 命令与工作流可能同名（如 external-review）：按 kind 分键，
+        # 否则后写的行会静默覆盖先写的行（P61 实施时发现的度量缺陷）。
+        rows[f"command:{name}"] = {
+            "name": name,
             "kind": "command",
             "size": len(p1),
             "tokens_est": len(p1) // 4,
@@ -58,7 +62,7 @@ def measure(workflows, commands):
 
     total = sum(r["size"] for r in rows.values())
     stable = [
-        n for n, r in rows.items()
+        r["name"] for r in rows.values()
         if r["prefix_stable"]
     ]
 
@@ -108,8 +112,9 @@ def main():
         return 0
 
     print(f"prompt-metrics recorded -> {target}")
+    wf_rows = [r for r in data["rows"].values() if r["kind"] == "workflow"]
     print(
-        f"workflows={sum(1 for r in data['rows'].values() if r['kind']=='workflow')} "
+        f"workflows={len(wf_rows)} "
         f"commands={sum(1 for r in data['rows'].values() if r['kind']=='command')}"
     )
     print(
@@ -117,7 +122,7 @@ def main():
         f"workflow_avg={s['workflow_avg_chars']} chars"
     )
     print(
-        f"prefix_stable={s['prefix_stable_count']}/{len(data['rows'])} "
+        f"prefix_stable={s['prefix_stable_count']}/{len(wf_rows)} "
         f"(workflows: {', '.join(s['prefix_stable_workflows'])})"
     )
     return 0
