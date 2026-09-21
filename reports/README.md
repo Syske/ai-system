@@ -45,7 +45,7 @@
 | [P38](P38-WORKFLOW-INTERACTION-AUDIT.md) | 逐 aic 工作流用户交互审计（wizard 提示序列/确认节奏/可选字段呈现/中途检查点；与 P37 互补：P37 定必填归属、P38 定交互呈现）— **Implemented**（批次 1；批次 2 defer：全推导字段静默推导等） | 2026-08-25 |
 | [P39](P39-EXTENSIONS-LINT-HIDDEN-DIRS.md) | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 向 .git/.githooks 写入脚手架；修复：枚举过滤 `.` 开头目录）— **Implemented** | 2026-08-25 |
 | [P40](P40-OPENSPEC-CHANGE-NAME-NAMING.md) | OpenSpec-CN change name 字母开头约束与 workspace `<YYYYMM>-` 命名惯例冲突（openspec changes 目录用字母开头，workspace 目录不变 + 映射注明）— **Implemented** | 2026-08-25 |
-| [P41](P41-TR5-SECTION1-SEMANTICS.md) | tr5 脚本健壮性批次：§1 语义矛盾（推荐 validate 特判改查结构化字段）+ 工时 4-8h 自动校验 + check_spec 服务名正则收紧 + tr4_url 技改降级 info — **Proposed** | 2026-08-26 |
+| [P41](P41-TR5-SECTION1-SEMANTICS.md) | tr5 脚本健壮性批次：§1 语义特判 + §18 工时 4-8h 自动校验 + tr4_url 技改降级 info（服务名正则项已失效）— **Implemented** 2026-09-21（extensions 6d8a176） | 2026-08-26 |
 | [P42](P42-TR5-TEMPLATE-SKELETON.md) | tr5 templates 缺 markdown 骨架（tr5_template.md 每项目从 storage XML 反推；新增 19 节骨架模板 + SKILL 拷贝指引）— **Proposed** | 2026-08-26 |
 | [P43](P43-TR5-SECTION0-INLINE-BODIES.md) | tr5 §0 数据槽位恒空（`_split_section0` 不识别头行内联正文 → 0_1/0_2/0_3 恒空且 merge 僵尸保留 → 发布页 §0 露引导占位符；推荐解析器支持 inline）— **Implemented** | 2026-08-28 |
 | [P44](P44-WORKTREE-CONVENTION.md) | Worktree 约定完善（项目级隔离 + 生命周期管理）— **Implemented** | 2026-08-31 |

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Fix（脚本契约矛盾） |
 | Author | AI Maintainer |
 | Created | 2026-08-26 |
@@ -78,4 +78,28 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（已批准立项起草 + 2026-08-26 确认扩展为脚本健壮性批次 P41-b/c/d；实施待批） | 2026-08-26 |
+| User (AI Maintainer operator) | **Approved**（2026-08-26 批准立项起草 + 确认扩展为 P41-b/c/d 批次；2026-09-21 经 Tier 2 授权实施） | 2026-09-21 |
+
+---
+
+## Implementation Record (2026-09-21)
+
+Applied per approval (OPERATIONS §12 → Implement，扩展仓 commit `6d8a176`)：
+
+1. **§1 语义特判**（`extensions/tr5/scripts/validate_tr5.py`）：内容权威位置为结构化字段
+   `background`/`problem`/`value`（对应发布占位符 `{{section_1_background}}` 等），
+   `sec_id=1` 不再按“19 节全非空”报 error；结构化为空才报
+   `section 1 content missing in background/problem/value`；`sections["1"]` 与结构化字段
+   **双份 → warning**（提示清理）。修复后 generate 清空 `sections["1"]` 无需手工回填。
+2. **P41-b §18 工时校验**：新增 `_section18_hours()`（表头认 “工作量”/“工时”两写法，
+   跳过分隔行/非数值行），单任务 `<4h` 或 `>8h` → error。
+3. **P41-c → 已失效（obsolete）**：`check_spec.py` 于 2026-08-26 重构（commit 消息：spec.md
+   索引淘汰）已**整体移除**服务数量检查，目标代码不存在 → 本项不实施，标记失效。
+4. **P41-d tr4_url 条件化**：`tr3_url` 非空且 `tr4_url` 空（技改常态）→ 降级 `infos`
+   （`validate()` 新增 `infos` 键）；两者皆空保留 warning。
+5. `tr5-design/SKILL.md` Gate 3：补“validate 校验的是结构化字段，非 sections["1"]”说明。
+
+**Validation**: `test_tr5_scripts` **16 用例全绿**（+7：§1 三态 / §18 越界与合规 / tr4_url 两态）；
+真实项目 `workspaces/202610-qa-housekeeping-optimization/tr5/tr5_data.json` →
+**validate 0 error**（§18 T1–T6 均 4–8h；§1 双份 warning 准确、tr4_url 空 warning 准确）；
+`py_compile` OK；extensions pre-commit 全绿（extensions gate + 敏感扫描）。

@@ -48,7 +48,7 @@
 | Implemented | scan 命令 service 级选择 + 字段收集死循环出口（参照 code-review 交互流程） | 2026-09-21 | `P57-SCAN-SERVICE-SELECTION.md` |
 | Implemented | 模板层作者纪律（折行≠token 优化 + 归一比对；回退实测折行） | 2026-09-21 | `P59-TEMPLATE-AUTHORING-DISCIPLINE.md` |
 | Implemented | projects/ 真实目录 + repositories 源按需 clone（消除软链/双副本，repositories 先于 projects） | 2026-09-21 | `P58-PROJECTS-REPOSITORIES-ONDELIVERY.md` |
-| Proposed | tr5 脚本健壮性批次（§1 语义 + 工时校验 + 服务名正则 + tr4_url 条件化） | 2026-08-26 | `P41-TR5-SECTION1-SEMANTICS.md` |
+| Implemented | tr5 脚本健壮性批次（§1 语义 + §18 工时校验 + tr4_url 条件化；服务名正则项已失效） | 2026-08-26 | `P41-TR5-SECTION1-SEMANTICS.md` |
 | Proposed | 新增 tr5_template.md 一页纸骨架模板 | 2026-08-26 | `P42-TR5-TEMPLATE-SKELETON.md` |
 | Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |
 | Implemented | Worktree 约定完善（项目级隔离 + 生命周期管理） | 2026-08-31 | `P44-WORKTREE-CONVENTION.md` |

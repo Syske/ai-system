@@ -179,6 +179,21 @@ quick-check 趋势：近 5 个快照（09-09 / 09-11 / 09-14 / 09-17 / 09-21）�
   ② 提案状态漂移同步：P22 / P29 `Approved` → **Implemented**（追记实施记录 + 索引同步；
   P22 残留 2 项转 checkbox 跟踪）；③ AGENTS.md 文档漂移：`docs/` 描述修正（RFC/ADR 在
   `ai-system/rfc/`）+ 非规范目录改为“may appear”（实际均不存在）。
+- **Tier 2 批量（2026-09-21，用户确认执行）**：
+  ① **extensions 仓 13 项未提交归因并入库**（2026-09-11 工作遗留，mtime 佐证）：
+  `hotfix-test-doc` 脚本自包含化（Confluence 脚本迁入 + 去外部扩展依赖 + 去硬编码
+  Windows 路径）；提交前 py_compile 8/8 OK、无硬编码凭据、extensions-lint 0/0；
+  另修 **extensions pre-commit 误报**（`token=token)` 被误判 HIGH，阻断合法提交）——
+  `scan_sensitive.py` 变量链终止符扩为 `[(),\[\]}]`（安全性不变，回归矩阵验证）；
+  提交：`5a34de0`（自包含化）+ `ebf86b7`（扫描器修复 + 教训 6）。
+  ② **D 盘池定位明确化**（P58 残留）：`runtime-dev-setup.md` 增「Repository Sourcing
+  (P58 — authoritative)」子节（元数据源 = repositories/；projects/ 真实目录按需 clone；
+  机器路径遗留池为只读参考、非来源）；AGENTS.md 同步。提交 `4749b2d`。
+  ③ **TR5 提案收口**：**P41 实施**（§1 语义特判 + §18 工时 4-8h 校验 + tr4_url 条件化 +
+  SKILL.md 校验语义；`test_tr5_scripts` 16 用例全绿、真实数据 0 error；P41-c 服务名正则
+  已失效——check_spec 重构已移除）→ Status **Implemented**（extensions `6d8a176`）；
+  **P46 = 已准确记录**（(b) 已实施 00c8c34 / (a) 待线上 TR5 update，Status=Proposed 无误）；
+  **P42 未实施**（需 19 节 markdown 骨架创作 + 构建验证，建议专项）→ 保留 Proposed。
 
 **结构/治理类建议（仅输出，走提案；B/C 已按用户指示参照 code-review 交互流程细化）**：
 
