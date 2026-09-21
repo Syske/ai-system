@@ -49,7 +49,11 @@ class WizardSteps:
                 )
 
                 if result is BACK:
-                    continue
+
+                    # 顶层 BACK = 取消退出。旧行为 `continue` 会无限重渲染项目菜单
+                    # （根菜单没有上一级可退）；main.py 捕获 KeyboardInterrupt 后
+                    # 打印 Cancelled. 并干净退出（与 Esc 一致）。
+                    raise KeyboardInterrupt
 
                 if result == "__AI_GUIDE__":
 

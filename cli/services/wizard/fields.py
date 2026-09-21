@@ -160,10 +160,14 @@ class WizardFields:
                     values["Release Version"] = v
 
             # P37 批次 2：项目选择类 + 默认类推导（评估表后续批次）
-            # - Projects / Project ID：wizard 已选项目（Workspace/Project ID）推导
+            # - Project ID：wizard 已选项目推导
+            # - Projects：**不推导**（P57/P58 修复）——Project ID/Workspace ID 本质是
+            #   容器 id（workspaces 目录名），而 Projects 是服务名（repositories 映射/
+            #   本地克隆）；把容器 id 当服务填入会被名称校验拒绝 → fail_field 重问 → 循环。
+            #   留空 = 按 aic-scan.md 语义“扫描全部项目”。
             # - Analysis Target：主链进入默认 ai-system 自身
             # - Knowledge Operation：默认 collect
-            if field in ("Projects", "Project ID") and project:
+            if field == "Project ID" and project:
                 values[field] = project
                 continue
 

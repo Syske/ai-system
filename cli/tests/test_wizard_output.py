@@ -281,11 +281,13 @@ class TestP37DeriveFields(unittest.TestCase):
 
     # ---- P37 批次 2：项目选择类 + 默认类推导 ----
 
-    def test_derive_projects_from_selected(self):
+    def test_projects_not_derived_from_container(self):
+        """P57/P58：Projects（服务名）不得由 Project ID（容器 id）推导——容器 id
+        不是服务名，会被名称校验拒绝 → fail_field 重问 → 循环；留空 = 扫全部。"""
         w = WizardFields()
         values = {"Project ID": "proj-x"}
         w._derive_fields([("Projects", False)], values)
-        self.assertEqual(values.get("Projects"), "proj-x")
+        self.assertNotIn("Projects", values)
 
     def test_derive_project_id_from_workspace(self):
         w = WizardFields()

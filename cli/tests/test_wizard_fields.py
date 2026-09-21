@@ -241,7 +241,27 @@ class TestChangeImpactHooks(unittest.TestCase):
         self.assertEqual(ChangeImpactHooks().fail_field({}), "Projects")
 
 
-class TestRepositoriesSource(unittest.TestCase):
+class TestRepositoryFlowLoops(unittest.TestCase):
+    """回归：仓库/项目选择的循环类缺陷（实测发现）。"""
+
+    def test_top_level_back_cancels(self):
+        """顶层 BACK = 取消退出（KeyboardInterrupt），不再无限重渲染。"""
+        from cli.services.wizard.steps import WizardSteps
+        from cli.utils.menu import BACK
+
+        class FakeSteps(WizardSteps):
+
+            def _select_project(self, header):
+                return BACK
+
+            def _header(self, *a):
+                return []
+
+        with self.assertRaises(KeyboardInterrupt):
+            FakeSteps()._steps()
+
+
+class TestRepositorySource(unittest.TestCase):
     """P58: repositories/*.yaml 为服务元数据源，候选 = 元数据 ∪ 本地克隆。"""
 
     def _make_repos(self, root):
