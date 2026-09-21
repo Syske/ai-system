@@ -185,6 +185,47 @@ class TestScanHooks(unittest.TestCase):
     def test_fail_field_is_projects(self):
         self.assertEqual(ScanHooks().fail_field({}), "Projects")
 
+    def test_clonable_metadata_service_accepted(self):
+        """P58：有 repositories 元数据、但未 clone 的服务应通过（可按需 clone）。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_workspace(tmp)
+            repos = root / "repositories"
+            repos.mkdir(parents=True)
+            (repos / "remote-svc.yaml").write_text(
+                "id: remote-svc\n"
+                "repositories:\n"
+                "  remote-svc:\n"
+                "    git:\n"
+                "      url: git@example.com:remote-svc.git\n",
+                encoding="utf-8",
+            )
+            w = FakeWizard(root, project=None)
+            ok, msg = ScanHooks().validate(w, {"Projects": "remote-svc"})
+            self.assertTrue(ok, msg)
+
+    def test_all_candidates_pass_validation(self):
+        """不变量：候选源与校验谓词必须一致——所有候选都通过校验（防“选一轮拒一轮”循环）。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_workspace(tmp)
+            repos = root / "repositories"
+            repos.mkdir(parents=True)
+            for svc in ("remote-a", "remote-b"):
+                (repos / f"{svc}.yaml").write_text(
+                    f"id: {svc}\n"
+                    f"repositories:\n"
+                    f"  {svc}:\n"
+                    f"    git:\n"
+                    f"      url: git@example.com:{svc}.git\n",
+                    encoding="utf-8",
+                )
+            w = FakeWizard(root, project=None)
+            sh = ScanHooks()
+            cand = providers.repo_candidates(w)
+            self.assertTrue(cand)
+            for name in cand:
+                ok, msg = sh.validate(w, {"Projects": name})
+                self.assertTrue(ok, f"候选 {name} 被拒（候选/校验不一致）: {msg}")
+
 
 class TestChangeImpactHooks(unittest.TestCase):
 

@@ -93,14 +93,29 @@ class ScanHooks(CommandHooks):
 
     @staticmethod
     def _unknown_names(values, projects_root, wizard):
+        """不可解析的 Projects 名称。
+
+        P58：有 repositories/<id>.yaml 元数据的服务视为可解析（可按需 clone），
+        与候选来源（repositories 元数据 ∪ 本地克隆）保持一致——否则从候选选中的
+        可 clone 服务会被误拒，fail_field 重问 → 循环。
+        """
+
+        from cli.services import providers
 
         mapped = ScanHooks._mapped_services(wizard)
+
+        clonable = set(
+            providers.repositories_services(wizard)
+        )
 
         bad = []
 
         for name in ScanHooks._split_names(values):
 
             if name in mapped:
+                continue
+
+            if name in clonable:
                 continue
 
             if (projects_root / name).is_dir():

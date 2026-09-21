@@ -136,3 +136,10 @@ Applied per approval (OPERATIONS §12 → Implement → Validate):
 **Validation**: 单测全量 317 OK；repo-lint 28 基线 0 BLOCKER；path-audit 0 broken；
 check.py PASS（2 WARN 为既有提案遗留）；quick-check OK；实测迁移后 project_repos 6/6
 读通、aic 菜单服务名显示正常、无容器候选 77 个、worktree 完整
+
+### Follow-up (2026-09-21, 实测回归修复)
+
+实测发现 scan 选「有元数据但未 clone」的服务（70/77）被校验误拒 → fail_field 重问 →
+循环。根因：P57 `ScanHooks._unknown_names` 与 P58 候选源不一致（未接受可 clone 服务）。
+修复：`_unknown_names` 接受 repositories 元数据服务 + 新增不变量测试「所有候选必须
+通过校验」；mock 驱动 _steps() 全流程验证正常终止。单测 319 OK。
