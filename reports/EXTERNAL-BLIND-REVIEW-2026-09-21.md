@@ -127,26 +127,49 @@
 | 4 | `skills/skill-sync/scripts/pull.js:81` shell 字符串内插 | ``execSync(`unzip -o "${tempZip}" -d "${targetDir}"`)`` | `targetDir`（argv）含 `"`/`$(…)`/反引号 → 命令注入 |
 | 5 | `skills/deepseek-share-to-md/...`: `save_file()` 无 basename 清洗 | `os.path.join(dest_dir, fname)`，`fname` 来自远端 `file_name` | 远端可控文件名 `../` → 路径穿越写出 `attachments/` 之外 |
 
-### 6.3 待处置（未核实）— 文档层（**两模型共同命中**，信号强）
+### 6.3 文档层遗留 —— **已逐条落位核实**（结论已更新）
 
-| 主题 | 证据 |
-|---|---|
-| 治理索引版本漂移 | `governance/README.md` 称核心规则 v1.3 ↔ `AI_OPERATING_RULES.md` 自称 `Version: 1.6` |
-| 优先级冲突 | `karpathy-guidelines.md`「1. Approved Task Card」↔ `SOURCE_OF_TRUTH.md`「1. Contract」（两模型均命中） |
-| "单一事实源"双定义 | `ai-coding-rules.md`「Spec is the Single …」↔ SOT Contract-first |
-| 归档路径冲突 | `policies/skill-lifecycle.md` `archive/skills/` ↔ `DIRECTORY-RESPONSIBILITY.md` `archived/` |
-| 归档语义冲突 | `OPERATIONS.md`「No automatic archival」↔ `skill-lifecycle.md` 将 Archive 标为 `Automated` |
-| 已移除命令仍在册 | `README.md` / `OPERATIONS §1.10.2` 仍列 `pack` ↔ `README_MIGRATION.md` 声明已移除 |
-| 主链图含 bootstrap | `README.md` 图示 `bootstrap → prepare` ↔ `workflows/README.md`（唯一来源）冷启动与主链分离 |
-| 声称的安全门禁无载体 | `policies/security-policy.md` 称 release 含 secret scan 并指向 `review-standard.md`，而后者无该条目 |
-| 模板含组织专有内容 | `runtime-hotfix-test-doc.md`（Confluence space key / 内网域名 / 集群名 / `@VerifyPathGuard` / Redis SET）；`tasks-template.md`（Apollo，已泛化）↔ 判定：hotfix 属组织固有，其余待逐一确认 |
+状态说明：✅=核实为真（待修）· ⚠️=需人工裁决措辞 · ❌=误读/非缺陷
 
-### 6.4 待处置（未核实）— 代码层（单侧命中为主）
+| ID | 主题 | 结论 | 证据 |
+|---|---|---|---|
+| D1 | 治理索引版本漂移 | ✅ | `governance/README.md:9`「(v1.3)」↔ `AI_OPERATING_RULES.md:3`「Version: 1.6」 |
+| D2 | 实现依据优先级冲突 | ⚠️ | `karpathy-guidelines.md:88`「1. Approved Task Card」↔ `SOURCE_OF_TRUTH.md:18/49`「1. Contract」+「Contract is Supreme」（两条不同轴：**实现顺序** vs **权威层级**，需在措辞上区分） |
+| D3 | "单一事实源"双定义 | ⚠️ | `ai-coding-rules.md:26`「Rule 1: Spec is the Single Source of Truth」↔ SOT Contract-first（同 D2：Spec 定义**行为**，权威层级归 SOT） |
+| D4 | 归档路径写错 | ✅ | `policies/skill-lifecycle.md:123` 指向 `archive/skills/<name>/`，而该目录**不存在**；实际归档目录为 `archived/`（`DIRECTORY-RESPONSIBILITY.md:25`） |
+| D5 | 归档自动化语义冲突 | ⚠️ | `OPERATIONS.md:491`「No automatic archival」↔ `skill-lifecycle.md:142`「Archive … Automated (linter check)」（需裁决"自动"的含义：lint 建议 vs 实际归档） |
+| D6 | 已移除命令仍在册 | ✅ | `tools/pack.py` **不存在**（README_MIGRATION 载明 2026-09-10 移除），但 `README.md:21` 与 `OPERATIONS.md:310/328/339` 仍列 `pack` |
+| D7 | 主链图含 bootstrap | ✅ | `README.md:34`「bootstrap → prepare → …」与其自身 `:18`「主链拓扑唯一」及 `workflows/README.md:66`「Change lifecycle main chain」分离原则相悖 |
+| D8 | 声称的安全门禁无载体 | ✅ | `policies/security-policy.md:36` 称 release 含 secret scan 并指向 `review-standard.md`；后者与 `runtime-release.md` **均无**该项 |
+| D9 | 模板含组织专有内容 | ❌→部分保留 | 仅剩 `runtime-hotfix-test-doc.md`（CoolAcademy / 内网域名 / 集群名 / `@VerifyPathGuard` / Redis SET）——**该 runtime 本身即组织专用流程**，判定为有意为之；`tasks-template.md` 已泛化为「配置中心（如 Apollo / Nacos）」 |
 
-- `cli`: `main.py` `subprocess.call(..., shell=True)` + 未引号路径（空格路径失效 / 注入面）；`PromptBuilder._resolve_root_placeholders` 未接环境参数（与 `main.py::_config_files` 硬编码 `local.yaml` 互相佐证）；`cli/utils/clipboard.py` 模块级硬依赖 `pyperclip` + 事后无条件 `copy()`
-- `tools`: `pre_commit_gate` 调 `check-contract.py` 不带 staged 集（无关漂移也阻断）；`checkstyle-gate` 未接 `suppressions.xml`（注释声称的抑制未生效）；`repo-lint` 三引号状态机不辨同行闭合；`setup.py --env-init` 实际会建目录/软链
-- `skills`: `deepseek_share_to_md` 的 `--no-frontmatter` 在文件导出分支被忽略；`spec_updater.py` 写死 `.opencode/skills/…` 路径；`generate_contract.py` 静默吞 `YAMLError`；`validate_fields` 用描述串与字段名做成员判断
-- 可能误读（待确认）：`repository-governor` 引用 `tools/*.py` —— 该包只投喂了 `skills/`，`tools/` 不在包内，属**分域盲区**而非缺陷
+### 6.4 代码层遗留 —— **已逐条落位核实**（结论已更新）
+
+| ID | 主题 | 结论 | 证据 |
+|---|---|---|---|
+| C1 | `shell=True` + 未引号路径 | ✅ | `cli/main.py:72-75` `subprocess.call(..., shell=True)`；启动命令由检测路径拼成（空格路径失效 / 注入面） |
+| C2 | 环境参数未贯穿 | ✅ | `prompt_builder.py:298` `paths(self.root)` 无环境参数，而 `main.py` 接受 `--environment` → 非 local 环境下 `{workspace_root}` 等渲染错误 |
+| C3 | 剪贴板硬依赖且无保护 | ✅ | `cli/utils/clipboard.py` 模块级 `import pyperclip` + `copy()` 无 try；`cli/main.py:275` 生成后**无条件**调用 |
+| C4 | pre-commit 检查范围过宽 | ✅（潜在） | `tools/pre_commit_gate.py:133` 调 `check-contract.py` 不传 staged 集 → 全仓校验；当前无漂移故无实际影响 |
+| C5 | checkstyle 抑制未接线 | ✅（影响大） | `checkstyle.xml` 头部载明用法 `-c checkstyle.xml -p suppressions.xml`，但 `checkstyle-gate.py` 只传 `-c` → **baseline 抑制清单形同虚设** |
+| C6 | 三引号状态机不辨同行闭合 | ✅ | `repo-lint.py:379-391`：行内出现三引号即置位 → **单行 docstring** 之后的注释可能整体漏检 |
+| C7 | `--env-init` 有副作用 | ✅ | `tools/setup.py:400-429`：docstring 称「不碰 scaffold/链接」，实际 `:427` 调用 `scaffold()` 创建目录 |
+| C8 | `--no-frontmatter` 被忽略 | ✅ | `deepseek_share_to_md.py:477` `-o/--dir` 分支硬编码 `lines = ["---", …]`（仅 `:502` 遵守开关） |
+| C9 | 生成脚本路径写死 | ✅ | `spec_updater.py:18` `Path(".opencode/skills/contract-maintainer/scripts/generate_contract.py")` → 实际为 `skills/contract-maintainer/…`，判定恒为假 |
+| C10 | 静默吞 YAML 错误 | ✅ | `generate_contract.py:48-50` `except yaml.YAMLError: pass` |
+| C11 | 字段校验语义错位 | ✅ | `generate_contract.py:159` 取 `切库规则`（**描述串**）与 `spec["_fields"]`（**字段名列表**）做成员判断 |
+| C12 | governor 引用缺失脚本 | ❌ | `tools/repo-lint.py` 等三个脚本**均存在**；该包只投喂了 `skills/`，`tools/` 不在包内 → **分域盲区**，非缺陷 |
+
+### 6.5 误读清单（6 条）——交叉盲法的必要代价
+
+| ID | 盲检主张 | 实际 |
+|---|---|---|
+| N1 | `OPERATIONS` 与 `SOURCE_OF_TRUTH` 抢"至上" | 不同轴（governance 覆盖**实现**；Contract 为**权威层级**之顶）→ 仅需措辞澄清 |
+| N5 | memory 条目缺必备字段（Date） | 实际条目含 `Date:` / `Priority:`，且 `check.py` 的 memory 字段校验**通过** |
+| N6 | `MEMORY_GUIDELINES` 违反"禁绝对路径" | 该处 `/home/<user>/...` 是**占位符形式的反例**（说明什么被禁止） |
+| N7 | `release.md` frontmatter `next` 与正文不一致 | `deployment` 属 `NEXT_EXTERNAL`（**门禁设计明确允许**的外部跳转） |
+| C12 | 治理技能引用缺失脚本 | 脚本存在，属**分域盲区** |
+| N2/N3 部分 | — | 属实但属**文档措辞**级（见 6.3/6.4），非代码缺陷 |
 
 ### 6.5 其余
 
