@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Approved** |
+| Status | **Implemented** |
 | Type | Structural (环境能力) |
 | Author | AI Maintainer |
 | Created | 2026-08-14 |
@@ -126,8 +126,19 @@ ai-system（`aic` CLI）当前仅面向 Windows 运行：`config/environments/lo
 **Validation**: `tools/check.py` / 路径解析 / 向导流转 / PATH 命中 全部通过 ✅；`python -m unittest discover -s cli/tests` **71 tests OK** ✅；`project_repos('pywechat-live-2608')` 3 个 repo 路径转换后 `exists=True` ✅
 
 **Deviations**: 无。
-**Open Items**:
-1. 阶段二 `aic env-init` 子命令（自动探测挂载点生成环境配置 + 依赖安装 + PATH 收敛 + 自检）。
-2. 环境感知：默认环境按运行平台自动选择，减少 `--environment wsl` 显式传参。
-3. 交互向导完整自动化测试（agent 启动后的真实交互断言）。
-4. `contexts/project.yaml` 与 `workspace.yaml` 两处 repo 路径来源统一（`repo_path_for` 目前仅读 project.yaml，实际数据在 workspace.yaml），后续合并为单一数据源。
+
+---
+
+## Status Sync (2026-09-21)
+
+on-demand 巡检发现账目漂移：本提案 2026-08-14 已记录实施（阶段一+阶段二核心：`_linux_path`/`_repo_path`
+WSL 路径识别）并验证通过，但 Status 停留 `Approved`。本次同步为 `Implemented`，
+并将残留 Open Items 转为可跟踪 checkbox（见上）。
+**复核 Validation（2026-09-21）**: `cli/tests/test_skill_launcher.py::test_repo_path_dual_platform`
+（P58 契约更新后）通过；`_linux_path` / `_repo_path` 仍在 `cli/services/providers.py`；
+`config/environments/wsl.yaml.template` 存在；全量单测 325 OK；check.py PASS；path-audit 0 broken。
+**Open Items**（2026-09-21 巡检转为可跟踪 checkbox：done/superseded 已标 x，剩余项由 proposal-audit 跟踪）:
+- [x] 阶段二 `aic env-init` 子命令（自动探测挂载点生成环境配置 + 依赖安装 + PATH 收敛 + 自检）→ **已完成（P29 §7，2026-08-23）**：`cli/commands/aic-env-init.md` + `tools/setup.py --env-init` + menu 注册。
+- [x] 环境感知：默认环境按运行平台自动选择 → **被 P29 设计取代**（机器层单点 `~/.config/ai-system/env.yaml` 承载各机器值，workspace 层共享；机器残留路径已由 2026-09-21 小修 A 清理），无需按平台切换环境。
+- [ ] 交互向导完整自动化测试（agent 启动后的真实交互断言）→ 仍开；2026-09-21 已有临时 mock 扫描（全目标循环检测），但未入库为常驻交互测试。
+- [ ] `contexts/project.yaml` 与 `workspace.yaml` 两处 repo 路径来源统一（`repo_path_for` 仍只读 project.yaml，实际数据在 workspace.yaml）→ 仍开（季度候选 C；P58 已使 workspace.yaml 成为容器映射权威源，剩余为 `repo_path_for` 收口）。

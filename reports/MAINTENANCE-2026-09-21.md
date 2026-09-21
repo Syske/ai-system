@@ -172,6 +172,13 @@ quick-check 趋势：近 5 个快照（09-09 / 09-11 / 09-14 / 09-17 / 09-21）�
   （0.03%，≈10 tokens）** + 引入 3 处丢空格 → 判定**净负价值**，回退纯折行 hunk
   （保留全角括号真修复）；立 **P59** 并新增 `templates/README.md` 固化模板层作者纪律
   （不 reflow 为 AI 优化 / 省 token 靠内容与骨架 / 换行承载语义处保留 / 批量改写必须归一比对）。
+- **Tier 1 批量（2026-09-21，用户确认执行）**：
+  ① `pre-commit` 补 memory 英文纪律门禁（并修 `tools/checks/memory.py` 按名排除漏洞：
+  主题级 `coding-memory.md` 此前被 `check.py` 漏检——实测修复后能拦下）；新增
+  `staged_memory_files`/`memory_language_check` + 4 单测，端到端实测钩子 exit=1；
+  ② 提案状态漂移同步：P22 / P29 `Approved` → **Implemented**（追记实施记录 + 索引同步；
+  P22 残留 2 项转 checkbox 跟踪）；③ AGENTS.md 文档漂移：`docs/` 描述修正（RFC/ADR 在
+  `ai-system/rfc/`）+ 非规范目录改为“may appear”（实际均不存在）。
 
 **结构/治理类建议（仅输出，走提案；B/C 已按用户指示参照 code-review 交互流程细化）**：
 

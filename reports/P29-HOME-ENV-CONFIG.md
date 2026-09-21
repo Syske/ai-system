@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Approved**（用户决策 2026-08-23，随 maintain 修复批次实施） |
+| Status | **Implemented** |
 | Type | Structural (环境配置契约：机器层 home / 工作区层拆分) |
 | Author | AI Maintainer |
 | Created | 2026-08-23 |
@@ -82,3 +82,21 @@ local.yaml 注明"工作区级共享项留 workspace 层"；home 覆盖为显式
 | Reviewer | Decision | Date |
 |---|---|---|
 | User (AI Maintainer operator) | **Approved**（决策：默认全部走 ~/.config，跨平台原生；特殊情况如 WSL 用户自行编辑） | 2026-08-23 |
+
+---
+
+## Implementation Record (2026-09-21)
+
+状态同步（on-demand 巡检发现的账目漂移：功能已落地但 Status 停留 Approved、无实施记录）。
+
+Applied per approval（实现于 2026-08-23 修复批次，本次追记并核验）：
+1. `cli/services/environment.py`：`home_config_path()`（`AI_HOME_CONFIG` 可覆盖）、
+   `load_home_environment()`、`_deep_merge()`、`load_merged_environment()`（home 优先、单点使能，
+   消费者零改动）—— 核验：`~/.config/ai-system/env.yaml` 实际被 `paths()` 读取。
+2. `tools/setup.py`：`detect_platform()` / `_probe_build_paths()` / `generate_home_env()`（首启非破坏）+ `env_init` 模式。
+3. 配置头注（`local.yaml` + 模板）+ `runtime-bootstrap.md` Phase 2 配置源顺序同步。
+4. `cli/commands/aic-env-init.md` + menu.yaml 注册（后续项已完成）。
+**Validation**: `cli/tests/test_home_env.py`（9 用例）已存在并通过；
+`python3 -m unittest discover -s cli/tests` → **325 OK**（2026-09-21 复核）；
+`tools/check.py` PASS；`repo-lint` 28 基线；`path-audit` 0 broken。
+**Deviations**: 无。**Risks**: 无（workspace 层机器残留路径已由 2026-09-21 小修 A 清理）。

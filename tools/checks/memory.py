@@ -1,13 +1,71 @@
 """Coding memory structure, format, language, and duplication checks."""
 
 import re
+from pathlib import Path
 
 from .base import ROOT
 
 MEMORY_ROOT = ROOT / "governance" / "memory"
 
+MEMORY_INDEX = "governance/memory/coding-memory.md"
+
+CJK_RE = re.compile(r"[\u4e00-\u9fff]")
+
 MEMORY_REQUIRED = ("Lesson",)
 MEMORY_RECOMMENDED = ("Context", "Problem", "Solution", "Scope")
+
+
+def language_violations(files=None):
+    """Return [(rel_path, cjk_count)] for memory files carrying CJK.
+
+    Single source for the "AI System memory must be English" rule, shared by
+    check.py (full scan) and the pre-commit gate (staged subset).
+
+    Only the ROOT INDEX (`governance/memory/coding-memory.md`) is exempt —
+    topic-level files (e.g. `governance/memory/java/coding-memory.md`) carry
+    lesson content and MUST be English. (Bug fixed 2026-09-21: the previous
+    by-filename exemption let every topic-level `coding-memory.md` through.)
+    """
+
+    if files is None:
+        candidates = sorted(MEMORY_ROOT.rglob("*.md"))
+    else:
+        candidates = []
+        for f in files:
+            p = Path(f)
+            if not p.is_absolute():
+                p = ROOT / p
+            candidates.append(p)
+
+    out = []
+
+    for p in candidates:
+
+        try:
+            rel = p.relative_to(ROOT).as_posix()
+        except ValueError:
+            continue
+
+        if not rel.startswith("governance/memory/"):
+            continue
+
+        if rel == MEMORY_INDEX:
+            continue
+
+        if p.suffix != ".md" or not p.is_file():
+            continue
+
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        cjk = len(CJK_RE.findall(text))
+
+        if cjk:
+            out.append((rel, cjk))
+
+    return out
 
 
 def check_memory(c):
@@ -86,15 +144,12 @@ def check_memory(c):
             if lesson:
                 lessons.append((rel, lesson.group(1).strip().lower()))
 
-        if "ai-system" in md.parts and md.name != "coding-memory.md":
+    for rel, cjk in language_violations():
 
-            cjk = len(re.findall(r"[\u4e00-\u9fff]", text))
-
-            if cjk:
-                c.error(
-                    f"memory {rel}: AI System memory must be English "
-                    f"({cjk} CJK chars)"
-                )
+        c.error(
+            f"memory {rel}: AI System memory must be English "
+            f"({cjk} CJK chars)"
+        )
 
     dup = _find_duplicate_lessons(lessons)
 

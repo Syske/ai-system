@@ -25,13 +25,13 @@
 | Implemented | explore 与 explore-codebase 技能合并评估（D5） | 2026-08-08 | `P19-EXPLORE-SKILLS-RELATIONSHIP.md` |
 | Implemented | hotfix-test-doc 发布链护栏增强（校验误报 + 空单元格自动修复） | 2026-08-11 | `P20-HOTFIX-TEST-DOC-GUARDRAILS.md` |
 | Implemented | hotfix-test-doc 模板标题渲染缺陷修复与回填工具 | 2026-08-12 | `P21-HOTFIX-TEST-DOC-RENDER-FIX.md` |
-| Approved | WSL 环境集成与初始化能力 | 2026-08-14 | `P22-WSL-ENVIRONMENT-INTEGRATION.md` |
+| Implemented | WSL 环境集成与初始化能力 | 2026-08-14 | `P22-WSL-ENVIRONMENT-INTEGRATION.md` |
 | Implemented | 跨平台（Linux/WSL + Windows）混合维护治理约定 | 2026-08-14 | `P23-CROSS-PLATFORM-MAINTENANCE-GOVERNANCE.md` |
 | Implemented | Provider Wizard 契约测试夹具修复（win32 平台 check.py 回归） | 2026-08-17 | `P24-PROVIDER-CONTRACT-TEST-FIX.md` |
 | Implemented | 统一 Workflow 资产语法为 SKILL.md frontmatter 约定 | 2026-08-20 | `P25-WORKFLOW-FRONTMATTER-SYNTAX.md` |
 | Implemented | 开发主链分支创建规则（cc{date}_ipd_{desc}_{service}，暂定）+ 创建后不可变 | 2026-08-20 | `P26-MAIN-CHAIN-BRANCH-RULE.md` |
 | Implemented | Change ID 自动生成（规则 slug 派生优先，AI 可选后续） | 2026-08-21 | `P28-CHANGE-ID-GENERATION.md` |
-| Approved | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 | `P29-HOME-ENV-CONFIG.md` |
+| Implemented | 机器层环境配置迁移至 ~/.config（跨平台原生，首启按系统生成） | 2026-08-23 | `P29-HOME-ENV-CONFIG.md` |
 | Implemented | 提示词渲染期解析根路径占位符（{workspace_root} 等，模板零改动） | 2026-08-23 | `P30-PROMPT-ROOT-PLACEHOLDERS.md` |
 | Implemented | standards/cool 公司规范迁出通用层（extensions + loader 可配置） | 2026-08-23 | `P31-STANDARDS-COOL-MIGRATION.md` |
 | Implemented | prepare 工作流子报告输出位置与 AGENTS.md 约定对齐 | 2026-08-24 | `P32-PREPARE-OUTPUTS-LOCATION.md` |
