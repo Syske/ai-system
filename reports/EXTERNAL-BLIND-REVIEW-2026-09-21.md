@@ -114,10 +114,10 @@
 |---|---|---|
 | 已修复（本会话） | 16 | 嵌套测试方法（V1）· 重复 `suggest_change_id`（V2）· repo-lint 豁免正则（V3）· quick-check cwd（V4）· 危险命令守卫（V5）· open-cli 悬空引用（V6）· termios 索引（V8）· quick-check `[BLOCKER]` 采集 / checkstyle rename / `checks/workflow` fail-open（T4）· idea-mcp `isSuccess`（T4）· 文档层 5 项（提交约定消歧 / repo-lint Files 表 / `workspaces/<project_id>` / `workspace.yaml` / 模板去具体化） |
 | 已由提案覆盖 | 4 类 | 提交 `T-<id>` 系统性 → **P62** · 分支命名两形态 → **P63** · spec 前置/ prepare 产物 → **P64** · 验证标记 → **P46** |
-| **待处置（已核实为真）** | 5 | 见 6.2 |
-| **待处置（未核实）** | 33 | 见 6.3 / 6.4 |
+| 已修复（T5 批次） | 5 | 见 6.2（门禁契约静态校验 · prompt 骨架定位 · pull.js 命令注入 · save_file 路径穿越） |
+| 待处置（未核实） | 33 | 见 6.3 / 6.4 |
 
-### 6.2 待处置且**已核实为真**（建议作 T5 批次）
+### 6.2 待处置且已核实为真 → **已于 T5 批次修复**（`25cb3b6`，+11 回归测试）
 
 | # | 缺陷 | 证据 | 后果 |
 |---|---|---|---|
