@@ -21,15 +21,6 @@ _SECTION_8 = re.compile(
 _ITEM = re.compile(r"^\d+\.\s*(.+)$", re.M)
 
 
-def suggest_change_id():
-    """新建 change 的建议默认：{YYYYMM}-（期间前缀，用户补描述）。
-
-    首次输入 Change ID 时作为可编辑默认值，减少手输。完整自动生成
-    （从 Change Request 派生 / AI 生成）另评估（见 P 提案，不在此实现）。
-    """
-    return datetime.now().strftime("%Y%m") + "-"
-
-
 def change_artifact_path(workspaces_root, project, change_id):
     """prepare 主链产物路径：<workspaces_root>/<project>/openspec/changes/<change-id>/proposal.md。
 
