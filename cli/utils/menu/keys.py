@@ -100,17 +100,20 @@ def _unix_read_key():
 
     attrs = termios.tcgetattr(fd)
 
+    # POSIX tcgetattr 顺序：0=iflag 1=oflag 2=cflag 3=lflag 4=ispeed 5=ospeed 6=cc。
+    # 原实现错位取 attrs[3]/attrs[4] 并把掩码写进了 new[3]/new[4]（input flags 从未清、
+    # ECHO/ISIG 未关、ispeed 槽被改写）——见 2026-09-21 外部盲检 V8。
     iflag, oflag, cflag, lflag, cc = (
-        attrs[3],
+        attrs[0],
         attrs[1],
         attrs[2],
-        attrs[4],
+        attrs[3],
         attrs[6]
     )
 
     new = list(attrs)
 
-    new[3] = iflag & ~(
+    new[0] = iflag & ~(
         termios.BRKINT
         | termios.ICRNL
         | termios.INPCK
@@ -122,7 +125,7 @@ def _unix_read_key():
 
     new[2] = cflag | termios.CS8
 
-    new[4] = lflag & ~(
+    new[3] = lflag & ~(
         termios.ECHO
         | termios.ICANON
         | termios.IEXTEN
