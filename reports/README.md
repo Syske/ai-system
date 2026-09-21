@@ -45,6 +45,8 @@
 | [P38](P38-WORKFLOW-INTERACTION-AUDIT.md) | 逐 aic 工作流用户交互审计（wizard 提示序列/确认节奏/可选字段呈现/中途检查点；与 P37 互补：P37 定必填归属、P38 定交互呈现）— **Implemented**（批次 1；批次 2 defer：全推导字段静默推导等） | 2026-08-25 |
 | [P39](P39-EXTENSIONS-LINT-HIDDEN-DIRS.md) | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 向 .git/.githooks 写入脚手架；修复：枚举过滤 `.` 开头目录）— **Implemented** | 2026-08-25 |
 | [P40](P40-OPENSPEC-CHANGE-NAME-NAMING.md) | OpenSpec-CN change name 字母开头约束与 workspace `<YYYYMM>-` 命名惯例冲突（openspec changes 目录用字母开头，workspace 目录不变 + 映射注明）— **Implemented** | 2026-08-25 |
+| [P60](P60-GATE-SELF-VERIFICATION.md) | 门禁自校验：声明 vs 收集测试数一致性 + 关键声明式规则正反例自测 + 技能内相对引用存在性 — **Proposed** | 2026-09-21 |
+| [P61](P61-EXTERNAL-BLIND-REVIEW-AS-MAINTENANCE.md) | 外部盲检纳入运维形式：新工作流/命令 + 盲检纪律入库 + 季度节奏（补内部门禁盲区）— **Proposed** | 2026-09-21 |
 | [P41](P41-TR5-SECTION1-SEMANTICS.md) | tr5 脚本健壮性批次：§1 语义特判 + §18 工时 4-8h 自动校验 + tr4_url 技改降级 info（服务名正则项已失效）— **Implemented** 2026-09-21（extensions 6d8a176） | 2026-08-26 |
 | [P42](P42-TR5-TEMPLATE-SKELETON.md) | tr5 templates 缺 markdown 骨架（新增 19 节骨架模板 + SKILL 拷贝指引）— **Proposed（用户确认 defer 至 tr5 专项会话 2026-09-21；接手要点已备妥）** | 2026-08-26 |
 | [P43](P43-TR5-SECTION0-INLINE-BODIES.md) | tr5 §0 数据槽位恒空（`_split_section0` 不识别头行内联正文 → 0_1/0_2/0_3 恒空且 merge 僵尸保留 → 发布页 §0 露引导占位符；推荐解析器支持 inline）— **Implemented** | 2026-08-28 |
@@ -126,6 +128,7 @@
 | Assessment | 运行诊断日志机制（logs/ 每运行落盘, 模板 + governance 契约） | 2026-08-17 | `templates/runtime/runtime-diagnostic-log.md`（经 AI_OPERATING_RULES §Completion、REFLECTION_RULES 落盘条目登记） | 待随一次实际 command/workflow 跑一轮验证字段/拆分阈值 |
 | Decision | Value-Burden Check: 归档 skill-optimizer + iterative-optimizer（无价值证据的 10k 行 meta 工具） | 2026-08-17 | `VALUE-BURDEN-DECISION-skill-optimizer-2026-08-17.md` | 归档联动清理已执行；后续 MAINTENANCE/QUARTERLY 对 >3000 行技能强制检查 |
 | Assessment | Value-Burden: implement skill 保留（已兑现价值 + 健康负担，最大活跃技能 2368 行） | 2026-08-17 | `VALUE-BURDEN-ASSESSMENT-implement-2026-08-17.md` | — |
+| Review | **外部盲检评审**（第三方模型双评委独立评审 ai-system 制品：241 条发现 / 抽检精度 ≈91% / 11 项真实缺陷已修，**全部逃过内部门禁**） | 2026-09-21 | `EXTERNAL-BLIND-REVIEW-2026-09-21.md` | 135 WARN+48 INFO 未逐条裁决；衍生提案 **P60**（门禁自校验）/ **P61**（外部盲检纳入运维）待评审 |
 | Review | Workflow 层优化 | 2026-07 | `WORKFLOW-OPTIMIZATION-REPORT-2026-07.md` | — |
 | Report | Repository Optimization | — | `REPOSITORY-OPTIMIZATION-REPORT.md` | — |
 | Report | Repository Architecture v2 | — | `REPOSITORY-ARCHITECTURE-REPORT-v2.md` | — |
