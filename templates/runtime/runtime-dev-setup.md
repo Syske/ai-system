@@ -112,6 +112,18 @@ Load {workspace_root}/repositories/{service_id}.yaml to resolve:
 - Technology (language, framework, build, test)
 - Local path: {repository_root}/{service_id}
 
+## Repository Sourcing (P58 — authoritative)
+
+- `{workspace_root}/repositories/{service_id}.yaml` is the **only** service metadata
+  source (git URL / default branch / technology).
+- `{repository_root}` (`projects/`) is a **real directory**; a missing service is
+  cloned on demand:
+  `python3 tools/repo-ensure.py ensure {service_id}` (see also Phase 7 verification).
+- **Legacy pool is read-only reference, NOT a source**: a machine-specific copy of
+  repositories (e.g. a mounted resource drive such as
+  `/mnt/d/workspace/project-resources`) may still exist. Never resolve services or
+  read code from it; it predates the P58 real-`projects/` model and is never synced.
+
 Branch assignment:
 
 ```
