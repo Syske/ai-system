@@ -214,11 +214,11 @@ class TestProjectRepos(unittest.TestCase):
             self.assertEqual(project_repos(FakeWizard(), "nope"), {})
 
     def test_repo_path_dual_platform(self):
-        """_repo_path branches: win32 relative joins under projects_root;
-        Linux branch must NOT require projects_root (via _linux_path).
+        """_repo_path 分支：相对路径（workspace.yaml 归一为 service id）在任意平台
+        解析到 projects_root 下（P58）；Windows 盘符路径在 Linux 归一为 /mnt/<drive>。
 
-        Regression guard for P24: FakeWizard must expose projects_root on
-        non-Linux; the Linux branch must resolve without it.
+        Regression guard for P24 + P58: FakeWizard must expose projects_root;
+        relative mappings stay portable across platforms.
         """
         import tempfile
         from unittest import mock
@@ -230,6 +230,7 @@ class TestProjectRepos(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            (root / "workspaces").mkdir(parents=True)
 
             class FakeWizard:
                 workspaces = root / "workspaces"
@@ -237,23 +238,26 @@ class TestProjectRepos(unittest.TestCase):
 
             wiz = FakeWizard()
 
-            # Linux branch must not need projects_root (P24 guard)
-            class NoRootWizard:
-                workspaces = root / "workspaces"
-
+            # P58: 相对路径（workspace.yaml 归一为 service id）在 Linux 也解析到
+            # projects_root 下（不再返回裸相对路径——跨平台映射可移植）。
             with mock.patch("cli.services.providers.sys.platform", "linux"):
-                lnx = _repo_path(NoRootWizard(), "repos/svc-a")
-                self.assertEqual(lnx, Path("repos/svc-a"))
+                lnx = _repo_path(wiz, "repos/svc-a")
+                self.assertEqual(lnx, root / "repos" / "svc-a")
 
-            # win32: relative path joins under projects_root (P24 regression)
+            # win32: 相对路径同样拼接到 projects_root（P24 回归保持）
             with mock.patch("cli.services.providers.sys.platform", "win32"):
                 rel = _repo_path(wiz, "repos/svc-a")
                 self.assertEqual(rel, root / "repos" / "svc-a")
 
-            # absolute path passes through on any platform
+            # Windows 盘符路径在 Linux 归一为 /mnt/<drive>
+            with mock.patch("cli.services.providers.sys.platform", "linux"):
+                win = _repo_path(wiz, r"D:\workspace\svc-a")
+                self.assertEqual(win, Path("/mnt/d/workspace/svc-a"))
+
+            # 绝对路径任意平台原样通过
             with mock.patch("cli.services.providers.sys.platform", "win32"):
                 abs_p = _repo_path(wiz, str(root / "svc-a"))
                 self.assertEqual(abs_p, root / "svc-a")
 
-            # empty path -> None
+            # 空路径 -> None
             self.assertIsNone(_repo_path(wiz, ""))

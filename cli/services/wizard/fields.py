@@ -228,6 +228,16 @@ class WizardFields:
             field
         )
 
+        # P57（code-review 交互契约：单一候选直接采用，不询问）：
+        # Branch 仅一个候选时自动采用，避免无意义菜单。
+        if field == "Branch" and len(choices) == 1:
+
+            value = choices[0]
+
+            self.history[field] = value
+
+            return value
+
         suffix = (
             "必填"
             if required
@@ -497,7 +507,8 @@ class WizardFields:
             "Keep Results",
             "Knowledge Operation",
             "Analysis Target",
-            "Analysis Scope"
+            "Analysis Scope",
+            "Review Focus",
         ):
 
             return self._field_choices(field)
@@ -506,10 +517,24 @@ class WizardFields:
             return providers.workspace_dirs(self)
 
         if field == "Projects":
-            return providers.projects_dirs(self)
+            # P57：有项目容器时优先呈现容器 workspace.yaml 映射的服务候选
+            # （候选驱动），无容器/无映射时回退 repositories 元数据 ∪ projects/
+            # 本地克隆（P58：不再依赖软链资源池）。
+            project = (
+                values.get("Project ID")
+                or values.get("Workspace ID")
+                or self.project
+            )
+
+            services = providers.container_services(self, project)
+
+            if services:
+                return services
+
+            return providers.repo_candidates(self)
 
         if field == "Branch":
-            return providers.git_branches(self, values)
+            return providers.branch_candidates(self, values)
 
         project = (
             values.get("Project ID")

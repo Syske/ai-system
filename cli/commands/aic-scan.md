@@ -7,8 +7,10 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
 **Inputs**:
 - Operation (optional, default search): `search` keyword scan / `diff` logical compare / `chain` call-chain / `manual` custom instructions
 - Workspace (optional, skip = do not search in workspace)
-- Projects (optional, multi-select, skip = scan across all projects)
-- Branch (optional, default master)
+- Projects (optional, multi-select; 候选驱动——有项目容器时优先列出容器 workspace.yaml 映射的
+  服务，无容器/无映射时列出 projects/ 全量；skip = 扫描全部项目)
+- Branch (optional, default master; 候选 = 容器 workspace.yaml dev_branch + 本地 git 分支，
+  单候选自动采用)
 - Code Reference: keywords (comma-separated) or a code block; for manual, the user's analysis instruction
 - Compare With (diff only: the second code block to compare)
 - Logs (optional; manual bug analysis): log excerpts to analyze
@@ -22,7 +24,9 @@ Analyze keywords or code blocks within a specified scope. Scope is limited by Wo
 
 1. **Resolve scope**
    - Workspace selected → search scope includes `workspaces/{workspace_id}/`
-   - Projects selected → corresponding `projects/{service_id}/`; skip → all `projects/*`
+   - Projects selected → corresponding `projects/{service_id}/`; when the directory
+     is missing, run `python3 tools/repo-ensure.py ensure {service_id}` to clone on
+     demand (P58); mark it unavailable only if the clone fails; skip → all `projects/*`
    - For each project, check out the target Branch (default master; skip and record if missing)
    - Empty scope (no workspace and no usable project) → report no usable scope and stop
 

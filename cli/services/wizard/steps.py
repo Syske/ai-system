@@ -260,7 +260,36 @@ class WizardSteps:
 
                         print(message)
 
-                        step = 2
+                        # P57：不再全量重收（旧行为 step=2 会导致死循环）。
+                        # 只回到导致失败的字段（fail_field），用户改选后继续；
+                        # BACK/Esc 可逐级退出（对照 code-review「ASK 不猜测」）。
+                        field_name = hooks.fail_field(
+                            values
+                        )
+
+                        if field_name is not None:
+
+                            idx = next(
+                                (
+                                    i
+                                    for i, (f, _) in enumerate(fields)
+                                    if f == field_name
+                                ),
+                                None
+                            )
+
+                            if idx is not None:
+                                step = 2 + idx
+                                continue
+
+                        print(
+                            "  可返回上一字段修改，或按 Esc 退出。"
+                        )
+
+                        step = max(
+                            2,
+                            2 + len(fields) - 1
+                        )
 
                         continue
 

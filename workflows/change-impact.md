@@ -35,7 +35,8 @@ Required:
 - Projects
 
   (one-time task, no project container required) 用户直接提供仓库路径/URL
-  （可多个，逗号分隔）；有项目容器时也可从 workspace.yaml 映射选择。
+  （可多个，逗号分隔）；有项目容器时也可从 workspace.yaml 映射选择
+  （CLI：Projects 字段候选 = 容器 workspace.yaml 映射服务 / projects/ 目录）。
 - Code Reference
 
 Optional:

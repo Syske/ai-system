@@ -6,6 +6,7 @@ the wizard (for roots/i18n/state access) and the collected field values.
 """
 
 from datetime import datetime
+from pathlib import Path
 
 
 class CommandHooks:
@@ -13,8 +14,13 @@ class CommandHooks:
 
     def validate(self, wizard, values):
         """Return (ok, message). When ok is False the wizard prints
-        message and re-asks the fields."""
+        message and re-asks only the field returned by fail_field()."""
         return True, None
+
+    def fail_field(self, values):
+        """Field to re-ask when validate fails (P57: targeted re-ask,
+        no full re-collection loop). None = stay at the last field."""
+        return None
 
     def prepare(self, wizard, values):
         """Mutate values (e.g. inject derived fields) before prompt build."""
@@ -37,10 +43,28 @@ class ScanHooks(CommandHooks):
 
     def validate(self, wizard, values):
 
-        if self._scope_empty(
+        empty, reason = self._scope_empty(
             values,
-            wizard.projects_root
-        ):
+            wizard.projects_root,
+            wizard
+        )
+
+        if empty:
+
+            if reason == "names":
+
+                bad = self._unknown_names(
+                    values,
+                    wizard.projects_root,
+                    wizard
+                )
+
+                return False, (
+                    "\n⚠ 以下项目不存在或未映射（候选 = 已选容器 workspace.yaml "
+                    "映射服务 / projects/ 目录 / 仓库绝对路径）：\n"
+                    f"   {', '.join(bad)}\n"
+                    "请从候选选择，或输入存在的仓库路径。"
+                )
 
             return False, (
                 "\n⚠ 无可搜索范围：未选 Workspace，"
@@ -50,6 +74,55 @@ class ScanHooks(CommandHooks):
             )
 
         return True, None
+
+    def fail_field(self, values):
+
+        return "Projects"
+
+    @staticmethod
+    def _mapped_services(wizard):
+
+        from cli.services import providers
+
+        return set(
+            providers.container_services(
+                wizard,
+                wizard.project
+            )
+        )
+
+    @staticmethod
+    def _unknown_names(values, projects_root, wizard):
+
+        mapped = ScanHooks._mapped_services(wizard)
+
+        bad = []
+
+        for name in ScanHooks._split_names(values):
+
+            if name in mapped:
+                continue
+
+            if (projects_root / name).is_dir():
+                continue
+
+            p = Path(name)
+
+            if p.is_absolute() and p.is_dir():
+                continue
+
+            bad.append(name)
+
+        return bad
+
+    @staticmethod
+    def _split_names(values):
+
+        return [
+            n.strip()
+            for n in (values.get("Projects") or "").split(",")
+            if n.strip()
+        ]
 
     def prepare(self, wizard, values):
 
@@ -62,30 +135,40 @@ class ScanHooks(CommandHooks):
             values["Scan Directory"] = scan_dir
 
     @staticmethod
-    def _scope_empty(values, projects_root):
+    def _scope_empty(values, projects_root, wizard):
 
         operation = values.get("Operation") or "search"
 
         if operation in ("diff", "manual"):
-            return False
+            return False, None
 
         if values.get("Workspace"):
-            return False
+            return False, None
 
         if values.get("Projects"):
-            return False
+
+            # P57：名称必须可解析（容器映射服务 / projects/ 目录 / 绝对路径），
+            # 与 aic-scan.md Step 1 运行时语义对齐；假名不再假通过。
+            if ScanHooks._unknown_names(
+                values,
+                projects_root,
+                wizard
+            ):
+                return True, "names"
+
+            return False, None
 
         if not projects_root.is_dir():
-            return True
+            return True, "empty"
 
         if any(
             p.is_dir()
             for p in projects_root.iterdir()
             if not p.name.startswith(".")
         ):
-            return False
+            return False, None
 
-        return True
+        return True, "empty"
 
     @staticmethod
     def _result_dir(values, outputs_root):
@@ -125,11 +208,16 @@ class ChangeImpactHooks(CommandHooks):
 
             return False, (
                 "\n⚠ change-impact 需要至少一个代码仓库（Projects）。\n"
-                "有项目容器时从 workspace.yaml 映射选择；无项目时请直接提供"
-                "仓库路径/URL（逗号分隔）。"
+                "有项目容器时从 workspace.yaml 映射选择（候选已列出）；"
+                "无项目时请直接提供仓库路径/URL（逗号分隔）。\n"
+                "可返回上一字段选择，或按 Esc 退出。"
             )
 
         return True, None
+
+    def fail_field(self, values):
+
+        return "Projects"
 
 
 register("scan", ScanHooks())

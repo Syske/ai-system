@@ -58,6 +58,8 @@
 | [P52](P52-SOFA-POWERMOCK-TEST-CONVENTIONS.md) | SOFA/PowerMock/jacoco 测试兼容性纪律 + 全量回归环境性基线登记 — **Implemented** 2026-09-09 | 2026-09-09 |
 | [P55](P55-METHODOLOGIES-REMOVAL.md) | methodologies 整体移除（资产迁入 ai-system） | 2026-09-17 |
 | [P56](P56-SENSPEC-VALUE-ABSORPTION.md) | SenSpec 价值吸收上链（来源路径已脱敏） | 2026-09-17 |
+| [P57](P57-SCAN-SERVICE-SELECTION.md) | scan 命令 service 级选择 + 字段收集死循环出口（参照 code-review 交互流程）— **Implemented** 2026-09-21 | 2026-09-21 |
+| [P58](P58-PROJECTS-REPOSITORIES-ONDELIVERY.md) | projects/ 真实目录 + repositories 源按需 clone（消除软链/双副本）— **Implemented** 2026-09-21 | 2026-09-21 |
 | [P54](P54-DEDUP-PLANNING.md) | 消除双重计划（implement Stage 2 复用已确认计划，每卡省 1 次推断+确认）— **Implemented** 2026-09-09 | 2026-09-09 |
 | [P47](P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md) | develop 前置处理规则与产物目录约定（前置不满足→先跑 dev-setup；完成报告落 completion-reports/）— **Implemented** 2026-09-02 | 2026-09-02 |
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |
@@ -96,6 +98,7 @@
 | 2026-09-09 | weekly | 全量审计（delta FIRST_RUN→record）；工具门禁全绿（0/0/26，WARN 增量归因 k8s-logs 补跟踪）；一致性抽查 8 过/2 提示（合同图漏 logs/archived/、提案盘面）；3 开放提案 defer；P26:53 CI 项建议关闭；知识生命周期无新增捕获 | `MAINTENANCE-2026-09-09.md` | 合同 §2 图补两行需 §11 审批；P26:53/P46 状态收尾待用户确认；aic-maintain 133 行瘦身季度窗口；extensions 仓 1 条未提交归因见 logs/ |
 | 2026-09-11 | on-demand/code-review | 按今日 code-review 日志（spec-comparison 三仓）专项 review code-review 流程：runtime「不修改业务」声明 vs 实际 fix+push 矛盾（M2）**已修复**（声明收敛 + Spec-Comparison Fix-Apply Extension 阶段）；code-review.md 节顺序违规**已修复**（用户 L2 批准，前置完成菜单交互流程评估 P1-P4）；HotFix loop wiki 更新行为**已更新**（远程 wiki 用户自管）；T-011 报告覆盖事故 → review/verify 写前检查建议；工具门禁全绿 | `MAINTENANCE-2026-09-11.md` | 建议 1/2/3 已执行（门禁全绿）；code-review 输入简化包已执行（Review Focus 预置候选+多选+默认全选、P1-i18n 补齐、移除 Output Directory、减少分支重复询问、runtime focus 优先级）；skill 加载缺陷已修复（F1：description 块标量解析）；可配置技能源目录已落地（F2：skill_roots，core 29 + extensions 9 全量可达，core_skills 白名单退役）；skill 菜单分组高亮（cyan 系）+ 每屏 10 项可筛选 + 长描述截断（F3）；aic 项目菜单置顶 system/AI 引导（F4）；skill 菜单选中行黑字白底/非选中无背景/每屏 20 项/公司技能组提前（F5 修订 3）；菜单输入中文过滤崩溃修复（F6）；非开发主链菜单体检（F7：env-init 去重 + 字段 i18n 补齐 + 交互层英文文案本地化）；chain 链路无项目问题修复（F8：required 强制项目 + 项目透传）；chain 交互调整（F9 修订：先选链再输入内容 + 保留场景选项）；chain 菜单直达（F10）；chain 重复链路合并+可选块（F11）；P2/P4 交互层结构建议待变更管理；建议 4/5 可选 |
 | 2026-09-17 | on-demand | aic 项目菜单 (no repo mapped) 专项：根因 = 映射存储源与显示源脱节——dev-setup 只写 contexts/project-context.yaml、从不写 workspace.yaml（ADR-0008 执行步骤悬空），wizard 仅读 workspace.yaml；已复现（7/8 项目显示 no repo mapped，其中 4 个业务项目实际已绑定仓库）；工具门禁全绿；一致性抽查 8 项 7 过/1 失败（doc-vs-reality=映射数据源）| `MAINTENANCE-2026-09-17.md` | 方案 A（显示回退 project-context.yaml）L2 待确认；方案 B（dev-setup 生成 workspace.yaml，推荐）结构待提案；方案 C（数据源统一）季度候选；run-log 覆盖 1 观察项（coding-memory 归属）；next_maintenance 2026-09-16 已到期建议另排 weekly |
+| 2026-09-21 | on-demand | scan 循环选择项目 + 缺少 service 选择专项：根因分层——F1 机器层 local.yaml 残留 /tmp 路径（Projects/Branch 字段 0 选项，机器观察→诊断日志）；F2 ScanHooks.validate 失败 step=2 全量重收死循环（实测复现，校验不验名与 aic-scan.md 不一致）；F3 无 service 级选择（Projects 扁平全量不按容器 workspace.yaml 过滤，change-impact 映射选择 CLI 未实现）；F4 memory 中文未提交块（466/187 CJK）check.py FAIL + pre-commit 不覆盖 memory 门禁；工具门禁除 check.py memory 外全绿 | `MAINTENANCE-2026-09-21.md` | 设计方向已确认（参照 code-review 交互流程）→ 立提案 P57（候选驱动 + 询问代替猜测 + 死循环出口）待评审；F1 local.yaml 就地修正 + F4 memory 翻译提交待确认；P41/P42/P46 + P26/P28 defer；next_maintenance 2026-09-16 已到期待另排 weekly |
 
 ---
 

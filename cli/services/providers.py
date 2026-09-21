@@ -31,20 +31,26 @@ def _linux_path(path):
 
 
 def _repo_path(wizard, path):
-    """Resolve a repo path from workspace.yaml to a real filesystem path."""
+    """Resolve a repo path from workspace.yaml to a real filesystem path.
+
+    Absolute paths pass through (Windows drive paths are normalized for WSL).
+    Relative paths (P58: normalized workspace.yaml writes service ids like
+    `platform-api`) resolve under the repository root on every platform.
+    """
 
     if not path:
         return None
 
     p = Path(str(path))
 
-    if Path(str(p)).is_absolute():
+    if p.is_absolute():
         return p
 
-    if sys.platform == "linux":
+    # Windows 盘符路径（D:\\...）在 Posix 主机归一为 /mnt/<drive>
+    if len(str(p)) >= 3 and str(p)[1] == ":":
         return Path(_linux_path(path))
 
-    return wizard.projects_root / path
+    return wizard.projects_root / p
 
 
 def mode_choices(wizard, values):
@@ -212,6 +218,91 @@ def git_branches(wizard, values):
         except Exception:
 
             continue
+
+    return sorted(branches)
+
+
+def container_services(wizard, project):
+    """Service names mapped in a project container's workspace.yaml.
+
+    Returns `repository.available[].service` names (P57 candidate-driven
+    service selection); [] when the container or mapping is absent.
+    """
+
+    if not project:
+        return []
+
+    repos = project_repos(wizard, project)
+
+    available = repos.get("available") or []
+
+    return [
+        entry.get("service")
+        for entry in available
+        if isinstance(entry, dict) and entry.get("service")
+    ]
+
+
+def repositories_services(wizard):
+    """Service ids from repositories/*.yaml metadata (P58 source of truth).
+
+    Any service listed here is clonable on demand via tools/repo-ensure.py.
+    The repositories dir is co-located with the workspace root.
+    """
+
+    repos_dir = wizard.projects_root.parent / "repositories"
+
+    if not repos_dir.is_dir():
+        return []
+
+    return sorted(p.stem for p in repos_dir.glob("*.yaml"))
+
+
+def repo_candidates(wizard):
+    """No-container Projects candidates: clonable metadata ∪ local clones.
+
+    P58: candidates no longer depend on a symlinked resource pool —
+    repositories/*.yaml services (clonable) plus projects/ dirs already present.
+    """
+
+    return sorted(
+        set(repositories_services(wizard))
+        | set(projects_dirs(wizard))
+    )
+
+
+def branch_candidates(wizard, values):
+    """Branch candidates: container dev_branch mapping + local git branches.
+
+    Container-mapped branches (workspace.yaml dev_branch / branch) come first
+    (single-candidate auto-adopt contract), local git branches extend the set.
+    Deduplicated and sorted (P57).
+    """
+
+    branches = set()
+
+    project = (
+        values.get("Project ID")
+        or values.get("Workspace ID")
+        or wizard.project
+    )
+
+    if project:
+
+        for entry in (
+            project_repos(wizard, project).get("available") or []
+        ):
+
+            if not isinstance(entry, dict):
+                continue
+
+            if entry.get("dev_branch"):
+                branches.add(entry["dev_branch"])
+
+            if entry.get("branch"):
+                branches.add(entry["branch"])
+
+    branches.update(git_branches(wizard, values))
 
     return sorted(branches)
 
