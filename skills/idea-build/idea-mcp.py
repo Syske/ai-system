@@ -132,10 +132,22 @@ def cmd_build(port, project, rebuild=False, files=None):
     content = result.get("result", {}).get("content", [])
     text = "\n".join(c.get("text", "") for c in content if c.get("type") == "text")
     print(text)
-    # 退出码:isError 或编译失败返回非 0
-    if result.get("result", {}).get("isError"):
-        sys.exit(1)
-    sys.exit(0)
+    # 退出码:isError 或编译失败返回非 0。
+    # SKILL.md 记载 build_project 返回 {"isSuccess":true,"problems":[...]}，
+    # 原实现只查 isError（契约未提及该字段）→ 编译失败(isSuccess=false)会静默 exit 0
+    # （2026-09-21 外部盲检 T4）。此处按文档契约补判 isSuccess（兼容结构化字段与 JSON 文本）。
+    res = result.get("result", {})
+    failed = bool(res.get("isError"))
+    if not failed:
+        payload = res
+        if isinstance(text, str) and text.strip().startswith("{"):
+            try:
+                payload = json.loads(text)
+            except ValueError:
+                payload = res
+        if isinstance(payload, dict) and payload.get("isSuccess") is False:
+            failed = True
+    sys.exit(1 if failed else 0)
 
 
 def cmd_exec(port, project, command, args):
