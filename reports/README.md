@@ -67,6 +67,7 @@
 | [P47](P47-WORKFLOW-PRECONDITIONS-OUTPUTS.md) | develop 前置处理规则与产物目录约定（前置不满足→先跑 dev-setup；完成报告落 completion-reports/）— **Implemented** 2026-09-02 | 2026-09-02 |
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |
 | [P37](P37-REQUIRED-INPUTS-TRIAGE.md) | 工作流必填参数必要性评估（降可选/自动推导/保持，提升使用效率）— **Proposed** | 2026-08-25 |
+| [P64](P64-SPEC-PRECONDITION-CONSISTENCY.md) | spec 前置条件口径不一致（"Prepare completed" 无 SSOT + 实测 0/12 变更具备 prepare 产物 + proposal.md 静默替代）— **Proposed** | 2026-09-21 |
 | [P62](P62-TASK-COMMIT-TRACEABILITY.md) | 任务提交信息 `T-<id>` 强制性与实践脱节（标准↔实践↔门禁三方不一致）— **Proposed** | 2026-09-21 |
 | [P63](P63-BRANCH-NAMING-NON-ITERATION.md) | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 — **Proposed** | 2026-09-21 |
 
