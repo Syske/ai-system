@@ -381,11 +381,13 @@ def check_language(root, results):
                 s = ln.strip()
                 # 更新三引号状态
                 if in_triple:
-                    if in_triple in ln:
+                    # 同行闭合（单行 docstring 如 """x"""）不得置位，否则其后的
+                    # 注释会被整段跳过（2026-09-21 外部盲检 T6a C6）。
+                    if ln.count(in_triple) % 2 == 1:
                         in_triple = None
                     continue
                 for q in ("\"\"\"", "'''"):
-                    if q in ln:
+                    if q in ln and ln.count(q) % 2 == 1:
                         in_triple = q
                         break
                 if in_triple:

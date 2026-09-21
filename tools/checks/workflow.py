@@ -315,7 +315,12 @@ def check_branch_parser(c):
         c.error("main-chain branch_parser: 非法分支名未被拒绝")
 
 
-def check_frontmatter_consistency(c):
+def check_frontmatter_consistency(c, only=None):
+    """only=（workflow 名集合）时只校验这些工作流（供 pre-commit 按 staged 收窄范围）。
+
+    2026-09-21 外部盲检 T6a C4：pre-commit 原先整仓校验，未参与本次提交的既有漂移
+    也会阻断提交。收窄后仍对**被改动**的工作流保持 fail-loud。
+    """
     """单一来源硬化：frontmatter 契约须与正文一致。
 
     1) workflow.inputs（required/optional）== 正文 ## Inputs；
@@ -333,6 +338,9 @@ def check_frontmatter_consistency(c):
     for p in sorted(wf_dir.glob("*.md")):
 
         if p.name == "README.md":
+            continue
+
+        if only is not None and p.stem not in only:
             continue
 
         text = p.read_text(encoding="utf-8", errors="replace")

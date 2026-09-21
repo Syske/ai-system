@@ -55,6 +55,7 @@ auto-derived — parent of `ai-system/`, never hardcode).
 - Workspace-scoped keys (`bugfix.mode`, `layers`) stay in the workspace
   `config/environments/{env}.yaml` — do not move them to the home config
   (cross-platform drift).
-- Full provisioning (directory scaffold, repo links, metrics baseline,
-  path audit) belongs to `python3 tools/setup.py`; `--env-init` is
+- Full provisioning（metrics baseline / 审计等仍属完整 `setup`）；
+  但**目录骨架与外部仓库引导自 P36 起由 `env-init` 一并补齐**（幂等、非破坏）
+  —— 2026-09-21 外部盲检 T6a C7 同步文档
   config-focused only.

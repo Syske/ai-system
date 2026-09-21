@@ -474,12 +474,16 @@ def main(argv=None) -> int:
                 base_dir = os.path.abspath(args.dir)
 
             attach_dir = os.path.join(base_dir, "attachments")
-            lines = ["---",
-                     f'title: "{html.escape((biz_data.get("title") or "").strip(), quote=True)}"',
-                     f"source: https://chat.deepseek.com/share/{share_id}",
-                     f"exported_at: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-                     f"message_count: {len(messages)}",
-                     "---", ""]
+            # --no-frontmatter 必须在**所有**导出分支生效（原实现只作用于 stdout 分支，
+            # 文件导出恒写 frontmatter —— 2026-09-21 外部盲检 T6a C8）。
+            lines = []
+            if not args.no_frontmatter:
+                lines += ["---",
+                          f'title: "{html.escape((biz_data.get("title") or "").strip(), quote=True)}"',
+                          f"source: https://chat.deepseek.com/share/{share_id}",
+                          f"exported_at: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                          f"message_count: {len(messages)}",
+                          "---", ""]
             title = (biz_data.get("title") or "").strip() or f"DeepSeek 分享对话 {share_id}"
             lines += [f"# {title}", "", f"> 来源: [DeepSeek 分享链接](https://chat.deepseek.com/share/{share_id})", ""]
             for item in messages:

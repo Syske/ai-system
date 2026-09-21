@@ -56,6 +56,9 @@ def staged_files(repo_root, pattern):
     if r.returncode != 0:
         return []
 
+    if pattern is None:                     # 全部 staged（C4：check-contract 需全量列表）
+        return [f for f in r.stdout.splitlines() if f]
+
     return [f for f in r.stdout.splitlines() if pattern.match(f)]
 
 
@@ -128,9 +131,12 @@ def run_checks(repo_root, files, memory_files=None):
             lines.append(NO_VERIFY_HINT)
 
         # 2. workflow ↔ runtime 契约一致性
+        staged = [p for p in staged_files(repo_root, None)
+                  if p.endswith((".md", ".yaml"))]
         code, out = _run(
             repo_root,
-            [sys.executable, "tools/check-contract.py"],
+            [sys.executable, "tools/check-contract.py",
+             "--files", ",".join(staged)],
         )
 
         if code != 0:

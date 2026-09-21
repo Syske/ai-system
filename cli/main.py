@@ -257,7 +257,7 @@ def main():
     if _env_uninitialized():
         _offer_env_init()
 
-    builder = PromptBuilder()
+    builder = PromptBuilder(environment=getattr(args, "environment", None))
 
     if args.workflow in _INTERACTIVE_COMMANDS:
 
@@ -272,10 +272,13 @@ def main():
 
         prompt, agent = result
 
-        copy(prompt)
+        copied = copy(prompt)
 
         print()
-        print("✓ Prompt copied.")
+        if copied:
+            print("✓ Prompt copied.")
+        else:
+            print("⚠ 剪贴板不可用，提示词未复制（已在上方输出，可手动复制）")
 
         wizard = Wizard(
             builder.root,

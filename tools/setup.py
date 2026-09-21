@@ -402,12 +402,15 @@ def env_init(
     environment,
     interactive
 ):
-    """配置聚焦初始化（aic env-init 的后端，非破坏）。
+    """配置聚焦初始化（aic env-init 的后端，幂等、非破坏）。
 
-    只生成两份配置，不碰 scaffold/链接/基线/审计（那些属于完整 setup）：
     1. workspace 层 config/environments/{environment}.yaml（缺失才生成）
     2. 机器层 ~/.config/ai-system/env.yaml（缺失才生成，按系统检测+探测）
+    3. P36 方案 A：补齐目录骨架（scaffold）+ runtime 目录 + 外部仓库引导（link_repos）
     最后打印合并解析冒烟（workspace_root / build）供确认。
+
+    注：文档曾写作"只生成配置、不碰 scaffold/链接"，与 P36 起的实际行为不符
+    （2026-09-21 外部盲检 T6a C7）—— 幂等且非破坏，故以实际行为为准并同步文档。
     """
 
     changed = False

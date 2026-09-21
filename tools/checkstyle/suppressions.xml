@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   CoolJava 规范闸门存量抑制清单（baseline 工作流，2026-09-03 定稿）
-  ------------------------------------------------------------
+  ============================================================
   生成流程（顺序铁律，先 C2 后 checkstyle——保证行/AST 与格式化后代码一致）：
     1. C2 格式基线：python3 ai-system/tools/format-baseline.py <repo>   # LineLength/FileTabCharacter 自愈
     2. 生成存量抑制（TreeWalker 级 XPath）：

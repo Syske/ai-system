@@ -143,11 +143,14 @@ def main(argv=None):
         return 3
 
     cmd = [java, "-jar", jar, "-c", str(Path(config).resolve())]
+
     if targets:
         cmd += targets
     else:
         cmd += [str(src)]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
+    # cwd=仓根：让配置内的相对路径资产（suppressions.xml）可解析（T6a C5）
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=1800,
+                       cwd=str(root) if root else None)
     out = (r.stdout or "") + (r.stderr or "")
     n_err = sum(1 for ln in out.splitlines() if "[ERROR]" in ln)
     n_warn = sum(1 for ln in out.splitlines() if "[WARN]" in ln)

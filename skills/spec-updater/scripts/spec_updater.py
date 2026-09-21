@@ -15,7 +15,10 @@ from pathlib import Path
 
 
 DEFAULT_CHANGE = "wecom-live-integration"
-GENERATE_SCRIPT = Path(".opencode/skills/contract-maintainer/scripts/generate_contract.py")
+# 以本文件位置解析仓根，避免依赖 cwd 或历史 .opencode/ 布局
+# （2026-09-21 外部盲检 T6a C9：原写死 ".opencode/skills/…" → exists() 恒假，委派流程静默失效）。
+_REPO_ROOT = Path(__file__).resolve().parents[3]     # skills/spec-updater/scripts/x.py → 仓根
+GENERATE_SCRIPT = _REPO_ROOT / "skills" / "contract-maintainer" / "scripts" / "generate_contract.py"
 
 
 def _change_dir(change: str) -> Path:
@@ -136,7 +139,7 @@ def cmd_build(change: str):
         print(f"[WARN] switch_scenarios.yml 不存在，场景条目将不会加入契约")
         print(f"[WARN] 后续可手动创建 {switch_file} 后重新生成")
 
-    print(f"[RUN] python .opencode/skills/contract-maintainer/scripts/generate_contract.py ...")
+    print(f"[RUN] python {GENERATE_SCRIPT.relative_to(_REPO_ROOT)} ...")
     print("=" * 60)
 
     result = _run(args)

@@ -408,6 +408,11 @@ def resolve_launch_command(config, name):
 
             return f'cmd.exe /c "{_wsl_to_win(path)}"'
 
+        if any(ch.isspace() for ch in path):
+            # 空格路径必须引号包裹：_launch 以 shell=True 执行，未引号会被分词
+            # 导致启动失败（2026-09-21 外部盲检 T6a C1）。
+            return f'"{path}"'
+
         return path
 
     return name

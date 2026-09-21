@@ -6,7 +6,12 @@ from cli.utils.yaml import load_yaml
 
 class PromptBuilder:
 
-    def __init__(self, root=None):
+    def __init__(self, root=None, environment=None):
+
+        # 环境名（--environment）必须贯穿到 paths()，否则非 local 环境下
+        # {workspace_root}/{repository_root} 等占位符渲染成默认环境路径
+        # （2026-09-21 外部盲检 T6a C2）。
+        self.environment = environment
 
         self.root = (
             Path(root).resolve()
@@ -295,7 +300,7 @@ class PromptBuilder:
 
             resolved = {
                 k: str(v)
-                for k, v in paths(self.root).items()
+                for k, v in paths(self.root, self.environment).items()
                 if v
             }
 

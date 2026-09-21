@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   CoolJava 规范闸门规则集（初稿 v0.1，2026-09-03）
-  - 承载：CLI（com.puppycrawl.tools.checkstyle.Main -c checkstyle.xml -p suppressions.xml <src>），
+  - 承载：CLI（com.puppycrawl.tools.checkstyle.Main -c checkstyle.xml <src>）——
+    存量抑制由本配置内 SuppressionFilter 加载 **仓根** suppressions.xml（optional，
+    相对路径按 cwd 解析，gate 以仓根为 cwd 运行）；
+    注：`${config_loc}` 在 checkstyle 10.x 已移除，不可用（T6a C5 实测）
+    注：checkstyle 的 -p 参数是 **properties 文件**，不是 suppressions XML（T6a C5）
     业务仓零 build 配置（不改 pom）
   - 分级：error = 正确性/低争议类；warn = 风格类（存量多不合，先收集后收紧）
   - 与主链分层：A 层 format-check（规范泄漏软检）与 C2（格式）互不重复；本规则集只做规范检查
@@ -95,5 +99,15 @@
 
         <!-- 明确不启用（与团队现状冲突或误报高，见提案 §5.1）：
              MagicNumber / AvoidInlineConditionals / FinalLocalVariable / CustomImportOrder -->
+    </module>
+
+    <!-- 存量抑制（baseline）。文件路径由 -p 属性 checkstyle.suppressions.file 指定
+         （gate 在 <repo>/suppressions.xml 存在时注入临时属性文件）。
+         optional=true：文件缺失不报错。
+         2026-09-21 外部盲检 T6a C5：原模板只在头部注释里写「-p suppressions.xml」，
+         却未挂 SuppressionFilter → 抑制清单形同虚设，baseline 违规照报。 -->
+    <module name="SuppressionFilter">
+        <property name="file" value="suppressions.xml"/>
+        <property name="optional" value="true"/>
     </module>
 </module>

@@ -46,9 +46,15 @@ def parse_spec_yaml_blocks(spec_dir: str) -> list[dict]:
                             if "schema" in mq and isinstance(mq["schema"], dict):
                                 mq["_fields"] = list(mq["schema"].keys())
                             interactions.append(mq)
-            except yaml.YAMLError:
-                pass
+            except yaml.YAMLError as exc:
+                # 静默吞掉会让下游误以为"保真提取"（2026-09-21 外部盲检 T6a C10）
+                msg = f"{md_file}: YAML 块解析失败，已跳过该块: {exc}"
+                PARSE_PROBLEMS.append(msg)
+                print(f"[WARN] {msg}", file=sys.stderr)
     return interactions
+
+
+PARSE_PROBLEMS: list[str] = []
 
 
 def load_yaml(path: str) -> dict:
@@ -156,8 +162,14 @@ def validate_fields(spec_entries: list[dict], scenario_entries: list[dict]) -> l
     """
     errors = []
     for se in scenario_entries:
-        enterprise_field = se.get("切库规则", "")
+        enterprise_field = (se.get("切库规则") or "").strip()
         if not enterprise_field:
+            continue
+        # 「切库规则」列存的是**描述**（如“订单参数/来源描述”）时不能与字段名做成员判断，
+        # 否则一旦 Spec 含 _fields 即恒定 ERROR（2026-09-21 外部盲检 T6a C11）。
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", enterprise_field):
+            print(f"[WARN] 场景 {se.get('场景引用')} 的切库规则 '{enterprise_field}' "
+                  f"不是字段名（描述），跳过字段级校验")
             continue
         svc = se.get("服务", "")
         matched_any = False     # 找到至少一个匹配的交互
