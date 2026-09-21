@@ -62,4 +62,17 @@ tr5-design 的「双文件机制」（template 骨架 + sections 内容）缺少
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（已批准立项起草，实施待批） | 2026-08-26 |
+| User (AI Maintainer operator) | **Approved（起草）**；实施待批 | 2026-08-26 |
+| User (AI Maintainer operator) | **Deferred（按 maintain 建议，2026-09-21）**：本项需创作 19 节 markdown 骨架并对齐
+  `tr5_storage.xml` h3 结构 + `SKILL.md` 布局规则，且需以真实项目构建验证（`build_tr5_doc`
+  无未替换占位符 + `validate_tr5` 0 error）。在无 tr5 域反馈的 maintain 会话中仓促定骨架会降低
+  跨项目输出质量 → 留待**专门 tr5 专项会话**实施。Status 保持 `Proposed`（由 proposal-audit 持续跟踪）。 | 2026-09-21 |
+
+**专项会话接手要点（已备妥的输入）**：
+- 结构基准：`extensions/tr5/templates/tr5_storage.xml`（h3/h4 骨架 + 占位符插入点）与
+  `templates/template_version.json`；合成契约：`build_tr5_doc.py`（模板 + `sections/NN-*.md`
+  → `tr5_doc.md`，占位符键 `SECTION_NN` / `SECTION_04_06`）。
+- 已填充实例（可反向剥离为骨架）：`workspaces/202610-qa-housekeeping-optimization/tr5/tr5_template.md`。
+- 放置指引：`skills/tr5-design/SKILL.md`（Step 2 拷贝点 + Gate 3 清单，已由 P41 补校验语义）。
+- 验收：新模板重建骨架 → 注入项目 sections → `build_tr5_doc.py --check` 无未替换占位符 →
+  `generate_tr5_data.py` 解析 20/19 节 → `validate_tr5.py` 0 error。

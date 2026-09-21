@@ -15,6 +15,19 @@ last_run: 2026-09-21
 mode: on-demand
 next_maintenance: '2026-09-16'   # weekly 节奏：+7d（on-demand 专项不推进计划内下次；2026-09-16 已到期待另排 weekly）
 last_findings:
+- on-demand 全链闭环（2026-09-21，用户逐项确认）：核心产出——P57/P58/P59 立项并全部实施；
+  P57 候选驱动 service 选择（Projects 候选=容器 workspace.yaml 映射服务）+ 死循环出口；
+  P58 projects/ 真实目录 + repositories 源按需 clone（含本机解链迁移 + worktree repair）；
+  P59 模板层作者纪律（实测折行收益 0.03% → 回退）。实测发现并修 3 处选择循环
+  （候选/校验不一致、Projects 由容器 id 推导、顶层 BACK 无限重渲染）；全目标扫描
+  104/104 组合无循环。Tier1：pre-commit 补 memory 英文门禁（修按名排除漏洞，主题级
+  coding-memory.md 此前漏检）+ 提案状态漂移同步（P22/P29 Approved→Implemented）+ AGENTS.md
+  文档漂移。Tier2：extensions 仓 13 项归属入库（hotfix-test-doc 自包含化，2026-09-11 遗留）
+  + extensions pre-commit 敏感扫描误报修复（token=token 误判）；D 盘池定位明确化；
+  TR5 收口（P41 Implemented；P46 (b) 早实施/(a) 待线上；P42 按建议 defer 至专项会话）。
+  盘面：NOT CLOSED 3→2（P42/P46）；open action items 4（P22×2 / P26 / P28）。
+  next_maintenance 2026-09-16 已到期待另排 weekly；机器观察（local.yaml 残留、D 盘池、
+  双副本历史）均入诊断日志，不入本文件。
 - on-demand 专项（scan 循环选择项目 + 缺少 service 选择）：根因分层——①机器层
   config/environments/local.yaml 残留 /tmp 测试路径（projects_root 指向不存在目录 →
   Projects/Branch 字段 0 选项，机器观察，进诊断日志，修复待确认）；②F2 scan 字段收集
