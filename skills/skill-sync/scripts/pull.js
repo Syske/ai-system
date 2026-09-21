@@ -3,7 +3,7 @@ const path = require('path');
 const os = require('os');
 const http = require('http');
 const https = require('https');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 function ensureDir(dirPath) {
     if (!fs.existsSync(dirPath)) {
@@ -78,7 +78,9 @@ function downloadAndInstall(url, targetDir, apiKey) {
                 file.close();
                 try {
                     ensureDir(targetDir);
-                    execSync(`unzip -o "${tempZip}" -d "${targetDir}"`, { stdio: 'ignore' });
+                    // 数组传参、不经 shell：targetDir 含空格 / 引号 / $(...) 时不会被解释
+                    // （2026-09-21 外部盲检 T5：原 execSync 模板内插存在命令注入面）
+                    execFileSync('unzip', ['-o', tempZip, '-d', targetDir], { stdio: 'ignore' });
                     fs.unlinkSync(tempZip);
                     resolve();
                 } catch (e) {

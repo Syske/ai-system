@@ -16,6 +16,7 @@ Provider scaffold: tools/branch-parser-scaffold.py.
 import importlib.util
 import inspect
 import re
+import typing
 from pathlib import Path
 
 from .base import ROOT, load_yaml
@@ -190,6 +191,54 @@ def _resolve_mr_provider(provider: str):
     return None
 
 
+def _return_dataclasses(func, mod):
+    """静态解析 func 的返回注解 → 非 None 的候选类型（无法解析返回 []）。"""
+
+    try:
+        hints = typing.get_type_hints(func, vars(mod))
+    except Exception:                       # noqa: BLE001
+        return []
+
+    ret = hints.get("return")
+
+    if ret is None:
+        return []
+
+    candidates = typing.get_args(ret) or [ret]
+
+    return [t for t in candidates if t is not type(None)]
+
+
+def _check_return_contract(c, name, label, func, expected_fields, mod):
+    """静态校验返回类型（**不执行** provider 代码）。
+
+    2026-09-21 外部盲检 T5：原实现以 `"__contract_probe__"` 调**活探针**——
+    ① 该输入任何 parser/MR provider 都解析不出 → 恒返回 None → 字段校验成为
+       **死代码**（fail-open：契约从未被验证）；
+    ② 门禁期间**执行** provider 代码（MR provider 可能真的发起建 MR 调用）。
+    改为静态解析返回注解：能解析则校验字段；无法解析 → WARN（失效必须响亮，P60）。
+    """
+
+    candidates = _return_dataclasses(func, mod)
+
+    if not candidates:
+        c.warn(
+            f"{CONFIG.name} [{name}]: {label} return annotation "
+            f"missing/unresolvable -> contract fields NOT verified "
+            f"(annotate the return as '-> X | None')"
+        )
+        return
+
+    for t in candidates:
+        fields = set(getattr(t, "__dataclass_fields__", {}))
+        if fields != expected_fields:
+            c.error(
+                f"{CONFIG.name} [{name}]: {label} return "
+                f"fields {sorted(fields)} != contract {sorted(expected_fields)}"
+            )
+            return
+
+
 def _check_parser_contract(c, name, parser, script: Path):
     """Load the provider script and verify the contract signature."""
 
@@ -226,17 +275,10 @@ def _check_parser_contract(c, name, parser, script: Path):
         )
         return
 
-    probe = getattr(mod, CONTRACT_METHOD)("__contract_probe__")
-    if probe is None:
-        return  # 合法：无法解析返回 None
-
-    fields = set(getattr(probe, "__dataclass_fields__", {}))
-    if fields != CONTRACT_FIELDS:
-        c.error(
-            f"{CONFIG.name} [{name}]: parser '{parser}' return "
-            f"fields {sorted(fields)} != contract "
-            f"{sorted(CONTRACT_FIELDS)}"
-        )
+    _check_return_contract(
+        c, name, f"parser '{parser}'",
+        getattr(mod, CONTRACT_METHOD), CONTRACT_FIELDS, mod,
+    )
 
 
 def _check_mr_contract(c, name, provider, script: Path):
@@ -275,15 +317,7 @@ def _check_mr_contract(c, name, provider, script: Path):
         )
         return
 
-    probe = getattr(mod, MR_METHOD)(
-        "__probe_src__", "__probe_tgt__", "__probe_title__", "__probe_desc__"
+    _check_return_contract(
+        c, name, f"mr provider '{provider}'",
+        getattr(mod, MR_METHOD), MR_FIELDS, mod,
     )
-    if probe is None:
-        return  # 合法：失败/探测返回 None（幂等探测不创建）
-
-    fields = set(getattr(probe, "__dataclass_fields__", {}))
-    if fields != MR_FIELDS:
-        c.error(
-            f"{CONFIG.name} [{name}]: mr provider '{provider}' return "
-            f"fields {sorted(fields)} != contract {sorted(MR_FIELDS)}"
-        )

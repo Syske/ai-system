@@ -243,10 +243,19 @@ def download_file(signed_path: str, fname: str) -> bytes:
 
 
 def save_file(data: bytes, dest_dir: str, fname: str) -> str:
-    """保存附件字节到本地，返回相对所在目录上一级的路径（失败返回 ''）。"""
+    """保存附件字节到本地，返回相对所在目录上一级的路径（失败返回 ''）。
+
+    文件名来自远端响应，必须清洗：只取 basename 并校验解析后仍在目标目录内
+    （2026-09-21 外部盲检 T5：原名含 `../` 时可路径穿越写出 attachments/ 之外）。
+    """
+    safe = os.path.basename(str(fname or "").replace("\\", "/")).strip() or "attachment"
     try:
         os.makedirs(dest_dir, exist_ok=True)
-        local = os.path.join(dest_dir, fname)
+        base = os.path.abspath(dest_dir)
+        local = os.path.abspath(os.path.join(base, safe))
+        if os.path.commonpath([local, base]) != base:
+            print(f"⚠️ 附件文件名非法，已拒绝: {fname}", file=sys.stderr)
+            return ""
         with open(local, "wb") as f:
             f.write(data)
         return os.path.relpath(local, os.path.dirname(dest_dir))

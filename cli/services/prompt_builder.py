@@ -572,7 +572,7 @@ class PromptBuilder:
         # Phase headings may be level-1 (`# Phase N — …`, dev-setup) or
         # level-2 (`## Phase N — …`, prepare); match both, preserving the
         # original heading text verbatim.
-        for line in lines:
+        for idx, line in enumerate(lines):
 
             s = line.strip()
 
@@ -611,7 +611,9 @@ class PromptBuilder:
                 # 会丢失宾语；尝试合并首个列表项，否则取原文。
                 snippet = f"  {s[:120]}"
 
-                for nxt in lines[lines.index(line) + 1:]:
+                # `lines.index(line)` 取的是**首次出现**位置；同一行文本在模板中
+                # 重复时取到错误后续行（2026-09-21 外部盲检 T5）。
+                for nxt in lines[idx + 1:]:
 
                     ns = nxt.strip()
 
