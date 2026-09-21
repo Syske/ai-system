@@ -68,7 +68,16 @@ def changed_java_files(repo_root, src_dir):
     rels = []
     for line in r.stdout.splitlines():
         p = line[3:].strip()  # 跳过 XY 状态
-        if p.endswith(".java") and not p.startswith('"') and not p.endswith(" -> "):
+        if not p or p.startswith('"'):
+            # 含空格/特殊字符的路径会被 git 整体加引号（rename 的 "old -> new" 亦然）
+            continue
+        # rename 行形如 "old.java -> new.java"：取新路径。
+        # 原写法 `not p.endswith(" -> ")` 恒真（rename 行以新路径结尾），
+        # 会把整串 "old.java -> new.java" 当成路径 → 门禁拿到非法路径。
+        # 2026-09-21 外部盲检 T4 修复。
+        if " -> " in p:
+            p = p.split(" -> ", 1)[1].strip()
+        if p.endswith(".java"):
             rels.append(p)
     return sorted(set(rels))
 

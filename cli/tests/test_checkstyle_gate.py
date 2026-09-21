@@ -60,6 +60,22 @@ class TestCheckstyleGate(unittest.TestCase):
         finally:
             td.cleanup()
 
+    def test_renamed_java_uses_new_path(self):
+        # 2026-09-21 外部盲检 T4：rename 行形如 "old.java -> new.java"，
+        # 原守卫 `not p.endswith(" -> ")` 恒真 → 整串被当作路径（非法）。
+        td, root = _mk_repo()
+        try:
+            _commit(root, "src/main/java/x/Old.java", GOOD)
+            subprocess.run(
+                ["git", "-C", td.name, "mv",
+                 "src/main/java/x/Old.java", "src/main/java/x/Renamed.java"],
+                check=True,
+            )
+            rels = cg.changed_java_files(str(root), root / "src")
+            self.assertEqual(rels, ["src/main/java/x/Renamed.java"])
+        finally:
+            td.cleanup()
+
     def test_clean_repo_pass(self):
         td, root = _mk_repo()
         try:

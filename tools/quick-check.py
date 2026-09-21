@@ -15,7 +15,8 @@ Usage:
     python tools/quick-check.py --history       # print recent snapshots
 
 Output: metrics/quick-check-{date}.json (gitignored runtime artifact).
-Verdict OK = no new findings; ISSUES = findings recorded (report to user).
+Verdict: ISSUES when BLOCKER/ERROR/FAIL items were collected (report to user);
+WARNING/INFO are counted separately and never flip the verdict.
 
 Registered in tools/README.md (check_tools_readme gate).
 """
@@ -58,19 +59,35 @@ def run_checks() -> dict:
     ext = _run([sys.executable, str(HERE / "extensions-lint.py")])
 
     findings = []
+    warning_count = 0
+
+    # 严重度标签有多种形态：repo-lint 非冗余模式输出 `[BLOCKER]`/`[ERROR]`（无填充），
+    # 冗余模式输出 `[WARNING ]`/`[INFO    ]`（severity.ljust(8) 填充）。原白名单
+    # ("[WARN]", "[ERROR]", "[FAIL]") 与实际标签不匹配 → 收集长期失效
+    # （findings 恒为 0、verdict 恒 OK）。2026-09-21 外部盲检 T4 修复。
+    # 判定口径：BLOCKER/ERROR/FAIL 计入 findings（影响 verdict）；WARNING/INFO 仅计数
+    # （否则存量 28 条 WARN 会让每次会话起点都报 ISSUES）。
+    _sev_re = re.compile(r"^\[([A-Z]+)\s*\]")
+    _verdict_sev = ("BLOCKER", "ERROR", "FAIL")
 
     def _collect(out: str, source: str):
+        nonlocal warning_count
         # path-audit 的 "BROKEN (0):" 是标题行（0 个 broken = 正常），
         # 仅当 BROKEN 后跟具体路径才记录。
         lines = out.splitlines()
-        for i, line in enumerate(lines):
+        for line in lines:
             s = line.strip()
-            if s.startswith(("[WARN]", "[ERROR]", "[FAIL]")):
-                findings.append({
-                    "severity": s.split()[0][1:-1],
-                    "source": source,
-                    "detail": s,
-                })
+            m = _sev_re.match(s)
+            if m and m.group(1) in ("BLOCKER", "ERROR", "FAIL", "WARNING", "INFO"):
+                sev = m.group(1)
+                if sev in _verdict_sev:
+                    findings.append({
+                        "severity": sev,
+                        "source": source,
+                        "detail": s,
+                    })
+                elif sev == "WARNING":
+                    warning_count += 1
             elif s.startswith("BROKEN") and "(" in s:
                 # BROKEN (N): 后跟缩进路径行 = 有 broken；N==0 则无
                 n = s.split("(")[1].split(")")[0]
@@ -92,6 +109,7 @@ def run_checks() -> dict:
         "extensions_summary": ext.strip().splitlines()[-1] if ext.strip() else "no output",
         "findings": findings,
         "finding_count": len(findings),
+        "warning_count": warning_count,
         "verdict": "OK" if not findings else "ISSUES",
     }
 

@@ -55,12 +55,18 @@ def check_registry(c):
 
         for key in ("workflow", "runtime"):
 
-            target = ROOT / wf.get(key, "")
+            target_rel = wf.get(key)
 
-            if not target.exists():
+            # 缺键时 ROOT / "" == ROOT（目录）恒存在 → 校验静默通过（fail-open），
+            # 必须显式判定键存在且非空。2026-09-21 外部盲检 T4 修复。
+            if not target_rel:
+                c.error(f"workflow {name}: missing '{key}' key")
+                continue
+
+            if not (ROOT / target_rel).exists():
                 c.error(
                     f"workflow {name}: {key} "
-                    f"'{wf.get(key)}' missing"
+                    f"'{target_rel}' missing"
                 )
 
         check_workflow_runtime_section(c, name, wf)
@@ -82,7 +88,14 @@ def check_registry(c):
 
 def check_workflow_runtime_section(c, name, wf):
 
-    wf_md = ROOT / wf.get("workflow", "")
+    rel = wf.get("workflow")
+
+    # 缺键 → ROOT / "" 是目录：.exists() 为真，随后 read_text 抛 IsADirectoryError
+    # （鲁棒性；2026-09-21 外部盲检 T4）。
+    if not rel:
+        return
+
+    wf_md = ROOT / rel
 
     if not wf_md.exists():
         return
@@ -114,8 +127,14 @@ def check_workflow_runtime_section(c, name, wf):
 
 def check_outputs_consistency(c, name, wf):
 
-    wf_md = ROOT / wf.get("workflow", "")
-    rt_md = ROOT / wf.get("runtime", "")
+    wf_rel, rt_rel = wf.get("workflow"), wf.get("runtime")
+
+    # 缺键保护（见上；2026-09-21 外部盲检 T4）
+    if not wf_rel or not rt_rel:
+        return
+
+    wf_md = ROOT / wf_rel
+    rt_md = ROOT / rt_rel
 
     if not wf_md.exists() or not rt_md.exists():
         return

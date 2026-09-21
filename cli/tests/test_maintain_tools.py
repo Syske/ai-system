@@ -192,6 +192,60 @@ class TestMaintainReportMetricsDiff(unittest.TestCase):
         self.assertIn("| RFC | 14 | 15 | +1 |", out)
 
 
+class TestQuickCheckSeverityCollection(unittest.TestCase):
+    """quick-check 严重度采集（2026-09-21 外部盲检 T4）。
+
+    缺陷：白名单 ("[WARN]", "[ERROR]", "[FAIL]") 不含 "[BLOCKER]"，且 repo-lint
+    冗余模式输出 `[WARNING ]`/`[INFO    ]`（severity.ljust(8) 填充）——
+    → BLOCKER 漏采（verdict 可能在有 blocker 时仍报 OK）。
+    """
+
+    def setUp(self):
+        self.qc = _load("quick-check")
+
+    def _run_with(self, lint_out, path_out="", ext_out=""):
+        def fake_run(cmd):
+            joined = " ".join(cmd)
+            if "repo-lint" in joined:
+                return lint_out
+            if "path-audit" in joined:
+                return path_out
+            return ext_out
+
+        self.qc._run = fake_run
+        return self.qc.run_checks()
+
+    def test_blocker_is_collected_and_flips_verdict(self):
+        r = self._run_with(
+            "Skills: 1 | BLOCKERS: 1 | ERRORS: 0 | WARNINGS: 0\n  [BLOCKER] boom"
+        )
+        self.assertEqual(r["verdict"], "ISSUES")
+        self.assertEqual(r["finding_count"], 1)
+        self.assertEqual(r["findings"][0]["severity"], "BLOCKER")
+
+    def test_error_label_is_collected(self):
+        r = self._run_with("  [ERROR] bad")
+        self.assertEqual(r["verdict"], "ISSUES")
+        self.assertEqual(r["findings"][0]["severity"], "ERROR")
+
+    def test_padded_warning_is_counted_not_a_finding(self):
+        # 存量 28 条 WARN 不应使每次会话起点都报 ISSUES
+        r = self._run_with("  [WARNING ] something\n  [INFO    ] note")
+        self.assertEqual(r["verdict"], "OK")
+        self.assertEqual(r["finding_count"], 0)
+        self.assertEqual(r["warning_count"], 1)
+
+    def test_clean_output_is_ok(self):
+        r = self._run_with("Skills: 1 | BLOCKERS: 0 | ERRORS: 0 | WARNINGS: 0")
+        self.assertEqual(r["verdict"], "OK")
+        self.assertEqual(r["finding_count"], 0)
+
+    def test_path_audit_broken_path_is_error(self):
+        r = self._run_with("", path_out="BROKEN (1):\n  some/missing/path")
+        self.assertEqual(r["verdict"], "ISSUES")
+        self.assertEqual(r["findings"][0]["severity"], "ERROR")
+
+
 class TestPromptMetrics(unittest.TestCase):
 
     def setUp(self):
