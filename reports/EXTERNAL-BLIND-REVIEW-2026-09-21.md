@@ -61,6 +61,7 @@
 | V4 | `quick-check` 以 cwd 为仓库根 → **虚假健康结果** | 从 `/tmp` 运行读到本仓真实数字 | `e30113e` |
 | V8 | `keys.py` termios 解包索引错位（**交叉评委独家发现**） | 位运算实测：`ECHO`/`IEXTEN`/`ISIG` 未关、input flags 从未清、ispeed 槽被改写 | `f8c984a` |
 | V2 | `change_resume.py` 重复 `suggest_change_id`（早期为死代码） | 裁定 P37 带默认参者为权威；实测无参/带参均正常 | `7fb5c50` |
+| V6 | `open-cli/SKILL.md` 引用 `./references/CLI-ONESHOT.md`、`CLI-EXPLORER.md`——上游文档**从未入库** | 目录实测只有 SKILL.md；git 历史全仓无该文件记录 | `2adcf4a`（P60 实施中连带修复：加 `./` 规则后必然报 broken） |
 | T4-1 | `quick-check` 白名单无 `[BLOCKER]` → **存在 blocker 仍可能 verdict OK** | 修复为正则取括号内词（兼容 `[WARNING ]` 填充形态） | `1eafe15` |
 | T4-2 | `checkstyle-gate` rename 守卫 `not p.endswith(" -> ")` **恒真** → 整串被当路径 | 新增 rename 测试用例 | `1eafe15` |
 | T4-3 | `checks/workflow.py` 缺键 **fail-open**（`ROOT / ""` == ROOT 恒存在） | 新增 4 例注册表测试 | `1eafe15` |

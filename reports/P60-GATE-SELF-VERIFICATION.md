@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (tool gates + standards) |
 | Author | AI Maintainer |
 | Created | 2026-09-21 |
@@ -97,4 +97,43 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 指示立项） | 2026-09-21 |
+| User (AI Maintainer operator) | **Approved**（用户「确认」批准实施） | 2026-09-21 |
+
+---
+
+## Implementation Record (2026-09-21)
+
+Applied per approval (OPERATIONS §12 → Implement → Validate)，commit **`2adcf4a`**（+ 记录回填提交）：
+
+1. **断言声明 vs 收集一致性**：新增 `tools/checks/tests_collected.py`（接线 `tools/checks/__init__.py` +
+   `tools/check.py`）——逐 `cli/tests/test_*.py` 比对 `def test_` 声明数与 unittest 收集数，
+   不一致 → ERROR；并直接检出「模块级 `if __name__` 块内定义 `def test_`」根因形态 → ERROR
+   （列出方法名）；导入失败降级 WARN（不误判）。
+2. **关键声明式规则正反例自测**：`tools/repo-lint.py` 的豁免正则提为模块常量
+   `WORKFLOW_KEYWORD_RE`（建立可测接缝，语义不变）；新增 `cli/tests/test_gate_self_verification.py`
+   **11 用例**：repo-lint 豁免正反例 · 危险命令守卫正反例 · path-audit `./` 规则正反例
+   （含省略号误报回归）· tests_collected 校验器自身（嵌套/计数不一致/一致）。
+3. **显式相对引用存在性**：`tools/path-audit.py` 新增 `DOT_REL_RE`（`./` 前缀），
+   以**引用文件所在目录**为基准校验；负向后顾 `(?<![\w./])` 避免命中省略号路径尾部。
+4. **标准层**：`governance/repo-lint.md` 新增 §Gate Self-Verification（门禁失效必须响亮 /
+   声明式规则需正反例 / 声明与生效需一致性校验），并写明 `./` 规则的覆盖边界与
+   「prose 示例须用占位符段」约定。
+
+**连带修复（本提案的必要条件）**：`skills/open-cli/SKILL.md` 的 **V6** 悬空引用
+（`./references/CLI-ONESHOT.md`、`./references/CLI-EXPLORER.md`，上游文档从未入库）改为
+可执行指引 + 说明——否则新规则会让门禁常红。
+
+**Validation（P60 §6「弄坏→必报」三项实证）**：
+
+| # | 注入故障 | 门禁反应 | 还原 |
+|---|---|---|---|
+| ① | 测试方法移入 `if __name__` 块 | `check.py` 报 `never collected: test_proof_hidden_method` | 还原 → PASS |
+| ② | 豁免正则改回 `)\\b` | 自测 `TestRepoLintExemptionRule` FAIL | 还原 → OK |
+| ③ | 重新注入悬空 `./references/CLI-ONESHOT.md` | `path-audit` 报 `BROKEN` | 还原 → 0 broken |
+
+门禁：单测 **357 OK**（+11）· `check.py` PASS · `repo-lint` 28 WARN 无新增 ·
+`path-audit` 0 broken（`known_debt` 保持 3）· `check-contract` exit 0 · `quick-check` OK。
+
+**实施中的自我更正**（均已记录于诊断日志 `logs/proposal-20260921-195633.md`）：
+新规则抓到自身文档示例路径 `./x.md`（规则正确，已改占位符写法）；省略号路径误报（已加负向后顾
++ 回归用例）；测试自身两处写法问题（正则故意匹配占位符形态；`sys.modules` 缓存需清理）。
