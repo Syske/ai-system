@@ -195,8 +195,6 @@ class TestJdtGateIncremental(unittest.TestCase):
         self.assertEqual(rc, 3)
 
 
-if __name__ == "__main__":
-    unittest.main()
     def test_dry_run_apply_flag(self):
         # --apply 透传：apply=True 命令追加 --apply，且返回 0（写回完成即成功）
         with mock.patch.object(fjg, "run", return_value=mock.Mock(
@@ -236,3 +234,7 @@ if __name__ == "__main__":
             cmd = fjg.run.call_args[0][0]
             self.assertIn("--ignore-file", cmd)
             self.assertEqual(cmd[cmd.index("--ignore-file") + 1], "/ig.txt")
+
+
+if __name__ == "__main__":
+    unittest.main()
