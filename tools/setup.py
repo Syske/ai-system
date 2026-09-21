@@ -78,8 +78,8 @@ REPO_MARKERS = (
 
 BASE_DIRS = (
     "workspaces",
+    "repositories",  # P58: 服务元数据（源）先于 projects/ 创建
     "projects",
-    "repositories",
     "extensions",
 )
 

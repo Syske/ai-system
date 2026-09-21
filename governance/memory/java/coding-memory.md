@@ -198,3 +198,11 @@ Related:
 - **Two branches resolving the same core method differently will conflict again on the next merge**; converge on a "single version" (prefer the upstream owner's version), not both sides keeping their own.
 - **Test sources that fail to compile cannot be skipped with `@Ignore`** (`@Ignore` only affects execution, not compilation): exclude them at the **test compile phase** (`maven-compiler-plugin` `testExcludes`); if the project disables surefire ignore-test-failures, prefer compile-phase exclusion and document the removal condition.
 - **Do not commit tool artifacts**: `git rm --cached <artifact-dir>` + append `.gitignore`, otherwise every cross-branch merge drags them in (e.g. CodeGraph index 170MB).
+
+## MyBatis: when `resultType` is an entity you MUST alias columns to camelCase explicitly (2026-09, verified)
+
+- This project does **not** enable `mapUnderscoreToCamelCase` at runtime (existing in-repo comment: `StudyDurationMigrateTaskMapper.xml:45`). So a `<select resultType="...Entity">` that directly maps raw underscore columns (`batch_id`/`exec_status`) leaves **every entity field except `id` null**.
+- The failure mode is **silent logic drift**, not an error: e.g. a reconciliation segment decided by `batchId`/`execStatus` hits null and just `continue`s — appearing as "there were candidates but nothing happened".
+- Avoidance: hand-written `<select>` must always `column as camelCaseAlias` (or use a `resultMap`); `resultType=int/long/map` is unaffected (in the map case column names are the keys and need aliasing yourself).
+- Guard: lock the convention with a static test before merging (this project's `MapperXmlColumnAliasGuardTest`: entity statements whose column fragments contain underscore columns must carry camelCase aliases).
+- Lesson: **unit tests with mocked mappers can never catch this class of runtime mapping issue** — you need runtime verification or a static guard.

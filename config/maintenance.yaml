@@ -11,10 +11,39 @@
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
 
-last_run: 2026-09-17
+last_run: 2026-09-21
 mode: on-demand
 next_maintenance: '2026-09-16'   # weekly 节奏：+7d（on-demand 专项不推进计划内下次；2026-09-16 已到期待另排 weekly）
 last_findings:
+- on-demand 专项（scan 循环选择项目 + 缺少 service 选择）：根因分层——①机器层
+  config/environments/local.yaml 残留 /tmp 测试路径（projects_root 指向不存在目录 →
+  Projects/Branch 字段 0 选项，机器观察，进诊断日志，修复待确认）；②F2 scan 字段收集
+  死循环：ScanHooks.validate 失败 → steps.py step=2 全量重收 → 无限循环（唯一出口选
+  Workspace/手输任意串假通过，校验不验名称存在性，与 aic-scan.md Step1 不一致）；
+  ③F3 缺 service 级选择：Projects 字段为 projects/ 扁平全量，不按容器 workspace.yaml
+  过滤，change-impact.md 声称的映射选择 CLI 未实现（doc-vs-reality）；④F4 memory 门禁
+  缺口：integration.md/coding-memory.md 未提交中文块（466/187 CJK）check.py FAIL，
+  pre-commit 只跑 repo-lint Rule 4 不覆盖 memory 门禁（实测 --files exit 0），
+  2026-09-16/18 两次同类后复发 → 应固化门禁；⑤run-log 覆盖：memory 改动无归属日志
+- 修复建议（read-first，未就改）：设计方向已确认（参照 code-review 交互流程）→
+  立提案 P57-SCAN-SERVICE-SELECTION（B Projects 候选=容器 workspace.yaml 映射服务；
+  C 死循环出口+_scope_empty 验名，候选驱动：单候选自动/多候选选择/零候选询问，
+  不猜测不 double-ask）待评审；A 机器层 local.yaml 就地修正（待确认）；
+  D pre-commit 补 memory CJK 门禁（治理→提案）；E memory 中文块翻译提交 + 归属日志
+  （小修待确认）；提案遗留 P41/P42/P46 + P26/P28 继续 defer；
+  next_maintenance 2026-09-16 已到期待另排 weekly
+- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+  （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
+  ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
+  （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
+  验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
+  P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
+- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+  （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
+  ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
+  （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
+  验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
+  P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
 - on-demand 专项：aic 项目菜单 (no repo mapped) 根因 = 映射存储源与显示源脱节——
   dev-setup 只持久化 contexts/project-context.yaml（Phase 6 repository/worktrees），从不写
   workspace.yaml（ADR-0008 执行步骤悬空，2026-08-08 遗留未接）；wizard 显示仅读

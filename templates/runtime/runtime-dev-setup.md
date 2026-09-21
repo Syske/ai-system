@@ -255,10 +255,14 @@ For each service_id:
 local_path = {repository_root}/{service_id}
 ```
 
-Verify:
+Verify (P58 on-demand clone):
 
 - Directory exists → available
-- Directory missing → unavailable
+- Directory missing → run `python3 tools/repo-ensure.py ensure {service_id}`
+  (clones from `repositories/{service_id}.yaml` git URL); clone OK → available,
+  clone failed (no metadata / no network / no auth) → unavailable with a `note`
+  giving the reason. Do not silently fall back to "unavailable" when the
+  service has metadata — attempt the clone first.
 
 For available services:
 
@@ -381,6 +385,11 @@ repo-mapping source the wizard and code-review / change-impact / release consume
   - `branch`: `master`
   - `dev_branch`: Phase 1 `branches[{service}]` (frozen branch name)
   - `remote`: git URL from `{workspace_root}/repositories/{service}.yaml`
+
+> P58 path normalization: write `path` as the relative service id
+> (e.g. `platform-api`) when the service lives in the repository root
+> (resolved as `{repository_root}/{service_id}`), so mappings stay portable
+> across machines instead of baking in absolute paths.
 - `repository.unavailable` — services involved in the change but NOT operable
   (no worktree / read-only reference / path missing), each with a `note` giving
   the ADR-0008 classification reason (e.g. "branch not wired in")
