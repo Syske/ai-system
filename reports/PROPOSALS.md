@@ -67,7 +67,7 @@
 | Proposed | 任务提交信息 `T-<id>` 强制性与实践脱节（Standard ↔ Practice ↔ Gate 三方不一致） | 2026-09-21 | `P62-TASK-COMMIT-TRACEABILITY.md` |
 | Proposed | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 | 2026-09-21 | `P63-BRANCH-NAMING-NON-ITERATION.md` |
 | Proposed | spec 前置条件口径不一致（"Prepare completed" 无 SSOT、实际 0/12 变更具备 prepare 产物） | 2026-09-21 | `P64-SPEC-PRECONDITION-CONSISTENCY.md` |
-| Proposed | C2 格式 profile 的语义边界与校准（`lineSplit=120` vs `alignment=0`） | 2026-09-21 | `P65-C2-PROFILE-SEMANTICS.md` |
+| Implemented | C2 格式 profile 的语义边界与校准（`lineSplit=120` vs `alignment=0`） | 2026-09-21 | `P65-C2-PROFILE-SEMANTICS.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |

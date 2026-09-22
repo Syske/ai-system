@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented**（2026-09-21 收口：A/D 已实施；B 与 C1 经数据否决；C2 记为按需备选） |
 | Type | Structural (C2 门禁 profile 契约 + 业务仓格式基线) |
 | Author | AI Maintainer |
 | Created | 2026-09-21 |
@@ -293,6 +293,10 @@ alignment 取值扫描（超长夹具）：**0 / 1 / 5 → 不折行**（152 字
 | **C2 用 IDEA 引擎做门禁** | ⏸️ **按需可选**（唯一"与 IDE 同源"路径）：代价＝退出码恒 0（须解析 stdout）、Ultimate 许可、WSL interop 绑定、~82s/1535 文件；且仍不能清零 |
 | **D 豁免治理** | ✅ 已采纳并实施（理由 + 180 天复核告警） |
 
+**遗留（按需，不阻塞）**
+
+- [ ] C2（按需）：若业务侧提出「门禁须与 IDE 行为同源」，按 CI/批处理形态引入 IDEA 引擎基线（`format.sh`/`format.bat`，需解析 stdout 取代退出码、并处理单实例互斥与冷启动成本）—— 见 §C2 二审
+
 **一句话结论**：C2 门禁的定位不是"让代码与 IDEA 完全一致"（不可达），而是
 **"与既有 profile 一致 + 增量收敛"**；若要"与 IDE 行为同源"，唯一路径是引入 **IDEA 引擎（C2）**，
 需业务侧明确诉求后再立项。
@@ -350,6 +354,7 @@ JetBrains 官方（2025-07 公告 / 2025-12 博客 / 文档）：
 |---|---|---|
 | User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 指示立案） | 2026-09-21 |
 | User (AI Maintainer operator) | **Option A 已批准并执行**（零基线扰动）；B（profile 校准）与 C（换基线器）待小样评估后决策；D（`known-ignore.txt` 治理）待决 | 2026-09-21 |
+| User (AI Maintainer operator) | **Approved（收口，2026-09-21）**：判定为 —— **A 维持**（语义边界已固化）、**D 已实施**（豁免治理：理由 + 180 天复核告警）、**B 否决**（差异 +55%~+109%，且根因属引擎表达力缺口）、**C1 否决**（导出与仓内 profile byte-identical，恒等操作）、**C2 记为按需备选**（许可已非障碍；受「后台启动 IDE 实例 + 已有实例运行时失效 + 冷启动 ~26s + 无法清零」限制，仅适用 CI/批处理） |
 | User (AI Maintainer operator) | **C2 二审（用户补充版本信息）**：① 导出 XML 来自**同事付费版**、用户本人用社区版 → **不影响** profile 有效性（Java code style 语义与版本无关），C1 byte-identical 结论成立；② **撤回**上轮「Ultimate 许可构成约束」——自 **2025.3** 两版合并为单一产品，免费核心功能**可商用**，本环境 2026.2 即统一版；③ 新增真实约束（官方文档）：CLI **后台启动 IDE 实例，且已有实例运行时失效** + 冷启动 ~26s → **不适合交互式门禁，收窄为 CI/批处理**；④ C2 结论不变（按需可选） | 2026-09-21 |
 | User (AI Maintainer operator) | **C1 已验证（否决）**：IDE 导出的 `Default.xml` 与仓内 `eclipse-format.xml` **逐字节一致**（sha256 同为 `d120900b…`）→ 现行 profile 本就是 IDEA 导出，重导出为恒等操作；并**更正**上节「Eclipse Default 基底」的错误推断。根因最终定位为**引擎表达力缺口**（Eclipse 折行模型无法表达 IDEA 的保留折行），故 B/C1 皆不可解；C2 记为按需可选 | 2026-09-21 |
 | User (AI Maintainer operator) | **Option C 已评估**：技术可行（WSL 可驱动 IDEA `format` CLI、UNC 直读、1535 文件 82s），但**退出码恒 0** + Ultimate 许可 + 无权威 code style（IDE 用出厂默认，39% 文件仍需重排）→ 推荐细化为 **C1：IDE 内一次导出 Eclipse XML Profile 覆盖 `eclipse-format.xml`**（门禁栈不变、设置与 IDE 同源） | 2026-09-21 |
@@ -358,7 +363,7 @@ JetBrains 官方（2025-07 公告 / 2025-12 博客 / 文档）：
 
 ---
 
-## Implementation Record — Option A（部分实施，2026-09-21）
+## Implementation Record（2026-09-21 收口）— A/D 实施；B、C1 否决；C2 备选
 
 **范围**：仅文档/语义澄清，**零行为变更**（profile 取值、门禁逻辑、业务仓基线均未改动）。
 
