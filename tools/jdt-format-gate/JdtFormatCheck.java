@@ -24,7 +24,9 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.text.edits.*;
 import org.w3c.dom.*;
 
-/** 干跑式格式化一致性检查（不修改源码，最小依赖闭包：jdt.core + org.eclipse.text）。 */
+/**
+ * 干跑式格式化一致性检查（不修改源码，最小依赖闭包：jdt.core + org.eclipse.text）。
+ */
 public class JdtFormatCheck {
 
     public static void main(String[] args) throws Exception {
@@ -123,7 +125,9 @@ public class JdtFormatCheck {
         System.exit(apply ? 0 : (differFiles == 0 ? 0 : 1));
     }
 
-    /** 一次格式化：接收 TextEdit 后手工应用（leaf edits 按 offset 升序重放）。 */
+    /**
+     * 一次格式化：接收 TextEdit 后手工应用（leaf edits 按 offset 升序重放）。
+     */
     private static String formatOnce(CodeFormatter formatter, String src) {
         try {
             TextEdit edits = formatter.format(

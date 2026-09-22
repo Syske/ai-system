@@ -212,3 +212,12 @@ last_findings:
   评审成本 > 价值）；门禁 --changed 增量语义复验通过（存量仓无改动 PASS、新增行精确拦截，
   存量豁免+新增拦截机制成立，与 checkstyle suppressions 同模式）。存量债保持登记，
   随任务开发自然消减。
+  **format-check 作用域登记（2026-09-21，阻塞性自审）**：门禁能力 `format-check-a` 恒以
+  `--changed` 调用（main-chain-capabilities.yaml），作用域＝**业务仓 src**。ai-system 自身的
+  `tools/**` 属开发工具，**不在门禁作用域**：`tools/jdt-format-gate/JdtFormatCheck.java`
+  全量扫得 5 WARN（§Log 禁 System.out/printStackTrace ×3、§Exception 禁 throws Exception ×2）
+  属**规则面不适用**——该工具 `java -cp … JdtFormatCheck <xml> <src>` 的 **stdout 就是调用接口**，
+  且刻意维持"最小依赖闭包：jdt.core + org.eclipse.text"，改造为 SLF4J/业务异常会破坏其设计
+  → **决策：不修改工具代码**，仅声明作用域。其 2 处单行 Javadoc（FAIL）已顺手改为多行
+  （纯注释、零语义改动），故全量扫由 FAIL=2 降为 FAIL=0/WARN=5。**门禁判定以 `--changed` 为准**：
+  工作树干净 → PASS（exit 0）。
