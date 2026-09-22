@@ -64,7 +64,9 @@ REVIEW_LOG = re.compile(
 
 IMPL_RECORD = re.compile(r"^## Implementation Record", re.MULTILINE)
 
-OPEN_TODO = re.compile(r"^\s*-\s*\[\s*\]", re.MULTILINE)
+# 注意：字符类用 [ \t]，不可用 \s —— \s 含 \n，会让 `^\s*` 吞掉**前导空行**，
+# 致使 text[m.start():].splitlines()[0] 取到空串、开放项文本丢失（2026-09-21 修复）。
+OPEN_TODO = re.compile(r"^[ \t]*-[ \t]*\[[ \t]*\][ \t]*(?P<text>.*)$", re.MULTILINE)
 
 
 def _status(text):
@@ -148,12 +150,10 @@ def audit():
 
         for m in OPEN_TODO.finditer(text):
 
-            line = text[m.start():].splitlines()[0].strip()
-
             open_items.append({
                 "file": p.name,
                 "line": text[:m.start()].count("\n") + 1,
-                "item": re.sub(r"^\s*-\s*\[\s*\]\s*", "", line),
+                "item": m.group("text").strip(),
             })
 
     # 报告索引纪律（proposal-policy §6）：reports/ 下每个报告 .md 必须登记
