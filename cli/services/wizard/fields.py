@@ -10,6 +10,23 @@ from cli.utils.file import read_text
 from cli.utils.menu import BACK, e as _e, ask_text, choose, choose_many
 
 
+# P66：分支字段按**类别**匹配，不再绑字面量 "Branch"。
+# 背景：P57 的「单候选自动采纳」只认 `field == "Branch"`，而 code-review /
+# change-impact 的字段名是 `Branch Mapping` / `Base Branch` → 契约静默失配，从未生效。
+BRANCH_EXCLUDE_HINTS = ("base", "mapping")
+
+
+def is_branch_target_field(field):
+    """目标/工作分支类字段（**不含** `Base Branch` 基线、`Branch Mapping` 覆盖项）。
+
+    类别匹配而非字面量：字段名演进（`Source Branch` 等）不再导致规则失配。
+    """
+
+    low = (field or "").lower()
+
+    return "branch" in low and not any(h in low for h in BRANCH_EXCLUDE_HINTS)
+
+
 class WizardFields:
 
     def _fields_for(
@@ -179,6 +196,68 @@ class WizardFields:
                 values[field] = "collect"
                 continue
 
+    # P66：文档化为「显式覆盖项」的分支字段（留空即由项目信息/主题推断）
+    CONTAINER_DERIVED_OVERRIDE_FIELDS = ("Branch Mapping",)
+
+    # P66：**显式 opt-in** —— 只有这些目标把 `Projects` 语义定为「本变更参与的全部服务」，
+    # 因此在容器已选时可整体派生。其余目标（如 P57 的 `scan`：服务级选择即其交互目的，
+    # 或 `trace`）保持候选驱动追问，不被静默覆盖。
+    CONTAINER_DERIVE_TARGETS = frozenset({"code-review", "change-impact"})
+
+    def _container_derived(self, fields, values, project, target_name=None):
+        """P66：容器已确定 / 属覆盖项 / 有文档默认值的字段 → 预填并跳过提问。
+
+        返回 `(silent, reasons)`：
+
+        - `silent`：`{field: value|None}`，`None` 表示**不设值**（仅不再提问，
+          留空由运行时的项目信息推断逻辑接管）
+        - `reasons`：`{field: 依据}`，供 header/日志展示
+
+        仅当**已选项目容器**存在时才派生；无容器、无映射 → 返回空（回退现状追问）。
+        适用场景：code-review / change-impact 在前置已选项目后，不再二次追问
+        项目与分支（用户 2026-09-21 反馈）。
+        """
+
+        from cli.services import providers
+
+        # 无容器锚点 → 不派生（回退现状追问；祖先条款：不猜测）
+        if not project:
+            return {}, {}
+
+        # 未 opt-in 的目标（命令/其他工作流）→ 保持既有候选驱动追问
+        # （防 P57「scan 服务级选择」等契约被静默覆盖）
+        if target_name is not None and target_name not in self.CONTAINER_DERIVE_TARGETS:
+            return {}, {}
+
+        silent = {}
+        reasons = {}
+        names = [f for f, _ in fields]
+
+        services = providers.container_services(self, project)
+
+        if "Projects" in names and services:
+            silent["Projects"] = ", ".join(services)
+            reasons["Projects"] = (
+                f"容器 workspace.yaml 映射的参与服务（{len(services)} 个）"
+            )
+
+        for field in names:
+            if field in self.CONTAINER_DERIVED_OVERRIDE_FIELDS:
+                silent[field] = None
+                reasons[field] = (
+                    "显式覆盖项：留空即由项目信息/主题推断分支，无需提前指定"
+                )
+
+        for field in names:
+            low = field.lower()
+            if "branch" in low and "base" in low:
+                default = self._field_defaults.get(field)
+                if default:
+                    silent[field] = default
+                    reasons[field] = f"文档默认值（{default}）"
+
+        return silent, reasons
+
     def _apply_field_defaults(
         self,
         fields,
@@ -232,9 +311,11 @@ class WizardFields:
             field
         )
 
-        # P57（code-review 交互契约：单一候选直接采用，不询问）：
-        # Branch 仅一个候选时自动采用，避免无意义菜单。
-        if field == "Branch" and len(choices) == 1:
+        # P57 契约（P66 修正为**类别匹配**）：目标分支类字段仅一个候选时直接采用，
+        # 避免无意义菜单。原实现只认字面量 "Branch"，使 code-review 的
+        # `Branch Mapping` / `Base Branch` 从未生效（契约静默失配）。
+        # `Base Branch`（基线，有默认值）与 `Branch Mapping`（显式覆盖项）不走此路径。
+        if len(choices) == 1 and is_branch_target_field(field):
 
             value = choices[0]
 

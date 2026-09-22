@@ -32,6 +32,8 @@ class WizardSteps:
         self.chain_commands = []
         # 重入预填字段（如 Change Request）：跳过重收
         self._skip_fields = set()
+        # P66：容器派生字段的依据（供展示/日志）
+        self._derived_notes = {}
 
         step = 0
 
@@ -151,6 +153,20 @@ class WizardSteps:
                         for f, r in fields
                         if f not in self._auto_fields()
                     ]
+
+                if project:
+
+                    # P66：容器已确定 / 覆盖项 / 有默认值的字段 → 预填并**跳过提问**。
+                    # 仍留在 fields 中，故 header 会展示派生值（可见性不丢），
+                    # 覆盖方式：BACK 回到项目选择或重跑。
+                    silent, self._derived_notes = self._container_derived(
+                        fields, values, project, target[0]
+                    )
+
+                    for field, value in silent.items():
+                        if value is not None:
+                            values[field] = value
+                        self._skip_fields.add(field)
 
                 if self._try_derive_silent(target, fields, values):
 

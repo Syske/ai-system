@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented**（2026-09-21：A + C 实施；Option C 实现方式偏差与 opt-in 范围已在实施记录中说明） |
 | Type | Structural (wizard 字段派生规则 + 两个工作流输入契约) |
 | Author | AI Maintainer |
 | Created | 2026-09-21 |
@@ -120,8 +120,65 @@
 
 ---
 
+## Implementation Record（2026-09-21，A + C 已实施）
+
+| 项 | 内容 |
+|---|---|
+| Status | Proposed → **Approved → Implemented** |
+| 变更文件 | `cli/services/wizard/fields.py` · `cli/services/wizard/steps.py` · `cli/tests/test_wizard_fields.py`（+11 测试） |
+| 用户批准 | 2026-09-21「实施」 |
+
+### A：容器已确定时派生（含 P57 契约修复）
+
+| # | 实现 | 说明 |
+|---|---|---|
+| 1 | `is_branch_target_field(field)` | 分支字段改为**类别匹配**（含 "branch" 且不含 "base"/"mapping"）→ `Branch`/`Source Branch`… 生效，`Base Branch`/`Branch Mapping` 排除 |
+| 2 | `_ask_field` 泛化单候选自动采纳 | 由字面量 `field == "Branch"` 改为类别判定 → **修复 P57 契约对 `Branch Mapping`/`Base Branch` 的静默失配** |
+| 3 | `_container_derived(fields, values, project, target_name)` | `Projects` ← 容器参与服务（全部；单服务即单值）；`Branch Mapping` ← **不设值仅不再提问**（文档化的显式覆盖项，留空由运行时按 `dev_branch`/主题推断）；`Base Branch` ← 文档默认值（master） |
+| 4 | `steps.py` 应用派生 | 派生字段**保留在 `fields` 中**并加入 `self._skip_fields` → 提问被跳过但 **header 仍展示派生值**（可见性不丢）；覆盖方式：BACK 回项目选择或重跑 |
+
+### C：多服务容器（**实现方式偏差，已记录**）
+
+原计划"多选菜单预勾选全部服务"（需改 `choose_many` 增加预勾选参数）；实际实现为
+**预填容器参与服务集合并跳过提问**（等价用户可见结果、无需改动菜单层）。
+依据：`workspace.yaml` 注记明确 **`repository.available` 仅列出本变更参与的服务**
+→ 「全部派生」正是该变更的正确审阅范围；用户如需收窄可经 BACK/重跑调整。
+
+### 实施中新发现并处理的风险（超出原提案）
+
+`scan` 等**命令**同样含 `Projects` 字段，而 P57 明确以「服务级选择」为其交互目的
+→ 无条件派生会**静默吞掉 P57 契约**。故增加**显式 opt-in 目标集**：
+
+```python
+CONTAINER_DERIVE_TARGETS = frozenset({"code-review", "change-impact"})
+```
+
+未 opt-in 的目标（`scan`/`trace`/其他工作流）**保持既有候选驱动追问**；
+新增 2 项测试守护（`scan` 仍追问 `Projects`；非 opt-in 目标不派生）。
+
+### 实证（真实容器，只读驱动 `_steps`）
+
+| 容器（服务数） | 目标 | 修复前追问 | 修复后追问 | 派生 `Projects` |
+|---|---|---|---|---|
+| `202609-housekeeping-log-volume-reduction`（1） | code-review | Projects + Target Theme + Branch Mapping + Base Branch + Review Focus + Confluence（6） | **Target Theme / Review Focus / Confluence（3）** | `housekeeping-service-api` |
+| 同上 | change-impact | 6 | **Code Reference / Change ID / Output Directory（3）** | `housekeeping-service-api` |
+| `202610-cool-italent-sync-plus`（4） | code-review | 6 | **3** | 全部 4 个参与服务 |
+| 同上 | change-impact | 6 | **3** | 全部 4 个参与服务 |
+
+**项目与分支在三者（`Projects` / `Branch Mapping` / `Base Branch`）上均不再追问**，
+且派生值出现在 header/recap 中可见；`change-impact` 的 `Code Reference`（真实必填）**仍照常询问**。
+
+### 验证
+
+- 单测 **441 OK**（430 → **+11**：类别匹配真值表 / 容器派生 4 例 / 端到端 4 例 / opt-in 2 例）
+- `check.py` PASS · `repo-lint` 0 BLOCKER **0 ERROR** · `path-audit` 0 broken ·
+  `workflow-command-audit` 0 blockers 0 warnings · 既有 `test_wizard_fields` 24 项全绿（P57 契约未破）
+
+---
+
 ## Review Log
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 反馈问题并提出期望行为） | 2026-09-21 |
+| User (AI Maintainer operator) | **Approved**（2026-09-21「实施」：A + C） | 2026-09-21 |
+| AI Maintainer | **Implemented**（2026-09-21）：A + C 落地（+11 测试，441 OK）；实施中新增 **opt-in 目标集**以防覆盖 P57 的 `scan` 服务级选择契约（已如实记录偏差） | 2026-09-21 |
