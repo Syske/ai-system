@@ -212,6 +212,19 @@ last_findings:
   评审成本 > 价值）；门禁 --changed 增量语义复验通过（存量仓无改动 PASS、新增行精确拦截，
   存量豁免+新增拦截机制成立，与 checkstyle suppressions 同模式）。存量债保持登记，
   随任务开发自然消减。
+  **C2 profile 语义边界登记（2026-09-21，响应另一会话反馈）**：全工作区仅一份 C2 profile
+  `tools/jdt-format-gate/eclipse-format.xml`（`--xml` 为唯一覆盖入口，`config/environments/local.yaml`
+  无 `runtime.jdt` 覆盖），且仅 jdt.core **3.13.0** 一份（JDK8）→ **不存在"选错 profile"**。
+  实测矛盾真因＝profile 内部语义冲突：`join_wrapped_lines=false` 仅覆盖二元/条件表达式的手工
+  折行（实证保留；改 true/default 则被合并），**不覆盖方法调用参数表**——参数表由
+  `alignment_for_arguments_in_method_invocation=0`（不折行）管控，会把手折参数**合并为单行且
+  不再折**，**越过 `lineSplit=120`**（实测 152 字符）。对照取值：0/1/5 不折行、**17 逐参数折行**；
+  profile 48 项 alignment 中 **35 项为 0**。含义：C2 门禁保证"与 JDT 在此 profile 下一致"，
+  **不保证行 ≤ 120**，**无法表达 IDEA"保留已有折行"**（JDT 3.13 无该档）；此类振荡是
+  `known-ignore.txt`（现 1 个文件）登记的"无 fixpoint"成因之一。改 alignment 取值＝profile 校准
+  （会改业务仓 C2 基线/大 diff）→ 属提案 + 业务侧确认，本次未改。详见
+  `logs/investigation-20260921-jdt-profile.md`。
+
   **format-check 作用域登记（2026-09-21，阻塞性自审）**：门禁能力 `format-check-a` 恒以
   `--changed` 调用（main-chain-capabilities.yaml），作用域＝**业务仓 src**。ai-system 自身的
   `tools/**` 属开发工具，**不在门禁作用域**：`tools/jdt-format-gate/JdtFormatCheck.java`
