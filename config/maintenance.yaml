@@ -212,6 +212,17 @@ last_findings:
   评审成本 > 价值）；门禁 --changed 增量语义复验通过（存量仓无改动 PASS、新增行精确拦截，
   存量豁免+新增拦截机制成立，与 checkstyle suppressions 同模式）。存量债保持登记，
   随任务开发自然消减。
+  **盲检 WARN/INFO 收尾结算（2026-09-21）** —— 241 条全量处置完毕（报告 §八）：BLOCKER 4 / ERROR 54
+  已处置（T1–T6b + 提案覆盖）；WARN 135 + INFO 48 = 183 条已主题级裁决（已修 17、提案覆盖 2、
+  误读 18、已知存量债 3、文档措辞 52、未核实 1、真实待修 90 行 = 67 独立根因）。本轮修 7 项
+  fail-loud/健壮性（JdtFormatCheck 语法解析失败不再静默〔实测 PARSE-FAIL 可达〕、state_store
+  读写告警、memory 门禁非 UTF-8 容错、format-check --check-commit 异常转 WARN、
+  generate_contract 缺键显式报错、checks/menu dry-run monkeypatch 恢复、deepseek 查询串感知）
+  + 8 回归测试。**残债登记 60 项**（报告 §8.4）：R1 安全/审计 4（skill-sync 上传无过滤与敏感文件、
+  http 明文 key、repo-lint 跳过容器目录、技能层零契约测试）、R2 静默失败/可靠性 24、
+  R4 工具一致性/重构 余 32（低优先，随任务消减）；另 52 条**文档措辞**已裁决为非代码类，
+  建议下一维护批次批量顺手修。R1 建议优先于新功能。
+
   **P65（C2 profile 语义边界与校准）决议登记（2026-09-21）**
   A 已执行 —— 语义边界落 tools/README.md + 本文件 + templates/runtime/runtime-develop.md +
   tools/format-jdt-gate.py docstring（零行为变更）。

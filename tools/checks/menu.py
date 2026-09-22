@@ -115,25 +115,39 @@ def check_wizard_dry_run(c, workflows, commands):
         import cli.services.wizard.fields as _wfields
         import cli.services.wizard.output as _wout
 
-        for _mod in (_wsel, _wfields, _wout):
-            _mod.choose = fake_choose
-            _mod.choose_many = lambda *a, **k: None
+        # 保存原值，finally 恢复：dry-run 不得污染同进程后续检查
+        # 仅保存**实际存在**的属性（selection 只有 choose，无 choose_many）
+        _saved = [
+            (m, attr, getattr(m, attr))
+            for m in (_wsel, _wfields, _wout)
+            for attr in ("choose", "choose_many")
+            if hasattr(m, attr)
+        ]
 
-        w = Wizard(ROOT)
-        w._recommend_workflow = lambda project, ws: None
+        try:
+            for _mod in (_wsel, _wfields, _wout):
+                _mod.choose = fake_choose
+                _mod.choose_many = lambda *a, **k: None
 
-        target = w._select_target([], None)
+            w = Wizard(ROOT)
+            w._recommend_workflow = lambda project, ws: None
 
-        if target is None:
-            c.error("wizard menu dry-run returned no target")
+            target = w._select_target([], None)
 
-        for name in commands:
-            try:
-                w._fields_for((name, "command"))
-            except Exception as exc:
-                c.error(
-                    f"command '{name}' fields fail: {exc!r}"
-                )
+            if target is None:
+                c.error("wizard menu dry-run returned no target")
+
+            for name in commands:
+                try:
+                    w._fields_for((name, "command"))
+                except Exception as exc:
+                    c.error(
+                        f"command '{name}' fields fail: {exc!r}"
+                    )
+
+        finally:
+            for _mod, _attr, _orig in _saved:
+                setattr(_mod, _attr, _orig)
 
     except Exception as exc:
         c.error(f"wizard dry-run failed: {exc!r}")

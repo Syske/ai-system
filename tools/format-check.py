@@ -544,8 +544,12 @@ def main(argv=None):
                 findings.append(("FAIL",
                                  f"最近提交 subject 含任务编号但不符合 type(scope): T-xxx 格式"
                                  f"（commit-content.md）: {subj}"))
-        except Exception:
-            pass  # 非 git 目录或 git 不可用：跳过
+        except Exception as exc:
+            # fail loud：无法判定提交 subject 时必须可见（非 git/无 git 同理），
+            # 否则"提交约定"这条门禁在异常环境下静默失效。
+            findings.append(("WARN",
+                             f"--check-commit 无法检查最近提交（{exc}）："
+                             f"提交 subject 约定未校验"))
 
     if not findings:
         print("format-check: PASS（无格式/规范泄漏）")

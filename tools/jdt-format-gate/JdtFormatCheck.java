@@ -88,7 +88,17 @@ public class JdtFormatCheck {
             }
             String src = new String(Files.readAllBytes(f), StandardCharsets.UTF_8);
             String formatted = formatOnce(formatter, src);
-            if (formatted != null && !formatted.equals(src)) {
+            if (formatted == null) {
+                // 语法解析失败：**fail loud**（原实现静默跳过 → 语法错文件永不进入门禁视野，
+                // "C2 通过"会被误读为"格式合规"）。计入 differ 并显式标注。
+                System.out.println("PARSE-FAIL " + relStr);
+                differFiles++;
+                if (firstDiffer.isEmpty()) {
+                    firstDiffer = f.toString();
+                }
+                continue;
+            }
+            if (!formatted.equals(src)) {
                 differFiles++;
                 diffLines += countDiffLines(src, formatted);
                 if (firstDiffer.isEmpty()) {

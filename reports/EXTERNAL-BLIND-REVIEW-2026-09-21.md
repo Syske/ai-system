@@ -280,3 +280,88 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 - **性价比**：零边际成本、45 分钟机器时间，换回 11 项真实缺陷（含 5 项门禁自失效、1 项安全守卫失效）
   → 足以支撑将其**制度化**（P61）。
 - **下一步**：P60/P61 评审 → 批准后实施；未裁决的 135 WARN / 48 INFO 分批处理。
+
+---
+
+## 八、结算（241 条全量处置 — 2026-09-21 收尾）
+
+### 8.1 总账
+
+| 严重度 | 条数 | 处置 |
+|---|---|---|
+| BLOCKER | 4 | ✅ 全部处置（嵌套测试方法 / `runtime-spec` 路径 / 提交标准冲突 / `is_binary` 中文误判）—— 见 §6 |
+| ERROR | 54 | ✅ 已逐条落位核实（§6.3/§6.4）：T1–T6b 批次修复 + 4 类由提案覆盖（P62 / P63 / P64 / P46） |
+| WARN | 135 | ✅ 本次收尾：主题级裁决（§8.2） |
+| INFO | 48 | ✅ 同上 |
+| **合计** | **241** | 每行 = 一次评委产出（双评委重复条目分别计数） |
+
+### 8.2 WARN/INFO（183 条）主题裁决
+
+| 判定 | 条数 | 说明 |
+|---|---|---|
+| 已修（T1–T6b） | 17 | 与本会话已修批次对应（doc 层措辞、门禁接线、技能脚本修复等） |
+| 已由提案覆盖 | 2 | P63（分支命名两形态） |
+| 误读 / 非缺陷 | 18 | 例：所称缺失的 `tools`、`cool/*`、`memory-capture`、`AGENTS.md` **实际均存在**；`language-gate` 非 zh 恒 PASS、`extensions-lint` 空规则回退、checkstyle 资产缺失 SKIP 等**均为文档化设计** |
+| 已知存量债 | 3 | ADR 索引止于 0007（0008/0009 为独立文件）、ADR 命名两式并存 |
+| 文档措辞 | 52 | 加载顺序三处互斥、压缩阈值 50/60/80 分歧、`skill.md` 大小写、`python` vs `python3`、索引计数漂移、`quick-check-{date}` vs `maintain-{date}`、`knowledge` 操作数 3/5 等 → 见残债 **R3** |
+| 未核实 | 1 | WARN-17：`develop-start.md` 的 `{{spec_workspace}}` 是否需 PromptBuilder 登记（待确认消费方） |
+| **真实·待修** | **90 行 / 67 独立根因** | 本轮修 **7**（§8.3）→ 余 **60** 入残债登记（§8.4） |
+| **合计** | **183** ✓ | |
+
+### 8.3 本轮修复（T7 批次：7 项，fail-loud / 健壮性；+8 回归测试）
+
+| # | 项 | 修复 | 实证 |
+|---|---|---|---|
+| 1 | `JdtFormatCheck.java` 语法解析失败**静默跳过** | 计入 `differ` 并打印 `PARSE-FAIL <file>`（"C2 通过"不再掩盖语法错文件） | 重建 wrapper 后实测：未闭合方法体 → `PARSE-FAIL A.java`，`differ=3`（原实现该文件**无声跳过**） |
+| 2 | `cli/services/state_store.py` 读写异常静默吞 | 读/写失败 → stderr WARN（状态记忆丢失不再无声） | 2 测试（损坏 YAML / 不可写路径） |
+| 3 | `tools/checks/memory.py` 非 UTF-8 使门禁崩溃 | `errors="replace"` | — |
+| 4 | `tools/format-check.py` `--check-commit` 异常静默 | → **WARN**（提交约定未校验必须可见） | — |
+| 5 | `skills/contract-maintainer/…/generate_contract.py` 缺键裸 `KeyError` | `_require_keys()` 显式报错（含来源与条目内容） | 2 测试 |
+| 6 | `tools/checks/menu.py` dry-run monkeypatch 未恢复 | `finally` 恢复（且只恢复**实际存在**的属性） | 1 测试（前后属性一致） |
+| 7 | `skills/deepseek-share-to-md` 无 `?` 时追加 `&ty=r` → 畸形 URL | 查询串感知 `("&" if "?" in url else "?")` | 3 测试 |
+
+### 8.4 残债登记（60 项，按优先级；随任务自然消减）
+
+> 说明：本节**自包含**列出全部残债（投喂包与 241 条索引位于未提交的 `outputs/`，故不在此引用）。
+
+**R1 · 安全 / 审计盲区（4）**
+
+| 项 | 位置 | 建议 |
+|---|---|---|
+| 上传递归打包**无过滤**（`.git`/`node_modules`/`.env`/隐藏文件） | `skills/skill-sync/scripts/push.js:113-124` | 加排除集 + 敏感文件拒传 |
+| 无协议时回退 **`http://`** 且 key 明文 | `pull.js:41`、`push.js:93` | 无 https 时告警并要求确认 |
+| repo-lint **跳过容器目录**（无 `SKILL.md` 但有子目录）→ 嵌套技能永不 lint；`repo-metrics` 口径分裂 | `tools/repo-lint.py:47-51`、`tools/repo-metrics.py:31-37` | 容器目录递归到叶子技能；口径统一 |
+| `skills/` 下脚本**零契约测试**（agentdebug / generate_contract / pull-push / deepseek） | `skills/**` | 至少补 `generate_contract` 与 agentdebug 校验契约测试 |
+
+**R2 · 静默失败 / 可靠性（24）**
+
+| 项 | 位置 |
+|---|---|
+| `previous_record` 按精确 `step-1` 匹配非连续序号 → 静默 `None` | `skills/agent-debug-diagnosis/scripts/agentdebug_static.py:389-394` |
+| triage 命中首个 ≥2 类型即返回（未取首要） | 同上 `:409-427` |
+| `redundant_call` 全局计数 vs 文案"五步窗口" | 同上 `:229-243` |
+| `validate` 空 issues 短路 issueRefs 校验 | `agentdebug_validate.py:172-176` |
+| `criticalModule="unknown"` 既判非法又特判跳过 | 同上 `:208-224` |
+| `classify_action_error` 的 `or/and` 未加括号 | `agentdebug_static.py:270-278` |
+| 同日同描述 `mkdir(exist_ok)` **覆写** manifest/report（文档承诺追加 `-N`） | `cli/services/chain.py:91-108`、`skill_launcher.py:232-262` |
+| scan 目录名 `scan-YYYYMMDD-HHMMSS` vs 文档 `{yyMMdd}-{descriptor}` | `cli/services/command_hooks.py:197-202` |
+| `last_active` 取 dict 末键依赖保序 | `cli/services/wizard/__init__.py:104-107` |
+| i18n 硬编码 `zh.yaml` vs MenuConfig 按 locale 加载 | `cli/utils/menu/base.py:25-38` |
+| 无 git 根时**上行至文件系统根**扫描 | `cli/services/skill_scan.py:294-309` |
+| `FRONTMATTER_NAME` 整文件 search（body 内 `name:` 误取） | 同上 `:31,113-117` |
+| `_SECTION_8` 前瞻 `(?=^## 9\.)` → 无 §9 时整段失配 | `cli/services/change_resume.py:17-21` |
+| `_parse_next` 取首个命中 token 而非实际后继 | `cli/services/wizard/selection.py:298-323` |
+| `_norm_field_name` 与 `menu_config._base` 归一化不一致 | `workflow_reader.py:93-102` / `menu_config.py:127-131` |
+| `chain_launcher` 单一 project 注入复数 `Projects` 且绕过校验 | `cli/services/chain_launcher.py:151-158` |
+| `change_resume` 未过滤 `../` 拼路径 | `change_resume.py:31-41` |
+| 退格哨兵 `"<"` 吞合法输入 | `cli/utils/menu/text.py:146,224` |
+| `-c safe.directory=*` 每仓禁用所有权检查 | `cli/services/providers.py:151-162` |
+| `_linux_path` 双实现 | `environment.py:157-171` / `providers.py:26-37` |
+| `format-check` Lombok 状态机首个 `}` 即重置 | `tools/format-check.py:502-515` |
+| checkstyle 增量取整仓 changed 未按 `src_dir` 过滤 | `tools/checkstyle/checkstyle-gate.py:96-100` |
+| 交互 `input()` 无 EOF 保护（非 TTY 崩） | `tools/format-jdt-gate.py:270-274,357-372` |
+| （另）`urlretrieve` 无校验和 / `context-audit` 窗口硬编码 / `setup.py` `args[i+1]` IndexError / `extensions-init` push 失败仍 return 0 | 见各文件 |
+
+**R3 · 文档措辞（52）** —（加载顺序互斥 / 阈值 50·60·80 / `skill.md` 大小写 / `python` vs `python3` / 索引计数漂移 / `explore` 双份 / `skills/README` 计数 / Token Efficiency ×3 / Report-Write Guard 双源 / 四反引号围栏 …）建议下一维护批次**批量顺手修**。
+
+**R4 · 工具一致性与重构（低优先，随任务消减）** —（`checks/misc.py` 系列：cli/tests 缺失仅 WARN、`tools_readme` 只扫顶层、`ast.walk` 含嵌套 return、timeout 未捕 `TimeoutExpired`；`checks/workflow.py` 导入无兜底；`bugfix_modes` 硬编码阶段集；`checks/menu.py` 不校验 hidden_*；`repo-metrics` 无 schema 校验；`workflow-command-audit` 强度不一致；`generate_contract` 服务匹配混用子串/精确、`deduplicate` 静默保留首个、YAML 值未引号；`pull.js`/`push.js` 双份 `loadConfiguration`、失败无退出码、网络错与 not-found 不分；`index-project` 硬编码 Windows venv；`k8s-logs` 过时快照 + 通道不一致；`k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff；`idea-mcp` SSE 断线吞错；`spec_updater` 硬编码 `DEFAULT_CHANGE`；`maintain-report` closed 大小写敏感；`proposal-audit` `startswith("P")` 含 PROPOSALS.md；`quick-check` 未用 `_parse_summary`；`dependency-graph` 死分支）。

@@ -232,7 +232,8 @@ def download_file(signed_path: str, fname: str) -> bytes:
         return b""
     url = signed_path if signed_path.startswith("http") else FILE_BASE + signed_path
     if "ty=" not in url:
-        url += "&ty=r"
+        # 查询串感知：无 "?" 时须用 "?" 起头，否则产出畸形 URL
+        url += ("&" if "?" in url else "?") + "ty=r"
     try:
         req = urllib.request.Request(url, headers={"User-Agent": HEADERS["User-Agent"]})
         with urllib.request.urlopen(req, timeout=60) as resp:

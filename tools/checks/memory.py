@@ -91,7 +91,8 @@ def check_memory(c):
 
         is_index = rel == "governance/memory/coding-memory.md"
 
-        text = md.read_text(encoding="utf-8")
+        # errors="replace"：非 UTF-8 文件不得让整个门禁崩溃
+        text = md.read_text(encoding="utf-8", errors="replace")
 
         entries = re.findall(
             r"## \[[^\]]+\].+?(?=\n## |\Z)",

@@ -65,7 +65,24 @@ def load_yaml(path: str) -> dict:
     return yaml.safe_load(p.read_text(encoding="utf-8")) or {}
 
 
+RPC_REQUIRED_KEYS = ("caller", "callee", "name")
+
+
+def _require_keys(entry: dict, keys, kind: str) -> None:
+    """缺键即报错（fail loud）：原实现直接 rpc['x'] → 裸 KeyError 难以定位。"""
+
+    missing = [k for k in keys if not entry.get(k)]
+
+    if missing:
+        raise ValueError(
+            f"{kind} 条目缺少必填键 {missing}（来源 {entry.get('_source', '?')}）: "
+            f"{ {k: entry.get(k) for k in entry if not k.startswith('_')} }"
+        )
+
+
 def build_rpc_entry(rpc: dict) -> dict:
+    _require_keys(rpc, RPC_REQUIRED_KEYS, "RPC")
+
     return {
         "id": f"{rpc['caller']}-{rpc['callee']}-{rpc['name']}",
         "调用方": rpc["caller"],
