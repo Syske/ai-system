@@ -137,3 +137,35 @@ Applied per approval (OPERATIONS §12 → Implement → Validate)，commit **`2a
 **实施中的自我更正**（均已记录于诊断日志 `logs/proposal-20260921-195633.md`）：
 新规则抓到自身文档示例路径 `./x.md`（规则正确，已改占位符写法）；省略号路径误报（已加负向后顾
 + 回归用例）；测试自身两处写法问题（正则故意匹配占位符形态；`sys.modules` 缓存需清理）。
+
+---
+
+## 后续（follow-through，2026-09-21）—— `config/**/*.yaml` fail-loud 校验
+
+**触发**：本次运维在 `config/maintenance.yaml` 的**块标量**内误加列表前缀（`- **…` —— 行首 `-`
+使 `*` 被解析为 YAML 别名）导致该文件语法损坏，而 `check.py` 仍报 **PASS / exit 0**：
+**破损配置可被静默提交**。这正是 §1 所治的失败模式——声明式配置是几乎所有运行时的输入，
+静默解析失败会让运行时回落到默认值，错误在很晚才浮现。
+
+**修复**：新增 `tools/checks/config_yaml.py`（注册进 `tools/checks/__init__.py`，置于检查序列前端）：
+
+- `strict_load(path)`：严格解析，返回 `(data, error)`；错误信息含 **file/line/column**
+  （刻意**不复用** `base.load_yaml`——后者把解析错误吞成 `{"__error__": …}`，只有 menu/registry/workflows
+  三个专用检查消费，其余配置文件的解析失败无人接）
+- 覆盖 `config/**/*.yaml`（含子目录）：解析失败 → **ERROR**；顶层非映射 → **ERROR**；
+  空文档 → WARN；`config/` 不存在或无 YAML → 仍报告（fail loud，不静默跳过）
+
+**健壮性**（实施中自我更正）：初版用 `path.relative_to(ROOT)` 生成显示路径，在路径不在仓根之下
+（符号链接 / 测试注入的临时根）时**抛异常使门禁崩溃**——"输入异常"应是 **ERROR 语义**而非异常语义，
+已改为 fail-safe 显示路径并补用例。
+
+**Validation（"弄坏→必报"实证）**：
+
+| # | 注入故障 | 门禁反应 | 还原 |
+|---|---|---|---|
+| ① | 块标量内插入 `- **bold**：x`（真实事故形态） | `check.py` 报 `config/maintenance.yaml: YAML parse error at line 225, column 9` → **FAIL / exit 1** | 还原 → PASS / exit 0 |
+| ② | 顶层写为列表 | 报 `top level must be a mapping, got list` | — |
+| ③ | 自测注入仓外根（不在 ROOT 之下） | 报告而非崩溃（回归用例守护） | — |
+
+门禁：单测 **404 OK**（+12）· `check.py` PASS · `repo-lint` 96 WARN 无新增 ·
+`path-audit` 0 broken · `format-check --changed` PASS。
