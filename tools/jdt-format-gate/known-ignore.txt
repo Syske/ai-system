@@ -1,3 +1,10 @@
 # C2 已知无 fixpoint 边界文件（eclipse JDT formatter 对合往返：format→format 振荡，check 无法归零）
-# 路径基准：相对所扫 srcDir（如 <worktree>/src 的 main/java/...）；移除前请人工确认该文件
+# 路径基准：相对所扫 srcDir（如 <worktree>/src 的 main/java/...）
+#
+# 治理（P65 Option D，2026-09-21 采纳）：每个路径条目**上方必须**紧邻一行
+#   `# reason: <理由>（<YYYY-MM-DD> 复核基线）` —— **必须单行**（续行不被解析）
+# 由 tools/checks/jdt_ignore.py 强制：缺理由 → ERROR；复核基线超过 180 天 → WARN（季度复核信号）。
+# 移除条目或调整 profile 前，请人工确认该文件已无振荡（用 tools/jdt-profile-eval.py 的「二次 differ=0」验证）。
+#
+# reason: JDT 参数布局无 fixpoint（format→format 振荡、check 无法归零）；经人工复核确认为企业 Provider 映射器（多段链式调用/长泛型），非门禁缺陷（2026-09-21 复核基线）
 main/java/net/coolcollege/platform/api/mapper/EnterpriseProvider.java

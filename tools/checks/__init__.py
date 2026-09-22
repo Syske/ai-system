@@ -19,6 +19,7 @@ from .misc import (
 )
 from .menu import check_menu, check_wizard_dry_run
 from .config_yaml import check_config_yaml
+from .jdt_ignore import check_jdt_ignore
 from .memory import check_memory
 from .tests_collected import check_tests_collected
 from .workflow import (
@@ -38,6 +39,7 @@ def run_all():
     workflows, commands = discover()
 
     check_config_yaml(c)
+    check_jdt_ignore(c)
     check_compile(c)
     check_imports(c)
     check_tuple_return_arity(c)

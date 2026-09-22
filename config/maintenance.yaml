@@ -212,6 +212,26 @@ last_findings:
   评审成本 > 价值）；门禁 --changed 增量语义复验通过（存量仓无改动 PASS、新增行精确拦截，
   存量豁免+新增拦截机制成立，与 checkstyle suppressions 同模式）。存量债保持登记，
   随任务开发自然消减。
+  **P65（C2 profile 语义边界与校准）决议登记（2026-09-21）**
+  A 已执行 —— 语义边界落 tools/README.md + 本文件 + templates/runtime/runtime-develop.md +
+  tools/format-jdt-gate.py docstring（零行为变更）。
+  B 评估完成 → 暂缓 —— 量化仪器 tools/jdt-profile-eval.py（+9 测试）。全仓实测 C0→C1
+  （参数表 0→17）差异 +55%~+109%（platform-api 70,117 → 146,380 行；614 → 791 文件），
+  压力样本 diffLines 8551 → 13868，>120 行 501 → 175（-65%，但 3903 字符极端长行仍在 →
+  「行 ≤ 120」不可达）；所有候选二次格式化 differ=0（收敛、无振荡）。结论：B 治不了根
+  （根＝门禁基线器与业务 IDE 不同源），且显著抬高增量噪声 → 暂缓。
+  C 评估完成 → 推荐 C1 —— 本机实测 IDEA 2026.2（Ultimate，productCode IU，Windows 侧安装）
+  自带 bin/format.bat CLI（-s/-r/-d|-dry/-m），WSL 可驱动且接受 UNC 路径（免拷贝），
+  全仓 1535 文件 82 秒；但退出码恒 0（含 Needs reformatting）→ 无法直接门禁化，且业务仓无
+  .idea/codeStyles/Project.xml、本机 IDE 无 codeStyleSettings.xml → IDE 用出厂默认，
+  默认下仍有 595/1535（39%）文件需重排（与 JDT 614 同量级）。C1（最小路径，推荐）：
+  JdtFormatCheck.java 头注释本就建议「用 IDEA 导出的 Eclipse XML Profile 替换」，IDEA 支持
+  Export→Eclipse XML Profile → IDE 内一次人工导出覆盖 eclipse-format.xml，门禁栈不变
+  （JDT 退出码/增量/豁免全沿用）、设置与 IDE 同源、无许可与跨平台问题；导出后用
+  jdt-profile-eval.py 量化即可。C2（直接用 IDEA CLI 作门禁）不推荐。
+  D 已采纳并实施 —— known-ignore.txt 治理：每个豁免条目紧邻上方须一行「# reason」+ 理由 +
+  （YYYY-MM-DD 复核基线）（单行）；tools/checks/jdt_ignore.py 强制（缺理由/缺日期/悬空理由
+  → ERROR；超 180 天 → WARN，季度复核自动化）+8 测试。
   **C2 profile 语义边界登记（2026-09-21，响应另一会话反馈）**：全工作区仅一份 C2 profile
   `tools/jdt-format-gate/eclipse-format.xml`（`--xml` 为唯一覆盖入口，`config/environments/local.yaml`
   无 `runtime.jdt` 覆盖），且仅 jdt.core **3.13.0** 一份（JDK8）→ **不存在"选错 profile"**。

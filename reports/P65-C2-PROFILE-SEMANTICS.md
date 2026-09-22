@@ -199,12 +199,61 @@ alignment 取值扫描（超长夹具）：**0 / 1 / 5 → 不折行**（152 字
 
 ---
 
+## C 可行性评估结果（2026-09-21 执行；本机实测 + 只读）
+
+### ① 环境事实（本机，无需新增安装）
+
+| 项 | 值 |
+|---|---|
+| IDE | **IntelliJ IDEA 2026.2.0.1**，`build IU-262.8665.337`，**`productCode: IU` = Ultimate** |
+| 安装位置 | Windows 侧（WSL 通过 interop 调用）；WSL 侧已有其配置目录 |
+| 自带 CLI | **`bin/format.bat`** → `format` 命令（另有 `inspect.bat`）：`-s <code style xml>` / `-r` / **`-d|-dry`（干跑仅回状态）** / `-m <mask>` / `-charset` / `-allowDefaults` |
+| 跨路径读取 | **接受 UNC 路径**（实测 `\\wsl.localhost\Ubuntu-24.04\…` → 正常检查）→ **免拷贝**，可直接读 WSL 内仓库 |
+
+### ② 实测结果
+
+| 指标 | 实测值 | 含义 |
+|---|---|---|
+| 全仓吞吐 | **1535 文件 / 82 秒**（含约 26s 启动） | CI 可用（非阻塞级） |
+| 存量判定 | **595 / 1535（39%）文件「Needs reformatting」** | 与 JDT 现行 profile 的 **614 文件 / 70,117 行** 同量级 |
+| 退出码 | **恒为 0**（含 "Needs reformatting" 时） | ⚠️ **无法直接用作门禁判据**，须解析 stdout（英文 `Needs reformatting` / `Formatted well`）→ 集成脆弱 |
+| 许可 | 本机已激活，运行无提示 | ⚠️ Ultimate 需许可；CI/他人机器构成约束（Community 是否同带该 CLI 未验证） |
+| 权威 code style | 业务仓 `.idea/` **无** `codeStyles/Project.xml`；本机 IDE **无** `codeStyleSettings.xml` | ⚠️ **「IDEA 一致」并不自动达成** —— IDE 用**出厂默认**，而默认下仍有 39% 文件需重排 |
+
+### ③ 结论与细化选项
+
+| 细化选项 | 评价 |
+|---|---|
+| **C1（推荐，最小路径）** | `JdtFormatCheck.java` 头注释**本就写着**「profile 建议用 IDEA 导出的 Eclipse XML Profile 替换」，而 IDEA 支持 **Export → Eclipse XML Profile** → 在 IDE 内**一次人工操作**导出，**覆盖 `eclipse-format.xml`**：门禁栈**完全不变**（JDT，退出码语义/增量差分/豁免机制全部沿用），设置与开发者 IDE 同源；**无许可、无跨平台、无 stdout 解析问题**。导出后用 `tools/jdt-profile-eval.py` 量化新基线（仪器已就绪） |
+| **C2（不推荐）** | 直接以 IDEA CLI 作门禁：技术可行（干跑/UNC/吞吐均 OK），但**退出码恒 0**、Ultimate 许可、Windows/WSL interop 绑定、仍需自备 code style XML |
+| **维持 A / D 治理** | 与 C 无冲突，可并行 |
+
+**评估副产物**：Profile 出处查明 —— 现行 `eclipse-format.xml` 基底是 **Eclipse `Default` profile（version 21，375 设置）**，仅部分校准为「IDEA 风格族」→ 与 IDE 出厂默认的参数表语义相异（§1 已证）。这解释了「为何存量差异这么大」。
+
+---
+
+## D 采纳与实施（2026-09-21，已完成）
+
+`known-ignore.txt`（C2 门禁的**逃生门**）治理落地，**零 Java 改动**（Java wrapper 本就跳过 `#` 注释行）：
+
+| 项 | 内容 |
+|---|---|
+| 清单格式 | 每个路径条目**紧邻上方**必须一行 `# reason: <理由>（<YYYY-MM-DD> 复核基线）`（**单行**） |
+| 强制机制 | 新增 `tools/checks/jdt_ignore.py`（注册进 `check.py`）：缺理由 / 缺日期 / **悬空理由**（条目被删而理由留存）→ **ERROR**；复核基线 **> 180 天** → **WARN**（季度复核信号自动化） |
+| 测试 | `cli/tests/test_jdt_ignore_check.py`（+8）：合规 / 缺理由 / 缺日期 / 过期 / 悬空 / 纯注释 / 真实清单受治 |
+| 文档 | `tools/README.md`（治理约定）+ `config/maintenance.yaml`（决议登记） |
+
+**效果**：豁免不再是无声逃生门 —— 每条豁免都带理由与复核期限，且**过期自动告警**（把"季度复核"从人的记忆变成门禁信号）。
+---
+
 ## Review Log
 
 | Reviewer | Decision | Date |
 |---|---|---|
 | User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 指示立案） | 2026-09-21 |
 | User (AI Maintainer operator) | **Option A 已批准并执行**（零基线扰动）；B（profile 校准）与 C（换基线器）待小样评估后决策；D（`known-ignore.txt` 治理）待决 | 2026-09-21 |
+| User (AI Maintainer operator) | **Option C 已评估**：技术可行（WSL 可驱动 IDEA `format` CLI、UNC 直读、1535 文件 82s），但**退出码恒 0** + Ultimate 许可 + 无权威 code style（IDE 用出厂默认，39% 文件仍需重排）→ 推荐细化为 **C1：IDE 内一次导出 Eclipse XML Profile 覆盖 `eclipse-format.xml`**（门禁栈不变、设置与 IDE 同源） | 2026-09-21 |
+| User (AI Maintainer operator) | **Option D 已采纳并实施**：`known-ignore.txt` 逐条附理由 + 复核日期，`tools/checks/jdt_ignore.py` 强制（缺理由/悬空 ERROR、超 180 天 WARN），+8 测试 | 2026-09-21 |
 | User (AI Maintainer operator) | **Option B 已评估**（小样 + 全仓规模，数据见上节）：B 可行且收敛，但差异 +55%~+109%、≤120 仍不可达 → 待用户就「暂缓 / 最小化实施 / 转 C 评估」裁决 | 2026-09-21 |
 
 ---
