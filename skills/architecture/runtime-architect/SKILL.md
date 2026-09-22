@@ -1,6 +1,6 @@
 ---
 name: runtime-architect
-description: Design runtime architecture.
+description: Design runtime architecture: shape the execution lifecycle (initialization, context loading, planning, implementation, testing, validation, self review, completion) and keep orchestration separate from business implementation.
 inherits: architecture-base
 ---
 

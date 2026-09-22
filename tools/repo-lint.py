@@ -55,19 +55,17 @@ def resolve_root(root):
 
 
 def find_skills(root):
-    root = resolve_root(root)
-    skills_dir = root / SKILLS_SUBDIR
-    if not skills_dir.exists():
-        return []
-    skills = []
-    for d in sorted(skills_dir.iterdir()):
-        if not d.is_dir() or d.name.startswith("."):
-            continue
-        # Container dirs (only nested skill dirs, no own SKILL.md) are not skills.
-        if find_entrypoint(d) is None and any(p.is_dir() for p in d.iterdir()):
-            continue
-        skills.append(d)
-    return skills
+    """技能目录（含容器目录下的嵌套技能）——单一来源 `tools/skill_index.py`。
+
+    R1 修复（2026-09-21）：原实现把「无入口但有子目录」的**容器目录整棵跳过**，
+    导致 `skills/architecture/` 下 7 个技能永不进入 lint 视野。
+    """
+
+    import skill_index
+
+    skills, _containers = skill_index.skill_dirs(root)
+
+    return list(skills)
 
 
 def find_entrypoint(skill_dir):

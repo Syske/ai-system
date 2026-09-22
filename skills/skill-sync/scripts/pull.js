@@ -4,6 +4,7 @@ const os = require('os');
 const http = require('http');
 const https = require('https');
 const { execFileSync } = require('child_process');
+const { resolveHostUrl } = require('./sync-policy');
 
 function ensureDir(dirPath) {
     if (!fs.existsSync(dirPath)) {
@@ -36,7 +37,7 @@ function loadConfiguration() {
 }
 
 async function fetchManifest(host, apiKey) {
-    const urlStr = host.match(/^https?:\/\//) ? host : `http://${host}`;
+    const urlStr = resolveHostUrl(host);   // R1：无协议默认 https；显式 http 需 ALLOW_INSECURE=1
     const parsedUrl = new URL(urlStr + '/api/sync/manifest');
     const requestModule = parsedUrl.protocol === 'https:' ? https : http;
 
@@ -129,7 +130,7 @@ async function main() {
         
         console.log(`⬇️  Found skill '${targetSkill.name}' (v${targetSkill.version}). Downloading to ${outDir}...`);
         
-        const urlStr = host.match(/^https?:\/\//) ? host : `http://${host}`;
+        const urlStr = resolveHostUrl(host);   // R1：无协议默认 https；显式 http 需 ALLOW_INSECURE=1
         const downloadUrl = urlStr + targetSkill.downloadUrl;
         
         await downloadAndInstall(downloadUrl, outDir, apiKey);

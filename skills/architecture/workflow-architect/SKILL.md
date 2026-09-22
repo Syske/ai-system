@@ -1,6 +1,6 @@
 ---
 name: workflow-architect
-description: Design or evolve execution workflows.
+description: Design or evolve execution workflows: define what process runs, select the runtime, declare inputs/outputs and routing, and keep workflow files thin — never embedding implementation logic or coding standards.
 inherits: architecture-base
 ---
 

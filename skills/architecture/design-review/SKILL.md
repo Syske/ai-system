@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Review architecture and workflow designs before implementation.
+description: Review architecture and workflow designs before implementation begins: challenge responsibilities, boundaries and layering, surface risks and missing evidence, and record findings — without redesigning or implementing.
 ---
 
 # Mission

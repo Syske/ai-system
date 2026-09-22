@@ -1,6 +1,6 @@
 ---
 name: architecture-base
-description: Base workflow for architecture-oriented skills.
+description: Base workflow for architecture-oriented skills: shared principles (single responsibility, evolution over redesign, backward compatibility) and the entry point inherited by the architecture skill family.
 ---
 
 # Principles

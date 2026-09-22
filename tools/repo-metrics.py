@@ -35,12 +35,17 @@ def resolve_root(root):
 
 
 def count_skills(root):
-    root = resolve_root(root)
-    skills_dir = root / SKILLS_SUBDIR
-    if not skills_dir.exists():
-        return 0, []
-    skills = sorted([d.name for d in skills_dir.iterdir() if d.is_dir()])
-    return len(skills), skills
+    """叶子技能计数（口径与 `repo-lint.find_skills` 一致 —— `tools/skill_index.py`）。
+
+    R1 修复（2026-09-21）：原实现计顶层目录 → 把容器目录 `architecture/`
+    多计为 1 个技能（33 vs repo-lint 的 32），且漏掉其下 7 个嵌套技能。
+    """
+
+    import skill_index
+
+    skills, _containers = skill_index.skill_dirs(root)
+
+    return len(skills), [p.name for p in skills]
 
 
 def count_workflows(root):

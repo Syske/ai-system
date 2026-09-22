@@ -44,18 +44,20 @@ def find_skills(root):
     skills_dir = root / SKILLS_SUBDIR
     if not skills_dir.exists():
         return {}
+    # R1 修复（2026-09-21）：口径统一到叶子技能（`tools/skill_index.py`）；
+    # 原实现把容器目录记为"无入口的技能"，且其下嵌套技能不参与依赖分析。
+    import skill_index
+
+    leaf_dirs, _containers = skill_index.skill_dirs(root)
+
     skills = {}
-    for d in sorted(skills_dir.iterdir()):
-        if d.is_dir():
-            name = d.name
-            entry = d / "skill.md"
-            if not entry.exists():
-                entry = d / "SKILL.md"
-            skills[name] = {
-                "path": str(d),
-                "entrypoint": str(entry) if entry.exists() else None,
-                "lines": 0,
-            }
+    for d in leaf_dirs:
+        entry = skill_index.find_entrypoint(d)
+        skills[d.name] = {
+            "path": str(d),
+            "entrypoint": str(entry) if entry else None,
+            "lines": 0,
+        }
     return skills
 
 

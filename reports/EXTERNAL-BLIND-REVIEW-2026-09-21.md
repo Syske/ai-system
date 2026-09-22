@@ -324,16 +324,20 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 
 > 说明：本节**自包含**列出全部残债（投喂包与 241 条索引位于未提交的 `outputs/`，故不在此引用）。
 
-**R1 · 安全 / 审计盲区（4）**
+**R1 · 安全 / 审计盲区（4）— ✅ 已于 R1 批次修复（2026-09-21，+23 测试）**
 
-| 项 | 位置 | 建议 |
+| 项 | 修复 | 实证 |
 |---|---|---|
-| 上传递归打包**无过滤**（`.git`/`node_modules`/`.env`/隐藏文件） | `skills/skill-sync/scripts/push.js:113-124` | 加排除集 + 敏感文件拒传 |
-| 无协议时回退 **`http://`** 且 key 明文 | `pull.js:41`、`push.js:93` | 无 https 时告警并要求确认 |
-| repo-lint **跳过容器目录**（无 `SKILL.md` 但有子目录）→ 嵌套技能永不 lint；`repo-metrics` 口径分裂 | `tools/repo-lint.py:47-51`、`tools/repo-metrics.py:31-37` | 容器目录递归到叶子技能；口径统一 |
-| `skills/` 下脚本**零契约测试**（agentdebug / generate_contract / pull-push / deepseek） | `skills/**` | 至少补 `generate_contract` 与 agentdebug 校验契约测试 |
+| 上传递归打包**无过滤**（`.git`/`node_modules`/`.env`/隐藏文件） | 策略抽为单一来源 `skills/skill-sync/scripts/sync-policy.js`：排除集（目录含隐藏目录、`.env`/`.DS_Store` 等）+ **疑似凭据/私钥命中即拒传并 `exit 3`**（fail loud，不静默剔除） | 10 项 node 驱动测试（排除集正反例、敏感文件 7 命中 4 不误报） |
+| 无协议时回退 **`http://`** 且 key 明文 | `resolveHostUrl()`：无协议**默认 https**；显式 `http://` **默认拒绝**，仅 `AGENT_INSIGHT_ALLOW_INSECURE=1` 放行；pull/push 三处调用点统一 | 三态实测：`https://`→原样、`host`→`https://host`、`http://`→`InsecureHostError`（放行时通过） |
+| repo-lint **跳过容器目录** → 嵌套技能永不 lint；三工具口径分裂 | 新增**单一来源** `tools/skill_index.py`（技能 ＝ 含入口的目录，**递归展开容器目录**；容器本身不是技能），`repo-lint`/`repo-metrics`/`dependency-graph` 一律取此口径 | **口径 32 / 33 / 33 → 39 / 39 / 39**（容器 `architecture/` 不再计数，其下 **7 个技能入列**） |
+| `skills/` 下脚本**零契约测试** | 新增 `cli/tests/test_skills_contracts.py`（agentdebug 校验契约 11 项 + 枚举口径 4 项）、`cli/tests/test_skill_sync_policy.py`（node 驱动 10 项）；`generate_contract` 缺键契约见 `test_t7_fail_loud.py` | +23 测试 |
 
-**R2 · 静默失败 / 可靠性（24）**
+**R1 修复顺带暴露并修掉的存量问题**：口径统一后，`skills/architecture/` 下 **7 个技能首次进入 lint 视野**，
+其中 **7 个 description 全部 < 100 字符 → 7 个 ERROR**（此前完全不可见，属"修盲区即暴露存量"）→
+已按各自职责重写为 202–226 字符的描述；repo-lint 由 `39 skills / 7 ERROR` 恢复 `39 skills / 0 ERROR`。
+
+**R2 · 静默失败 / 可靠性（24）**（残债合计由 60 → **56**：R1 四项已修）
 
 | 项 | 位置 |
 |---|---|

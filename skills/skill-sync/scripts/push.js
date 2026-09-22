@@ -4,6 +4,12 @@ const os = require('os');
 const http = require('http');
 const https = require('https');
 const readline = require('readline');
+const {
+    isExcludedDir,
+    isExcludedFile,
+    isSensitive,
+    resolveHostUrl,
+} = require('./sync-policy');
 
 // 1. Load configuration
 function loadConfiguration() {
@@ -89,7 +95,14 @@ async function main() {
     }
 
     // Checking existence on Insight platform
-    const urlStr = host.match(/^https?:\/\//) ? host : `http://${host}`;
+    // R1：无协议默认 https；显式 http 需 AGENT_INSIGHT_ALLOW_INSECURE=1
+    let urlStr;
+    try {
+        urlStr = resolveHostUrl(host);
+    } catch (e) {
+        console.error(`⛔ ${e.message}`);
+        process.exit(2);
+    }
     const checkUrl = new URL(urlStr + '/api/skills' + (user ? `?user=${encodeURIComponent(user)}` : ''));
     
     const checkReqModule = checkUrl.protocol === 'https:' ? https : http;
@@ -158,25 +171,47 @@ async function main() {
     }
 
     // walk dir and add files
+    // R1：打包排除与敏感文件拒传（凭据/私钥绝不进包）
+    const sensitiveHits = [];
+
     function walkDir(dir) {
         fs.readdirSync(dir).forEach(file => {
             const fullPath = path.join(dir, file);
+            const relToSkill = path.relative(absPath, fullPath);
             if (fs.statSync(fullPath).isDirectory()) {
+                if (isExcludedDir(file)) {
+                    return;              // .git / node_modules / 隐藏目录 …
+                }
                 walkDir(fullPath);
-            } else {
-                // compute relative path preserving the root folder name.
-                const rootName = path.basename(absPath);
-                const relPath = path.relative(absPath, fullPath);
-                const webkitRelativePath = path.posix.join(rootName, relPath.split(path.sep).join(path.posix.sep));
-                
-                appendFile('files', fullPath, webkitRelativePath);
-                appendField('paths', webkitRelativePath);
+                return;
             }
+            if (isExcludedFile(file)) {
+                return;
+            }
+            if (isSensitive(relToSkill)) {
+                sensitiveHits.push(relToSkill);
+                return;
+            }
+            // compute relative path preserving the root folder name.
+            const rootName = path.basename(absPath);
+            const relPath = path.relative(absPath, fullPath);
+            const webkitRelativePath = path.posix.join(rootName, relPath.split(path.sep).join(path.posix.sep));
+
+            appendFile('files', fullPath, webkitRelativePath);
+            appendField('paths', webkitRelativePath);
         });
     }
 
     console.log(`📦 Packaging skill at ${absPath}...`);
     walkDir(absPath);
+
+    if (sensitiveHits.length > 0) {
+        // fail loud：疑似凭据文件**拒绝上传**（不静默剔除，避免"以为传了"或"悄悄漏传"）
+        console.error('⛔ 拒绝上传：技能目录包含疑似凭据/私钥文件：');
+        sensitiveHits.forEach(f => console.error(`   - ${f}`));
+        console.error('   请移除或改用环境变量/密钥管理后再上传。');
+        process.exit(3);
+    }
     
     bodySegments.push(Buffer.from(`--${boundary}--\r\n`, 'utf8'));
     const fullBody = Buffer.concat(bodySegments);

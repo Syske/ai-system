@@ -1,6 +1,6 @@
 ---
 name: platform-governor
-description: Govern AI platform architecture.
+description: Govern AI platform architecture: keep the platform coherent across layers, review architecture decisions for responsibility and dependency direction, and guard against reverse dependencies or duplicated rules in upper layers.
 inherits: architecture-base
 ---
 

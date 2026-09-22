@@ -1,6 +1,6 @@
 ---
 name: context-architect
-description: Design context loading strategy.
+description: Design the context loading strategy: decide which context (specs, contracts, task cards, repository facts) is loaded, in what order, and at what depth, so runtimes stay within budget without losing required evidence.
 inherits: architecture-base
 ---
 

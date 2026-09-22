@@ -1,6 +1,6 @@
 ---
 name: provider-architect
-description: Design methodology providers.
+description: Design methodology providers: lay out a provider as a resource-only package (declarative assets plus thin scripts), define its contract with the runtime, and keep provider-specific knowledge out of the core ai-system layers.
 inherits: architecture-base
 ---
 
