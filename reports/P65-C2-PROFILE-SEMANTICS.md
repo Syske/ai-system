@@ -112,13 +112,17 @@ alignment 取值扫描（超长夹具）：**0 / 1 / 5 → 不折行**（152 字
 
 ## 5. Proposed Changes
 
-| # | 文件 | 变更 | 归属 |
-|---|---|---|---|
-| 1 | `tools/README.md` | jdt 条目补语义边界（**已落**）；措辞由"与 IDEA 默认同源"改为"IDEA 风格族导出；参数表语义不同" | A |
-| 2 | `config/maintenance.yaml` | C2 语义边界登记（**已落**）；补 Option A 决议与"120 非硬约束" | A |
-| 3 | `cli/commands/*` / `templates/runtime/runtime-develop.md` | 凡引用 120 处，明确其**从属**于 profile 折行策略（如有硬表述则改） | A |
-| 4 | `tools/jdt-format-gate/eclipse-format.xml` | alignment 取值校准（**待小样评估后**） | B |
-| 5 | `tools/jdt-format-gate/known-ignore.txt` | 豁免附理由 + 季度复核（治理） | D |
+| # | 文件 | 变更 | 归属 | 状态 |
+|---|---|---|---|---|
+| 1 | `tools/README.md` | jdt 条目补语义边界；措辞由"与 IDEA 默认同源"改为"**IDEA 风格族导出；参数表语义与 IDEA 不同**"；并把语义边界出处由 gitignored 日志改为**本提案 + `config/maintenance.yaml`** | A | ✅ **已执行** 2026-09-21 |
+| 2 | `config/maintenance.yaml` | C2 语义边界登记（含"120 非硬约束"与"改 alignment 属 profile 校准"） | A | ✅ **已执行** 2026-09-21 |
+| 3 | `templates/runtime/runtime-develop.md`（`format-jdt-c2` 条目）+ `tools/format-jdt-gate.py`（docstring） | 明确**参数表语义与 IDEA 不同**、`lineSplit=120` **非硬约束**（受折行策略支配） | A | ✅ **已执行** 2026-09-21 |
+| 4 | `tools/jdt-format-gate/eclipse-format.xml` | alignment 取值校准（**待小样评估后**） | B | ⏳ 待决 |
+| 5 | `tools/jdt-format-gate/known-ignore.txt` | 豁免附理由 + 季度复核（治理） | D | ⏳ 待决 |
+
+**A 项执行时的核查结论**：`cli/commands/*`、`config/main-chain-capabilities.yaml`、
+`config/environments/*` 中**未发现**任何把 120 当硬约束的表述（检索 `120` / `lineSplit` 无命中）
+→ A 的动作实际只落在上表 1–3 三处；未改动任何 profile 取值、未触碰业务仓。
 
 ## 6. Validation Plan
 
@@ -146,3 +150,22 @@ alignment 取值扫描（超长夹具）：**0 / 1 / 5 → 不折行**（152 字
 | Reviewer | Decision | Date |
 |---|---|---|
 | User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 指示立案） | 2026-09-21 |
+| User (AI Maintainer operator) | **Option A 已批准并执行**（零基线扰动）；B（profile 校准）与 C（换基线器）待小样评估后决策；D（`known-ignore.txt` 治理）待决 | 2026-09-21 |
+
+---
+
+## Implementation Record — Option A（部分实施，2026-09-21）
+
+**范围**：仅文档/语义澄清，**零行为变更**（profile 取值、门禁逻辑、业务仓基线均未改动）。
+
+| 文件 | 变更要点 |
+|---|---|
+| `tools/README.md` | ① "与 IDEA 默认 Java 格式化同源" → "**IDEA 风格族导出**，但**参数表语义与 IDEA 不同**"；② 语义边界的证据出处由 gitignored 日志改为**本提案**与 `config/maintenance.yaml`（提交物不得索引未提交产物） |
+| `templates/runtime/runtime-develop.md` | `format-jdt-c2` 条目补：参数表 `alignment=0` = *no wrap* → 手工折参数被合并、可**超过** `lineSplit=120`；`join_wrapped_lines=false` 仅覆盖二元/条件表达式；**本门禁保证与 profile 一致，不保证行 ≤ 120**（英文，模板层语言约定） |
+| `tools/format-jdt-gate.py` | docstring 同步上述语义（中文，tools 脚本注释约定） |
+
+**核查**：`cli/commands/*`、`config/main-chain-capabilities.yaml`、`config/environments/*` 无 120 硬承诺表述；
+`outputs/` 在模板中的出现均为**产物落盘约定**（合法），非未提交证据引用。
+
+**门禁**：`check.py` PASS · `repo-lint` 0 ERROR · `path-audit` 0 broken · `proposal-audit` 0/0 ·
+`workflow-command-audit` 无新增 · 单测全绿。

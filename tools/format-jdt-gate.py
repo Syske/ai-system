@@ -2,8 +2,11 @@
 r"""C2 eclipse JDT formatter 干跑门禁（机器环境感知版，2026-09-02）。
 
 对指定 Java 源目录执行 eclipse JDT formatter 干跑（不写盘），校验代码是否
-与 eclipse-format.xml profile（tab=4 space）一致。与 IDEA 默认 Java 格式化
-同源（eclipse jdt 风格族），不改业务仓。
+与 eclipse-format.xml profile（tab=4 space）一致。该 profile 为 **IDEA 风格族导出**
+（eclipse jdt 设定），**但参数表语义与 IDEA 不同**：`alignment_for_arguments_in_method_invocation=0`
+表「不折行」，手工折的参数会被合并且可**越过 `lineSplit=120`**；`join_wrapped_lines=false`
+仅覆盖二元/条件表达式。故本门禁保证的是「与 profile 一致」，**不保证行 ≤ 120**
+（详见报告 reports/P65-C2-PROFILE-SEMANTICS.md）。不改业务仓。
 
 环境策略（按用户需求）：
 - JDK 可用性：**自动探测**（JAVA_HOME → ~/.jdks/* → PATH → /usr/lib/jvm/*），

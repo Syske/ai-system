@@ -206,8 +206,14 @@ Formatting gate (Stage 6 Validation):
   - `format-jdt-c2` (optional, environment-aware; runs when the local JDT toolchain
     is ready — this machine is ready; on others use explicit `--skip`, exit 3 means
     ENV unavailable) — eclipse JDT formatter dry run against
-    `tools/jdt-format-gate/eclipse-format.xml` (IDEA default-derived profile, 375
-    settings, calibrated). Exit: 0 PASS / 1 WARN (≤5 files) / 2 FAIL / 3 ENV.
+    `tools/jdt-format-gate/eclipse-format.xml` (IDEA-style-family-derived profile,
+    375 settings, calibrated). **Argument-table semantics differ from IDEA**:
+    `alignment_for_arguments_in_method_invocation=0` means *no wrap*, so manually
+    wrapped arguments are joined into single lines and may **exceed**
+    `lineSplit=120`; `join_wrapped_lines=false` only covers binary/conditional
+    expressions. This gate guarantees consistency *with this JDT profile*, NOT
+    line length <= 120 — see `reports/P65-C2-PROFILE-SEMANTICS.md`.
+    Exit: 0 PASS / 1 WARN (≤5 files) / 2 FAIL / 3 ENV.
     `--changed` incremental (P51): git status driven, scans only this
     change's touched files; JDT hunk × changed-line intersection — baseline
     hunks exempt (BASELINE recorded in the diagnostic log), new-line hits
