@@ -246,12 +246,112 @@ alignment 取值扫描（超长夹具）：**0 / 1 / 5 → 不折行**（152 字
 **效果**：豁免不再是无声逃生门 —— 每条豁免都带理由与复核期限，且**过期自动告警**（把"季度复核"从人的记忆变成门禁信号）。
 ---
 
+## C1 验证结果（2026-09-21，用户执行 IDE 导出）—— **C1 无效（且被否定），并更正一处推断**
+
+### ① 事实：导出文件与现行 profile **逐字节完全一致**
+
+| 项 | 值 |
+|---|---|
+| 用户导出文件 | `…/WXWork/…/2026-09/Default.xml`（40,842 bytes，mtime 2026-09-03 11:33） |
+| sha256（导出） | `d120900b43c41fbcd7c830e8f1c61b7f152ad37726a3eb87c0925d0c6f8a3ee1` |
+| sha256（仓内 `eclipse-format.xml`） | **`d120900b43c41fbcd7c830e8f1c61b7f152ad37726a3eb87c0925d0c6f8a3ee1`（同）** |
+| 设置级比对 | 375 项，**无任何差异**（仅导出/仓内一致） |
+| mtime 吻合 | 与 `c7eef0b`（2026-09-03「C2 profile 校准定稿」）同日 → 仓内文件即该次导出产物 |
+
+**结论**：**现行 C2 profile 本来就是 IDEA 的 Eclipse-XML 导出**。故「重新导出覆盖」是**恒等操作**，
+不可能改变任何语义 → **C1 不是解法**（而是已被验证为同一物）。
+
+### ② 更正上一节的推断（本提案内部）
+
+上一节"C 可行性评估"曾推断：现行 profile 基底是 **Eclipse `Default` profile（仅部分校准）**。
+**该推断错误** —— 文件名/profile 名 `name="Default"` 只是 **IDEA 导出方案的名字**，
+内容是 **IDEA 的 Java code style 经 Eclipse-XML 映射后的结果**。以本节实测（byte-identical）为准。
+
+### ③ 根因最终定位：**表达力缺口**，而非设置映射错误
+
+- IDEA 的导出**忠实**地把 IDEA 设置写成 Eclipse 设置；但 Eclipse 的折行模型（`alignment_*`）
+  **无法表达 IDEA 的排版策略**（尤其「保留已有折行 / Keep line breaks」这类语义）→
+  导出必然落为 `alignment_for_arguments_in_method_invocation=0`（对 JDT 即**不折行**）。
+- 于是同一份代码：**IDEA 不动**（其引擎保留手工折行）、**JDT 合并参数折行且可越过 `lineSplit=120`**。
+  §1 的"矛盾"由此完全闭合：**不是配置错，是两套引擎的表达力差**。
+- 推论：**任何"把 IDEA 设置导出给 Eclipse/JDT 用"的路线都先天受限**（含 B）。
+
+### ④ C2 亦不能"清零"，而这不影响门禁设计正确性
+
+- C2（用 IDEA 引擎做基线）实测：**IDEA 自己也判 595/1535（39%）文件「Needs reformatting」**
+  → 业务代码与**任何单引擎的全量基线**都不一致（开发者实际是"只格式化改动行"的增量习惯）。
+- 因此门禁的**正确形态就是增量收敛**：现行 `--changed` 语义（存量豁免 + 新增拦截）**是对的**；
+  「全量清零」不是可达目标，也不该是目标。
+
+### ⑤ 最终建议（P65 收口）
+
+| 选项 | 最终判定 |
+|---|---|
+| **A 维持 + 明确边界** | ✅ 已执行；**维持**（语义边界已固化，误读已消除） |
+| **B 校准 profile** | ❌ **数据否定**：差异 +55%~+109%、≤120 不可达，且（本节）证明是**表达力**问题而非取值问题 |
+| **C1 重导出覆盖** | ❌ **恒等操作**（byte-identical）→ 无效 |
+| **C2 用 IDEA 引擎做门禁** | ⏸️ **按需可选**（唯一"与 IDE 同源"路径）：代价＝退出码恒 0（须解析 stdout）、Ultimate 许可、WSL interop 绑定、~82s/1535 文件；且仍不能清零 |
+| **D 豁免治理** | ✅ 已采纳并实施（理由 + 180 天复核告警） |
+
+**一句话结论**：C2 门禁的定位不是"让代码与 IDEA 完全一致"（不可达），而是
+**"与既有 profile 一致 + 增量收敛"**；若要"与 IDE 行为同源"，唯一路径是引入 **IDEA 引擎（C2）**，
+需业务侧明确诉求后再立项。
+---
+
+## C2 二审（2026-09-21，用户补充版本信息后的校正）—— 许可不再是障碍，新约束浮现
+
+### ① 用户补充的事实与我上轮的结论校正
+
+| 项 | 事实 | 对结论的影响 |
+|---|---|---|
+| 用户本人的 IDE | **社区版** | — |
+| 本次导出的 XML | 来自**同事的付费版** IDEA | **不影响 profile 有效性**：Java code style 语义不因版本而变（导出内容 = 设置映射）。故 §C1 的 **byte-identical 结论不受影响** |
+| 本机（抽查） | Windows 侧 **IU 2026.2.0.1**；WSL 侧 Gateway 后端 **IU 2026.2.2**（`~/.cache/JetBrains/RemoteDev/dist/…`，**自带 `format.sh` + `idea.sh`**） | 说明**Linux 侧 CLI 也存在**，且可在 WSL 原生运行（无需 Windows interop） |
+| **我上轮的"许可构成约束"** | ❌ **需更正** | 见 ② |
+
+### ② 许可校正：自 **2025.3 起两个版本已合并为单一产品**
+
+JetBrains 官方（2025-07 公告 / 2025-12 博客 / 文档）：
+
+> "Starting with IntelliJ IDEA 2025.3, we're combining these two editions into a single, unified product:
+> IntelliJ IDEA." —— [IntelliJ IDEA as a unified product](https://www.jetbrains.com/help/idea/intellij-idea-single-distribution.html)
+> "All the functionality of the Community Edition remains free for non-commercial and commercial use.
+> … the extended tooling is accessible in the Ultimate subscription." —— [JetBrains Blog 2025-12](https://blog.jetbrains.com/idea/2025/12/intellij-idea-unified-release/)
+
+本环境为 **2026.2 = 统一产品**，故 `productCode: IU` 只是**统一发行版**的编号，**不再等价于"付费版"**；
+`format` CLI 属随安装包提供的能力（文档将 `format` 列于 CLI 说明，未附订阅前提）→
+**C2 的许可障碍不成立**（免费核心功能即可，且允许商用）。
+
+### ③ 新约束（比许可更真实）：CLI 会**后台启动 IDE 实例**，且**已在运行的实例会导致失败**
+
+> "The command-line formatter launches an instance of IntelliJ IDEA in the background and applies the
+> formatting. **It will not work if another instance of IntelliJ IDEA is already running.**"
+> —— [Format files from the command line](https://www.jetbrains.com/help/idea/command-line-formatter.html)
+
+含义：
+- 开发者机器上 IDE 通常**开着** → CLI 门禁**会间歇性失效**（本次实测能跑，是因为当时没有实例运行）。
+- 每次调用都要**冷启动一个 IDE 实例**（实测 ~26s）→ 不适合作为**交互式 A 层门禁**，适合 **CI / 批处理**。
+
+### ④ C2 最终判定（理由更新，结论不变）
+
+| 维度 | 判定 |
+|---|---|
+| 许可 | ✅ **不再是障碍**（统一产品免费核心 + 可商用）—— 撤回上轮该条 |
+| 引擎可得性 | ✅ Windows `.bat`、Linux `.sh` 均存在；本机两侧都有 |
+| 退出码 | ❌ **恒 0**（含 Needs reformatting）→ 须解析 stdout |
+| 运行约束 | ❌ **单实例互斥 + 冷启动 ~26s** → 不适合开发者机上的交互式门禁 |
+| 清零能力 | ❌ IDEA 自判 **595/1535（39%）** 文件需重排 → 与任何单引擎全量基线都不一致 |
+| **结论** | ⏸️ **仍为"按需可选"，但适用场景收窄为 CI/批处理**（若要"与 IDE 行为同源"）；<br>开发者机上的门禁仍以现行 JDT 栈（A）+ 豁免治理（D）为准 |
+---
+
 ## Review Log
 
 | Reviewer | Decision | Date |
 |---|---|---|
 | User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 指示立案） | 2026-09-21 |
 | User (AI Maintainer operator) | **Option A 已批准并执行**（零基线扰动）；B（profile 校准）与 C（换基线器）待小样评估后决策；D（`known-ignore.txt` 治理）待决 | 2026-09-21 |
+| User (AI Maintainer operator) | **C2 二审（用户补充版本信息）**：① 导出 XML 来自**同事付费版**、用户本人用社区版 → **不影响** profile 有效性（Java code style 语义与版本无关），C1 byte-identical 结论成立；② **撤回**上轮「Ultimate 许可构成约束」——自 **2025.3** 两版合并为单一产品，免费核心功能**可商用**，本环境 2026.2 即统一版；③ 新增真实约束（官方文档）：CLI **后台启动 IDE 实例，且已有实例运行时失效** + 冷启动 ~26s → **不适合交互式门禁，收窄为 CI/批处理**；④ C2 结论不变（按需可选） | 2026-09-21 |
+| User (AI Maintainer operator) | **C1 已验证（否决）**：IDE 导出的 `Default.xml` 与仓内 `eclipse-format.xml` **逐字节一致**（sha256 同为 `d120900b…`）→ 现行 profile 本就是 IDEA 导出，重导出为恒等操作；并**更正**上节「Eclipse Default 基底」的错误推断。根因最终定位为**引擎表达力缺口**（Eclipse 折行模型无法表达 IDEA 的保留折行），故 B/C1 皆不可解；C2 记为按需可选 | 2026-09-21 |
 | User (AI Maintainer operator) | **Option C 已评估**：技术可行（WSL 可驱动 IDEA `format` CLI、UNC 直读、1535 文件 82s），但**退出码恒 0** + Ultimate 许可 + 无权威 code style（IDE 用出厂默认，39% 文件仍需重排）→ 推荐细化为 **C1：IDE 内一次导出 Eclipse XML Profile 覆盖 `eclipse-format.xml`**（门禁栈不变、设置与 IDE 同源） | 2026-09-21 |
 | User (AI Maintainer operator) | **Option D 已采纳并实施**：`known-ignore.txt` 逐条附理由 + 复核日期，`tools/checks/jdt_ignore.py` 强制（缺理由/悬空 ERROR、超 180 天 WARN），+8 测试 | 2026-09-21 |
 | User (AI Maintainer operator) | **Option B 已评估**（小样 + 全仓规模，数据见上节）：B 可行且收敛，但差异 +55%~+109%、≤120 仍不可达 → 待用户就「暂缓 / 最小化实施 / 转 C 评估」裁决 | 2026-09-21 |

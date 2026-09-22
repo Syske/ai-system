@@ -220,7 +220,7 @@ last_findings:
   压力样本 diffLines 8551 → 13868，>120 行 501 → 175（-65%，但 3903 字符极端长行仍在 →
   「行 ≤ 120」不可达）；所有候选二次格式化 differ=0（收敛、无振荡）。结论：B 治不了根
   （根＝门禁基线器与业务 IDE 不同源），且显著抬高增量噪声 → 暂缓。
-  C 评估完成 → 推荐 C1 —— 本机实测 IDEA 2026.2（Ultimate，productCode IU，Windows 侧安装）
+  C 评估完成 —— 本机实测 IDEA 2026.2（Ultimate，productCode IU，Windows 侧安装）
   自带 bin/format.bat CLI（-s/-r/-d|-dry/-m），WSL 可驱动且接受 UNC 路径（免拷贝），
   全仓 1535 文件 82 秒；但退出码恒 0（含 Needs reformatting）→ 无法直接门禁化，且业务仓无
   .idea/codeStyles/Project.xml、本机 IDE 无 codeStyleSettings.xml → IDE 用出厂默认，
@@ -228,7 +228,26 @@ last_findings:
   JdtFormatCheck.java 头注释本就建议「用 IDEA 导出的 Eclipse XML Profile 替换」，IDEA 支持
   Export→Eclipse XML Profile → IDE 内一次人工导出覆盖 eclipse-format.xml，门禁栈不变
   （JDT 退出码/增量/豁免全沿用）、设置与 IDE 同源、无许可与跨平台问题；导出后用
-  jdt-profile-eval.py 量化即可。C2（直接用 IDEA CLI 作门禁）不推荐。
+  jdt-profile-eval.py 量化即可。
+  C1 验证结果（2026-09-21，用户执行 IDE 导出）—— **C1 无效（恒等操作）**：导出文件 Default.xml 与仓内
+  eclipse-format.xml **逐字节一致**（sha256 同为 d120900b43c41fbcd7c830e8f1c61b7f152ad37726a3eb87c0925d0c6f8a3ee1，
+  375 设置无差异；mtime 与 c7eef0b 2026-09-03「profile 校准定稿」吻合）→ **现行 profile 本就是 IDEA 的
+  Eclipse-XML 导出**。**更正此前推断**：profile 名为 Default 只是导出方案名，并非「Eclipse Default 基底仅
+  部分校准」。**根因最终定位＝引擎表达力缺口**：Eclipse 折行模型无法表达 IDEA 的排版策略（尤其保留已有
+  折行）→ 导出必然落为 alignment=0（对 JDT 即不折行）→ 同一代码 IDEA 不动、JDT 合并参数折行并可越过
+  lineSplit=120；故 B（改取值）与 C1（重导出）**皆不可解**。另：**C2 亦清零不了**（IDEA 自判 595/1535
+  即 39% 文件需重排）→ 业务代码与任何单引擎全量基线都不一致 → 门禁正确形态是**增量收敛**（现行
+  --changed：存量豁免 + 新增拦截，设计正确）。最终建议：A 维持 + D 已实施；C2（用 IDEA 引擎做门禁）
+  记为**按需可选**（唯一「与 IDE 同源」路径），需业务侧明确诉求后再立项。
+  **C2 二审（2026-09-21，用户补充版本信息）** —— ① 导出 XML 来自**同事的付费版**、用户本人用**社区版**：
+  不影响 profile 有效性（Java code style 语义与版本无关）→ C1 byte-identical 结论成立。② **撤回**上轮
+  「Ultimate 许可构成约束」：自 **IDEA 2025.3** 起 Community/Ultimate 合并为**单一产品**，原社区版功能
+  对**商业用途也免费**（JetBrains 统一发行公告/文档），本环境 2026.2 即统一版，productCode IU 只是统一
+  发行编号；format CLI 随安装包提供、无订阅前提 → **许可不再是障碍**。③ **新约束（官方文档）**：
+  CLI "在后台启动一个 IDEA 实例"，且**已有实例运行时无法工作**，冷启动约 26s → **不适合开发者机上的
+  交互式门禁**，适用场景收窄为 **CI/批处理**。④ 本机两侧均可用：Windows `bin/format.bat`（IU 2026.2.0.1）
+  与 WSL 侧 Gateway 后端 `format.sh`/`idea.sh`（`~/.cache/JetBrains/RemoteDev/dist/…`，IU 2026.2.2）。
+  结论不变：开发者机门禁维持 JDT 栈（A）+ 豁免治理（D）；C2 仅按需（CI/批处理）。
   D 已采纳并实施 —— known-ignore.txt 治理：每个豁免条目紧邻上方须一行「# reason」+ 理由 +
   （YYYY-MM-DD 复核基线）（单行）；tools/checks/jdt_ignore.py 强制（缺理由/缺日期/悬空理由
   → ERROR；超 180 天 → WARN，季度复核自动化）+8 测试。
