@@ -70,6 +70,7 @@
 | [P64](P64-SPEC-PRECONDITION-CONSISTENCY.md) | spec 前置条件口径不一致（"Prepare completed" 无 SSOT + 实测 0/12 变更具备 prepare 产物 + proposal.md 静默替代）— **Proposed** | 2026-09-21 |
 | [P62](P62-TASK-COMMIT-TRACEABILITY.md) | 任务提交信息 `T-<id>` 强制性与实践脱节（标准↔实践↔门禁三方不一致）— **Proposed** | 2026-09-21 |
 | [P63](P63-BRANCH-NAMING-NON-ITERATION.md) | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 — **Proposed** | 2026-09-21 |
+| [P65](P65-C2-PROFILE-SEMANTICS.md) | C2 格式 profile 语义边界与校准（`lineSplit=120` 被自身 `alignment=0` 越过；`join_wrapped_lines=false` 仅覆盖二元/条件表达式；JDT 无「保留已有折行」档）— **Proposed** | 2026-09-21 |
 
 ---
 

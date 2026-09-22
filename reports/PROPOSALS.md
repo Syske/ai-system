@@ -43,17 +43,7 @@
 | Implemented | 逐 aic 工作流用户交互审计（wizard 交互序列/确认节奏/呈现） | 2026-08-25 | `P38-WORKFLOW-INTERACTION-AUDIT.md` |
 | Implemented | extensions-lint 隐藏目录误判为扩展（--fix-missing-log 污染 .git/.githooks） | 2026-08-25 | `P39-EXTENSIONS-LINT-HIDDEN-DIRS.md` |
 | Implemented | OpenSpec-CN Change Name 字母开头约束与 workspace 命名惯例冲突 | 2026-08-25 | `P40-OPENSPEC-CHANGE-NAME-NAMING.md` |
-| Implemented | methodologies 整体移除（价值资产迁入 ai-system：tasks-template/spec-updater/archive/explore；24 处引用清理） | 2026-09-17 | `P55-METHODOLOGIES-REMOVAL.md` |
-| Implemented | SenSpec 价值吸收上链（证据等级/读取纪律/熔断/指针/图形规则，来源路径已脱敏） | 2026-09-17 | `P56-SENSPEC-VALUE-ABSORPTION.md` |
-| Implemented | scan 命令 service 级选择 + 字段收集死循环出口（参照 code-review 交互流程） | 2026-09-21 | `P57-SCAN-SERVICE-SELECTION.md` |
-| Implemented | 模板层作者纪律（折行≠token 优化 + 归一比对；回退实测折行） | 2026-09-21 | `P59-TEMPLATE-AUTHORING-DISCIPLINE.md` |
-| Implemented | projects/ 真实目录 + repositories 源按需 clone（消除软链/双副本，repositories 先于 projects） | 2026-09-21 | `P58-PROJECTS-REPOSITORIES-ONDELIVERY.md` |
-| Implemented | 门禁自校验（声明 vs 收集测试数 / 关键规则正反例 / 显式相对引用） | 2026-09-21 | `P60-GATE-SELF-VERIFICATION.md` |
-| Implemented | 外部盲检纳入运维形式（新工作流 + 命令 + 盲检纪律入库 + 季度节奏） | 2026-09-21 | `P61-EXTERNAL-BLIND-REVIEW-AS-MAINTENANCE.md` |
-| Proposed | 任务提交信息 `T-<id>` 强制性与实践脱节（标准↔实践↔门禁三方不一致；以分支名做机器判据） | 2026-09-21 | `P62-TASK-COMMIT-TRACEABILITY.md` |
-| Proposed | spec 前置条件口径不一致（"Prepare completed" 无 SSOT；实测 0/12 变更具备 prepare 产物；runtime 以 proposal.md 静默替代） | 2026-09-21 | `P64-SPEC-PRECONDITION-CONSISTENCY.md` |
-| Proposed | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 | 2026-09-21 | `P63-BRANCH-NAMING-NON-ITERATION.md` |
-| Implemented | tr5 脚本健壮性批次（§1 语义 + §18 工时校验 + tr4_url 条件化；服务名正则项已失效） | 2026-08-26 | `P41-TR5-SECTION1-SEMANTICS.md` |
+| Implemented | tr5 脚本健壮性批次（§1 语义 + 工时校验 + 服务名正则 + tr4_url 条件化） | 2026-08-26 | `P41-TR5-SECTION1-SEMANTICS.md` |
 | Proposed | 新增 tr5_template.md 一页纸骨架模板 | 2026-08-26 | `P42-TR5-TEMPLATE-SKELETON.md` |
 | Implemented | tr5 §0 数据槽位恒空（inline 正文解析缺失 → 发布页 §0 露引导占位符） | 2026-08-28 | `P43-TR5-SECTION0-INLINE-BODIES.md` |
 | Implemented | Worktree 约定完善（项目级隔离 + 生命周期管理） | 2026-08-31 | `P44-WORKTREE-CONVENTION.md` |
@@ -66,7 +56,18 @@
 | Implemented | format-jdt-gate 增量差分语义（hunk × 改动行交集） | 2026-09-09 | `P51-JDT-GATE-INCREMENTAL-DIFF.md` |
 | Implemented | SOFA/PowerMock/jacoco 测试兼容性纪律 + 全量回归环境性基线登记 | 2026-09-09 | `P52-SOFA-POWERMOCK-TEST-CONVENTIONS.md` |
 | Implemented | 消除双重计划（implement Stage 2 复用已确认计划） | 2026-09-09 | `P54-DEDUP-PLANNING.md` |
+| Implemented | methodologies 整体移除（价值资产迁入 ai-system） | 2026-09-17 | `P55-METHODOLOGIES-REMOVAL.md` |
+| Implemented | SenSpec 价值吸收上链（证据等级/读取纪律/熔断/指针/图形规则） | 2026-09-17 | `P56-SENSPEC-VALUE-ABSORPTION.md` |
+| Implemented | scan 命令 service 级选择 + 字段收集死循环出口 | 2026-09-21 | `P57-SCAN-SERVICE-SELECTION.md` |
+| Implemented | projects/ 真实目录 + repositories 源按需 clone | 2026-09-21 | `P58-PROJECTS-REPOSITORIES-ONDELIVERY.md` |
+| Implemented | 模板层作者纪律（折行≠token 优化 + 归一比对） | 2026-09-21 | `P59-TEMPLATE-AUTHORING-DISCIPLINE.md` |
 | Implemented | Skill Size Reconciliation | 2026-08-01 | `P6-SKILL-SIZE-PROPOSAL.md` |
+| Implemented | 门禁自校验（Gate Self-Verification） | 2026-09-21 | `P60-GATE-SELF-VERIFICATION.md` |
+| Implemented | 外部盲检纳入运维形式（External Blind Review as a Maintenance Form） | 2026-09-21 | `P61-EXTERNAL-BLIND-REVIEW-AS-MAINTENANCE.md` |
+| Proposed | 任务提交信息 `T-<id>` 强制性与实践脱节（Standard ↔ Practice ↔ Gate 三方不一致） | 2026-09-21 | `P62-TASK-COMMIT-TRACEABILITY.md` |
+| Proposed | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 | 2026-09-21 | `P63-BRANCH-NAMING-NON-ITERATION.md` |
+| Proposed | spec 前置条件口径不一致（"Prepare completed" 无 SSOT、实际 0/12 变更具备 prepare 产物） | 2026-09-21 | `P64-SPEC-PRECONDITION-CONSISTENCY.md` |
+| Proposed | C2 格式 profile 的语义边界与校准（`lineSplit=120` vs `alignment=0`） | 2026-09-21 | `P65-C2-PROFILE-SEMANTICS.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
