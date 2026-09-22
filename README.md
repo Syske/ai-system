@@ -18,7 +18,7 @@
   含 `bugfix` 并行分支与 `bootstrap` / `analysis` / `knowledge` 支撑工作流；主链拓扑唯一
   来源是 `workflows/README.md`。
 - **命令体系**：`cli/commands/aic-*.md` 即插即用（`propose` / `apply` / `archive` /
-  `explore` / `scan` / `trace` / `maintain` / `pack` / `skill-source` /
+  `explore` / `scan` / `trace` / `maintain` / `skill-source` /
   `command` / `workflow` / `skill-launch` / `skill-optimize`，共 13 个），支持命令生命周期
   钩子（`command_hooks`）与动态字段候选（`providers`）。
 - **治理优先**：`governance/` 定义质量门禁、命名规范、变更管理（`OPERATIONS.md`）；
@@ -31,7 +31,8 @@
 ## 工作流链
 
 ```text
-bootstrap → prepare → spec → dev-setup → develop → review → verify → release
+prepare → spec → dev-setup → develop → review → verify → release
+（`bootstrap` 是**支撑工作流**（新机/一次性准备），不在主链拓扑内）
                                               ↑ 变更 → develop
 bugfix → review（并行分支）
 analysis / knowledge（支撑：系统分析、知识沉淀）
@@ -67,7 +68,7 @@ ai-system/
 ├── rfc/          RFC 规范 + 架构决策记录（ADR）
 ├── skills/       Agent 技能（实现行为、决策逻辑、执行步骤）
 ├── templates/    Runtime / prompt / asset 模板
-├── tools/        repo-lint、check、path-audit、pack、setup 等维护脚本
+├── tools/        repo-lint、check、path-audit、setup 等维护脚本
 ├── workflows/    工作流入口契约（README 含选择表）
 ├── reports/      生成的分析与维护报告
 ├── metrics/      健康指标快照（repo-metrics 输出）

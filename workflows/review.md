@@ -79,5 +79,7 @@ Stop:
 - Optional recap: reusable lesson this run? → run `memory-capture` skill; none → skip
 ## Next
 
-- verify — on approved (routing: approved→verify / bug found→bugfix / spec gap→spec re-entry)
+- verify — on approved
 - develop — on changes required
+- bugfix — when the review finds a bug (routing: approved→verify / bug found→bugfix / spec gap→spec re-entry)
+- spec — on spec gap (re-entry; same routing line as above)

@@ -92,6 +92,12 @@ Implementation MUST follow:
 
 Nothing else.
 
+> **Axis note**: the list above is an **implementation order** (what to follow when
+> writing code) — it is NOT an authority ranking. The **authority hierarchy** is
+> defined in `SOURCE_OF_TRUTH.md` (Contract is Supreme). When the two appear to
+> conflict, this list decides *what to implement first*; SOURCE_OF_TRUTH decides
+> *which artifact wins*.
+
 If information is missing:
 
 Stop.

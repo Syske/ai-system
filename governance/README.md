@@ -6,7 +6,7 @@ Quality gates, policies, naming conventions, and review standards for the AI rep
 
 | File | Purpose |
 |------|---------|
-| `AI_OPERATING_RULES.md` | Global AI behavior rules (v1.3). Binding for all Workflows. |
+| `AI_OPERATING_RULES.md` | Global AI behavior rules. Binding for all Workflows. (Version lives in the file itself — not duplicated here, to avoid index drift.) |
 | `SOURCE_OF_TRUTH.md` | Authoritative priority hierarchy of all information sources. |
 | `CONTEXT_LOADING.md` | Minimal, deterministic context loading strategy. |
 | `CONTEXT_RETENTION.md` | Cross-tool context retention: Keep/Drop priorities + handoff template. |

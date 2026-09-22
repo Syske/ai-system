@@ -33,7 +33,12 @@ This document defines security constraints for all layers of the AI Operating Sy
 
 ### Release
 
-- Release readiness checks include a secret scan (`governance/review-standard.md`).
+- Release readiness checks cover credentials explicitly: the configuration-analysis
+  checklist of `templates/runtime/runtime-release.md` requires hardcoded values
+  (URL / Token / Secret) to come from the config center and forbids log statements
+  carrying PII or secrets. A repository-wide sensitive-content scanner is available as
+  an extension (`extensions/archive-ipd-workspace/scripts/scan_sensitive.py`, used by the
+  archive/maintenance flows) and can be invoked ad hoc — it is not wired into the release runtime.
 - New user-facing copy is confirmed by the product owner (`governance/standards/common/copy-review.md`).
 
 ---

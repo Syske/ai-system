@@ -119,5 +119,10 @@ Applies to all Workflows:
 - analysis
 - knowledge
 - bootstrap
+- proposal
+- code-review
+- change-impact
+- external-review
+- hotfix-test-doc
 
 Every Runtime Template must include a Reflection step before the Completion phase.

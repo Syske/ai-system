@@ -120,9 +120,10 @@ no longer needed.
 **Entry condition:** Deprecation period ended, no remaining references.
 
 **Activities:**
-1. Skill directory moved to `archive/skills/<name>/`
-2. Entry in archive index created
-3. Linter updated to exclude archive directory from main checks
+1. Skill directory moved to `archived/skills/<name>/` (retired assets live under `archived/` —
+   see `governance/DIRECTORY-RESPONSIBILITY.md`)
+2. Entry in the archive index created
+3. Linter updated to exclude the `archived/` directory from main checks
 
 **Recovery:** An archived Skill can be restored to Active if:
 - An ADR explains why it was unarchived
@@ -139,7 +140,7 @@ no longer needed.
 | **Split** | A single file exceeds 1000 lines, or has multiple responsibilities | Linter flag + review |
 | **Merge** | Two Skills overlap > 60% | Overlap detection + review |
 | **Deprecate** | Replacement exists or capability obsolete | ADR + review |
-| **Archive** | Deprecation grace period ended | Automated (linter check) |
+| **Archive** | Deprecation grace period ended | Linter **detects** and recommends (automated check); the archival action itself is a governed step — nothing is archived automatically (see `OPERATIONS.md` §governance) |
 | **Restore** | New need for archived capability | ADR + review |
 
 ## Split Decision

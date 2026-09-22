@@ -23,7 +23,12 @@ Always follow these principles:
 
 No principle may be ignored.
 ---
-# Rule 1: Spec is the Single Source of Truth
+# Rule 1: Spec is the Single Source of Truth (for behavior)
+
+> Scope: the Spec is the single source of truth for **what the system must do**.
+> It is not the top of the *authority hierarchy* — that is defined by
+> `SOURCE_OF_TRUTH.md` (Contract is Supreme). Implementation order and authority
+> order are different axes; see `karpathy-guidelines.md`.
 Must: Implement according to Spec.
 Forbidden: Interpreting business logic on your own.
 Forbidden: Adding requirements on your own.

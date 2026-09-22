@@ -127,7 +127,7 @@
 | 4 | `skills/skill-sync/scripts/pull.js:81` shell 字符串内插 | ``execSync(`unzip -o "${tempZip}" -d "${targetDir}"`)`` | `targetDir`（argv）含 `"`/`$(…)`/反引号 → 命令注入 |
 | 5 | `skills/deepseek-share-to-md/...`: `save_file()` 无 basename 清洗 | `os.path.join(dest_dir, fname)`，`fname` 来自远端 `file_name` | 远端可控文件名 `../` → 路径穿越写出 `attachments/` 之外 |
 
-### 6.3 文档层遗留 —— **已逐条落位核实**（结论已更新）
+### 6.3 文档层遗留 —— 已逐条落位核实 → **已于 T6b 批次修复**（§6.3.1，13 项）
 
 状态说明：✅=核实为真（待修）· ⚠️=需人工裁决措辞 · ❌=误读/非缺陷
 
@@ -142,6 +142,34 @@
 | D7 | 主链图含 bootstrap | ✅ | `README.md:34`「bootstrap → prepare → …」与其自身 `:18`「主链拓扑唯一」及 `workflows/README.md:66`「Change lifecycle main chain」分离原则相悖 |
 | D8 | 声称的安全门禁无载体 | ✅ | `policies/security-policy.md:36` 称 release 含 secret scan 并指向 `review-standard.md`；后者与 `runtime-release.md` **均无**该项 |
 | D9 | 模板含组织专有内容 | ❌→部分保留 | 仅剩 `runtime-hotfix-test-doc.md`（CoolAcademy / 内网域名 / 集群名 / `@VerifyPathGuard` / Redis SET）——**该 runtime 本身即组织专用流程**，判定为有意为之；`tasks-template.md` 已泛化为「配置中心（如 Apollo / Nacos）」 |
+
+### 6.3.1 T6b 批次修复（2026-09-21）—— 13 项全部落地
+
+**范围**：D1–D8（8 项）+ N2/N3/N4/N8/N9（5 项）= **13**；D9（组织专有模板）判定为**有意为之**，
+N1/N5/N6/N7 为误读 → 均不修（见 §6.5）。
+
+| ID | 主题 | 修复 |
+|---|---|---|
+| D1 | 治理索引版本漂移 | `governance/README.md` **不再复制版本号**（改为"版本以文件为准"）→ 结构性消除漂移，而非改数字 |
+| D2 | 实现依据优先级冲突 | `karpathy-guidelines.md` 增 **Axis note**：该列表是**实现顺序**，权威层级归 `SOURCE_OF_TRUTH.md`（Contract is Supreme） |
+| D3 | "单一事实源"双定义 | `ai-coding-rules.md` Rule 1 限定作用域为 **for behavior**，并指向 SOT 的权威层级 |
+| D4 | 归档路径写错 | `skill-lifecycle.md`：`archive/skills/` → **`archived/skills/`**（与 `DIRECTORY-RESPONSIBILITY.md` 一致） |
+| D5 | 归档自动化语义冲突 | 两侧统一为：**linter 自动"检测/建议"**，**归档动作本身受治理**（`OPERATIONS.md` + `skill-lifecycle.md` 措辞对齐） |
+| D6 | 已移除命令仍在册 | 清除 `pack` 全部残留（`README.md` 命令清单/目录树、`OPERATIONS.md` 命令分组与示例），并把 "packaging" 表述改为 "asset scaffolding" |
+| D7 | 主链图含 bootstrap | 主链箭头链去掉 `bootstrap`，改标为**支撑工作流**（与 `workflows/README.md` 拓扑唯一来源一致） |
+| D8 | 声称的安全门禁无载体 | `security-policy.md` §Release 改指**实际载体**：`runtime-release.md` 配置分析清单（硬编码 URL/Token/Secret、日志含 PII/敏感）＋ 扩展扫描器 `extensions/archive-ipd-workspace/scripts/scan_sensitive.py`（明示"未接入 release runtime"） |
+| N2 | hotfix 提交后缺验证说明 | `runtime-bugfix.md` Phase 6 明示：**该阶段即 bugfix/hotfix 的验证阶段**，主链 `verify` 不再进入（偏差就地记录） |
+| N3 | push 步骤缺口 | Phase 6.5 将 push 变为**显式条件步骤**（仅当后续启用阶段需要远端分支时执行 `git push -u origin <branch>`），与 Phase 6.6 的前置条件对齐 |
+| N4 | branch parser 路径写错 | `OPERATIONS.md`：`scripts/branch_parser.py` → **`cli/services/branch_parser.py`**（ai-system 侧实现；`extensions/<name>/scripts/` 为提供者约定，保持不变） |
+| N8 | review 路由漂移 | `workflows/review.md` 正文 `## Next` 补齐 `bugfix` / `spec` 两条路由 → **frontmatter 与正文集合完全一致**（`[bugfix, develop, spec, verify]`） |
+| N9 | Reflection 适用范围列表遗漏 | `REFLECTION_RULES.md` Scope 列表补齐 5 个实际工作流（`proposal`/`code-review`/`change-impact`/`external-review`/`hotfix-test-doc`）—— 前提已核实：**各 runtime 模板均已含 Reflection 阶段** |
+
+**措辞裁决记录（D2/D3/D5 为 ⚠️ 项）**：三者均按"**两轴分离 / 动作归属分离**"处理 ——
+不删任一侧表述，而是在各自位置**标明作用域**（实现顺序 vs 权威层级；自动检测 vs 受治理动作），
+避免制造新的"单一说法"而与既有门禁/契约冲突。
+
+**验证**：`check.py` PASS · `repo-lint` 0 ERROR · `path-audit` 0 broken · `workflow-command-audit` 0/0 ·
+单测 **430 OK**；另以脚本逐项断言修复效果（含 N8 的集合一致性、D6 的全仓残留扫描）。
 
 ### 6.4 代码层遗留 —— 已逐条落位核实 → **已于 T6a 批次修复**（`0606d64`，+18 回归测试）
 

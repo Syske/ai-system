@@ -247,6 +247,10 @@ Requirements:
 
 # Phase 6 — Regression Verification
 
+This phase **is** the verification stage for bugfix/hotfix runs: the main-chain
+`verify` workflow is not re-entered afterwards (deviation recorded here; `doc`
+may follow once this phase passes — see Phase 6.7).
+
 Invoke:
 
 - testing
@@ -273,14 +277,18 @@ Steps:
 - When `commit.require_message` is true, commit with a message following
   the repository commit conventions (one fix per commit, atomic).
 - Commit on the branch created in Phase 4.6.
-- Do NOT push unless a later phase (doc / MR) requires it.
+- Push **only** when a later enabled phase requires the branch on the remote
+  (`mr`/`doc` in the configured mode's `phases`) — then run it here, explicitly:
+  `git push -u origin <branch>` (this is the "committed and pushed" precondition of
+  Phase 6.6). Otherwise do NOT push.
 
 ---
 
 # Phase 6.6 — Submit MR (hotfix mode only, driven by config/workflows/bugfix-modes.yaml)
 
 Activate only when the configured mode's `phases` contains `mr` AND the branch
-is committed and pushed (Phase 6.5).
+is committed and pushed (the push happens in Phase 6.5, conditionally on this
+phase being enabled).
 
 Steps:
 

@@ -96,7 +96,7 @@ hotfix 模式要点：
 分支命名是公司/平台特有规范，采用**契约归 ai-system、实现归扩展**的架构：
 
 - 契约（ai-system，稳定不变）：`templates/runtime/runtime-bugfix.md` Phase 4.6
-  - 脚本 `scripts/branch_parser.py` / 方法 `parse(branch_name) -> ParsedBranch | None`
+  - 脚本 `cli/services/branch_parser.py`（ai-system 侧实现）/ 方法 `parse(branch_name) -> ParsedBranch | None`
   - 返回字段 `{date, type, desc, service}`；无法解析返回 `None`（不抛异常）
 - 实现（扩展提供者）：`extensions/<name>/scripts/branch_parser.py`，由拥有规范的一方
   维护公司特定正则；ai-system 不内置任何公司特定分支规范
@@ -307,7 +307,7 @@ Dynamic choices (workspace/project/branch directories, git branches) are still r
 ### 1.10.1 Naming Strategy
 
 * **Workflow**: `kebab-case`, one word preferred (`prepare`, `develop`, `release`). Entry points: `workflows/<name>.md` + `config/workflows/<name>.yaml` + `templates/runtime/runtime-<name>.md`. Full table in `workflows/README.md`.
-* **Command**: `aic-<kebab-name>.md` under `cli/commands/`. The `aic-` prefix is the ai-system command namespace (replaces openspec's `opsx-`); the wizard strips it for display. Name describes the operation (`scan`, `trace`, `pack`).
+* **Command**: `aic-<kebab-name>.md` under `cli/commands/`. The `aic-` prefix is the ai-system command namespace (replaces openspec's `opsx-`); the wizard strips it for display. Name describes the operation (`scan`, `trace`, `verify`).
 * **Field name**: PascalCase identity-style (`Project ID`, `Code Reference`, `Keep Results`) — consistent with `governance/repo-lint.md` conventions.
 
 ### 1.10.2 Grouping Strategy
@@ -325,7 +325,7 @@ titles are user-facing (Chinese); the item `kind` (workflow/command) is internal
 * **Commands**
   * `代码检索`: `scan`, `trace` (lightweight keyword scan / branch-diff reconciliation; heavy impact analysis delegates to `change-impact` workflow).
   * `技能管理`: `skill`, `skill-source` (skill usage + third-party skill assessment).
-  * `系统维护`: `maintain`, `workflow`, `command`, `pack`, `extensions-init` (system health, asset scaffolding, packaging, environment onboarding).
+  * `系统维护`: `maintain`, `workflow`, `command`, `extensions-init` (system health, asset scaffolding, environment onboarding).
   * `其他命令`: discovered but ungrouped commands (automatic).
 
 Group names are 4 characters in Chinese (代码分析/技能管理/系统维护/变更管理)
@@ -336,7 +336,7 @@ for visual consistency. Hidden (AI-internal) commands — `propose`/`apply`/
 
 Boundary note (user-facing): `系统能力` builds system capabilities (environment,
 analysis, knowledge — outputs feed later work); `系统维护` keeps the system
-healthy and portable (routine checks, packaging).
+healthy and portable (routine checks, asset scaffolding).
 
 A workflow belongs in the Main chain when it is a mandatory step of the change
 lifecycle; in Branch when it is an alternative path into the chain; in Support
@@ -488,7 +488,7 @@ All assets follow lifecycle:
 
 Rules:
 
-* No automatic archival
+* No automatic archival (automated *detection*/lint may recommend a candidate; the archival action itself always requires governance review)
 * No deletion without governance review
 * Deprecated assets must have migration path
 
