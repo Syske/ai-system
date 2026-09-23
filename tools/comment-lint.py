@@ -8,8 +8,9 @@ r"""注释质量检查（P69 MVP）。
 
 阶段（P69 §5.2）：
   S2 候选提取（已落地）：注释候选 = file/行列/偏移/文本/kind/缩进/前后代码/所属方法/所属类
-  S3 diff 限定（本阶段已落地）：只处理 `git diff` 新增行内的注释
-  S4 规则引擎 · S5 CLI 与安全（fix） · S6 门禁注册
+  S3 diff 限定（已落地）：只处理 `git diff` 新增行内的注释
+  S4 规则引擎（本阶段已落地）：六级分类 + 白名单优先命中，输出 KEEP/DELETE/REVIEW
+  S5 CLI 与安全（fix） · S6 门禁注册
 
 解析通道（探测式导入，两条通道的输出必须一致）：
   tree-sitter  `tree-sitter-language-pack` 提供 java 语法，环境存在时默认
@@ -21,7 +22,8 @@ r"""注释质量检查（P69 MVP）。
     python3 tools/comment-lint.py <path> [--diff|--changed]
                                   [--parser auto|tree-sitter|stdlib]
                                   [--dump-candidates] [--json]
-exit code: 0=提取成功  2=用法/IO/环境错误（规则判定与 1/2 语义在 S4/S5 接入）
+exit code: 0=PASS（无 DELETE、无 REVIEW）  1=WARN（有需裁定的 REVIEW）  2=FAIL（存在确定可删的 DELETE）
+           3=用法/IO/环境错误
 """
 
 import argparse
@@ -70,11 +72,21 @@ class Comment:
     context_after: list = field(default_factory=list)
     method: str = None
     class_name: str = None
+    own_line: bool = True     # 是否独占一行（行尾注释为 False）
+    blank_after: bool = False  # 注释之后紧跟的行是否为空行（或文件到此结束）
 
     @property
     def actionable(self):
         """是否进入规则判定：JavaDoc 跳过（MVP 策略，可被配置覆盖）。"""
         return self.kind != KIND_JAVADOC
+
+    @property
+    def body(self):
+        """去掉注释标记与首尾空白后的正文（单行注释去掉 `//`，块注释保留原样）。"""
+        text = self.text
+        if self.kind == KIND_LINE:
+            text = text[2:]
+        return text.strip()
 
     def to_dict(self):
         return {
@@ -90,6 +102,8 @@ class Comment:
             "context_after": list(self.context_after),
             "method": self.method,
             "class_name": self.class_name,
+            "own_line": self.own_line,
+            "blank_after": self.blank_after,
             "actionable": self.actionable,
         }
 
@@ -168,6 +182,32 @@ def context_of(source, start, end):
     return before, after
 
 
+def make_comment(source, rel_path, start, end, kind, method=None, class_name=None):
+    """由位置与类型组装候选（两条解析通道共用，保证字段口径一致）。"""
+    before, after = context_of(source, start, end)
+    line, column = line_col(source, start)
+    line_start = source.rfind("\n", 0, start) + 1
+    lines = source.splitlines()
+    end_line = source.count("\n", 0, end)
+    next_line = lines[end_line + 1] if end_line + 1 < len(lines) else ""
+    return Comment(
+        path=rel_path,
+        line=line,
+        column=column,
+        start=start,
+        end=end,
+        text=source[start:end],
+        kind=kind,
+        indent=source[line_start:start],
+        context_before=before,
+        context_after=after,
+        method=method,
+        class_name=class_name,
+        own_line=not source[line_start:start].strip(),
+        blank_after=not next_line.strip(),
+    )
+
+
 # --------------------------------------------------------------------------- #
 # 解析通道 1：tree-sitter（AST）
 # --------------------------------------------------------------------------- #
@@ -214,19 +254,8 @@ class TreeSitterJavaParser:
             kind = KIND_JAVADOC
         else:
             kind = KIND_BLOCK
-        before, after = context_of(source, start, end)
-        line, column = line_col(source, start)
-        return Comment(
-            path=rel_path,
-            line=line,
-            column=column,
-            start=start,
-            end=end,
-            text=text,
-            kind=kind,
-            indent=source[source.rfind("\n", 0, start) + 1 : start],
-            context_before=before,
-            context_after=after,
+        return make_comment(
+            source, rel_path, start, end, kind,
             method=_ts_ancestor_name(node, TS_METHOD_NODES),
             class_name=_ts_ancestor_name(node, TS_TYPE_NODES),
         )
@@ -267,25 +296,9 @@ class StdlibJavaParser:
         scopes = _scopes(cleaned)
         candidates = []
         for start, end, kind in spans:
-            text = source[start:end]
-            before, after = context_of(source, start, end)
-            line, column = line_col(source, start)
             method, class_name = _attribute(scopes, start)
             candidates.append(
-                Comment(
-                    path=rel_path,
-                    line=line,
-                    column=column,
-                    start=start,
-                    end=end,
-                    text=text,
-                    kind=kind,
-                    indent=source[source.rfind("\n", 0, start) + 1 : start],
-                    context_before=before,
-                    context_after=after,
-                    method=method,
-                    class_name=class_name,
-                )
+                make_comment(source, rel_path, start, end, kind, method, class_name)
             )
         return candidates
 
@@ -531,6 +544,275 @@ def discover_diff_targets(root):
 
 
 # --------------------------------------------------------------------------- #
+# S4：规则引擎（确定性）
+#
+# 判定顺序**唯一**，白名单优先命中（策略来源：governance/standards/common/documentation.md
+# → Comment Content / Comment Quality）：
+#   1 CQ-MEANINGFUL     提供代码无法表达的信息 → KEEP（优先命中）
+#   2 CQ-SECTION-HEADER 分段线 / 分隔标题      → DELETE
+#   3 CQ-AI-NOISE       流程套话                 → DELETE
+#   4 CQ-OBVIOUS        复述代码                 → DELETE
+#   5 CQ-DUPLICATE      与方法名 / 字段名重复   → REVIEW（不自动删）
+#   6 CQ-UNCERTAIN      兜底                     → REVIEW（不自动删）
+#
+# 安全设计：
+#   · 白名单**先**命中——只要注释带承重信号（兼容/并发/性能/契约/原因…）就永不进入删除类
+#   · OBVIOUS 必须同时满足「动词模式」与「与下一行代码的链接」两个条件（仅模式不删）
+#   · 宁可漏删：任何不确定信号都落到 REVIEW，不落到 DELETE
+# --------------------------------------------------------------------------- #
+
+ACTION_KEEP = "KEEP"
+ACTION_DELETE = "DELETE"
+ACTION_REVIEW = "REVIEW"
+
+RQ_MEANINGFUL = "CQ-MEANINGFUL"
+RQ_SECTION = "CQ-SECTION-HEADER"
+RQ_NOISE = "CQ-AI-NOISE"
+RQ_OBVIOUS = "CQ-OBVIOUS"
+RQ_DUPLICATE = "CQ-DUPLICATE"
+RQ_UNCERTAIN = "CQ-UNCERTAIN"
+
+# 承重信号词（白名单）：兼容性 / 历史 / 外部契约 / 并发时序 / 性能 / 安全 / 原因与约束
+MEANINGFUL_SIGNALS = (
+    # 兼容性、历史原因
+    "兼容", "历史", "存量", "旧版本", "老版本", "遗留", "迁移", "不能删", "勿删", "不得删",
+    "保留原", "保持原", "为了兼容",
+    # 外部契约、上下游
+    "契约", "协议", "上游", "下游", "第三方", "外部系统", "对方", "回调", "签名",
+    "对齐", "保持一致", "接口约定", "字段映射",
+    # 并发、时序、事务
+    "并发", "线程安全", "加锁", "锁", "异步", "事务", "afterCommit", "幂等", "重试",
+    "顺序", "时序", "竞态", "阻塞", "死锁",
+    # 性能
+    "性能", "批量", "缓存", "索引", "慢查询", "超时", "耗时", "内存", "避免", "减少查询",
+    "一次查询", "N+1",
+    # 安全
+    "安全", "加密", "脱敏", "敏感", "鉴权", "越权", "注入", "防重放", "签名校验",
+    # 业务规则与约束（含原因连词）
+    "业务", "规则", "口径", "语义", "约定", "策略", "阈值", "权限", "角色", "状态机", "审批",
+    "原因", "因为", "由于", "为了", "否则", "务必", "必须", "禁止", "不能", "不可", "不得",
+    "只有", "才允许", "不允许", "仅在", "条件", "前提", "认证", "校验通过",
+)
+
+# 流程套话（AI 叙述生成过程，而非业务语义）
+NOISE_MARKERS = ("首先", "其次", "接下来", "然后", "最后", "下面", "上述")
+NOISE_PHRASES = (
+    "这里我们", "我们这里", "接下来我们", "我们需要", "让我们", "此处我们",
+    "下面开始", "下面进行", "开始进行", "开始处理",
+)
+NOISE_PATTERN = re.compile(r"进行.{0,6}处理|处理流程|如下所示|将会")
+
+# 复述代码：动词模式 → 期望在下一行代码中出现的英文 token（大小写不敏感）
+OBVIOUS_VERBS = {
+    "获取": ("get", "fetch", "query", "load", "find"),
+    "查询": ("get", "query", "find", "select", "search"),
+    "读取": ("get", "read", "load"),
+    "设置": ("set",),
+    "赋值": ("set",),
+    "返回": ("return",),
+    "判断": ("if", "is", "equals", "null", "empty"),
+    "检查": ("check", "verify", "if", "null", "empty"),
+    "校验": ("check", "verify", "validate"),
+    "遍历": ("for", "each", "stream", "iterator"),
+    "循环": ("for", "while"),
+    "调用": ("call", "invoke", "process", "handle", "send"),
+    "创建": ("create", "new", "build"),
+    "初始化": ("init",),
+    "构建": ("build", "create", "new"),
+    "转换": ("convert", "map", "to"),
+    "保存": ("save", "insert", "persist", "update"),
+    "更新": ("update",),
+    "删除": ("delete", "remove"),
+    "新增": ("add", "insert", "create"),
+    "打印": ("print", "log", "debug"),
+    "记录": ("log", "record", "trace"),
+    "处理": ("process", "handle"),
+    "发送": ("send", "publish", "push"),
+    "接收": ("receive", "consume", "on"),
+    "统计": ("count", "sum", "size"),
+}
+
+# 名词 → 英文 token（与 OBVIOUS_VERBS 共同构成「注释 ↔ 下一行代码」的链接词表）
+NOUN_TOKENS = {
+    "用户": ("user",), "参数": ("param", "arg"), "结果": ("result",), "列表": ("list", "users"),
+    "集合": ("list", "set", "map"), "数据": ("data",), "信息": ("info", "data"),
+    "服务": ("service",), "消息": ("message", "msg"), "订单": ("order",),
+    "配置": ("config", "properties"), "状态": ("status", "state"), "类型": ("type",),
+    "时间": ("time", "date"), "值": ("value",), "对象": ("object", "dto", "vo"),
+    "数据库": ("database", "mapper", "dao", "repository"), "缓存": ("cache", "redis"),
+    "日志": ("log",), "异常": ("exception", "error", "fail"), "请求": ("request", "req"),
+    "响应": ("response", "resp", "result"), "文件": ("file",), "数量": ("count", "size"),
+}
+
+ASCII_TOKEN = re.compile(r"[A-Za-z_$][\w$]*")
+DECORATION = re.compile(r"^[\s=*#~+\-_─—]{4,}$")
+# 装饰符包裹的标题（如 `===== 数据处理 =====` / `----- 参数校验 -----`）
+DECORATION_DELIMITED = re.compile(r"^[=*#~+\-─—_]{3,}\s*[^=*#~+\-─—_]+?\s*[=*#~+\-─—_]{3,}$")
+BARE_LABEL = re.compile(r"^[\u4e00-\u9fff ]{2,6}$")
+PUNCTUATION = re.compile(r"[，。：；、！？,.:;!?()（）]", )
+DECLARATION = re.compile(
+    r"\b(class|interface|enum|record)\s+[A-Za-z_$]"                     # 类型声明
+    r"|\b[A-Za-z_$][\w$]*\s*\([^;]*\)\s*(?:throws[^{]*)?\{"          # 方法声明
+    r"|\b(?:public|private|protected|static|final|volatile|transient)\b[^;]*;"  # 字段声明
+)
+# 字段声明（无括号，与调用语句区分）与枚举常量行
+FIELD_DECLARATION = re.compile(r"\b(?:public|private|protected|static|final|volatile|transient)\b[^;()]*;")
+ENUM_CONSTANT = re.compile(r"^[A-Z][A-Z0-9_]*\s*,?$")
+
+
+STEP_PREFIX = re.compile(r"^(?:step\s*\d+\s*[:：.、]?|\d+\s*[.、)）]|[①②③④⑤⑥⑦⑧⑨⑩])\s*", re.IGNORECASE)
+ADVERB_PREFIX = re.compile(r"^(?:先|再|接着|然后)\s*")
+
+
+@dataclass
+class Verdict:
+    """一条注释的判定结果。"""
+
+    rule_id: str
+    action: str
+    reason: str
+
+    def to_dict(self):
+        return {"rule_id": self.rule_id, "action": self.action, "reason": self.reason}
+
+
+def classify(comment):
+    """按唯一判定顺序分类；返回 (Verdict)。"""
+    body = comment.body
+    if not body:
+        return Verdict(RQ_UNCERTAIN, ACTION_REVIEW, "空注释正文，需人工确认")
+
+    hit = _meaningful_signal(body)
+    if hit:
+        return Verdict(RQ_MEANINGFUL, ACTION_KEEP, f"承重信号：{hit}")
+
+    if _is_section_header(comment, body):
+        return Verdict(RQ_SECTION, ACTION_DELETE, "分段线/分隔标题，无信息增量")
+
+    if _is_ai_noise(body):
+        return Verdict(RQ_NOISE, ACTION_DELETE, "流程套话，叙述生成过程而非业务语义")
+
+    if _is_obvious(comment, body):
+        return Verdict(RQ_OBVIOUS, ACTION_DELETE, "复述下一行代码（动词模式 + 代码链接双命中）")
+
+    if _is_duplicate(comment, body):
+        return Verdict(RQ_DUPLICATE, ACTION_REVIEW, "与方法名/字段名重复（名字直译）")
+
+    return Verdict(RQ_UNCERTAIN, ACTION_REVIEW, "未识别出承重信息，也未确认为低价值")
+
+
+def classify_all(candidates):
+    """批量判定，返回 [(comment, verdict)]。"""
+    return [(c, classify(c)) for c in candidates]
+
+
+def _meaningful_signal(body):
+    """白名单：命中即承重（优先命中，保证永不误删有语义注释）。"""
+    for signal in MEANINGFUL_SIGNALS:
+        if signal in body:
+            return signal
+    return None
+
+
+def _is_section_header(comment, body):
+    """分段线（纯装饰）· 装饰符包裹的标题 · 独立成段的中文短标签（后面跟空行）。"""
+    if DECORATION.match(body) or DECORATION_DELIMITED.match(body):
+        return True
+    return bool(
+        comment.own_line
+        and comment.blank_after
+        and BARE_LABEL.match(body)
+        and not PUNCTUATION.search(body)
+    )
+
+
+def _is_ai_noise(body):
+    """流程套话：话语标记（要求后跟顿号/逗号或直接跟复述类动词，避免「最后一次…」这类误伤）
+    或第一人称叙述短语、典型套话句式。"""
+    for marker in NOISE_MARKERS:
+        rest = body[len(marker):]
+        if body.startswith(marker) and rest:
+            if rest[0] in "，,、":
+                return True
+            if any(rest.startswith(verb) for verb in OBVIOUS_VERBS):
+                return True
+    for phrase in NOISE_PHRASES:
+        if phrase in body:
+            return True
+    return bool(NOISE_PATTERN.search(body))
+
+
+def _linked_tokens(body):
+    """注释中可映射到英文 token 的词（动词 + 名词）。"""
+    tokens = []
+    for word, mapped in {**OBVIOUS_VERBS, **NOUN_TOKENS}.items():
+        if word in body:
+            tokens.extend(mapped)
+    tokens.extend(match.lower() for match in ASCII_TOKEN.findall(body))
+    return tokens
+
+
+def _leading_verb(body):
+    """注释**开头**的复述类动词（容忍 `Step2:` / `①` / `先` 这类短前缀）。
+
+    只认开头动词而不认句中动词：这是精度护栏——像「待处理」「总记录数」「尝试查询…」
+    这类名词短语/叙述句里的动词不构成「复述代码」，宁可漏删交给 REVIEW。
+    """
+    cleaned = STEP_PREFIX.sub("", body.strip())
+    cleaned = ADVERB_PREFIX.sub("", cleaned)
+    for verb in OBVIOUS_VERBS:
+        if cleaned.startswith(verb):
+            return verb
+    return None
+
+
+def _field_attached(comment):
+    """注释是否贴在**字段 / 枚举常量**上（行上或行尾）。
+
+    这类注释按标准属「必须写、且不能是名字直译」——名字直译是**需改**而非**可删**，
+    所以不得进入确定可删类，交 REVIEW（documentation.md → Fields / Comment Quality）。
+    """
+    if comment.own_line:
+        code = comment.context_after[0] if comment.context_after else ""
+    else:
+        code = comment.context_before[0] if comment.context_before else ""
+    if not code:
+        return False
+    return bool(FIELD_DECLARATION.search(code) or ENUM_CONSTANT.match(code.strip()))
+
+
+def _is_obvious(comment, body):
+    """复述代码：必须**同时**满足「开头动词」与「与下一行代码的链接」（仅模式不删）。
+
+    字段/枚举常量上的注释排除在外（见 `_field_attached`）。
+    """
+    if not _leading_verb(body):
+        return False
+    if _field_attached(comment):
+        return False
+    code = " ".join(comment.context_after).lower()
+    if not code:
+        return False
+    return any(token.lower() in code for token in _linked_tokens(body))
+
+
+def _is_duplicate(comment, body):
+    """与方法名/字段名重复：注释紧贴在声明之上，且内容词全被标识符覆盖（名字直译）。"""
+    if len(body) > 16 or not comment.own_line or not comment.context_after:
+        return False
+    declaration = comment.context_after[0]
+    if not DECLARATION.search(declaration):
+        return False
+    if any(verb in body for verb in OBVIOUS_VERBS):      # 带动词的不算纯名字直译
+        return False
+    tokens = _linked_tokens(body)
+    if not tokens:
+        return False
+    code = declaration.lower()
+    return all(token.lower() in code for token in tokens)
+
+
+# --------------------------------------------------------------------------- #
 # 候选提取与 CLI
 # --------------------------------------------------------------------------- #
 
@@ -604,7 +886,7 @@ def collect_changed(repo_root, target, parser):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="注释质量检查（P69 MVP）—— 当前阶段：候选提取 + diff 限定"
+        description="注释质量检查（P69 MVP）—— 候选提取 + diff 限定 + 规则判定"
     )
     parser.add_argument("path", help="Java 文件或目录")
     parser.add_argument(
@@ -626,7 +908,7 @@ def main(argv=None):
 
     if not Path(args.path).exists():
         print(f"[ERROR] 路径不存在: {args.path}", file=sys.stderr)
-        return 2
+        return 3
 
     cfg = load_config()
     choice = args.parser or cfg.get("parser", "auto")
@@ -634,7 +916,7 @@ def main(argv=None):
         engine = make_parser(choice)
     except Exception as exc:                 # 请求了不可用的通道，不静默降级
         print(f"[ERROR] 无法启用解析通道 {choice}: {exc}", file=sys.stderr)
-        return 2
+        return 3
 
     mode = "full"
     dropped = 0
@@ -654,6 +936,15 @@ def main(argv=None):
         c for c in candidates
         if cfg.get("java_doc", "skip") != "skip" or c.actionable
     ]
+    judged = classify_all(actionable)
+    by_action = {}
+    by_rule = {}
+    for _comment, verdict in judged:
+        by_action[verdict.action] = by_action.get(verdict.action, 0) + 1
+        by_rule[verdict.rule_id] = by_rule.get(verdict.rule_id, 0) + 1
+    failures = by_action.get(ACTION_DELETE, 0)
+    reviews = by_action.get(ACTION_REVIEW, 0)
+    exit_code = 2 if failures else (1 if reviews else 0)
 
     if args.json:
         payload = {
@@ -663,10 +954,20 @@ def main(argv=None):
             "java_doc": cfg.get("java_doc", "skip"),
             "comments": len(candidates),
             "actionable": len(actionable),
+            "summary": {
+                "KEEP": by_action.get(ACTION_KEEP, 0),
+                "DELETE": failures,
+                "REVIEW": reviews,
+                "by_rule": by_rule,
+            },
             "candidates": [c.to_dict() for c in candidates],
+            "verdicts": [
+                dict(c.to_dict(), verdict=v.to_dict())
+                for c, v in judged
+            ],
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
-        return 0
+        return exit_code
 
     by_kind = {}
     for candidate in candidates:
@@ -677,14 +978,21 @@ def main(argv=None):
           + (f"（本次未纳入判定的存量注释 {dropped} 条）" if mode == "diff" else ""))
     for kind, count in sorted(by_kind.items()):
         print(f"  {kind}: {count}")
+    print(f"判定：确定可删 DELETE={failures} · 需裁定 REVIEW={reviews} · "
+          f"承重保留 KEEP={by_action.get(ACTION_KEEP, 0)}")
+    for rule_id, count in sorted(by_rule.items()):
+        print(f"  {rule_id}: {count}")
+    for comment, verdict in judged:
+        if verdict.action == ACTION_DELETE:
+            print(f"  [DELETE] {comment.path}:{comment.line} {comment.body[:50]}"
+                  f"  ← {verdict.rule_id}")
     if args.dump_candidates:
-        for candidate in candidates:
-            flag = "" if candidate.actionable else " [skip]"
-            print(f"  {candidate.path}:{candidate.line}:{candidate.column}{flag} "
-                  f"{candidate.text.strip()[:60]}")
-            print(f"      ctx_after={candidate.context_after[:1]} "
-                  f"method={candidate.method} class={candidate.class_name}")
-    return 0
+        for comment, verdict in judged:
+            print(f"  {comment.path}:{comment.line}:{comment.column} "
+                  f"[{verdict.action}/{verdict.rule_id}] {comment.body[:50]}")
+            print(f"      ctx_after={comment.context_after[:1]} "
+                  f"method={comment.method} class={comment.class_name}")
+    return exit_code
 
 
 if __name__ == "__main__":
