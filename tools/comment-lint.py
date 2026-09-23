@@ -744,10 +744,15 @@ def _is_ai_noise(body):
     return bool(NOISE_PATTERN.search(body))
 
 
-def _linked_tokens(body):
-    """注释中可映射到英文 token 的词（动词 + 名词）。"""
+def _link_tokens(body):
+    """可与代码链接的**名词 / 标识符** token（不含动词）。
+
+    动词只用于识别「这是复述句式」（见 `_leading_verb`）；真正的链接必须落在名词或标识符上。
+    这条区分来自历史 diff **全量审计**：`// 删除转码流` 的下一行是 `deleteRateLimiter.tryAcquire(...)`，
+    仅因变量名带 `delete` 而命中链接 —— 属巧合而非复述（真误删）。
+    """
     tokens = []
-    for word, mapped in {**OBVIOUS_VERBS, **NOUN_TOKENS}.items():
+    for word, mapped in NOUN_TOKENS.items():
         if word in body:
             tokens.extend(mapped)
     tokens.extend(match.lower() for match in ASCII_TOKEN.findall(body))
@@ -784,7 +789,7 @@ def _field_attached(comment):
 
 
 def _is_obvious(comment, body):
-    """复述代码：必须**同时**满足「开头动词」与「与代码的链接」（仅模式不删）。
+    """复述代码：必须**同时**满足「开头动词」与「名词/标识符链接」（仅模式不删）。
 
     链接对象：独立行注释 → 后续代码行；**行尾注释 → 本行代码 + 后续代码行**
     （行尾注释描述的就是它所在那一行，看上后方会永远比不中）。
@@ -800,7 +805,7 @@ def _is_obvious(comment, body):
     code = " ".join(parts).lower()
     if not code:
         return False
-    return any(token.lower() in code for token in _linked_tokens(body))
+    return any(token in code for token in _link_tokens(body))
 
 
 def _is_duplicate(comment, body):
@@ -812,11 +817,11 @@ def _is_duplicate(comment, body):
         return False
     if any(verb in body for verb in OBVIOUS_VERBS):      # 带动词的不算纯名字直译
         return False
-    tokens = _linked_tokens(body)
+    tokens = _link_tokens(body)
     if not tokens:
         return False
     code = declaration.lower()
-    return all(token.lower() in code for token in tokens)
+    return all(token in code for token in tokens)
 
 
 # --------------------------------------------------------------------------- #

@@ -530,6 +530,30 @@ class TestSlopDetection(unittest.TestCase):
                 with self.subTest(comment=comment.body, source=source.splitlines()[1 if "enum" not in source else 1]):
                     self.assertNotEqual(cl.classify(comment).action, cl.ACTION_DELETE)
 
+    def test_coincidental_verb_link_is_not_obvious(self):
+        """动词撞上变量名不算复述——历史 diff 全量审计发现的真误删。"""
+        cases = [
+            ("// 删除转码流", "deleteRateLimiter.tryAcquire(rRateTimeoutSeconds, TimeUnit.SECONDS);"),
+            ("// 更新标签", "deleteRateLimiter.tryAcquire(rRateTimeoutSeconds, TimeUnit.SECONDS);"),
+            ("// 查询所有的播放流", 'String playConfig = "{\\"StorageClass\\":\\"All\\"}";'),
+            ("// 校验验证码", "verificationCodeService.checkVerificationCode(type, code);"),
+        ]
+        for text, code in cases:
+            with self.subTest(comment=text):
+                self.assertNotEqual(_classify_line(text, code).rule_id, cl.RQ_OBVIOUS)
+
+    def test_noun_link_still_deletes(self):
+        """反向对照：名词/标识符链接仍然命中确定可删（收紧不能把真泔水放过）。"""
+        cases = [
+            ("// 保存用户加入企业关联数据", "multiterminalUserService.userJoinEnterprise(true, id, name);"),
+            ("// 创建用户登录凭证", "addAccountLogin(platformUser, enterpriseId, loginPassword);"),
+            ("// 发送mq消息", "jmsMessageSendService.sendMessage(Constants.MQ_QUEUE_USER_JOIN, msg);"),
+            ("// 构建请求体", "Map<String, List<Long>> requestBody = new HashMap<>();"),
+        ]
+        for text, code in cases:
+            with self.subTest(comment=text):
+                self.assertEqual(_classify_line(text, code).rule_id, cl.RQ_OBVIOUS)
+
     def test_method_restatement_is_deletable(self):
         """方法之上的普通 `//` 复述仍属可删（与 design §7 一致：JavaDoc 不动，`//` 可删）。"""
         verdict = _classify_line(
