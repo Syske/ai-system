@@ -311,23 +311,38 @@ proposals that raise cleanup cost for the maintenance audit.
 
 One task, one branch: task/{task-id} or bugfix/{issue-id}.
 
-**Branch naming & immutability (开发主链, 格式暂定 cc{date}_ipd_{desc}_{service})**:
-- The branch naming RULE lives in the Task Card `branch` field (template with
-  `{date}` / `{desc}` / `{service}` placeholders; default
-  `cc{date}_ipd_{desc}_{service}`, e.g. `cc20260820_ipd_italent-sync-plus_user-center-api`);
-  the common/static part is fixed at requirement-confirmation time and must NOT
-  change afterwards. The rule itself may be specified/adjusted by the user then.
+**Branch naming & immutability (开发主链; preset-based, P63 2026-09-23)**:
+- **The format is never written by hand.** Legal formats are **presets** defined in
+  `cli/services/branch_parser.py` (`plain` = default `cc{date}_{desc}_{service}`;
+  `ipd` = `cc{date}_ipd_{desc}_{service}` for requirement-driven-by-iteration work).
+- **Scenario → preset mapping** lives in `config/branch-formats.yaml` (single source):
+  `requirement: plain` by default — change that value (e.g. to `ipd`) to re-point a
+  scenario, no code and no regex involved. Unlisted scenarios fall back to
+  `default_preset`. `bugfix` is **not** mapped to a main-chain preset: its format is
+  owned by the bugfix provider (`templates/runtime/runtime-bugfix.md`, "providers MUST
+  NOT change").
+- **AI assembles, user confirms the NAME**: at requirement confirmation the AI picks the
+  preset for the scenario, assembles the concrete name with
+  `render(preset, date, desc, service)`, and presents it; the user confirms that
+  **concrete name** (never a format string).
 - Each service gets its own branch (independent per service; `{service}` in the
   name); apart from the branch name everything else is identical.
 - Dev-setup validates against the workspace project config
   (`project-context.yaml branches`); when a branch is empty it is created via the
   branch rule and backfilled.
 - A created/confirmed branch is **immutable**: do NOT rename it or change
-  `project-context.branches` afterwards. The only exception is a newly added
-  project, which requires explicit authorization (L3).
-- Branch rule selection depends on the chain/flow: main chain uses the Task Card
-  `branch` template (`cc{date}_ipd_{desc}_{service}`); bugfix hotfix uses its own
-  `cc{date}_{type}{desc}_{service}` template + parser.
+  `project-context.branches` afterwards. Hand-edited format strings are **rejected**
+  (`parse()` recognizes presets only, so `cc{date}_x_{desc}` → unparseable → dev-setup
+  stops); an org-specific format goes through a reviewed provider instead
+  (`branch.parser` logic name → `extensions/<name>/scripts/branch_parser.py`).
+  The only allowed change is a newly added project, which requires explicit
+  authorization (L3).
+- Branch rule selection depends on the chain/flow: main chain uses the scenario→preset
+  mapping above; bugfix hotfix uses its own `cc{date}_{type}{desc}_{service}` template +
+  provider parser.
+- Segments: `{date}` = 8 digits; `{desc}` / `{service}` = `[a-z0-9-]+` — **no underscore**
+  (a service like `qa_manage` must be written `qa-manage`: an underscore makes the name
+  ambiguous to split).
 
 Experimental code never enters the task branch.
 Use a separate branch or stash. Discard or promote explicitly.

@@ -70,7 +70,7 @@
 | [P64](P64-SPEC-PRECONDITION-CONSISTENCY.md) | spec 前置条件口径不一致（"Prepare completed" 无 SSOT + 实测 0/12 变更具备 prepare 产物 + proposal.md 静默替代）— **Implemented**（SSOT 落 `prepare.md` → Exit Criteria → Completion Criteria；删恒真替代；skip/遗留/祖父三条分支；存量 0 STOP） | 2026-09-23 |
 | [P67](P67-STRUCTURAL-SMELL-CAPABILITY.md) | 结构性坏味道：检测 / 映射 / 劣化门（不含自动重构执行）— **Proposed**（Option B 最小切片；阈值与实施触发待 §4.1/§4.2 裁决） | 2026-09-23 |
 | [P62](P62-TASK-COMMIT-TRACEABILITY.md) | 任务提交信息 `T-<id>` 强制性与实践脱节（标准↔实践↔门禁三方不一致）— **Implemented**（分支名为机器判据 + 拆 id 层级 + 模板固定 `T-\d{3}`；真 git 仓正反例 12 项） | 2026-09-23 |
-| [P63](P63-BRANCH-NAMING-NON-ITERATION.md) | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 — **Proposed** | 2026-09-21 |
+| [P63](P63-BRANCH-NAMING-NON-ITERATION.md) | 主链分支命名：非迭代形态未文档化 — **Implemented**（预设驱动 `plain`/`ipd` + 场景→预设映射 `config/branch-formats.yaml` + AI 组装/用户确认具体名/冻结、格式串不可手改；含修好 parser 拒绝非迭代形态的实测缺口） | 2026-09-23 |
 | [P65](P65-C2-PROFILE-SEMANTICS.md) | C2 格式 profile 语义边界与校准（`lineSplit=120` 被自身 `alignment=0` 越过；`join_wrapped_lines=false` 仅覆盖二元/条件表达式）— **Implemented** 2026-09-21（A 语义边界固化 + D 豁免治理〔理由 + 180 天复核告警〕；**B 否决**（差异 +55%~+109%）、**C1 否决**（导出与仓内 profile byte-identical）；根因＝**引擎表达力缺口**；C2 记为按需备选） | 2026-09-21 |
 | [P66](P66-CR-CHANGE-IMPACT-DERIVE.md) | code-review / change-impact 重复追问项目与分支（容器已记录服务与各自分支；P57 单候选契约只认字面量 `Branch` 而实际字段为 `Branch Mapping`/`Base Branch`→ 从未生效）— **Implemented** 2026-09-21（A 容器派生〔Projects/覆盖项/默认值〕+ C 全服务预填；**P57 契约改为类别匹配**；新增 opt-in 目标集防覆盖 `scan`；+11 测试）| 2026-09-21 |
 | [R4-HANDOVER-2026-09-23](R4-HANDOVER-2026-09-23.md) | **R4 残债交接文档**（盲检收尾：已完成清单 / **剩余 8 项逐条修复指引 + 验证方式** / 已判定不做项 / R3 措辞 52 条 / 未关闭提案 / 门禁命令与基线 / 本会话踩坑清单 / 记录位置）—— 供新会话无损接续 | 2026-09-23 |

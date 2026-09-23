@@ -284,23 +284,29 @@ For available services:
   main-chain branch parser; see below)
 - git status
 
-## Branch Naming & Immutability (main chain, format TBD cc{date}_ipd_{desc}_{service})
+## Branch Naming & Immutability (main chain; preset-based, P63 2026-09-23)
 
-- The branch naming RULE comes from the Task Card `branch` field (template with
-  `{date}` / `{desc}` / `{service}` placeholders; default
-  `cc{date}_ipd_{desc}_{service}`), fixed at requirement-confirmation time. The
-  rule may be user-specified/adjusted then; a created branch name must NOT change
-  afterwards.
+- **The format is never written by hand.** The only legal formats are presets in
+  `cli/services/branch_parser.py` (`plain` = default `cc{date}_{desc}_{service}`; `ipd` =
+  `cc{date}_ipd_{desc}_{service}` for iteration-driven requirements). The scenario→preset
+  map is `config/branch-formats.yaml` (single source; change a value there to re-point a
+  scenario — no code, no regex). `bugfix` is provider-owned and is **not** a main-chain
+  preset.
+- **Assemble → confirm the NAME → freeze**: pick the preset for the scenario, assemble the
+  concrete name with `render(preset, date, desc, service)` (output is guaranteed
+  parseable), and present that **concrete name** — the user confirms the name, never a
+  format string. A confirmed branch name must NOT change afterwards.
+- Segments: `{date}` = 8 digits; `{desc}` / `{service}` = `[a-z0-9-]+` — **no underscore**
+  (`render` rejects it: `qa_manage` → `qa-manage`).
 - Each service gets an independent branch (`{service}` in the name); apart from
   the branch name everything else is identical.
-- **Validate**: parse the active branch via the main-chain branch parser
-  (`cli/services/branch_parser.py`, or a provider resolved from
-  `branch.parser` logic name → `extensions/<name>/scripts/branch_parser.py`,
-  mirroring the bugfix contract): `parse(name)` must not return None and must
-  carry the expected date/desc/service. Unparseable → report and stop.
+- **Validate**: parse the active branch with the main-chain parser (`parse(name)`; or a
+  provider resolved from `branch.parser` logic name →
+  `extensions/<name>/scripts/branch_parser.py`, mirroring the bugfix contract): the name
+  must match a preset and carry the expected date/desc/service. Unparseable — including
+  any hand-written format string — → report and stop.
 - **Create & backfill**: if `project-context.yaml branches` is empty for a
-  service, create the branch name from the Task Card `branch` template
-  (`render(template, date, desc, service)`) and backfill it into
+  service, assemble the name from the scenario→preset map and backfill it into
   `project-context.yaml branches`.
 - **Freeze (immutable)**: after create/confirm, the branch name and
   `project-context.branches` are frozen. If a previously confirmed branch is

@@ -292,8 +292,10 @@ def check_workflow_size(c):
 def check_branch_parser(c):
     """主链分支解析器契约自检（B3 简单 CI 强制，后续可增强为 git 分支保护）。
 
-    Contract: parse(cc{date}_ipd_{desc}_{service}) -> ParsedBranch；
-    坏输入必须返回 None（never raise）。
+    Contract（P63 2026-09-23 起为**预设驱动**）：
+    - 两个预设的具体名都能解析（`plain` 默认 / `ipd`）；
+    - 坏输入必须返回 None（never raise）；
+    - **手写格式串必须返回 None**（「拒绝人为修改格式」的机器判据）。
     """
 
     # R4：导入加兜底 —— 原裸 import 会在模块/符号缺失时**崩掉整个 check.py**
@@ -306,18 +308,29 @@ def check_branch_parser(c):
         c.error(f"branch_parser 不可用（契约门禁无法执行）: {exc!r}")
         return
 
-    sample = "cc20260820_ipd_italent-sync-plus_user-center-api"
+    # 两例预设具体名（plain 为默认形态，ipd 为迭代类可选形态）
+    samples = [
+        ("cc20260921_log-volume-reduction_housekeeping-service-api",
+         ("20260921", "", "log-volume-reduction", "housekeeping-service-api")),
+        ("cc20260820_ipd_italent-sync-plus_user-center-api",
+         ("20260820", "ipd", "italent-sync-plus", "user-center-api")),
+    ]
 
-    p = parse(sample)
+    for name, expected in samples:
 
-    if (
-        p is None
-        or p.date != "20260820"
-        or p.type != "ipd"
-        or p.desc != "italent-sync-plus"
-        or p.service != "user-center-api"
-    ):
-        c.error("main-chain branch_parser: 样例解析不符契约")
+        p = parse(name)
+
+        if p is None or (p.date, p.type, p.desc, p.service) != expected:
+
+            c.error(f"main-chain branch_parser: 预设样例解析不符契约: {name}")
+
+    # 手写格式串 / 未知形态 → 必须 None（否则「人为改格式」会静默通过）
+    for bad in ("cc{date}_{desc}_{service}", "cc{date}_x_{desc}",
+                "feature/whatever"):
+
+        if parse(bad) is not None:
+
+            c.error(f"main-chain branch_parser: 非法格式未被拒绝: {bad}")
 
     if parse("definitely-not-a-branch") is not None:
         c.error("main-chain branch_parser: 非法分支名未被拒绝")

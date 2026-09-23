@@ -65,7 +65,7 @@
 | Implemented | 门禁自校验（Gate Self-Verification） | 2026-09-21 | `P60-GATE-SELF-VERIFICATION.md` |
 | Implemented | 外部盲检纳入运维形式（External Blind Review as a Maintenance Form） | 2026-09-21 | `P61-EXTERNAL-BLIND-REVIEW-AS-MAINTENANCE.md` |
 | Implemented | 任务提交信息 `T-<id>` 强制性与实践脱节（Standard ↔ Practice ↔ Gate 三方不一致） | 2026-09-21 | `P62-TASK-COMMIT-TRACEABILITY.md` |
-| Proposed | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 | 2026-09-21 | `P63-BRANCH-NAMING-NON-ITERATION.md` |
+| Implemented | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 | 2026-09-21 | `P63-BRANCH-NAMING-NON-ITERATION.md` |
 | Implemented | spec 前置条件口径不一致（"Prepare completed" 无 SSOT、实际 0/12 变更具备 prepare 产物） | 2026-09-21 | `P64-SPEC-PRECONDITION-CONSISTENCY.md` |
 | Implemented | C2 格式 profile 的语义边界与校准（`lineSplit=120` vs `alignment=0`） | 2026-09-21 | `P65-C2-PROFILE-SEMANTICS.md` |
 | Implemented | code-review / change-impact 重复追问项目与分支（应按项目信息直接推断） | 2026-09-21 | `P66-CR-CHANGE-IMPACT-DERIVE.md` |

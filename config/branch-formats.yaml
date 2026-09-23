@@ -1,0 +1,29 @@
+# 场景 → 主链分支形态（preset）映射（P63，2026-09-23）
+#
+# 背景：分支格式**不允许手写**。格式只有预设（preset）一种来源，预设定义在
+# `cli/services/branch_parser.py` 的 `PRESETS`；本文件只把「场景」映射到某个预设，
+# 因此调整场景默认形态是**改配置**（无需改代码、无需写正则）。
+#
+# 用法（需求确认阶段，AI 执行）：
+#   1. 读取本文件 → 取场景对应的 preset（未登记场景 → default_preset）
+#   2. `render(preset, date, desc, service)` 组装出**具体分支名**
+#   3. 把具体名呈现给用户确认（用户确认的是**名字**，不是格式串）
+#   4. 确认后冻结（不可改名 / 不可改 project-context.branches）
+#
+# 合法 preset 取值：见 `PRESETS`（当前 `plain` / `ipd`）。
+#   自定义形态请改这里的映射值，**不要**在文档/Task Card 里手写格式串——
+#   `parse()` 只认预设，手写格式串会解析失败（门禁会拦）。
+
+# 未登记场景（或映射值为空）时的兜底形态。
+default_preset: plain
+
+scenarios:
+  # 需求（开发主链）：默认 plain（不带迭代标记）。
+  # 若该需求**跟随迭代（TR）发布**，把本行改为 ipd（即 `cc{date}_ipd_{desc}_{service}`）。
+  requirement: plain
+
+  # bugfix / hotfix：**由 provider 负责**（值留空 = 交给 `branch.parser` 逻辑名解析的
+  # extensions/<name>/scripts/branch_parser.py，其格式为公司自有，如 `cc{date}_{type}{desc}_{service}`）。
+  # 不要把它设为 plain/ipd —— `templates/runtime/runtime-bugfix.md` 的分支契约是
+  # 「stable — providers MUST NOT change」，主链预设不适用于它。
+  bugfix:
