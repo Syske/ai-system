@@ -361,9 +361,9 @@ last_findings:
   反向：结构系即兴制定，高价值节易被省略）。范围 Option B（技能增模式 + 9 节契约模板 + 两处入口），
   排除完整 workflow/runtime/command 形态；归属与归档策略待裁决。开放提案 3 → 4。
   **P69 定稿（2026-09-23，用户裁定三项落位 + MVP 计划）** —— AI 注释泔水治理 Comment Quality Gate：
-  结论 = Option B（`tools/comment-lint.py` 单文件 + 文件内 parser 抽象 / `config/comment-lint.yaml`
-  仅行为参数 / 缺口补进 `documentation.md` / 不加 CLI 服务层 / agent-as-judge 取代工具内调 LLM /
-  门禁 MVP 只读不阻断）；Status → Approved，MVP 8 步计划写入 §5.2（策略先行 → 候选提取 → diff 限定 →
+  结论 = Option B（新增工具取**单文件**形态 + 文件内 parser 抽象 / 新增配置只放**行为参数** /
+  缺口补进 `documentation.md` / 不加 CLI 服务层 / agent-as-judge 取代工具内调 LLM /
+  门禁 MVP 只读不阻断；工具与配置文件尚未落地，故此处不引用其路径）；Status → Approved，MVP 8 步计划写入 §5.2（策略先行 → 候选提取 → diff 限定 →
   规则引擎 → CLI 安全 → 门禁登记 → 技能 → 真实 diff 验证）。注意 proposal-audit 语义：Approved 属
   CLOSED_STATUSES（评审已结），故开放提案仍为 4（P42/P46/P67/P68）。
   **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：

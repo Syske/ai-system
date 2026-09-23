@@ -66,6 +66,33 @@ other teams who read the code without access to internal task context.
 - 需求 ↔ 实现的可追溯性由 **Task Card**（Spec 引用 / 完成定义 / 实现说明）维护，不落在代码注释里。
 - 引用需求时应写业务语义（如「BOSS 主管理员触发单企业全量同步到北森」），而非编号（`（T-001）`）。
 
+### Comment Quality（注释质量分类与判定）
+
+**注释默认不是必需品**：只在代码本身无法表达**业务规则 / 外部契约 / 兼容性原因 /
+并发与性能约束 / 历史原因**时才写；注释只在有**信息增量**时存在（Value-Burden 同样适用于注释）。
+
+判定顺序**唯一**（自上而下，第一条命中即定）：
+
+| # | 规则 id | 类别 | 识别特征 | 动作 |
+|---|---|---|---|---|
+| 1 | `CQ-MEANINGFUL` | 业务规则 / 外部契约 / 兼容性 / 并发 / 性能 / 安全 | 提供代码无法表达的信息 | **KEEP**（白名单**优先命中**） |
+| 2 | `CQ-SECTION-HEADER` | 分段线 / 分隔标题 | `// ===== 参数校验 =====`、`// 参数处理` 之类仅为人眼分段 | DELETE |
+| 3 | `CQ-AI-NOISE` | 流程套话 | 首先 / 接下来 / 然后 / 最后 / 这里我们 / 下面开始 / 进行…处理 | DELETE |
+| 4 | `CQ-OBVIOUS` | 复述代码 | 判空 / 返回 / 遍历 / 赋值 / 方法调用 / CRUD 的字面复述 | DELETE |
+| 5 | `CQ-DUPLICATE` | 与方法名 / 字段名重复 | 名字直译（见 `# Fields`） | REVIEW（**不自动删**） |
+| 6 | `CQ-UNCERTAIN` | 兜底 | 无法归类、可能含语义 | REVIEW（**不自动删**） |
+
+**安全原则：宁可漏删，不可误删** —— 删掉有语义的注释，代价远高于多留几行低价值注释。
+
+**适用范围与分工**：
+
+- 只针对**本次改动新增/修改的注释**（diff 级）；不做全仓历史存量清理。
+- **JavaDoc（`/** */`）不参与自动删除**（可能属 API 契约）。
+- 单行块 `/** xxx */` 与注释内任务编号已由 `tools/format-check.py` 硬拦；注释语言由
+  `tools/repo-lint.py` 检查 —— 本分类**不重复**其职责。
+- 上表规则 id 为**稳定标识**：评审意见、诊断日志、机器检查输出**必须引用它，不得另起别称**
+  （机器实现落地后仍以本表为唯一来源）。
+
 ## Commit Content（提交信息内容规范）
 
 - Subject 以**业务语义**开头（动词宾语短语）。
@@ -179,7 +206,8 @@ Config
 
 All fields must:
 
-Include descriptive comments.
+Include descriptive comments that **add business meaning**；平凡自解释字段可以省略注释
+（Value-Burden —— 见 `## Comment Content` 的 Comment Quality 与下方 Field comment quality criteria）。
 
 Field comment quality criteria（字段注释质量准则，2026-09-02 补充）:
 - Describe **business meaning / value semantics**（业务含义与取值语义），not a verbatim

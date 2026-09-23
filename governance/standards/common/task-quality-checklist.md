@@ -23,7 +23,7 @@ Conditional items (REST / MQ / RPC / performance / task type) stay inside the Ta
 - **Code style**: Follows project language standards for naming and formatting.
 - **No redundancy**: No dead code, no unused imports, no commented-out code.
 - **Documentation**: New public classes and methods have Javadoc.
-- **Code comments**: Key business logic and complex algorithms have explanatory comments. Constants and configuration values have documented meanings.
+- **Code comments**: Key business logic and complex algorithms have explanatory comments that **add information beyond the code** (never restate the identifier or the next line). Constants and configuration values have documented meanings. Trivial self-explanatory fields may omit them (Value-Burden — `documentation.md` Comment Content).
 - **Logging standards**: Logs include business ID / request ID / key parameters. No passwords, tokens, or private data in logs.
 - **No leftovers**: No TODO / FIXME / debug code / `printStackTrace` / `System.out.println`.
 - **Reuse first**: Extend existing implementations; do not duplicate code. Extract shared capabilities into common components.

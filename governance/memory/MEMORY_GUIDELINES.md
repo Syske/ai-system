@@ -275,7 +275,7 @@ Example:
 
 ```
 
-All VO fields require comments.
+VO fields require business-meaning comments; trivial self-explanatory fields may omit them.
 
 ```
 

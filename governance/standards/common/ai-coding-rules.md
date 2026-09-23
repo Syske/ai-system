@@ -181,6 +181,17 @@ Must: Include documentation.
             Why.
         Not:
             What it does.
+Comments are not a default necessity:
+    Add one only when the code cannot express:
+        Business rule
+        External contract
+        Compatibility reason
+        Concurrency or performance constraint
+        Historical reason that still affects the implementation
+    Never:
+        Restate the identifier
+        Restate the next line of code
+    See: standards/common/documentation.md (Comment Content)
 ---
 # Rule 13: Logging Standards
 Logs must:
