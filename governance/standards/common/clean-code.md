@@ -51,7 +51,10 @@ God Object
 
 Methods should:
 
-- Stay short (recommended ≤40 lines)
+- Stay short: **target ≤40 lines**; **hard ceiling 80 lines** — a method over 80 lines
+  must be split into single-responsibility private methods. Orchestration / listener /
+  scheduled / controller entry methods are **not exempt**: their length is precisely the
+  reason to extract privates.
 - Do one thing only
 - Express business intent through the name
 

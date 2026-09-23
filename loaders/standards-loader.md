@@ -78,6 +78,16 @@ Purpose
 
 * governance/standards/common/chinese-documentation.md
 
+### For runtime-bugfix
+
+Loaded by the bugfix path (skill `bugfix` → Fix & Validate). Scoped: the method-length
+ceiling applies to methods the fix already **touches** — it never licenses opportunistic
+refactoring (`runtime-bugfix.md` "Avoid unrelated refactoring").
+
+* governance/standards/common/clean-code.md
+
+* governance/standards/common/documentation.md
+
 ### Language Standards
 
 ### Java Project

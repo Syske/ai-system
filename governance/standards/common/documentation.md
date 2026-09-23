@@ -159,6 +159,10 @@ Exceptions
 
 Side effects
 
+Private methods extracted from a long method must document at minimum:
+
+Purpose (one line — why this private exists, not what it does line by line)
+
 ---
 
 # Fields

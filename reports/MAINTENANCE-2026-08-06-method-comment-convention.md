@@ -71,5 +71,23 @@ Private methods split from long methods must at minimum document: Purpose (one l
 
 ## 4. 状态 / Status
 
-- [x] P1/P2/P3 已评估 → **propose**（2026-08-06：均修改 governance 标准与 bugfix 流程，L3 契约级，待 OPERATIONS §12 变更流程评审批准后实施；期间 80 行实践已落地）
+- [x] P1/P2/P3 已评估 → **propose**（2026-08-06，L3 契约级，待 OPERATIONS §12 评审）
+- [x] **已实施（2026-09-23，用户裁决 P1′/P2′/P3′）** —— 三处**改造**后落地：
+  1. **P1′**（原「统一按 ≤80」）：`clean-code.md` 改为**单一刻度 + 软目标/硬上限** ——
+     `target ≤40 lines; hard ceiling 80`，并写明**编排/监听/定时/Controller 入口不豁免**。
+     改造理由：全仓只有该标准写过数字（40），「80」仅存于本报告 → 原表述等于**凭一次实践
+     把标准整体放宽 2 倍**；且两档规则需要「哪类方法算编排」的启发式判定（正是 I2 的歧义来源，
+     会把歧义原样搬进将来的门禁）。软目标/硬上限**不需要判定分类**且可机器判定。
+  2. **P2** 原样采纳：`documentation.md` Method 段补「拆分出的私有方法至少一行 Purpose」。
+  3. **P3′**（原「把 >80 就拆分写进 bugfix skill」）：`skills/bugfix/SKILL.md` Fix & Validate
+     改为**引用标准**（不复制数字）+ 明确**只约束「修复已触碰的方法」**，并写明「发现附近的长方法
+     **不**构成拆分许可」（原表述会**授权在 bugfix 里顺手重构**，与 `runtime-bugfix`
+     「Avoid unrelated refactoring」/ `bugfix/anti-patterns.md`「Fix in one commit, refactor in a
+     separate commit」冲突）。
+  4. **报告未提及的真实改动面**：`loaders/standards-loader.md` 原**没有 bugfix 小节**、
+     `runtime-bugfix.md` 完全不引用标准 → 新建 `### For runtime-bugfix` 登记 `clean-code.md` +
+     `documentation.md`（并注明作用域）。
+  **影响**：`governance/standards/common/{clean-code,documentation}.md` · `loaders/standards-loader.md` ·
+  `skills/bugfix/SKILL.md`；同时**解锁 P67 §4.1 的阈值口径**（P67 门禁将用硬上限 80 FAIL /
+  接近目标 40 WARN）。
 - 关联实践:`LiveWatchDetailFetchListener#handle` 已拆分 134→44 行(≤80 达标),私有方法均补一行用途 javadoc,字段注释完整
