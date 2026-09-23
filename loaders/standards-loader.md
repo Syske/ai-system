@@ -150,6 +150,10 @@ Purpose
 
 * governance/standards/common/documentation.md
 
+### Code-Graph Tool Task
+
+* governance/standards/common/code-graph-tools.md
+
 ### Project Memory
 
 ### Load Only Relevant Rules

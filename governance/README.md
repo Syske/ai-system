@@ -35,6 +35,7 @@ Quality gates, policies, naming conventions, and review standards for the AI rep
 | `policies/skill-policy.md` | Skill creation and contribution guide |
 | `policies/skill-lifecycle.md` | Skill lifecycle stages (Draft → Proposed → Active → Deprecated → Archived) |
 | `policies/security-policy.md` | Security practices and review gates |
+| `policies/report-write-guard.md` | Check-before-write for report artifacts (consumed by review/verify runtimes) |
 
 ## Adding Governance Documents
 

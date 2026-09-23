@@ -251,14 +251,9 @@ Generate:
 
 ## Report-Write Guard (overwrite protection)
 
-Before writing any report file, check whether the target path already exists
-(T-011 2026-09-11: a rerun silently overwrote a prior verification report —
-workspaces has no git, so the original was unrecoverable). On conflict:
-
-1. Do NOT overwrite silently — surface the existing file (path + mtime).
-2. Either write to a suffixed name (e.g. `-{HHMMSS}`) or back up the existing
-   file first, per the user's choice.
-3. Record the outcome in the diagnostic log.
+Single source: `governance/policies/report-write-guard.md`. Applied to every report write below —
+check the target path first; on conflict surface it, then suffix or back up per the user's choice,
+and record the outcome in the diagnostic log. No local restatement.
 
 # Reflection
 
