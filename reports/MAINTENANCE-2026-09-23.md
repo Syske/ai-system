@@ -11,9 +11,10 @@
 
 | quick-check | verdict **OK**（findings 0） |
 | lint | Skills: **38** | Files: 38 | BLOCKERS: 0 | ERRORS: 0 | WARNINGS: 97 |
+| 其它计数 | Governance **62**（+2：`policies/report-write-guard.md` · `standards/common/code-graph-tools.md`）· 提案总数 **60** |
 | path | OK: no broken path dependencies（refs 783 / placeholders 140 / known_debt 3） |
 | extensions | Summary: 0 errors, 0 warnings |
-| 其它门禁 | check.py **PASS**（2 已知 warning）· unittest **516 OK** · workflow-command-audit 0/0 · proposal-audit 0 gate err / 0 gate warn |
+| 其它门禁（**run 终态**）| check.py **PASS**（2 已知 warning）· unittest **564 OK** · workflow-command-audit 0/0 · proposal-audit 0 gate err / 0 gate warn（**开放提案 5 → 3**）|
 
 > WARN 97 口径未变：96 为既有基线（`cli/**/*.py`、`tools/*.py` 英文注释类），第 97 条来自 R1 口径统一后
 > `skills/architecture/design-review/SKILL.md` 首次进入 lint 视野（正当可见化）。
@@ -104,7 +105,7 @@
 
 ## 四、修复动作与建议清单（AI 填写）
 
-### 本 run 已执行
+### 本 run 已执行（含后续阶段 —— 同一 on-demand run 的连续推进）
 
 | # | 动作 | 提交 | 验证 |
 |---|---|---|---|
@@ -113,6 +114,12 @@
 | 3 | R4 §2.3 S3（k8s 状态掩盖 CrashLoopBackOff）· S1（index-project venv 布局写死）· S4（idea-mcp SSE 断线吞错） | `b19049c` | S3 18 断言 · S1 抽出 SKILL.md 代码块真实执行三种布局 · S4 **0.00s** 快速失败（原 180s）；全套 529 OK |
 | 4 | `MAINTENANCE-2026-09-23.md` 补登 `reports/README.md` 索引 | `b19049c` | **由 proposal-audit 门禁抓出**（proposal-policy §6）→ 补登后恢复 0/0 |
 | 5 | R4 §2.3 S2：`k8s-logs` 通道口径统一 —— 按裁定以 **WSL 原生 `kubectl`** 为准；缺失/未配置时不静默回退 `cmd.exe`，改为退出码 2 + 请求用户授权安装/配置；删 `2026-09-05` 时间点快照改探测式 | 本批 | 18 断言全过（代码块无 cmd.exe 包装 / exit 2 指引含安装·KUBECONFIG·env.yaml·wsl-native / kubeconfig 提示只命中未配置类错误） |
+| 6 | 机器侧三步（你授权）：装 kubectl **v1.32.13**（服务端对齐）+ UTF-16 kubeconfig → UTF-8 副本 + `env.yaml` 对齐；真机验通（92 Pod / `get ns` Forbidden 符合预期） | `9b70c4d` | `kubectl version` 无 skew 告警 · helper 全链路走通 · env.yaml 逐键比对无丢键 |
+| 7 | **P62 + P64 实施**（提案 5 → 3）：提交 `T-<id>` 以**分支名为机器判据**（真 git 仓正反例 12 项）· spec 前置条件 SSOT（存量 12 变更 **0 STOP**） | `9ad8622` | 两份提案各含**根因修正**（P62 拆 id 层级；P64 恒真替代 + 遗留命名） |
+| 8 | **`path-audit` `PATH_RE` 词边界修复**（本轮 3 次误报根除）+ 还原两处规避措辞 | `c554209` | 中间段三类不再命中；真引用六形态仍被捕获；+4 回归 |
+| 9 | **R3 全部收口**（10 措辞 + 2 去重抽单一来源 + 1 判为 P19 已裁决设计） | `f460c36`/`5e36e9b` | `skills/README` 计数自洽 + 38 技能全覆盖；围栏用 markdown-it 实测 |
+| 10 | **P67 立案**（结构性坏味道：检测/映射/劣化门，Option B 最小切片） | `d82a427` | 外部结论核验含 2 处修正（DesigniteJava 指标未证实等） |
+| 11 | **P63 实施**（分支格式预设化 + 场景映射 + 拒绝手写格式串） | `b45cbd4` | 13 项测试；修掉「parser 不认非迭代形态」实测缺口 |
 
 ### R4 进度（残债账本）—— **已归零**
 
@@ -173,7 +180,10 @@ Pending(ImagePullBackOff) 1 · Failed 1` —— 即 **22 个 Pod 的故障原因
 
 ## 六、提案状态（自动生成）
 
-- proposal-audit: 0 gate error / 0 warn / 5 开放提案 / 5 open action items
+- proposal-audit（**run 终态**）: 0 gate error / 0 warn / **3 开放提案** / 5 open action items
+  - 开放: P42（用户已 defer）· P46（**blocked**：需真机 TR5 在线）· P67（新立案；按 §4.2 **待真实触发**再实施）
+  - 本 run 关闭: **P62 / P64**（Implemented，`9ad8622`）· **P63**（Implemented，`b45cbd4`）
+  - （以下为自动生成时的快照，保留原始输出以留痕）
   - 开放: P42-TR5-TEMPLATE-SKELETON.md
   - 开放: P46-TR5-DEBT-VALIDATION-MARKER.md
   - 开放: P62-TASK-COMMIT-TRACEABILITY.md
