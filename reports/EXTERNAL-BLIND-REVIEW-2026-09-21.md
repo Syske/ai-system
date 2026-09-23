@@ -401,7 +401,11 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 
 **R2 合计**：24 项全部处置（22 项修复 + 2 项经实证判为误读/有意为之），累计 **+31 回归测试**。
 
-**R3 · 文档措辞（52）** —（加载顺序互斥 / 阈值 50·60·80 / `skill.md` 大小写 / `python` vs `python3` / 索引计数漂移 / `explore` 双份 / `skills/README` 计数 / Token Efficiency ×3 / Report-Write Guard 双源 / 四反引号围栏 …）建议下一维护批次**批量顺手修**。
+**R3 · 文档措辞（52）—— ✅ 主体收口（2026-09-23，提交 `f460c36`）**
+
+已修 **10 类**（逐项两侧取证、一侧为准 + 另一侧标注）：索引计数重算 + 补漏登记的 `k8s-logs` + `review-changes` 归属 · `python`→`python3` 全仓在用文档统一（本机 `command -v python` 为空 → 原写法是死命令）· 压缩触发点统一 **50%**（60% 降为分档边界，修正对 CONTEXT_LOADING 的错误引用）· 技能尺寸 800/1000 两侧标注作用域 · 加载顺序措辞与 CONTEXT_LOADING（SSOT）对齐 · metrics 两类文件名并列 · `knowledge` 操作 3→5 显式（子集说明）· `skill.md`→`SKILL.md` · 四反引号围栏等长（markdown-it 实测复核无未闭合、标题正常渲染）· 记忆结构树改为跟随实际树。
+
+**余 3 类（属「去重/单一来源」而非措辞，需先定 SSOT 位置）**：`skills/explore` 与 `openspec-explore` 正文互为副本（关系已由 **P19（Implemented）** 裁决，残量为正文级重复）· `## Token Efficiency Rules` 在 `debug-issue` / `explore-codebase` / `review-changes` **逐字重复**（各 3 行）· `## Report-Write Guard` 在 `runtime-review` / `runtime-verify` **逐字重复**（各 30 行）。
 
 **R4 · 工具一致性与重构（低优先，随任务消减）**
 **R4 进度（2026-09-21，门禁健壮性/一致性 8 项已修，+7 测试）**
