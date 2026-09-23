@@ -10,6 +10,7 @@ generate_contract.py — 基于 Spec YAML 块 + switch_scenarios.yml 生成 inte
       --output contracts/interop_contract.yml
 """
 import argparse
+import json
 import re
 import sys
 import yaml
@@ -131,6 +132,25 @@ def _infer_type(sc: dict) -> str:
     return "Internal"
 
 
+def _service_matches(scenario_service, spec_service) -> bool:
+    """服务名匹配口径（单一来源）：规范化后**精确**比较。
+
+    原实现在 cross_validate 的两个循环里混用子串 `in` 与精确 `==`，`validate_fields`
+    又只认精确 → 同一份数据在不同检查中得到不同结论（2026-09-23 R4 G3）。
+    此处统一为「去空白后精确相等」；空服务名不参与匹配。
+    """
+    a = str(scenario_service or "").strip()
+    b = str(spec_service or "").strip()
+    return bool(a) and a == b
+
+
+def _trigger_matches(trigger, interface) -> bool:
+    """触发条件匹配：自由文本，按子串包含接口名判定（与服务名口径分开，保留原语义）。"""
+    a = str(trigger or "").strip()
+    b = str(interface or "").strip()
+    return bool(a) and a in b
+
+
 def cross_validate(spec_entries: list[dict], scenario_entries: list[dict]) -> list[str]:
     """交叉校验 Spec 与场景清单的一致性（仅警告，不阻断）"""
     warnings = []
@@ -142,10 +162,11 @@ def cross_validate(spec_entries: list[dict], scenario_entries: list[dict]) -> li
         for spec_e in spec_entries:
             svc = se.get("服务", "")
             trigger = se.get("触发条件", "")
-            if svc and (svc in spec_e.get("调用方", "") or svc in spec_e.get("被调用方", "")):
+            if (_service_matches(svc, spec_e.get("调用方", ""))
+                    or _service_matches(svc, spec_e.get("被调用方", ""))):
                 matched = True
                 break
-            if trigger and trigger in spec_e.get("接口/主题", ""):
+            if _trigger_matches(trigger, spec_e.get("接口/主题", "")):
                 matched = True
                 break
         if not matched:
@@ -160,7 +181,7 @@ def cross_validate(spec_entries: list[dict], scenario_entries: list[dict]) -> li
         found = False
         for se in scenario_entries:
             svc = se.get("服务", "")
-            if svc and (svc == caller or svc == callee):
+            if _service_matches(svc, caller) or _service_matches(svc, callee):
                 found = True
                 break
         if not found:
@@ -192,7 +213,8 @@ def validate_fields(spec_entries: list[dict], scenario_entries: list[dict]) -> l
         matched_any = False     # 找到至少一个匹配的交互
         checked_field = False   # 至少检查了一个 _fields
         for spec in spec_entries:
-            if not (spec.get("调用方") == svc or spec.get("被调用方") == svc):
+            if not (_service_matches(svc, spec.get("调用方"))
+                    or _service_matches(svc, spec.get("被调用方"))):
                 continue
             matched_any = True
             available = spec.get("_fields", [])
@@ -250,15 +272,47 @@ def validate_scenario_entries(entries: list[dict]) -> list[str]:
     return errors
 
 
+def _plain_scalar_safe(value: str) -> bool:
+    """该字符串能否以 YAML 裸标量（plain style）安全输出。"""
+    if not value or value != value.strip():
+        return False
+    if any(ch in value for ch in "\n\r\t"):
+        return False
+    if value[0] in "-?:,[]{}#&*!|>'\"%@`":
+        return False
+    if ": " in value or " #" in value or value.endswith(":"):
+        return False
+    try:
+        # 裸输出必须仍被解析为**同一个字符串**（否则 true/123/null 会被隐式转型）
+        return yaml.safe_load(value) == value
+    except yaml.YAMLError:
+        return False
+
+
+def _yaml_scalar(value: Any) -> str:
+    """把标量渲染为可安全嵌入 `key: <scalar>` 的 YAML 记号。
+
+    原实现直接 `f"{key}: {value}"`：值含 `: ` / ` #` / 前导空格 / 形如 `true`·`123` 时
+    产出**非法 YAML 或静默转型**（2026-09-23 R4 G1）。
+    """
+    if isinstance(value, str):
+        if _plain_scalar_safe(value):
+            return value
+        # JSON 字符串是 YAML 双引号标量的子集，且恒为单行（换行转义为 \n）
+        return json.dumps(value, ensure_ascii=False)
+    rendered = yaml.safe_dump(value, allow_unicode=True, default_flow_style=True).strip()
+    return rendered[:-3].strip() if rendered.endswith("...") else rendered
+
+
 def format_entry_yaml(entry: dict) -> str:
     """格式化单条契约为 YAML 字符串，注入 description 为注释"""
-    parts = [f"  - id: {entry['id']}"]
+    parts = [f"  - id: {_yaml_scalar(entry['id'])}"]
     if entry.get("description"):
         for line in textwrap.wrap(entry["description"], width=72):
             parts.append(f"    # {line}")
     for key in ["场景引用", "调用方", "被调用方", "类型", "协议", "接口/主题"]:
         if key in entry and entry[key]:
-            parts.append(f"    {key}: {entry[key]}")
+            parts.append(f"    {key}: {_yaml_scalar(entry[key])}")
     for key in ["触发条件", "切库规则", "异常处理"]:
         val = entry.get(key, "")
         if not val:
@@ -269,17 +323,24 @@ def format_entry_yaml(entry: dict) -> str:
             for l in lines:
                 parts.append(f"      {l.strip()}")
         else:
-            parts.append(f"    {key}: {val}")
+            parts.append(f"    {key}: {_yaml_scalar(val)}")
     parts.append("")
     return "\n".join(parts)
 
 
 def deduplicate(entries: list[dict]) -> list[dict]:
+    """按 id 去重（保留首个），重复项**必须出声**。
+
+    原实现静默丢弃后续重复：产物少了条目而调用方毫无感知（2026-09-23 R4 G2）。
+    """
     seen: set[str] = set()
     result: list[dict] = []
     for e in entries:
         eid = e["id"]
         if eid in seen:
+            src = e.get("_source", "?")
+            msg = f"[WARN] 重复条目 id={eid} 已丢弃（保留首个；来源 {src}）"
+            print(msg, file=sys.stderr)
             continue
         seen.add(eid)
         result.append(e)
@@ -340,7 +401,9 @@ def generate(args: argparse.Namespace):
         else:
             manual_filtered.append(me)
 
-    all_entries = deduplicate(auto_entries + manual_filtered + scenario_entries)
+    merged_entries = auto_entries + manual_filtered + scenario_entries
+    all_entries = deduplicate(merged_entries)
+    duplicate_count = len(merged_entries) - len(all_entries)
 
     # 5. 交叉校验（仅警告）
     warnings = cross_validate(auto_entries, scenario_entries)
@@ -386,6 +449,8 @@ def generate(args: argparse.Namespace):
     Path(output_path).write_text("\n".join(output), encoding="utf-8")
     print(f"[OK] 契约已生成: {output_path}")
     print(f"     自动条目: {len(auto_entries)}, 手动: {len(manual_filtered)}, 场景: {len(scenario_entries)}")
+    if duplicate_count:
+        print(f"     去重: 丢弃 {duplicate_count} 条重复（详见 stderr 告警）")
     if field_errors:
         print(f"     字段校验: {len(field_errors)} 个错误（已阻断）")
     if warnings:
