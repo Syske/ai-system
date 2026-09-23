@@ -445,3 +445,14 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 
 **R4 剩余（下一批）**：`checks/menu.py` hidden_* 注册一致性 · `repo-metrics` 快照 schema 校验 · `workflow-command-audit` 与 `checks/workflow` 同条件强度统一 · `bugfix_modes` 阶段集从配置反读 · `checks/misc.py` cli/tests 缺失升 ERROR · **skills 脚本组**（`pull/push` 抽共享 `loadConfiguration` + 失败退出码 + 网络错与 not-found 区分 · `generate_contract` 服务匹配统一精确 / 去重告警 / YAML 值引号 · `spec_updater` 硬编码 `DEFAULT_CHANGE` · `index-project` Windows venv 探测 · `k8s-logs` 过时快照与通道一致性 · `k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff · `idea-mcp` SSE 断线快速失败）。
  —（`checks/misc.py` 系列：cli/tests 缺失仅 WARN、`tools_readme` 只扫顶层、`ast.walk` 含嵌套 return、timeout 未捕 `TimeoutExpired`；`checks/workflow.py` 导入无兜底；`bugfix_modes` 硬编码阶段集；`checks/menu.py` 不校验 hidden_*；`repo-metrics` 无 schema 校验；`workflow-command-audit` 强度不一致；`generate_contract` 服务匹配混用子串/精确、`deduplicate` 静默保留首个、YAML 值未引号；`pull.js`/`push.js` 双份 `loadConfiguration`、失败无退出码、网络错与 not-found 不分；`index-project` 硬编码 Windows venv；`k8s-logs` 过时快照 + 通道不一致；`k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff；`idea-mcp` SSE 断线吞错；`spec_updater` 硬编码 `DEFAULT_CHANGE`；`maintain-report` closed 大小写敏感；`proposal-audit` `startswith("P")` 含 PROPOSALS.md；`quick-check` 未用 `_parse_summary`；`dependency-graph` 死分支）。
+
+**R4 第四批（2026-09-23，on-demand 收尾；进度口径改按「逐条核实过、有明确修复动作」的 8 项计，见
+`reports/R4-HANDOVER-2026-09-23.md` §0：早期「32 项」含重复项与软项，不再作为进度分母）**
+
+| # | 项 | 处置 |
+|---|---|---|
+| 1-3 | `generate_contract` 三项：**YAML 值未加引号**（值含 `: ` / ` #` / 前导空格 / 形如 `true`·`123`·`2026-09-23` → 产出非法 YAML 或静默转型）· **`deduplicate` 静默保留首个** · **服务匹配口径混用**（同函数内子串 `in` 与精确 `==` 并存，`validate_fields` 又只认精确） | ✅ 修复（`015f022`）：新增 `_yaml_scalar()`（裸标量安全则原样，否则 JSON 双引号标量，恒单行可精确回读）· 重复项逐条 stderr 告警 + 汇总计数 · 新增单一来源 `_service_matches()`（去空白后精确）三处委托，触发条件匹配拆为 `_trigger_matches()`（子串语义保留）。实证：18 例危险标量回读全等、端到端产物 `yaml.safe_load` 通过、子串真/精确假用例两侧结论一致 |
+| 4 | `pull.js` / `push.js` **双份 `loadConfiguration`**（纯去重） | ✅ **随 skill-sync 归档关闭**：Value-Burden 复核无价值实证（唯一消费者 skill-optimizer 已于 2026-08-17 归档 · 全仓零条真实 push/pull 记录 · 本机三凭据路径均不存在 · 5 次提交首提后全是审计驱动加固），用户裁决 archive（`7032fb0`）；判决前在途的抽共享模块重构**已撤销**，不为将归档资产投入重构。见 `reports/VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md` |
+
+**R4 余额**：skills 脚本组 4 项 —— `k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff ·
+`index-project` 硬编码 Windows venv 探测 · `idea-mcp` SSE 断线吞错 · `k8s-logs` 过时快照与通道一致性。
