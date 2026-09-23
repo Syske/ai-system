@@ -2,10 +2,16 @@
 """
 Kubernetes 日志/终端助手 - 支持状态简写过滤和关键词搜索，权限受限时降级手动输入。
 用法: ./k8s_helper.py [-n NAMESPACE] [keyword]
+
+状态列不是裸 `.status.phase`：`effective_status()` 会把
+`containerStatuses[].state.waiting.reason`、`lastState.terminated.reason` 附到相位后
+（如 `Running(CrashLoopBackOff)`），否则 CrashLoopBackOff / ImagePullBackOff / OOMKilled
+这类故障原因会被 phase 掩盖（外部盲检 R4 §2.3 S3，2026-09-23）。
 """
+import argparse
+import json
 import subprocess
 import sys
-import argparse
 
 STATUS_SHORTHAND = {
     'r': 'Running',
@@ -15,6 +21,46 @@ STATUS_SHORTHAND = {
     'u': 'Unknown',
 }
 SHORTHAND_FOR_STATUS = {v: k.upper() for k, v in STATUS_SHORTHAND.items()}
+
+# lastState.terminated.reason 只在「上一轮死于故障」时才值得上提（OOMKilled / Error）。
+# 不收 `state.terminated.reason`：Completed 会盖掉 Succeeded/Failed 的相位语义，反而让
+# 状态过滤（-s/-f）失效。
+FAILURE_TERMINATION_REASONS = {"OOMKilled", "Error", "ContainerCannotRun"}
+
+
+def effective_status(pod_status: dict) -> str:
+    """由 Pod 的 `.status` 字典算出**可读状态标签**。
+
+    顺序（`state.waiting.reason` → `lastState.terminated.reason` 仅限故障原因）→ 相位：
+    - CrashLoopBackOff / ImagePullBackOff 等停滞原因优先（这是 kubectl STATUS 列的本意）；
+    - 已重启但现在又在 Running 的容器（lastState 为 OOMKilled/Error）也上提，便于定位；
+    - 无原因时退回相位。
+
+    相位本身仍是过滤口径（见 `base_status()`），所以故障 Pod 不会被『Running 过滤』漏掉。
+    """
+    status = pod_status or {}
+    phase = str(status.get("phase") or "Unknown")
+
+    containers: list[dict] = []
+    for key in ("initContainerStatuses", "containerStatuses"):
+        containers.extend(status.get(key) or [])
+
+    for cs in containers:
+        reason = ((cs.get("state") or {}).get("waiting") or {}).get("reason")
+        if reason:
+            return f"{phase}({reason})"
+
+    for cs in containers:
+        reason = ((cs.get("lastState") or {}).get("terminated") or {}).get("reason")
+        if reason in FAILURE_TERMINATION_REASONS:
+            return f"{phase}({reason})"
+
+    return phase
+
+
+def base_status(status: str) -> str:
+    """状态标签的相位部分（`Running(CrashLoopBackOff)` → `Running`），用于状态过滤。"""
+    return str(status).split("(", 1)[0].strip()
 
 
 def run_kubectl(args: list[str], capture_output: bool = False):
@@ -30,21 +76,24 @@ def run_kubectl(args: list[str], capture_output: bool = False):
 
 
 def get_all_pods(namespace: str):
+    # 改取 `-o json`：状态原因（waiting/terminated/lastState）在 custom-columns 里取不干净，
+    # 而仅取 `.status.phase` 正是 S3 的根因。输出不可解析时与获取失败同路降级为手动输入。
     stdout, stderr, code = run_kubectl(
-        ["get", "pods", "-n", namespace,
-         "-o", "custom-columns=NAME:.metadata.name,STATUS:.status.phase",
-         "--no-headers"],
+        ["get", "pods", "-n", namespace, "-o", "json"],
         capture_output=True
     )
     if code != 0:
         return [], False, stderr
+    try:
+        items = (json.loads(stdout) or {}).get("items") or []
+    except (json.JSONDecodeError, AttributeError) as exc:
+        return [], False, f"kubectl 输出无法解析为 JSON: {exc}"
     pods = []
-    for line in stdout.strip().split('\n'):
-        if not line:
+    for pod in items:
+        name = ((pod.get("metadata") or {}).get("name")) or ""
+        if not name:
             continue
-        parts = line.split()
-        if len(parts) >= 2:
-            pods.append((parts[0], parts[1]))
+        pods.append((name, effective_status(pod.get("status") or {})))
     return pods, True, ""
 
 
@@ -56,7 +105,8 @@ def filter_pods_by_status(pods: list[tuple[str, str]], status_input: str):
         target_status = STATUS_SHORTHAND[key]
     else:
         target_status = status_input.capitalize()
-    return [(name, status) for name, status in pods if status.lower() == target_status.lower()]
+    return [(name, status) for name, status in pods
+            if base_status(status).lower() == target_status.lower()]
 
 
 def filter_pods_by_keyword(pods: list[tuple[str, str]], keyword: str):

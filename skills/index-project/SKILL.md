@@ -18,10 +18,16 @@ Reindex the current project using the code-index CLI with a real-time progress b
    - If `.code_index` or `/.code_index` is NOT already listed, append `/.code_index` to the `.gitignore`
    - If no `.gitignore` exists, create one with `/.code_index`
 
-2. Run the reindex CLI script via Bash:
+2. Run the reindex CLI script via Bash, **probing the venv layout** (POSIX `bin/python`
+   vs Windows `Scripts/python`) instead of assuming one of them:
 
-```
-"$HOME/.claude-code-index-venv/Scripts/python" "$HOME/.claude/tools/code-indexer/reindex_cli.py" $ARGUMENTS
+```bash
+VENV="$HOME/.claude-code-index-venv"
+PY="$VENV/bin/python"                          # POSIX / WSL
+[ -x "$PY" ] || PY="$VENV/Scripts/python"      # Windows / Git-Bash
+[ -x "$PY" ] || PY="$VENV/Scripts/python.exe"
+[ -x "$PY" ] || { echo "venv interpreter not found (bin/python or Scripts/python[.exe]): $VENV" >&2; exit 1; }
+"$PY" "$HOME/.claude/tools/code-indexer/reindex_cli.py" $ARGUMENTS
 ```
 
 - If the user passes `--full` or `full` as an argument, include `--full` in the command

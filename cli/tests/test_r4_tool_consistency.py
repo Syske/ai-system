@@ -14,6 +14,7 @@ Run:
 import ast
 import importlib.util
 import io
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -286,6 +287,258 @@ class TestGenerateContractServiceMatching(unittest.TestCase):
         scen = [{"场景引用": "S2", "服务": "nope", "触发条件": "CreateOrder"}]
         # 场景侧命中（trigger 子串），Spec 侧仍报「无对应场景」
         self.assertEqual(len(self.gc.cross_validate(specs, scen)), 1)
+
+
+class TestK8sHelperEffectiveStatus(unittest.TestCase):
+    """R4 S3：仅看 `.status.phase` 会掩盖 CrashLoopBackOff / OOMKilled。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.kh = _load("k8s_helper_r4", "skills/k8s-logs/scripts/k8s_helper.py")
+
+    def test_crashloopbackoff_被取出(self):
+        st = {"phase": "Running", "containerStatuses": [
+            {"state": {"waiting": {"reason": "CrashLoopBackOff"}},
+             "lastState": {"terminated": {"reason": "Error"}}}]}
+        self.assertEqual(self.kh.effective_status(st), "Running(CrashLoopBackOff)")
+
+    def test_imagepullbackoff_与_initcontainer(self):
+        self.assertEqual(self.kh.effective_status(
+            {"phase": "Pending", "containerStatuses": [
+                {"state": {"waiting": {"reason": "ImagePullBackOff"}}}]}),
+            "Pending(ImagePullBackOff)")
+        self.assertEqual(self.kh.effective_status(
+            {"phase": "Pending", "initContainerStatuses": [
+                {"state": {"waiting": {"reason": "CreateContainerConfigError"}}}]}),
+            "Pending(CreateContainerConfigError)")
+
+    def test_laststate_故障原因上提(self):
+        self.assertEqual(self.kh.effective_status(
+            {"phase": "Running", "containerStatuses": [
+                {"state": {"running": {}},
+                 "lastState": {"terminated": {"reason": "OOMKilled"}}}]}),
+            "Running(OOMKilled)")
+
+    def test_正常态不被改写(self):
+        # Completed 不得盖掉 Succeeded，否则 -s/-f 状态过滤失效
+        self.assertEqual(self.kh.effective_status(
+            {"phase": "Succeeded", "containerStatuses": [
+                {"state": {"terminated": {"reason": "Completed"}}}]}), "Succeeded")
+        self.assertEqual(self.kh.effective_status({"phase": "Running"}), "Running")
+
+    def test_空与缺字段容错(self):
+        for bad in ({}, None, {"phase": "Running", "containerStatuses": None}):
+            self.assertIn(self.kh.effective_status(bad), ("Unknown", "Running"))
+
+    def test_状态过滤仍按相位(self):
+        # 故障 Pod 不得因注解而被 'Running' 过滤漏掉
+        pods = [("api-1", "Running(CrashLoopBackOff)"), ("api-2", "Running"),
+                ("job-1", "Succeeded")]
+        self.assertEqual([n for n, _ in self.kh.filter_pods_by_status(pods, "r")],
+                         ["api-1", "api-2"])
+        self.assertEqual(self.kh.base_status("Running(CrashLoopBackOff)"), "Running")
+
+    def test_取数据走_json_且坏输出可降级(self):
+        import json as _json
+        calls = {}
+
+        def fake(args, capture_output=False):
+            calls["args"] = args
+            return _json.dumps({"items": [
+                {"metadata": {"name": "api-1"},
+                 "status": {"phase": "Running", "containerStatuses": [
+                     {"state": {"waiting": {"reason": "CrashLoopBackOff"}}}]}},
+                {"metadata": {"name": "api-2"}, "status": {"phase": "Running"}},
+                {"metadata": {}, "status": {"phase": "Running"}},
+            ]}), "", 0
+
+        orig = self.kh.run_kubectl
+        self.kh.run_kubectl = fake
+        try:
+            pods, ok, _ = self.kh.get_all_pods("t2")
+        finally:
+            self.kh.run_kubectl = orig
+        self.assertIn("json", calls["args"])
+        self.assertTrue(ok)
+        self.assertEqual(pods, [("api-1", "Running(CrashLoopBackOff)"), ("api-2", "Running")])
+
+        self.kh.run_kubectl = lambda args, capture_output=False: ("not json", "", 0)
+        try:
+            pods2, ok2, err2 = self.kh.get_all_pods("t2")
+        finally:
+            self.kh.run_kubectl = orig
+        self.assertFalse(ok2)          # 走手动降级，不静默给错结果
+        self.assertEqual(pods2, [])
+        self.assertIn("无法解析", err2)
+
+
+class TestIndexProjectVenvProbe(unittest.TestCase):
+    """R4 S1：`index-project/SKILL.md` 不得写死 Windows venv 布局（`Scripts/python`）。"""
+
+    SKILL = REPO_ROOT / "skills" / "index-project" / "SKILL.md"
+
+    def _probe_block(self):
+        import re
+        text = self.SKILL.read_text(encoding="utf-8")
+        blocks = re.findall(r"```bash\n(.*?)```", text, re.S)
+        hits = [b for b in blocks if "VENV=" in b]
+        self.assertTrue(hits, "SKILL.md 应含探测式 venv 代码块")
+        return hits[0]
+
+    def test_探测两种布局且失败可见(self):
+        text = self.SKILL.read_text(encoding="utf-8")
+        self.assertIn("bin/python", text)
+        self.assertIn("Scripts/python.exe", text)
+        self.assertNotIn('"$HOME/.claude-code-index-venv/Scripts/python"', text)
+        probe = self._probe_block()
+        self.assertIn("exit 1", probe)      # 找不到解释器时必须显式失败
+
+    @unittest.skipUnless(shutil.which("bash"), "无 bash，跳过 venv 探测行为测试")
+    def test_三种布局实际可解析(self):
+        probe = self._probe_block().replace(
+            "$HOME/.claude/tools", "$HOME/tools")
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td) / "home"
+            tools = home / "tools" / "code-indexer"
+            tools.mkdir(parents=True)
+            (tools / "reindex_cli.py").write_text(
+                "import sys; print('OK', sys.argv[1:])\n", encoding="utf-8")
+            script = Path(td) / "probe.sh"
+            script.write_text(probe, encoding="utf-8")
+            venv = home / ".claude-code-index-venv"
+
+            for rel in ("bin/python", "Scripts/python", "Scripts/python.exe"):
+                sub = venv / rel
+                sub.parent.mkdir(parents=True, exist_ok=True)
+                sub.write_text('#!/bin/sh\nexec python3 "$@"\n', encoding="utf-8")
+                sub.chmod(0o755)
+                proc = subprocess.run(["bash", str(script)], env={
+                    "HOME": str(home), "PATH": "/usr/bin:/bin"},
+                    capture_output=True, text=True, timeout=60)
+                self.assertEqual(proc.returncode, 0, f"{rel}: {proc.stderr}")
+                self.assertIn("OK", proc.stdout, rel)
+
+            # 全无解释器 → 必须非 0 退出且信息明确
+            for p in venv.rglob("python*"):
+                p.unlink()
+            proc = subprocess.run(["bash", str(script)], env={
+                "HOME": str(home), "PATH": "/usr/bin:/bin"},
+                capture_output=True, text=True, timeout=60)
+            self.assertEqual(proc.returncode, 1)
+            self.assertIn("interpreter not found", proc.stderr)
+
+
+class TestIdeaMcpSseFailFast(unittest.TestCase):
+    """R4 S4：SSE 断线被吞 → 后续 POST 空等 180s；`urlopen` 异常静默 pass。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load("idea_mcp_r4", "skills/idea-build/idea-mcp.py")
+
+    class _FakeSSE:
+        SID = "abcdef01-2345-6789-abcd-ef0123456789"
+        boom = None
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def __iter__(self):
+            yield f"event: endpoint\ndata: /message?sessionId={self.SID}\n".encode()
+            if self.boom:
+                raise self.boom
+            yield b'data: {"jsonrpc":"2.0","id":99,"result":{"ok":true}}\n'
+
+    class _FakePost:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def _patch(self, sse_boom=None, post_error=None):
+        import urllib.request
+        fake_sse, fake_post = self._FakeSSE, self._FakePost
+        fake_sse.boom = sse_boom
+
+        def fake(req, timeout=None):
+            url = getattr(req, "full_url", str(req))
+            if url.endswith("/sse"):
+                return fake_sse()
+            if post_error:
+                raise post_error
+            return fake_post()
+
+        orig = urllib.request.urlopen
+        urllib.request.urlopen = fake
+        return orig
+
+    def test_断线快速失败而非空等(self):
+        import io
+        import time
+        import urllib.request
+        from contextlib import redirect_stderr
+        orig = self._patch()
+        try:
+            buf = io.StringIO()
+            t0 = time.time()
+            with redirect_stderr(buf):
+                post = self.mod.mcp_session(port=1, project_path="/tmp/p")
+                with self.assertRaises(RuntimeError) as ctx:
+                    post({"jsonrpc": "2.0", "id": 1, "method": "tools/list"},
+                         wait_ms=180000)
+            elapsed = time.time() - t0
+        finally:
+            urllib.request.urlopen = orig
+        self.assertIn("SSE", str(ctx.exception))
+        self.assertLess(elapsed, 10, "原实现会空等满 180s")
+
+    def test_断线前已达响应仍可取回(self):
+        import urllib.request
+        orig = self._patch()
+        try:
+            post = self.mod.mcp_session(port=1, project_path="/tmp/p")
+            got = post({"jsonrpc": "2.0", "id": 99, "method": "x"}, wait_ms=3000)
+        finally:
+            urllib.request.urlopen = orig
+        self.assertEqual(got.get("result"), {"ok": True})
+
+    def test_sse_异常必须告警(self):
+        import io
+        import urllib.request
+        from contextlib import redirect_stderr
+        orig = self._patch(sse_boom=ConnectionResetError("connection reset by peer"))
+        try:
+            buf = io.StringIO()
+            with redirect_stderr(buf):
+                post = self.mod.mcp_session(port=1, project_path="/tmp/p")
+                with self.assertRaises(RuntimeError) as ctx:
+                    post({"jsonrpc": "2.0", "id": 5, "method": "tools/call"},
+                         wait_ms=3000)
+        finally:
+            urllib.request.urlopen = orig
+        self.assertIn("SSE 通道中断", buf.getvalue())
+        self.assertIn("ConnectionResetError", str(ctx.exception))
+
+    def test_post_非202_不再静默(self):
+        import io
+        import urllib.error
+        import urllib.request
+        from contextlib import redirect_stderr
+        err = urllib.error.HTTPError("http://x", 500, "Server Error", {}, None)
+        orig = self._patch(post_error=err)
+        try:
+            buf = io.StringIO()
+            with redirect_stderr(buf):
+                post = self.mod.mcp_session(port=1, project_path="/tmp/p")
+                with self.assertRaises(RuntimeError) as ctx:
+                    post({"jsonrpc": "2.0", "id": 7, "method": "build"}, wait_ms=3000)
+        finally:
+            urllib.request.urlopen = orig
+        self.assertIn("HTTP 500", buf.getvalue())
+        self.assertIn("POST 侧异常", str(ctx.exception))
 
 
 class TestAuditStrengthUnified(unittest.TestCase):

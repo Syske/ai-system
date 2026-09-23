@@ -26,6 +26,7 @@ import re
 import sys
 import threading
 import time
+import urllib.error
 import urllib.request
 
 DEFAULT_PORT = 64342
@@ -40,6 +41,8 @@ def mcp_session(port, project_path, timeout=120):
     messages = {}
     session_id = {"value": None}
     stop = threading.Event()
+    sse_state = {"error": None}    # SSE 断线原因(供 POST 快速失败时说明)
+    post_errors: list[str] = []    # POST 侧真实异常/非 202（不再静默 pass）
 
     def sse_listener():
         req = urllib.request.Request(base + "/sse", headers=headers)
@@ -57,10 +60,13 @@ def mcp_session(port, project_path, timeout=120):
                             msg = json.loads(line[6:])
                             if msg and msg.get("id") is not None:
                                 messages[msg["id"]] = msg
-                        except Exception:
-                            pass
-        except Exception:
-            pass
+                        except Exception as exc:
+                            # 单条消息解析失败不致命，但必须可见
+                            print(f"[WARN] SSE 消息解析失败: {exc}", file=sys.stderr)
+        except Exception as exc:
+            # R4 S4：原实现静默 pass → 下游 POST 空等满 180s 才知道失败
+            sse_state["error"] = f"{type(exc).__name__}: {exc}"
+            print(f"[WARN] SSE 通道中断: {sse_state['error']}", file=sys.stderr)
         finally:
             stop.set()
 
@@ -85,14 +91,29 @@ def mcp_session(port, project_path, timeout=120):
             data=data, headers={**headers, "Content-Type": "application/json"}, method="POST",
         )
         try:
-            urllib.request.urlopen(req, timeout=30)
-        except Exception:
-            pass  # 202 Accepted;响应从 SSE 推送
+            with urllib.request.urlopen(req, timeout=30):
+                pass
+        except urllib.error.HTTPError as exc:
+            # 202 Accepted 是正常路径（响应从 SSE 推送）；其余状态码必须可见
+            if exc.code != 202:
+                post_errors.append(f"HTTP {exc.code}")
+                print(f"[WARN] POST 返回 HTTP {exc.code}（{payload.get('method')}）", file=sys.stderr)
+        except Exception as exc:
+            post_errors.append(f"{type(exc).__name__}: {exc}")
+            print(f"[WARN] POST 发送异常 {post_errors[-1]}（{payload.get('method')}）", file=sys.stderr)
         start = time.time()
         rid = payload.get("id")
         while time.time() - start < wait_ms / 1000:
             if rid in messages:
                 return messages[rid]
+            if stop.is_set():
+                # SSE 已终止 → 推送通道不存在，响应不可能到达：立即失败（原实现空等满 180s）
+                why = sse_state["error"] or "SSE 流已结束"
+                if post_errors:
+                    why += f"；POST 侧异常 {len(post_errors)} 次（最近 {post_errors[-1]}）"
+                raise RuntimeError(
+                    f"SSE 通道已断开，收不到 {payload.get('method')} 的响应: {why}。"
+                    "请确认 IDEA MCP Server 仍在运行且目标项目未关闭")
             time.sleep(0.5)
         raise TimeoutError(f"IDEA MCP 响应超时 ({wait_ms}ms): {payload.get('method')}")
 
