@@ -42,15 +42,6 @@ def _run(cmd: list[str]) -> str:
         return f"ERROR: {exc}"
 
 
-def _parse_summary(out: str, pattern: str) -> int:
-    for line in out.splitlines():
-        if pattern in line:
-            m = re.search(r"(\d+)", line)
-            if m:
-                return int(m.group(1))
-    return -1
-
-
 def run_checks() -> dict:
     # 用仓根而非 cwd：否则在非仓根目录运行时 repo-lint 会扫错目录，
     # 产出“虚假健康”结果（2026-09-21 外部盲检 V4）。

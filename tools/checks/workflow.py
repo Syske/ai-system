@@ -296,7 +296,15 @@ def check_branch_parser(c):
     坏输入必须返回 None（never raise）。
     """
 
-    from cli.services.branch_parser import parse
+    # R4：导入加兜底 —— 原裸 import 会在模块/符号缺失时**崩掉整个 check.py**
+    try:
+
+        from cli.services.branch_parser import parse
+
+    except Exception as exc:
+
+        c.error(f"branch_parser 不可用（契约门禁无法执行）: {exc!r}")
+        return
 
     sample = "cc20260820_ipd_italent-sync-plus_user-center-api"
 

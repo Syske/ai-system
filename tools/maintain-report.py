@@ -143,10 +143,11 @@ def proposal_section():
     except Exception:
         return "- proposal-audit --json 输出异常\n"
 
-    closed = {"Implemented", "Approved", "Rejected", "Archived"}
+    # R4：大小写不敏感（proposal-audit 用 .lower() 比较；此处原为精确匹配 → 口径不一致）
+    closed = {"implemented", "approved", "rejected", "archived"}
     open_props = [
         p["file"] for p in d.get("proposals", [])
-        if p.get("status") not in closed
+        if str(p.get("status") or "").lower() not in closed
     ]
     items = d.get("open_items", [])
 

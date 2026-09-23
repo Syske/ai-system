@@ -230,7 +230,7 @@ last_findings:
   `_linux_path` 单一来源 `cli.utils.paths` · safe.directory 收窄到本仓 · Lombok 按花括号深度判定 ·
   checkstyle 增量按 src_dir 过滤 · 交互 EOF 保护 · 下载 sha256 记录/比对 · `--window` 参数化 ·
   setup 参数越界防护 · extensions-init push 失败返回码；另 2 项经实证判为**误读/有意为之**
-  （`_parse_next` 实为遍历全 token；`"<"` 是退格返回的对外信号）。**余**：R4 工具一致性/重构 32（低优先）；
+  （`_parse_next` 实为遍历全 token；`"<"` 是退格返回的对外信号）。**R4 已修 8/32（2026-09-21，+7 测试；门禁健壮性/一致性组）**：元组元数检查只看函数自身 return（原含嵌套 → 误报）· 外部门禁工具超时/不可执行 → 报错而非崩溃（`_run_gate_tool`，三处统一）· `branch_parser` 导入兜底 · `PROPOSALS.md` 不再被当作提案 · 关闭状态大小写同口径 · 删死代码 · 合并同层重复分支；`tools_readme` 只扫顶层为**有意维持**（rglob 会要求登记内部模块）。**余**：R4 剩余 24 项（门禁加固 6 + skills 脚本组 12 + 其他，低优先，随任务消减）；
   另 52 条**文档措辞**已裁决为非代码类，建议下一维护批次批量顺手修。
   基线说明：repo-lint WARN 96 → 97，系 R1 口径统一后 design-review/SKILL.md 首次入 lint 视野
   （正当可见化，非回退）。

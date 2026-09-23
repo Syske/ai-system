@@ -113,11 +113,9 @@ def get_skill_layers(root):
 
         content = Path(entry).read_text(encoding="utf-8", errors="ignore").lower()
 
+        # R4：原实现两个分支写同一层（if/else 内容完全相同）→ 合并为一条
         if "orchestrates" in content or "delegates to" in content:
-            if any(x in content for x in ["openspec", "spec-updater", "contract"]):
-                layers["3-orchestration"].append(name)
-            else:
-                layers["3-orchestration"].append(name)
+            layers["3-orchestration"].append(name)
         elif "mock" in content or "test" in content or "fixture" in content:
             layers["2-test"].append(name)
         elif "maven" in content or "codegraph" in content or "coding" in content:

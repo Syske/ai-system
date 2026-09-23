@@ -146,6 +146,10 @@ def audit():
         ):
             continue
 
+        # R4：索引文件本身不是提案（PROPOSALS.md 也以 P 开头）
+        if p.name == "PROPOSALS.md":
+            continue
+
         text = p.read_text(encoding="utf-8", errors="ignore")
 
         for m in OPEN_TODO.finditer(text):

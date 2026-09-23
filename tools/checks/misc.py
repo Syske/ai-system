@@ -1,5 +1,6 @@
 """Compile, import, command, prompt-build, and repo-lint checks."""
 
+import ast
 import json
 import re
 import subprocess
@@ -27,6 +28,57 @@ def check_compile(c):
             c.error(
                 f"compile failed: {p.relative_to(ROOT)}: {exc}"
             )
+
+
+def _run_gate_tool(cmd, c, label, timeout=120):
+    """运行外部门禁工具，返回合并输出；**超时/不可执行 → 报错而非崩溃**（R4）。
+
+    原实现直接 `subprocess.run(..., timeout=120)`，一旦超时抛
+    `subprocess.TimeoutExpired` 会让整个 check.py 崩掉（门禁最不该崩的地方）。
+    """
+
+    try:
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+
+    except subprocess.TimeoutExpired:
+
+        c.error(f"{label} 超时（>{timeout}s）—— 门禁未完成，请检查该工具")
+        return None, None
+
+    except OSError as exc:
+
+        c.error(f"{label} 无法执行: {exc}")
+        return None, None
+
+    return result.stdout + result.stderr, result.returncode
+
+
+def _own_returns(fn):
+    """`fn` **自身**的 return 节点（不含嵌套函数 / lambda）。
+
+    R4 修复：原实现用 `ast.walk(fn)`，嵌套函数的 return 会被计入外层函数，
+    使"元组返回元数"检查产生误报。
+    """
+
+    stack = list(getattr(fn, "body", []))
+
+    while stack:
+
+        node = stack.pop()
+
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            continue
+
+        if isinstance(node, ast.Return):
+            yield node
+
+        stack.extend(ast.iter_child_nodes(node))
 
 
 def check_tuple_return_arity(c):
@@ -63,9 +115,11 @@ def check_tuple_return_arity(c):
 
             arities = []
 
-            for n in ast.walk(fn):
+            # R4：只看**函数自身**的 return —— 原 `ast.walk(fn)` 会把嵌套函数/lambda
+            # 的 return 计入，制造"元组返回元数不一致"的误报。
+            for n in _own_returns(fn):
 
-                if not isinstance(n, ast.Return) or not n.value:
+                if not n.value:
                     continue
 
                 arity = tuple_arity(n.value)
@@ -163,14 +217,10 @@ def check_repo_lint(c):
         c.warn("tools/repo-lint.py not found, skipped")
         return
 
-    result = subprocess.run(
-        [sys.executable, str(audit), "--repo-root", str(ROOT)],
-        capture_output=True,
-        text=True,
-        timeout=120
-    )
+    out, _rc = _run_gate_tool([sys.executable, str(audit), "--repo-root", str(ROOT)], c, "repo-metrics")
 
-    out = result.stdout + result.stderr
+    if out is None:
+        return
 
     m = re.search(
         r"Skills:\s*(\d+).*BLOCKERS:\s*(\d+)\s*\|\s*ERRORS:\s*(\d+)",
@@ -206,20 +256,16 @@ def check_path_audit(c):
         c.warn("tools/path-audit.py not found, skipped")
         return
 
-    result = subprocess.run(
-        [sys.executable, str(audit)],
-        capture_output=True,
-        text=True,
-        timeout=120
-    )
+    out, rc = _run_gate_tool([sys.executable, str(audit)], c, "path-audit")
 
-    out = result.stdout + result.stderr
+    if out is None:
+        return
 
     m = re.search(r"BROKEN \((\d+)\):", out)
 
     broken = int(m.group(1)) if m else 1
 
-    if result.returncode != 0 or broken:
+    if rc != 0 or broken:
         c.error(
             f"path-audit: {broken} broken path reference(s)"
         )
@@ -329,15 +375,17 @@ def check_workflow_command_audit(c):
         c.warn("tools/workflow-command-audit.py not found, skipped")
         return
 
-    result = subprocess.run(
+    out, _rc = _run_gate_tool(
         [sys.executable, str(audit), "--repo-root", str(ROOT), "--json"],
-        capture_output=True,
-        text=True,
-        timeout=120
+        c,
+        "workflow-command-audit"
     )
 
+    if out is None:
+        return
+
     try:
-        data = json.loads(result.stdout)
+        data = json.loads(out)
     except Exception:
         c.error("workflow-command-audit: unrecognized output (tool may be broken)")
         return

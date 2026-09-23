@@ -403,4 +403,21 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 
 **R3 · 文档措辞（52）** —（加载顺序互斥 / 阈值 50·60·80 / `skill.md` 大小写 / `python` vs `python3` / 索引计数漂移 / `explore` 双份 / `skills/README` 计数 / Token Efficiency ×3 / Report-Write Guard 双源 / 四反引号围栏 …）建议下一维护批次**批量顺手修**。
 
-**R4 · 工具一致性与重构（低优先，随任务消减）** —（`checks/misc.py` 系列：cli/tests 缺失仅 WARN、`tools_readme` 只扫顶层、`ast.walk` 含嵌套 return、timeout 未捕 `TimeoutExpired`；`checks/workflow.py` 导入无兜底；`bugfix_modes` 硬编码阶段集；`checks/menu.py` 不校验 hidden_*；`repo-metrics` 无 schema 校验；`workflow-command-audit` 强度不一致；`generate_contract` 服务匹配混用子串/精确、`deduplicate` 静默保留首个、YAML 值未引号；`pull.js`/`push.js` 双份 `loadConfiguration`、失败无退出码、网络错与 not-found 不分；`index-project` 硬编码 Windows venv；`k8s-logs` 过时快照 + 通道不一致；`k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff；`idea-mcp` SSE 断线吞错；`spec_updater` 硬编码 `DEFAULT_CHANGE`；`maintain-report` closed 大小写敏感；`proposal-audit` `startswith("P")` 含 PROPOSALS.md；`quick-check` 未用 `_parse_summary`；`dependency-graph` 死分支）。
+**R4 · 工具一致性与重构（低优先，随任务消减）**
+**R4 进度（2026-09-21，门禁健壮性/一致性 8 项已修，+7 测试）**
+
+| 项 | 修复 |
+|---|---|
+| 元组返回元数检查**误报** | `checks/misc.py` 新增 `_own_returns()`：只看**函数自身** return（原 `ast.walk(fn)` 把嵌套函数/lambda 的 return 计入外层） |
+| 外部门禁工具**超时即崩** | 新增 `_run_gate_tool()`：超时/不可执行 → `c.error`（原抛 `TimeoutExpired` 会让整个 `check.py` 崩溃）；三处调用点（repo-metrics / path-audit / workflow-command-audit）统一改用 |
+| `branch_parser` 裸导入 | `checks/workflow.py` 导入加兜底 → 缺模块/符号时**报错**而非崩溃 |
+| 索引文件被当作提案 | `proposal-audit.py` 排除 `PROPOSALS.md`（同样以 `P` 开头） |
+| 关闭状态大小写不一致 | `maintain-report.py` 改 `.lower()` 比较（与 `proposal-audit` 同口径） |
+| 死代码 | `quick-check.py` 删除无引用的 `_parse_summary` |
+| 同层重复分支 | `dependency-graph.py` 合并两处写同一层的 if/else |
+| （不做）`tools_readme` 只扫顶层 | **有意维持**：改为 `rglob` 会要求登记 `tools/checks/*.py` 等**内部模块**，属噪音；README 登记对象是**顶层工具脚本**（已注明） |
+
+测试：`cli/tests/test_r4_tool_consistency.py`（+7：嵌套 return 排除 / 超时捕获 / 正常返回码 / 索引排除 / 大小写口径）。
+
+**R4 剩余（下一批）**：`checks/menu.py` hidden_* 注册一致性 · `repo-metrics` 快照 schema 校验 · `workflow-command-audit` 与 `checks/workflow` 同条件强度统一 · `bugfix_modes` 阶段集从配置反读 · `checks/misc.py` cli/tests 缺失升 ERROR · **skills 脚本组**（`pull/push` 抽共享 `loadConfiguration` + 失败退出码 + 网络错与 not-found 区分 · `generate_contract` 服务匹配统一精确 / 去重告警 / YAML 值引号 · `spec_updater` 硬编码 `DEFAULT_CHANGE` · `index-project` Windows venv 探测 · `k8s-logs` 过时快照与通道一致性 · `k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff · `idea-mcp` SSE 断线快速失败）。
+ —（`checks/misc.py` 系列：cli/tests 缺失仅 WARN、`tools_readme` 只扫顶层、`ast.walk` 含嵌套 return、timeout 未捕 `TimeoutExpired`；`checks/workflow.py` 导入无兜底；`bugfix_modes` 硬编码阶段集；`checks/menu.py` 不校验 hidden_*；`repo-metrics` 无 schema 校验；`workflow-command-audit` 强度不一致；`generate_contract` 服务匹配混用子串/精确、`deduplicate` 静默保留首个、YAML 值未引号；`pull.js`/`push.js` 双份 `loadConfiguration`、失败无退出码、网络错与 not-found 不分；`index-project` 硬编码 Windows venv；`k8s-logs` 过时快照 + 通道不一致；`k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff；`idea-mcp` SSE 断线吞错；`spec_updater` 硬编码 `DEFAULT_CHANGE`；`maintain-report` closed 大小写敏感；`proposal-audit` `startswith("P")` 含 PROPOSALS.md；`quick-check` 未用 `_parse_summary`；`dependency-graph` 死分支）。
