@@ -387,6 +387,16 @@ last_findings:
   可复用 worker 契约）；排除引入 caveman 本体、-75% 指标、电报体改写、把简洁做成门禁。
   待裁定 5 项（落点形态 / 先改哪几个阶段 / worker 契约位置 / 是否补上下文两点 / 是否设 token 目标）；
   **未实施任何实现改动**。开放提案 4 → 5。
+  **P70 实施完成（2026-09-23，四块 + 1 个附带工具缺陷修复，5 提交）** —— AI 输出纪律：
+  ①`standards/common/output-discipline.md`（优先级链 Correctness > Completeness > Auditability >
+  Conciseness + 可压缩/禁压缩两清单；登记 Always Load；盲检 prompt 改引用）②develop+review 阶段回复形态
+  ③`templates/prompts/worker-contract.md` 硬边界（含**强制显式 UNDETERMINED**）④上下文压缩原则
+  （只补原则不造机制，仪器定期化接进 aic-maintain）。**明确不以 token 下降百分比为验收指标**。
+  成本实测：Always Load 42,081 → 44,329 字节（**+560 tok/run**）；提示词总量 +108 字符（前缀稳定 16/16）；
+  单测 609 → 612。附带修复：`workflow-command-audit` 薄命令门禁写 results[errors] 但初始化缺键 →
+  命令超 100 行时崩溃（门禁静默失效），已修为报 ERROR + 退出 1（+3 回归测试）。
+  观察五项（不设目标）：token 趋势 · 信息完整性 · 重复率 · review 可审计性 · worker 可用性。
+  明确未做：不引入 Caveman 本体、不做 context compressor、不动 prepare/spec。
   **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：
   长路径的**中间段**不再被当引用（本轮 3 次实测误报：archived 下 nested 路径、kubeconfig 后接路径、
   散文里的 word/word）；真引用形态全部仍被捕获。同时**还原**两处为绕开误报而写的规避措辞，

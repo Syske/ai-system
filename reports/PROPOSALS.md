@@ -73,7 +73,7 @@
 | Proposed | 工作队列式交接（Work-Queue Handover）契约与模板 | 2026-09-23 | `P68-WORKQUEUE-HANDOVER.md` |
 | Implemented | AI 注释泔水治理（Comment Quality Gate） | 2026-09-23 | `P69-AI-COMMENT-SLOP-GATE.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
-| Proposed | AI 输出纪律（Output Discipline：回复文本 · 阶段形态 · 子代理契约） | 2026-09-23 | `P70-OUTPUT-DISCIPLINE.md` |
+| Implemented | AI 输出纪律（Output Discipline：回复文本 · 阶段形态 · 子代理契约） | 2026-09-23 | `P70-OUTPUT-DISCIPLINE.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
 

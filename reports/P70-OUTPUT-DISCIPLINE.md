@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural（治理条款 + 阶段形态契约 + 子代理输出契约；**不引入外部项目/工具/命令**） |
 | Author | AI Maintainer |
 | Created | 2026-09-23 |
@@ -182,8 +182,71 @@ Hierarchies in Language Models》—— 31 个模型（0.5B–405B）/ 1,485 题
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（用户要求评估 caveman 并"必要时立新提案"；§4.1 五项待裁定） | 2026-09-23 |
+| User (AI Maintainer operator) | **Approved** —— §4.1 五项全部采纳：①独立标准 ②先 develop+review ③worker 契约入 `templates/prompts` ④补上下文两点 ⑤**不设** token 下降目标。并提出四项边界调整（见下） | 2026-09-23 |
+| User (AI Maintainer operator) | **Implemented** —— 四块全部落地（4 提交 + 1 个附带工具缺陷修复）；**不以 token reduction percentage 作为验收指标** | 2026-09-23 |
 
 ## Implementation Record
 
-*(待实施后填写)*
+**实施时间**：2026-09-23（P70 四块 + 一个附带工具缺陷修复）
+
+### 用户裁定的四项边界调整（已全部落进实现）
+
+1. **标准只负责一个问题**：在「已满足业务/流程契约」的前提下如何避免低价值输出 —— 不写成"写作规范"，
+   控制在 30–40 行；并要求显式优先级链 `Correctness > Completeness > Auditability > Conciseness`
+   与「可压缩 / 禁压缩」两张清单。**不把"300 token"当设计依据**，以 `prompt-metrics` 趋势为准。
+2. **阶段只做 develop + review**；**不先扩 prepare/spec**（高信息密度阶段，过早压缩易误伤分析内容）。
+3. **worker 契约做成硬边界**（MUST / MUST NOT），尤其把「**显式不可判定**」作为强制项 ——
+   worker 为了"必须给答案"会把「证据不足」写成「应该是 X」，而调用方是研发系统，这种错误的代价远大于
+   多输出 500 token。
+4. **上下文只补原则，不造机制**（已有 LOADING / RETENTION / ATTENTION + `context-audit.py` +
+   `prompt-metrics.py` → 不再做 Caveman 式 context compressor）。
+5. **明确写入：不以 token reduction percentage 作为验收指标** —— token 是**观测**指标，不是优化目标
+   （设目标会诱导 agent 连证据/风险/验证/不确定性一起删）。
+
+### 落地清单
+
+| 块 | 提交 | 交付物 |
+|---|---|---|
+| Q3 worker 契约 | `625ae08` | `templates/prompts/worker-contract.md`（MUST/MUST NOT + 固定小节 + 显式 `UNDETERMINED`）· `CONTEXT_LOADING.md` subagent 行改为指向它 |
+| Q1 输出纪律 | `895b548` | `standards/common/output-discipline.md`（48 行英文简写，单一职责 + 优先级链 + 两清单 + "观测而非目标"）· 登记 `standards-loader` Always Load · 盲检 prompt 同类条款改**引用**（消第二来源） |
+| Q4 上下文原则 | `895b548` | `CONTEXT_RETENTION.md` 新增 `## Compression Principle`（压缩可缩表达，必须保留约束/事实/决策/证据/契约）· 巡检定期化：`aic-maintain.md` 加一行跑 `prompt-metrics` + `context-audit`（明确非目标） |
+| Q2 阶段形态 | `6c97026` | `runtime-develop.md`：回复只报 Changed / Verified / Blocked / Uncertainty · `runtime-review.md`：Finding → Evidence(file:line) → Impact → Recommendation；均**不改**既有字段契约 |
+| 附带修复 | `0ad9660` | **工具缺陷**：`workflow-command-audit` 的薄命令门禁写 `results["errors"]` 但初始化无该键 → 命令超 100 行时**崩溃**（门禁静默失效）→ 修为报 ERROR + 退出 1（0=passed/1=errors/2=blockers），+3 回归测试 |
+
+### 成本实测（落点成本控制，改前改后）
+
+| 指标 | 改前 | 改后 | 增量 |
+|---|---|---|---|
+| Always Load（每次运行固定） | 42,081 字节 / 1,399 行 | **44,329 字节 / 1,447 行** | **+2,248 字节 ≈ +560 tok/run**（比预估 +400 略高：含标题与指向行） |
+| 提示词总量（16 workflows + 14 commands） | 146,646 字符 | 146,754 字符 | +108（前缀稳定 16/16，缓存友好性未破） |
+| 单测规模 | 609 | **612** | +3（工具缺陷回归） |
+
+**成本结论**：唯一持续成本是 Always Load 的 **+560 tok/run**；Q2/Q3/Q4 均为 0 固定成本
+（runtime 模板只在该阶段加载、worker 契约只在派发时加载、`CONTEXT_RETENTION` 不在 Always Load）。
+
+### 验证
+
+1. **不损契约（首要）**：`check-contract.py` 0/0（workflow↔runtime 输出契约未漂移）；单测 612 OK；
+   `check.py` PASS（2 已知 warning）；`repo-lint` 39/39 0/0/97；`path-audit` 0 broken；
+   `workflow-command-audit` 0/0/0；`prompt-metrics` 前缀稳定 16/16。
+2. **落点成本实测**：见上表（Q1 采用英文简写，把中文版约 +1,400 tok 压到 +560 tok）。
+3. **门禁在实施中抓到两处真问题**（均为正向信号）：① 标准引用了尚未落地的
+   `templates/prompts/worker-contract.md` → `path-audit` 断链（已按"先落 Q3 再引用"的顺序解决）；
+   ② `aic-maintain.md` 被撑到 106 行 → 触发 100 行薄命令门禁，并暴露上述工具崩溃缺陷。
+
+### 观测（token 是观测指标，不是目标）
+
+按用户裁定，观察这五项，**不设百分比目标**：
+① token 趋势（`tools/prompt-metrics.py` / `tools/context-audit.py`，已接入 maintain 巡检）
+② 信息完整性（Completion 六段与产物字段是否一个不少）
+③ 重复率（回复是否仍在复述用户输入/产物/工具输出）
+④ review 可审计性（findings 是否都带 `file:line` 与影响）
+⑤ worker 可用性（子代理返回是否"可直接行动"、`UNDETERMINED` 是否如实上报）
+
+### 与提案的偏差 / 未做
+
+- **偏差**：标准实际 48 行（提案说 ≤40）；Always Load 增量 +560 tok（提案估 +400）；
+  worker 契约 47 行（提案估 ~30）—— 均属"内容需要"而非膨胀，已如实记录。
+- **未做（明确不扩范围，用户裁定）**：不引入 Caveman 本体（installer / 命令体系 / statusline /
+  cavecrew 子代理 / MCP 中间件 `caveman-shrink`）；不做 Caveman 式 context compressor；
+  不设 token 目标；不动 prepare/spec 阶段形态（视观察结果再议）。
