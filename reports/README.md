@@ -72,6 +72,7 @@
 | [P63](P63-BRANCH-NAMING-NON-ITERATION.md) | 主链分支命名：非迭代需求形态（省略 `ipd` 段）未文档化 — **Proposed** | 2026-09-21 |
 | [P65](P65-C2-PROFILE-SEMANTICS.md) | C2 格式 profile 语义边界与校准（`lineSplit=120` 被自身 `alignment=0` 越过；`join_wrapped_lines=false` 仅覆盖二元/条件表达式）— **Implemented** 2026-09-21（A 语义边界固化 + D 豁免治理〔理由 + 180 天复核告警〕；**B 否决**（差异 +55%~+109%）、**C1 否决**（导出与仓内 profile byte-identical）；根因＝**引擎表达力缺口**；C2 记为按需备选） | 2026-09-21 |
 | [P66](P66-CR-CHANGE-IMPACT-DERIVE.md) | code-review / change-impact 重复追问项目与分支（容器已记录服务与各自分支；P57 单候选契约只认字面量 `Branch` 而实际字段为 `Branch Mapping`/`Base Branch`→ 从未生效）— **Implemented** 2026-09-21（A 容器派生〔Projects/覆盖项/默认值〕+ C 全服务预填；**P57 契约改为类别匹配**；新增 opt-in 目标集防覆盖 `scan`；+11 测试）| 2026-09-21 |
+| [R4-HANDOVER-2026-09-23](R4-HANDOVER-2026-09-23.md) | **R4 残债交接文档**（盲检收尾：已完成清单 / **剩余 8 项逐条修复指引 + 验证方式** / 已判定不做项 / R3 措辞 52 条 / 未关闭提案 / 门禁命令与基线 / 本会话踩坑清单 / 记录位置）—— 供新会话无损接续 | 2026-09-23 |
 
 ---
 
