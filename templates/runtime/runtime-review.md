@@ -283,6 +283,11 @@ Return:
 
 ## Recommendations
 
+**Reply shape** (Output Discipline — `standards/common/output-discipline.md`): findings first, each as
+**Finding → Evidence (`file:line`) → Impact → Recommendation**; do **not** restate the reviewed code,
+the spec or earlier messages. Findings with no evidence are dropped, not softened; an empty category is
+reported as "no issues found" rather than padded.
+
 Sync Review Status to Task Card:
 
 ```

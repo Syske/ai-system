@@ -327,3 +327,8 @@ Verify:
 - Completion Report generated
 
 Return Completion Report.
+
+**Reply shape** (Output Discipline — `standards/common/output-discipline.md`):
+report only **Changed / Verified / Blocked / Uncertainty**, each one line; do **not** restate the
+Task Card, the plan, or raw tool output — those already live in the Completion Report and the
+diagnostic log. Do not drop evidence, verification results or risks: shorten the reply, never the facts.
