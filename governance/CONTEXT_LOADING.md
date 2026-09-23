@@ -176,7 +176,7 @@ session holds only decisions + conclusions:
 
 | Operation type | Route | Why |
 |---|---|---|
-| Exploration / search / audit / multi-file scan | **subagent isolation** (pi-worker style) | returns conclusions only; main context stays flat |
+| Exploration / search / audit / multi-file scan | **subagent isolation** (pi-worker style) | returns conclusions only; main context stays flat — **mandatory output contract: `templates/prompts/worker-contract.md`** (conclusions + `file:line` evidence + explicit `UNDETERMINED`) |
 | Large tool output (compile, diff, log dump) | keep summary only (result + key lines) | ~70% of bloat is raw output |
 | Session > 50% context | **active `/compact` with focus instructions** | pre-empts attention decay |
 | New large task | **new session + handoff summary** | clean window for deep reasoning |
