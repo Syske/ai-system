@@ -10,6 +10,13 @@
 #
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
+#
+# last_findings is a block sequence of multi-line PLAIN scalars — three characters
+# terminate a scalar early and break the file (validated by tools/checks/config_yaml.py):
+#   1. a line starting with `- ` (starts a new list item)
+#   2. the ASCII sequence `: ` (parsed as a nested mapping)
+#   3. the ASCII sequence ` #` (starts a comment; e.g. `format-check #23` — use「第 23 项」)
+# After editing, always self-check with: python3 -c "import yaml;yaml.safe_load(open('config/maintenance.yaml'))"
 
 last_run: 2026-09-23
 mode: on-demand
@@ -330,6 +337,13 @@ last_findings:
   抽为 `governance/standards/common/code-graph-tools.md`（三技能 3→1 行引用）· `explore` 与
   `openspec-explore` 正文副本**判为 P19 已裁决设计**（Option B 刻意双份 + Next=季度评估合并）
   → 不去重。Governance 计数 60→62（两个新文件）。**R3 全部收口**。
+  **P67 立案（2026-09-23，用户需求评估）** —— 结构性坏味道：检测 / 映射 / 劣化门（**不含自动重构执行**，
+  Option B 最小切片）。评估要点：层分离（诊断/执行）本仓已有 → 缺的是**仪器**不是架构；
+  `smell-baseline.md` 的「味道→手法」处方**已存在但无自动触发**；结构类门禁仅 1 项（format-check 第 23 项）+ 
+  1 条 checkstyle warning，类大小/方法数**全仓无阈值**。外部核验：86 项目注解偏差与 24.17% lint 回归
+  **成立**（后者以 convention 级为主 → 本仓 format-check 已覆盖该类）、雷达第 10 项成立且推荐载体即我们已有形态、
+  **DesigniteJava「F1 98.82%」未证实**（不作为引入依据）。阈值沿用仓内 40/3/20、「方法 ≤80」并入既有待审提案；
+  工具/门禁待**真实触发**再实施。开放提案 3 → 4。
   **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：
   长路径的**中间段**不再被当引用（本轮 3 次实测误报：archived 下 nested 路径、kubeconfig 后接路径、
   散文里的 word/word）；真引用形态全部仍被捕获。同时**还原**两处为绕开误报而写的规避措辞，
