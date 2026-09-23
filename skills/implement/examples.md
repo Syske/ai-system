@@ -65,6 +65,7 @@ Code Quality:
 Documentation:
 - New classes require documentation
 - Public methods require comments
+- Code-level comments: load-bearing only (default none) — see documentation.md
 
 Testing:
 - Happy path

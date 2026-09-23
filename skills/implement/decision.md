@@ -103,7 +103,14 @@ Before completing implementation, verify:
 - DTO / VO / Entity / MQ fields require comments.
 - Complex business logic explains why.
 
-Documentation is mandatory, not optional.
+Declaration documentation (class / public method / field) is required — not optional.
+
+**Code-level comments are the opposite: default to none; write only load-bearing comments
+（承重注释）** — ones that carry what the code cannot express (business rule, external contract,
+compatibility reason, concurrency / performance constraint, why it must stay this way).
+A comment restating the identifier or the next line is noise — delete it, do not polish it.
+Comments never substitute for the declaration documentation above, and never carry task ids.
+See: `governance/standards/common/documentation.md` → Comment Content / Comment Quality.
 
 ---
 
