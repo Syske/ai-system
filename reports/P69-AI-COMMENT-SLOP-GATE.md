@@ -290,9 +290,15 @@ ai-system/templates/runtime/runtime-develop.md           ← 门禁说明段（�
 **端到端**：真 git 仓（临时仓）完整走通 `check → fix --dry-run → fix --apply → 独立提交 → 再 check`；
 develop 门禁模拟走通（DELETE → exit 1 → 清理后 exit 0）。
 
-### 是否去掉 `--report-only` 翻 FAIL（**待用户裁定**）
+### 是否去掉 `--report-only` 翻 FAIL（**用户裁定：维持现状 —— 先观察一段时间**）
 
-**建议：暂不翻，保持只报不拦**。判据：① 真实数据里 REVIEW 占新增注释 64%（现阶段需要的是让 AI
+**裁定（2026-09-23）**：保持 `--report-only`（只报不拦），**先观察一段时间**；不设时间上限，
+触发翻 FAIL 的信号 = 观察期内三项同时成立：① 确定可删项**零误报**（含无新增误报上报）；
+② AI 侧 REVIEW 裁定结果稳定（无需频繁把 `DELETE` 改回保留）；③ 用户确认可用于拦截提交。
+观察入口：门禁报告（`comment-lint --diff --report-only` 的 DELETE/REVIEW 计数）· 技能要求记录的
+误报上报（原文 + 规则 id）· 下一次 maintain 巡检时复核本提案的观察结论。
+
+**当初的建议（保留备查）**：暂不翻，保持只报不拦。判据：① 真实数据里 REVIEW 占新增注释 64%（现阶段需要的是让 AI
 按技能逐条裁定，而不是让门禁拦住 2/3 的新注释）；② DELETE 精度虽经 17/17 审计通过，但样本量仍小
 （17 条/7 仓）；③ 翻 FAIL 的触发条件建议定为「累计再跑 N 个真实任务后，DELETE 精度仍 100%
 且团队确认可用于拦截」。届时只需删掉 `main-chain-capabilities.yaml` 里该门禁 cmd 的 `--report-only`。
