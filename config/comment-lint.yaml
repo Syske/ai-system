@@ -1,0 +1,11 @@
+# 注释质量检查工具 —— 行为参数（P69）
+#
+# 只放**行为参数**；规则模式与判定语义不在本文件：
+#   分类 / 判定顺序 / 安全原则见 governance/standards/common/documentation.md → Comment Content
+# 启停的单一来源是 config/main-chain-capabilities.yaml 的 gates.develop 条目，不在此处。
+
+# JavaDoc（`/** */`）不参与自动删除 —— 可能属 API 契约；skip = 候选提取后直接跳过判定
+java_doc: skip
+
+# 解析通道：auto = 有 tree-sitter 用之，否则降级标准库词法状态机
+parser: auto
