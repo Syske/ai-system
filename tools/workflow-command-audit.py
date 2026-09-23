@@ -240,7 +240,7 @@ def main():
     args = parser.parse_args()
 
     root = Path(args.repo_root).resolve()
-    results = {"blockers": [], "warnings": []}
+    results = {"blockers": [], "errors": [], "warnings": []}
 
     workflows = registered_workflows(root)
     for p in find_workflows(root):
@@ -266,18 +266,23 @@ def main():
         print(f"Workflows checked: {len(find_workflows(root)) - 1}")
         print(f"Commands checked: {len(find_commands(root))}")
         print("")
-        for tag, items in (("BLOCKER", results["blockers"]), ("WARN", results["warnings"])):
+        for tag, items in (
+            ("BLOCKER", results["blockers"]),
+            ("ERROR", results["errors"]),
+            ("WARN", results["warnings"]),
+        ):
             for item in items:
                 print(f"  [{tag}] {item}")
         print("")
         print(
             f"Summary: {len(results['blockers'])} blockers, "
+            f"{len(results['errors'])} errors, "
             f"{len(results['warnings'])} warnings"
         )
 
     if results["blockers"]:
         sys.exit(2)
-    if results["warnings"]:
+    if results["errors"] or results["warnings"]:
         sys.exit(1)
     sys.exit(0)
 
