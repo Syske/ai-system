@@ -68,7 +68,7 @@
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |
 | [P37](P37-REQUIRED-INPUTS-TRIAGE.md) | 工作流必填参数必要性评估（降可选/自动推导/保持，提升使用效率）— **Proposed** | 2026-08-25 |
 | [P64](P64-SPEC-PRECONDITION-CONSISTENCY.md) | spec 前置条件口径不一致（"Prepare completed" 无 SSOT + 实测 0/12 变更具备 prepare 产物 + proposal.md 静默替代）— **Implemented**（SSOT 落 `prepare.md` → Exit Criteria → Completion Criteria；删恒真替代；skip/遗留/祖父三条分支；存量 0 STOP） | 2026-09-23 |
-| [P69](P69-AI-COMMENT-SLOP-GATE.md) | AI 注释泔水治理（Comment Quality Gate） — **Approved**（三项落位裁决已同意 + MVP 8 步计划：策略先行 → 候选提取 → diff 限定 → 规则引擎 → CLI 安全 → 门禁 → 技能 → 真实 diff 验证；工具为单文件 `tools/comment-lint.py`，门禁 MVP 只读不阻断） | 2026-09-23 |
+| [P69](P69-AI-COMMENT-SLOP-GATE.md) | AI 注释泔水治理（Comment Quality Gate） — **Implemented**：MVP 八步落地（8 提交）——标准 `documentation.md → Comment Quality`（六级分类 + 稳定规则 id）· 单文件工具 `tools/comment-lint.py`（tree-sitter/标准库双通道）· diff 限定 · 规则引擎（白名单优先 + 三道精度护栏）· `fix` 默认 dry-run · `gates.develop` 注册（**只报不拦**）· 技能 `comment-cleaner`；实测：真实仓两通道一致（2.9 万条）· 历史 diff 332 新增注释 → DELETE 5.1%/REVIEW 64%/KEEP 31%，**确定可删 17/17 人工审计零误删** | 2026-09-23 |
 | [P68](P68-WORKQUEUE-HANDOVER.md) | 工作队列式交接（Work-Queue Handover）契约与模板 — **Proposed**（Option B：扩展 `skills/handoff` 增 work-queue 模式 + `templates/prompts/handover-workqueue.md` 9 节契约 + 两处入口；归属/生命周期待裁决） | 2026-09-23 |
 | [P67](P67-STRUCTURAL-SMELL-CAPABILITY.md) | 结构性坏味道：检测 / 映射 / 劣化门（不含自动重构执行）— **Proposed**（Option B 最小切片；阈值与实施触发待 §4.1/§4.2 裁决） | 2026-09-23 |
 | [P62](P62-TASK-COMMIT-TRACEABILITY.md) | 任务提交信息 `T-<id>` 强制性与实践脱节（标准↔实践↔门禁三方不一致）— **Implemented**（分支名为机器判据 + 拆 id 层级 + 模板固定 `T-\d{3}`；真 git 仓正反例 12 项） | 2026-09-23 |

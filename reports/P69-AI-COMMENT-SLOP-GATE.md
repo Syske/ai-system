@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Approved** |
+| Status | **Implemented** |
 | Type | Structural（新增工具 + 策略章节扩展 + 新技能 + 门禁注册） |
 | Author | AI Maintainer |
 | Created | 2026-09-23 |
@@ -235,7 +235,77 @@ ai-system/templates/runtime/runtime-develop.md           ← 门禁说明段（�
 | Reviewer | Decision | Date |
 |---|---|---|
 | User (AI Maintainer operator) | **Approved** —— 裁定 1/2/3 全部同意（工具单文件 + 文件内 parser 抽象 / 不加 CLI 服务层 / 策略补进既有标准），并要求先出 MVP 落地计划 | 2026-09-23 |
+| User (AI Maintainer operator) | **Implemented** —— MVP 八步全部落地并按实测验收（见下）；`--report-only` 是否翻 FAIL **留待用户裁定** | 2026-09-23 |
 
 ## Implementation Record
 
-*(待实施后填写：实际改动文件与提交号 · 各步验收实测结果 · F1/F2 误报漏报率 · 是否去掉 `--report-only` 翻 FAIL · 与提案的偏差)*
+**实施时间**：2026-09-23（MVP 八步；8 个提交）
+
+| 步 | 提交 | 实测验收 |
+|---|---|---|
+| S1 策略先行 | `c964fcc` | `documentation.md → Comment Quality`（六级分类 + 稳定规则 id + 判定顺序 + 安全原则）· `ai-coding-rules` Rule 12 一句原则 · G5 三处「无豁免全量要求」对齐。**门禁抓到真问题**：`maintenance.yaml` 引用了尚未落地的工具路径 → path-audit FAIL（2 broken）→ 改为不含路径的表述 |
+| S1b 去对冲 | `d5bd08a` | `skills/implement/decision.md` 原「Documentation is mandatory, not optional」与标准冲突 → 拆为「声明级文档必需 / 代码级注释默认不写」；术语统一为「**承重注释（load-bearing）**」。**未采纳** runtime-base 加引用（层级错位，且 `standards-loader` 的 Always Load 已覆盖） |
+| S2 候选提取 | `e514d7c` | 单文件 + 文件内 parser 抽象（tree-sitter / 标准库词法降级）· 14 测试 · **真实仓两通道完全一致**：housekeeping 1311 / cmdb 5107 / knowledge 22748 条，位置/文本/kind 逐条相同 |
+| S3 diff 限定 | `9ed2f14` | 只处理新增行；存量不被触碰；未跟踪整文件视为新增；纯删除不产出；非 git 退化为全量并告警 · 20 测试 |
+| S4 规则引擎 | `6045c9b` | 35 测试（承重六类 ×3 = **18 条零误删** · 泔水 26 条按预期命中）· 退出码 0/1/2/3 · 真实代码抽查暴露并修正 3 类误删（枚举常量 / 字段式名词短语 / 句中动词） |
+| S5 CLI 与安全 | `9de949f` | `check`/`fix` 子命令 · **fix 默认 dry-run**、`--apply` 只删确定类 · 幂等 · 行尾只剔注释 · 43 测试 · 真 git 仓端到端（check 2 DELETE → dry-run → apply 删 2 条且承重/REVIEW 均保住 → 再 check 无 DELETE） |
+| S6 门禁注册 | `807a6a0` | `gates.develop` 加 `comment-lint`（`{src} --diff --report-only`，**只报不拦**）+ runtime-develop 门禁段 · 真仓模拟：DELETE=1 → exit 1 → 清理后 exit 0 |
+| S7 技能 | `e85bfcc` | `skills/comment-cleaner/SKILL.md`（策略只引用不复制；排除 review/verify 改码；误报要上报而非绕过）· 技能 38 → **39** |
+| S8 真实验证 | 本批 | 见下 |
+
+### S8 真实可用性验证（只读，未写任何业务仓库）
+
+**历史 diff 干跑**：8 个业务仓库各取最近 25 个非合并提交，仅统计该提交新增行内的注释
+（`temp/p69-s8-historical-diffs.py`，工具函数复用，一次运行）：
+
+| 仓 | 新增注释 | DELETE | REVIEW | KEEP |
+|---|---|---|---|---|
+| bs-integration | 41 | 4 | 28 | 9 |
+| cmdb-api | 20 | 6 | 4 | 10 |
+| housekeeping-service-api | 128 | 1 | 94 | 33 |
+| knowledge-api | 41 | 0 | 29 | 12 |
+| platform-api | 58 | 6 | 34 | 18 |
+| resource-manager | 19 | 0 | 18 | 1 |
+| user-center-api | 25 | 0 | 6 | 19 |
+| ipd-technical-design-drawings | 0 | 0 | 0 | 0 |
+| **合计** | **332** | **17（5.1%）** | **213（64.2%）** | **102（30.7%）** |
+
+**确定可删项全量人工审计（17/17）**：逐条核对 → **0 误删**。命中类型：装饰性分段线（10）·
+复述代码（6，如 `构建请求体` 对 `Map<...> requestBody = new HashMap<>()`）· 流程套话（1，
+`首先检查 cause 是否为 null` 对 `if (cause == null) {`）。
+
+**审计中发现并已修正的 4 类真误报**（修正后误删类清零，代价是确定可删量 34 → 17）：
+
+| 误报类别 | 例子 | 修正 |
+|---|---|---|
+| 枚举常量上的注释 | `PENDING, // 待处理` | 新增字段/枚举护栏：这类注释按标准属「必须写且禁止名字直译」→ 名字直译是**需改**不是**可删** → 交 REVIEW |
+| 字段式名词短语 | `// 总记录数` 对 `result.setTotalRecords(...)` | 动词必须在**注释开头**（`待处理`/`总记录数`/`尝试查询…` 不再是复述） |
+| 句中动词 | `// 尝试查询表是否存在`、`// Step2: 开关判断…` | 同上（句中动词不构成复述句式） |
+| **巧合动词链接** | `// 删除转码流` 的下一行是 `deleteRateLimiter.tryAcquire(...)` | 动词只用于识别句式；**链接必须落在名词/标识符**上（`delete` 撞变量名不算复述） |
+
+**召回率**：合成泔水样本 26 条 → 按预期规则命中率 100%（单测断言），确定可删覆盖 15/26（其余
+11 条为刻意交 REVIEW 的 DUPLICATE/UNCERTAIN）。真实历史 diff 上确定可删占比 5.1% —— 这是
+「宁可漏删」的直接代价，符合提案 §2 的安全底线。
+
+**端到端**：真 git 仓（临时仓）完整走通 `check → fix --dry-run → fix --apply → 独立提交 → 再 check`；
+develop 门禁模拟走通（DELETE → exit 1 → 清理后 exit 0）。
+
+### 是否去掉 `--report-only` 翻 FAIL（**待用户裁定**）
+
+**建议：暂不翻，保持只报不拦**。判据：① 真实数据里 REVIEW 占新增注释 64%（现阶段需要的是让 AI
+按技能逐条裁定，而不是让门禁拦住 2/3 的新注释）；② DELETE 精度虽经 17/17 审计通过，但样本量仍小
+（17 条/7 仓）；③ 翻 FAIL 的触发条件建议定为「累计再跑 N 个真实任务后，DELETE 精度仍 100%
+且团队确认可用于拦截」。届时只需删掉 `main-chain-capabilities.yaml` 里该门禁 cmd 的 `--report-only`。
+
+### 与提案的偏差（均已披露）
+
+1. `config/comment-lint.yaml` 由 S1 推迟到 S2 落地（避免"无消费者的配置声明"）。
+2. 术语由提案期的「信息增量 / Value-Burden」收敛为「**承重注释（load-bearing）**」（用户口径）。
+3. `runtime-base.md` 未加引用（按用户确认跳过）。
+4. 规则实现细节比提案更保守：动词必须位于注释开头 · 链接必须落在名词/标识符 · 字段/枚举注释不判复述
+   —— 三条都是真实代码审计暴露误删后加的，未在提案中预设。
+
+### 未做（按 §8 边界，留 V2）
+
+`aic` hidden command · 非 Java 语言 · `--all` 全仓审计 · 工具内调 LLM · baseline 机制 ·
+SAFE_REWRITE（自动重写）· 单文件抽包（触发条件已书面留档于 §4.2）
