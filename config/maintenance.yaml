@@ -344,6 +344,12 @@ last_findings:
   **成立**（后者以 convention 级为主 → 本仓 format-check 已覆盖该类）、雷达第 10 项成立且推荐载体即我们已有形态、
   **DesigniteJava「F1 98.82%」未证实**（不作为引入依据）。阈值沿用仓内 40/3/20、「方法 ≤80」并入既有待审提案；
   工具/门禁待**真实触发**再实施。开放提案 3 → 4。
+  **P63 实施（2026-09-23，用户逐项裁决）** —— 主链分支格式**预设化**：PRESETS（plain 默认 / ipd）
+  驱动 parse/render 同源；场景→预设映射落 `config/branch-formats.yaml`（需求默认 plain，可改 ipd；
+  bugfix 留空交 provider，因其格式由 runtime-bugfix 的 provider 契约管）；手写格式串一律拒绝；
+  render 输出必然可解析。**修掉实测缺口**：parser 原不认非迭代形态 → aic-trace 取不到 git 线索。
+  实施中修正提案两条过期前提（parser 早已存在 / tasks-template 无 branch 字段）。单测 +8（564 OK）。
+  开放提案 4 → 3（P42 defer / P46 blocked / P67 待触发）。
   **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：
   长路径的**中间段**不再被当引用（本轮 3 次实测误报：archived 下 nested 路径、kubeconfig 后接路径、
   散文里的 word/word）；真引用形态全部仍被捕获。同时**还原**两处为绕开误报而写的规避措辞，
