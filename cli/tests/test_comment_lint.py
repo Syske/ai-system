@@ -17,6 +17,7 @@ Run:
 import importlib.util
 import io
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -230,6 +231,119 @@ class TestCli(unittest.TestCase):
         code, out, _ = self._run([str(self.root), "--dump-candidates", "--parser", "stdlib"])
         self.assertEqual(code, 0)
         self.assertIn("注释候选：", out)
+
+
+class TestDiffMode(unittest.TestCase):
+    """diff 限定（S3）—— 只处理本次新增行内的注释；存量注释不被触碰。"""
+
+    EXISTING = (
+        "package demo;\n"
+        "public class A {\n"
+        "    // 存量注释（不得被纳入判定）\n"
+        "    public void old() { }\n"
+        "}\n"
+    )
+    WITH_NEW = (
+        "package demo;\n"
+        "public class A {\n"
+        "    // 存量注释（不得被纳入判定）\n"
+        "    public void old() { }\n"
+        "\n"
+        "    // 获取用户\n"
+        "    public void newOne() { }\n"
+        "}\n"
+    )
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = Path(self.tmp.name)
+        self._git("init", "-q")
+        self._git("config", "user.email", "test@example.com")
+        self._git("config", "user.name", "test")
+        self._write(self.EXISTING)
+        self._git("add", "A.java")
+        self._git("commit", "-q", "-m", "init")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _git(self, *args):
+        return subprocess.run(
+            ["git", "-C", str(self.repo), *args], capture_output=True, text=True
+        )
+
+    def _write(self, text, name="A.java"):
+        (self.repo / name).write_text(text, encoding="utf-8")
+
+    def _run(self, argv):
+        out = io.StringIO()
+        err = io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = cl.main(argv)
+        return code, out.getvalue(), err.getvalue()
+
+    def _json(self, *extra):
+        code, out, err = self._run(
+            [str(self.repo), "--diff", "--json", "--parser", "stdlib", *extra]
+        )
+        self.assertEqual(code, 0)
+        return json.loads(out), err
+
+    def test_only_added_line_comments_are_kept(self):
+        self._write(self.WITH_NEW)
+        payload, _ = self._json()
+        self.assertEqual(payload["mode"], "diff")
+        texts = [c["text"] for c in payload["candidates"]]
+        self.assertEqual(len(texts), 1)
+        self.assertIn("获取用户", texts[0])
+        self.assertEqual(payload["comments"], 1)
+        self.assertGreaterEqual(payload["dropped"], 1)   # 存量注释被过滤并计数
+
+    def test_full_mode_keeps_existing_comments(self):
+        self._write(self.WITH_NEW)
+        code, out, _ = self._run([str(self.repo), "--json", "--parser", "stdlib"])
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["mode"], "full")
+        self.assertEqual(payload["comments"], 2)
+
+    def test_untracked_file_is_fully_new(self):
+        self._write("package demo;\n// 新增文件里的注释\nclass B { }\n", name="B.java")
+        payload, _ = self._json()
+        texts = [c["text"] for c in payload["candidates"]]
+        self.assertEqual(len(texts), 1)
+        self.assertIn("新增文件", texts[0])
+
+    def test_pure_deletion_yields_nothing(self):
+        """只删注释（无新增行）→ diff 模式不得把被删注释当候选。"""
+        self._write(
+            "package demo;\n"
+            "public class A {\n"
+            "    public void old() { }\n"
+            "}\n"
+        )
+        payload, _ = self._json()
+        self.assertEqual(payload["candidates"], [])
+
+    def test_non_git_dir_falls_back_to_full(self):
+        """非 git 目录（必须在任何仓之外）→ 退化为全量并告警。"""
+        with tempfile.TemporaryDirectory() as outside:
+            plain = Path(outside)
+            (plain / "C.java").write_text("// 单独目录里的注释\nclass C { }\n", encoding="utf-8")
+            code, out, err = self._run(
+                [str(plain), "--diff", "--json", "--parser", "stdlib"]
+            )
+            self.assertEqual(code, 0)
+            self.assertEqual(json.loads(out)["mode"], "full")
+            self.assertIn("退化为全量扫描", err)
+
+    def test_changed_alias_behaves_like_diff(self):
+        self._write(self.WITH_NEW)
+        code, out, _ = self._run(
+            [str(self.repo), "--changed", "--json", "--parser", "stdlib"]
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["mode"], "diff")
 
 
 if __name__ == "__main__":

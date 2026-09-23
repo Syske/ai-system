@@ -7,8 +7,9 @@ r"""注释质量检查（P69 MVP）。
 注释语言由 `tools/repo-lint.py` 检查。
 
 阶段（P69 §5.2）：
-  S2 候选提取（本阶段已落地）：注释候选 = file/行列/偏移/文本/kind/缩进/前后代码/所属方法/所属类
-  S3 diff 限定 · S4 规则引擎 · S5 CLI 与安全（fix） · S6 门禁注册
+  S2 候选提取（已落地）：注释候选 = file/行列/偏移/文本/kind/缩进/前后代码/所属方法/所属类
+  S3 diff 限定（本阶段已落地）：只处理 `git diff` 新增行内的注释
+  S4 规则引擎 · S5 CLI 与安全（fix） · S6 门禁注册
 
 解析通道（探测式导入，两条通道的输出必须一致）：
   tree-sitter  `tree-sitter-language-pack` 提供 java 语法，环境存在时默认
@@ -17,7 +18,8 @@ r"""注释质量检查（P69 MVP）。
 安全底线（贯穿全部阶段）：**宁可漏删，不可误删**。
 
 用法：
-    python3 tools/comment-lint.py <path> [--parser auto|tree-sitter|stdlib]
+    python3 tools/comment-lint.py <path> [--diff|--changed]
+                                  [--parser auto|tree-sitter|stdlib]
                                   [--dump-candidates] [--json]
 exit code: 0=提取成功  2=用法/IO/环境错误（规则判定与 1/2 语义在 S4/S5 接入）
 """
@@ -25,6 +27,7 @@ exit code: 0=提取成功  2=用法/IO/环境错误（规则判定与 1/2 语义
 import argparse
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -418,6 +421,116 @@ def _attribute(ranges, offset):
 
 
 # --------------------------------------------------------------------------- #
+# S3：diff 限定（只处理本次改动新增行内的注释）
+#
+# 语义与仓内既有增量门禁一致（三处各自持有同口径实现，本工具沿用同一形态）：
+#   改动文件 = `git status --porcelain`（含未跟踪；rename 取新路径）
+#   新增行   = `git diff -U0 HEAD -- <rel>` 的 hunk 头（新增侧行号）
+#   非 git 仓 / 无 HEAD 提交 / 未跟踪文件 → 整文件视为新增（同 format-check 的回退语义）
+# --------------------------------------------------------------------------- #
+
+HUNK_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
+
+
+def git_repo_root(start):
+    """返回 git 仓库根；非 git 仓返回 None。"""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(start), "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:
+        return None
+    return Path(out.stdout.strip())
+
+
+def git_changed_java_files(repo_root, target):
+    """`git status --porcelain` 取改动中的 .java（含未跟踪）；target 为文件时只关心它自身。"""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(repo_root), "status", "--porcelain"],
+            capture_output=True, text=True, timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return []
+    if out.returncode != 0:
+        return []
+
+    files = []
+    for raw in out.stdout.splitlines():
+        entry = raw[3:].strip()
+        if " -> " in entry:                     # rename：取新路径
+            entry = entry.split(" -> ", 1)[1]
+        entry = entry.strip('"')
+        path = (repo_root / entry).resolve()
+        if path.suffix != ".java":
+            continue
+        if target.is_file() and path != target.resolve():
+            continue
+        if target.is_dir() and not str(path).startswith(str(target.resolve())):
+            continue
+        files.append(path)
+    return sorted(files)
+
+
+def git_added_lines(repo_root, path):
+    """文件相对 HEAD 的新增行号集合；未跟踪/无 HEAD/非 git 语义 → None（整文件视为新增）。"""
+    try:
+        rel = path.resolve().relative_to(repo_root)
+    except ValueError:
+        return None
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(repo_root), "diff", "-U0", "HEAD", "--", str(rel)],
+            capture_output=True, text=True, timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:                    # 无 HEAD（首提交）等
+        return None
+    if not out.stdout.strip():                 # 未跟踪或无差异 → 改动收集已限定文件，此处整文件视为新增
+        return None
+
+    added = set()
+    for line in out.stdout.splitlines():
+        match = HUNK_RE.match(line)
+        if not match:
+            continue
+        start = int(match.group(1))
+        count = int(match.group(2) or 1)
+        added.update(range(start, start + count))
+    return added
+
+
+def comment_lines(comment):
+    """注释覆盖的行号区间（多行块注释返回整个区间）。"""
+    return range(comment.line, comment.line + comment.text.count("\n") + 1)
+
+
+def filter_added(candidates, added_map):
+    """只保留落在新增行内的注释；added_map 值为 None 表示整文件视为新增。"""
+    kept, dropped = [], 0
+    for comment in candidates:
+        added = added_map.get(comment.path)
+        if added is None or any(line in added for line in comment_lines(comment)):
+            kept.append(comment)
+        else:
+            dropped += 1
+    return kept, dropped
+
+
+def discover_diff_targets(root):
+    """diff 模式的扫描范围（改动中的 .java）；非 git 仓返回 None。"""
+    target = Path(root)
+    repo_root = git_repo_root(target if target.is_dir() else target.parent)
+    if repo_root is None:
+        return None
+    return repo_root, target
+
+
+# --------------------------------------------------------------------------- #
 # 候选提取与 CLI
 # --------------------------------------------------------------------------- #
 
@@ -446,29 +559,61 @@ def iter_java_files(root):
     return files
 
 
+def _rel_path(path, cwd):
+    try:
+        return str(path.resolve().relative_to(cwd))
+    except ValueError:
+        return str(path)
+
+
+def _read_source(path):
+    """读取源文件；不可读时告警并返回 None（不阻断整体扫描）。"""
+    try:
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        print(f"[WARN] 跳过不可读文件 {path}: {exc}", file=sys.stderr)
+        return None
+
+
 def collect(root, parser):
     """遍历 java 文件，返回候选列表（path 相对当前工作目录，便于阅读）。"""
     cwd = Path.cwd()
     candidates = []
     for path in iter_java_files(root):
-        try:
-            source = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
-            print(f"[WARN] 跳过不可读文件 {path}: {exc}", file=sys.stderr)
+        source = _read_source(path)
+        if source is None:
             continue
-        try:
-            rel = str(path.resolve().relative_to(cwd))
-        except ValueError:
-            rel = str(path)
-        candidates.extend(parser.parse(source, rel))
+        candidates.extend(parser.parse(source, _rel_path(path, cwd)))
     return candidates
+
+
+def collect_changed(repo_root, target, parser):
+    """diff 模式：只保留改动文件中**新增行**内的注释，返回 (候选, 被过滤掉的存量条数)。"""
+    cwd = Path.cwd()
+    candidates = []
+    added_map = {}
+    for path in git_changed_java_files(repo_root, target):
+        source = _read_source(path)
+        if source is None:
+            continue
+        rel = _rel_path(path, cwd)
+        added_map[rel] = git_added_lines(repo_root, path)
+        candidates.extend(parser.parse(source, rel))
+    return filter_added(candidates, added_map)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="注释质量检查（P69 MVP）—— 当前阶段：注释候选提取"
+        description="注释质量检查（P69 MVP）—— 当前阶段：候选提取 + diff 限定"
     )
     parser.add_argument("path", help="Java 文件或目录")
+    parser.add_argument(
+        "--diff",
+        "--changed",
+        dest="diff",
+        action="store_true",
+        help="只处理 git diff 新增行内的注释（同仓内既有增量门禁语义）",
+    )
     parser.add_argument(
         "--parser",
         choices=["auto", "tree-sitter", "stdlib"],
@@ -491,7 +636,20 @@ def main(argv=None):
         print(f"[ERROR] 无法启用解析通道 {choice}: {exc}", file=sys.stderr)
         return 2
 
-    candidates = collect(args.path, engine)
+    mode = "full"
+    dropped = 0
+    candidates = []
+    if args.diff:
+        resolved = discover_diff_targets(args.path)
+        if resolved is None:
+            print("[WARN] 非 git 仓库，--diff 退化为全量扫描", file=sys.stderr)
+        else:
+            repo_root, target = resolved
+            mode = "diff"
+            candidates, dropped = collect_changed(repo_root, target, engine)
+    if mode == "full":
+        candidates = collect(args.path, engine)
+
     actionable = [
         c for c in candidates
         if cfg.get("java_doc", "skip") != "skip" or c.actionable
@@ -500,6 +658,8 @@ def main(argv=None):
     if args.json:
         payload = {
             "parser": engine.name,
+            "mode": mode,
+            "dropped": dropped,
             "java_doc": cfg.get("java_doc", "skip"),
             "comments": len(candidates),
             "actionable": len(actionable),
@@ -513,7 +673,8 @@ def main(argv=None):
         by_kind[candidate.kind] = by_kind.get(candidate.kind, 0) + 1
     print(f"注释候选：{len(candidates)} 条（进入判定 {len(actionable)} 条，"
           f"JavaDoc 策略={cfg.get('java_doc', 'skip')}）")
-    print(f"解析通道：{engine.name}")
+    print(f"解析通道：{engine.name} · 模式：{mode}"
+          + (f"（本次未纳入判定的存量注释 {dropped} 条）" if mode == "diff" else ""))
     for kind, count in sorted(by_kind.items()):
         print(f"  {kind}: {count}")
     if args.dump_candidates:
