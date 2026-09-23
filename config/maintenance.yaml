@@ -325,6 +325,11 @@ last_findings:
   记忆结构树跟随实际）。**余 3 类属「去重/单一来源」**（explore 正文副本 / Token Efficiency ×3 /
   Report-Write Guard ×2），需先定 SSOT 位置再动。纪律自更正：批量替换一度命中 48 文件（含历史报告）
   → 判越界并**回退 33 份历史文档**，只改在用文档；logs/ 同类改动（仅命令拼写）已在诊断日志披露。
+  **R3 收尾（2026-09-23）** —— 余 3 类「去重/单一来源」已处置：`Report-Write Guard` 抽为
+  `governance/policies/report-write-guard.md`（两 runtime 30→7 行纯引用）· `Token Efficiency Rules`
+  抽为 `governance/standards/common/code-graph-tools.md`（三技能 3→1 行引用）· `explore` 与
+  `openspec-explore` 正文副本**判为 P19 已裁决设计**（Option B 刻意双份 + Next=季度评估合并）
+  → 不去重。Governance 计数 60→62（两个新文件）。**R3 全部收口**。
   **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：
   长路径的**中间段**不再被当引用（本轮 3 次实测误报：archived 下 nested 路径、kubeconfig 后接路径、
   散文里的 word/word）；真引用形态全部仍被捕获。同时**还原**两处为绕开误报而写的规避措辞，

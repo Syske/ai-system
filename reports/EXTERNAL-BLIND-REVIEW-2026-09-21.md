@@ -405,6 +405,8 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 
 已修 **10 类**（逐项两侧取证、一侧为准 + 另一侧标注）：索引计数重算 + 补漏登记的 `k8s-logs` + `review-changes` 归属 · `python`→`python3` 全仓在用文档统一（本机 `command -v python` 为空 → 原写法是死命令）· 压缩触发点统一 **50%**（60% 降为分档边界，修正对 CONTEXT_LOADING 的错误引用）· 技能尺寸 800/1000 两侧标注作用域 · 加载顺序措辞与 CONTEXT_LOADING（SSOT）对齐 · metrics 两类文件名并列 · `knowledge` 操作 3→5 显式（子集说明）· `skill.md`→`SKILL.md` · 四反引号围栏等长（markdown-it 实测复核无未闭合、标题正常渲染）· 记忆结构树改为跟随实际树。
 
+**余 3 类 —— ✅ 全部收口（2026-09-23）**：前两类按「抽单一来源 + 其余引用」处理（`Report-Write Guard` → `governance/policies/report-write-guard.md`，两个 runtime 改纯引用；`Token Efficiency Rules` → `governance/standards/common/code-graph-tools.md`，三个技能改 1 行引用）；第三类**判为已裁决设计、不去重**（P19 Implemented 的 Option B 刻意双份 + Next=季度评估合并）。以下为原始登记：
+
 **余 3 类（属「去重/单一来源」而非措辞，需先定 SSOT 位置）**：`skills/explore` 与 `openspec-explore` 正文互为副本（关系已由 **P19（Implemented）** 裁决，残量为正文级重复）· `## Token Efficiency Rules` 在 `debug-issue` / `explore-codebase` / `review-changes` **逐字重复**（各 3 行）· `## Report-Write Guard` 在 `runtime-review` / `runtime-verify` **逐字重复**（各 30 行）。
 
 **R4 · 工具一致性与重构（低优先，随任务消减）**
