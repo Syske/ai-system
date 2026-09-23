@@ -170,3 +170,42 @@ workflow.md/command.md；chain/skill launcher 仅读 skill-launch.md），其 `{
 | Original Path | Reason |
 |---|---|
 | `templates/prompts/workflow-trigger.md` | 死模板（零代码引用），归档保留 |
+
+---
+
+## 2026-09-23 — skill-sync Archival (Value-Burden Check)
+
+**Reason:** `skills/skill-sync/`（576 行 / 4 文件：push.js 248、sync-policy.js 136、pull.js 131、
+SKILL.md 61）经 Value-Burden Check 复核后无价值实证：唯一调用方 `skill-optimizer` /
+`iterative-optimizer` 已于 2026-08-17 归档；`logs/` `reports/` `outputs/` 中**零条真实 push/pull
+运行记录**；本机三个凭据路径（`~/.agent-insight/.env`、`~/.witty/.env`、`~/.skill-insight/.env`）
+**均不存在**；`git log -- skills/skill-sync` 的 5 次提交中首提之后**全是审计驱动的加固**
+（描述长度 lint / T5 / R1 安全 / R4 退出码），零功能提交。价值证据缺失 + 负担非轻 → 归档候选。
+
+**未走 Deprecate 宽限期**：`governance/policies/skill-lifecycle.md` 的
+Deprecate → 1 个月宽限期 → Archived 序列适用于「有替代品 / 能力过时」；本次走 Value-Burden
+路线，与 2026-08-17 先例一致（直接归档，不设宽限）。
+
+See `reports/VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md`.
+
+### Moved Files
+
+| Original Path | Reason |
+|---|---|
+| `skills/skill-sync/` | 内网 Insight 平台的技能上传/拉取通道，无价值实证（无消费者 / 无运行记录 / 平台未配置） |
+| `cli/tests/test_skill_sync_policy.py` → `archived/skills/skill-sync/tests/` | 契约测试随技能同生命周期归档（先例：skill-optimizer 的 `scripts/tests/`）；路径常量随位置修正，单跑仍 10 项 OK |
+
+### Consequential Updates
+
+- `skills/README.md`：删 `skill-sync` 索引行；该节计数按实际行数更正（`(6)` → `(1)`，原声明本已漂移）
+- `cli/tests/test_t5_hardening.py`：`test_source_uses_execfile_not_template_exec` 改指
+  **归档快照**路径（保留 T5 execFileSync 修复的历史证据；恢复正常需重跑该断言）
+- `tools/path-audit.py`：EXAMPLE_ONLY 的 `../skill-generator` 注释更正为归档路径
+  （条目保留 —— `archived/` 不在 path-audit 扫描范围，但恢复该技能时仍需此豁免）
+- 技能枚举口径自动收敛：`tools/skill_index.py` 39 → **38**（无需改代码）
+- `.github/workflows/ci.yml`：本仓**无 `.github/`**（2026-08-17 先例当年存在的 2 个 CI 步骤
+  在当前树上已不存在），无需处理
+- CLI / `config/menu.yaml` / `config/skill-groups.yaml` / workflows：**零引用**，无需解绑
+- **R4 §2.2 撤销**：判决前在途的 `loadConfiguration` 抽共享模块重构（未提交）已撤销；
+  `archived/` 保持 HEAD（`f36f744`）快照，不追加改进
+- 恢复条件（`skill-lifecycle.md` Stage Archived）：ADR 说明 + 全质量门禁通过 + linter 通过

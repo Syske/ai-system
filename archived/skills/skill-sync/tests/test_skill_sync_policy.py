@@ -2,8 +2,14 @@
 """skill-sync 安全策略契约测试（node 驱动）—— R1：上传过滤 / 敏感文件 / 主机协议。
 
 R1 背景（2026-09-21 盲检）：上传递归打包无过滤、无协议时回退 `http://`（API Key 明文）、
-pull/push 各自复制同一份策略。策略已抽为 `skills/skill-sync/scripts/sync-policy.js`，
-本测试直接驱动 node 校验其行为（无 node 时跳过）。
+pull/push 各自复制同一份策略。策略已抽为 `scripts/sync-policy.js`，本测试直接驱动 node
+校验其行为（无 node 时跳过）。
+
+【2026-09-23 归档随行】本文件原在 `cli/tests/`；skill-sync 经 Value-Burden 裁决归档
+（见 `reports/VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md`），测试随技能一并移入
+`archived/skills/skill-sync/tests/`（先例：skill-optimizer 的 `scripts/tests/`）。
+因此**不再被 `python -m unittest discover -s cli/tests` 收集**，仅在恢复该技能时使用；
+下方路径常量已随位置修正，可直接 `python -m unittest <本文件>` 单跑。
 
 Run:
     python -m unittest cli.tests.test_skill_sync_policy
@@ -16,8 +22,8 @@ import sys
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-POLICY = REPO_ROOT / "skills" / "skill-sync" / "scripts" / "sync-policy.js"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+POLICY = Path(__file__).resolve().parents[1] / "scripts" / "sync-policy.js"
 
 NODE = shutil.which("node")
 

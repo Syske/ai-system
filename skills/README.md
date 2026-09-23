@@ -51,13 +51,12 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | apply-openspec | ~~OpenSpec implementation procedure, develop contract (archived 2026-09-09, zero usage)~~ | removed |
 | memory-capture | Capture verified session experience into Coding Memory (MEMORY_GUIDELINES, dedupe via index) | Session end / explicit request |
 
-## Optimization & Benchmarking Skills (6)
+## Optimization & Benchmarking Skills (1)
 
 These skills are for internal AI system optimization. They are NOT part of the development pipeline.
 
 | Skill | Purpose |
 |---|---|
-| skill-sync | Sync skills between environments |
 | skill-benchmark-generator | Generate routing + outcome benchmarks (merged from routing-/outcome-generators) |
 
 ## Skill Creation (1)

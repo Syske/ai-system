@@ -178,9 +178,11 @@ class TestPullJsNoShellInterpolation(unittest.TestCase):
         self.assertFalse(Path("/tmp/t5_pwned").exists(), "不得发生 shell 展开")
 
     def test_source_uses_execfile_not_template_exec(self):
-        src = (REPO_ROOT / "skills" / "skill-sync" / "scripts" / "pull.js").read_text(
-            encoding="utf-8"
-        )
+        # skill-sync 已于 2026-09-23 经 Value-Burden 裁决归档；此处断言的是**归档快照**
+        # （`archived/skills/skill-sync/scripts/pull.js`）仍保留 T5 的 execFileSync 修复，
+        # 作为历史证据保留（恢复正常需重跑此断言）。
+        src = (REPO_ROOT / "archived" / "skills" / "skill-sync" / "scripts" / "pull.js"
+               ).read_text(encoding="utf-8")
         self.assertIn("execFileSync(", src)
         self.assertNotIn("execSync(`", src)
 

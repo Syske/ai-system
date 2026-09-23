@@ -61,7 +61,8 @@ FALSE_POSITIVES = {
 EXAMPLE_ONLY = {
     # governance/standards/common/cross-project-sync.md：说明性的ive **/ wildcard
     "../AuditTypeEnum.java",
-    # skills/skill-sync/SKILL.md："上传你构建的技能"示例le target
+    # skills/skill-sync/SKILL.md（2026-09-23 已归档至 archived/skills/skill-sync/，
+    # 该目录不在 path-audit 扫描范围内）："上传你构建的技能"示例目标
     "../skill-generator",
     # skills/open-cli/SKILL.md：~/.opencli 下的正确示例路径ncli/clis
     "cli/clis/aem/page-views.ts",

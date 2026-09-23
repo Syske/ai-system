@@ -11,9 +11,10 @@
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
 
-last_run: 2026-09-21
-mode: weekly
-next_maintenance: '2026-09-28'   # weekly 节奏：+7d（本次 2026-09-21 补做 09-16 到期周检）
+last_run: 2026-09-23
+mode: on-demand
+next_maintenance: '2026-09-28'   # weekly 节奏保持 +7d（2026-09-21 补做 09-16 到期周检）；
+                                 # 2026-09-23 的 on-demand 专项（R4 残债 + skill-sync 归档）不重置周检节奏
 last_findings:
 - 计划内周检（weekly，2026-09-21 补做，原排期 2026-09-16 逾期 5 天）：工具门禁全绿
   （check.py PASS/325 单测/八段 15/15/path 0 broken/extensions 0-0/workflow-command-audit 0-0）。
@@ -219,7 +220,8 @@ last_findings:
   读写告警、memory 门禁非 UTF-8 容错、format-check --check-commit 异常转 WARN、
   generate_contract 缺键显式报错、checks/menu dry-run monkeypatch 恢复、deepseek 查询串感知）
   + 8 回归测试。**残债登记**（报告 §8.4）：**R1 安全/审计 4 已于 R1 批次修复（2026-09-21，
-  +23 测试）** —— 打包排除集 + 疑似凭据拒传（`skills/skill-sync/scripts/sync-policy.js`）、
+  +23 测试）** —— 打包排除集 + 疑似凭据拒传（策略模块 sync-policy.js，现位于归档树
+  `archived/` 内，2026-09-23 随 skill-sync 归档）、
   无协议默认 https + 明文 http 默认拒绝、技能枚举单一来源 `tools/skill_index.py`
   （口径 32/33/33 → **39/39/39**，容器 `architecture/` 下 7 个技能入列并暴露修复 7 个
   description 过短 ERROR）、技能层契约测试补齐。**R2 静默失败/可靠性已修 13/24（2026-09-21，
@@ -296,3 +298,15 @@ last_findings:
   → **决策：不修改工具代码**，仅声明作用域。其 2 处单行 Javadoc（FAIL）已顺手改为多行
   （纯注释、零语义改动），故全量扫由 FAIL=2 降为 FAIL=0/WARN=5。**门禁判定以 `--changed` 为准**：
   工作树干净 → PASS（exit 0）。
+- 盲检残债 R4 收尾 + skill-sync 归档（on-demand，2026-09-23）：预检 quick-check 0 findings、
+  工具门禁全绿（check PASS / 526 单测 / repo-lint 38 skills 0-0 / path 0 broken /
+  workflow-command-audit 0-0）。R4 §2.1 generate_contract 三项已修（G1 标量引号 ·
+  G2 去重告警 · G3 服务匹配口径统一，+9 测试）。R4 §2.2（pull/push 抽共享
+  loadConfiguration）**随 skill-sync 归档而关闭** —— Value-Burden 复核无实证（唯一消费者
+  skill-optimizer 已于 2026-08-17 归档 · 全仓零条真实 push/pull 运行记录 · 本机三个凭据
+  路径均不存在 · 5 次提交首提后全是审计驱动加固），用户裁决 archive；技能 39→38，
+  契约测试随技能移入归档树（skill-sync/tests/），报告见
+  reports/VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md 与 archived/ARCHIVE.md。
+  **本轮新发现（待 R3 文档批次）** —— k8s-logs 未登记于 skills/README.md；On-Demand 节
+  声明 (10) 而实际 19 行。**R4 余额 4 项** —— S3 k8s_helper CrashLoopBackOff ·
+  S1 index-project venv 探测 · S4 idea-mcp SSE 断连 · S2 k8s-logs 通道一致性。

@@ -133,6 +133,7 @@
 | Assessment | aic 交互与提示词链路专项优化（B1/H1-H6/M1-M8 等 16 项） | 2026-08-18 | `CLI-INTERACTION-OPTIMIZATION-2026-08-18.md` | 意图链连续执行/P22 阶段二待后续 |
 | Assessment | 运行诊断日志机制（logs/ 每运行落盘, 模板 + governance 契约） | 2026-08-17 | `templates/runtime/runtime-diagnostic-log.md`（经 AI_OPERATING_RULES §Completion、REFLECTION_RULES 落盘条目登记） | 待随一次实际 command/workflow 跑一轮验证字段/拆分阈值 |
 | Decision | Value-Burden Check: 归档 skill-optimizer + iterative-optimizer（无价值证据的 10k 行 meta 工具） | 2026-08-17 | `VALUE-BURDEN-DECISION-skill-optimizer-2026-08-17.md` | 归档联动清理已执行；后续 MAINTENANCE/QUARTERLY 对 >3000 行技能强制检查 |
+| Decision | Value-Burden Check: 归档 skill-sync（Insight 平台技能同步通道；无消费者/无运行记录/平台未配置） | 2026-09-23 | `VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md` | 归档已执行（技能 39→38）；R4 §2.2 重构随之撤销；恢复需 ADR + 全门禁 |
 | Assessment | Value-Burden: implement skill 保留（已兑现价值 + 健康负担，最大活跃技能 2368 行） | 2026-08-17 | `VALUE-BURDEN-ASSESSMENT-implement-2026-08-17.md` | — |
 | Review | **外部盲检评审**（第三方模型双评委独立评审 ai-system 制品：241 条发现 / 抽检精度 ≈91% / 11 项真实缺陷已修，**全部逃过内部门禁**） | 2026-09-21 | `EXTERNAL-BLIND-REVIEW-2026-09-21.md` | 135 WARN+48 INFO 未逐条裁决；衍生提案 **P60**（门禁自校验）/ **P61**（外部盲检纳入运维）待评审 |
 | Review | Workflow 层优化 | 2026-07 | `WORKFLOW-OPTIMIZATION-REPORT-2026-07.md` | — |
