@@ -9,8 +9,9 @@ r"""注释质量检查（P69 MVP）。
 阶段（P69 §5.2）：
   S2 候选提取（已落地）：注释候选 = file/行列/偏移/文本/kind/缩进/前后代码/所属方法/所属类
   S3 diff 限定（已落地）：只处理 `git diff` 新增行内的注释
-  S4 规则引擎（本阶段已落地）：六级分类 + 白名单优先命中，输出 KEEP/DELETE/REVIEW
-  S5 CLI 与安全（fix） · S6 门禁注册
+  S4 规则引擎（已落地）：六级分类 + 白名单优先命中，输出 KEEP/DELETE/REVIEW
+  S5 CLI 与安全（本阶段已落地）：check / fix（默认 dry-run，--apply 才写回）/ --report-only
+  S6 门禁注册
 
 解析通道（探测式导入，两条通道的输出必须一致）：
   tree-sitter  `tree-sitter-language-pack` 提供 java 语法，环境存在时默认
@@ -19,14 +20,15 @@ r"""注释质量检查（P69 MVP）。
 安全底线（贯穿全部阶段）：**宁可漏删，不可误删**。
 
 用法：
-    python3 tools/comment-lint.py <path> [--diff|--changed]
-                                  [--parser auto|tree-sitter|stdlib]
-                                  [--dump-candidates] [--json]
+    python3 tools/comment-lint.py [check] <path> [--diff|--changed] [--parser auto|tree-sitter|stdlib]
+                                   [--dump-candidates] [--json] [--report-only]
+    python3 tools/comment-lint.py fix <path> [--diff|--changed] [--dry-run|--apply] [--json]
 exit code: 0=PASS（无 DELETE、无 REVIEW）  1=WARN（有需裁定的 REVIEW）  2=FAIL（存在确定可删的 DELETE）
-           3=用法/IO/环境错误
+           3=用法/IO/环境错误（--report-only 时封顶为 1）
 """
 
 import argparse
+import difflib
 import json
 import re
 import subprocess
@@ -546,8 +548,8 @@ def discover_diff_targets(root):
 # --------------------------------------------------------------------------- #
 # S4：规则引擎（确定性）
 #
-# 判定顺序**唯一**，白名单优先命中（策略来源：governance/standards/common/documentation.md
-# → Comment Content / Comment Quality）：
+# 判定顺序**唯一**，白名单优先命中；判定语义的唯一来源是标准：
+# `governance/standards/common/documentation.md` 的注释内容章节（Comment Content / Comment Quality）。
 #   1 CQ-MEANINGFUL     提供代码无法表达的信息 → KEEP（优先命中）
 #   2 CQ-SECTION-HEADER 分段线 / 分隔标题      → DELETE
 #   3 CQ-AI-NOISE       流程套话                 → DELETE
@@ -782,15 +784,20 @@ def _field_attached(comment):
 
 
 def _is_obvious(comment, body):
-    """复述代码：必须**同时**满足「开头动词」与「与下一行代码的链接」（仅模式不删）。
+    """复述代码：必须**同时**满足「开头动词」与「与代码的链接」（仅模式不删）。
 
+    链接对象：独立行注释 → 后续代码行；**行尾注释 → 本行代码 + 后续代码行**
+    （行尾注释描述的就是它所在那一行，看上后方会永远比不中）。
     字段/枚举常量上的注释排除在外（见 `_field_attached`）。
     """
     if not _leading_verb(body):
         return False
     if _field_attached(comment):
         return False
-    code = " ".join(comment.context_after).lower()
+    parts = list(comment.context_after)
+    if not comment.own_line:
+        parts = list(comment.context_before) + parts
+    code = " ".join(parts).lower()
     if not code:
         return False
     return any(token.lower() in code for token in _linked_tokens(body))
@@ -810,6 +817,113 @@ def _is_duplicate(comment, body):
         return False
     code = declaration.lower()
     return all(token.lower() in code for token in tokens)
+
+
+# --------------------------------------------------------------------------- #
+# S5：安全修复（只删确定类）
+#
+# 原则：
+#   · 只动 `ACTION_DELETE`（确定可删），永不碰 JavaDoc、永不重写文本（SAFE_REWRITE 关闭）
+#   · 默认 **dry-run**（打印 unified diff）；`--apply` 才写回，且打印实际删除的注释
+#   · 行级重写（不靠字符偏移拼接）：独立行注释删整行，行尾注释只剥离注释部分
+# --------------------------------------------------------------------------- #
+
+MAIN_COMMANDS = ("check", "fix")
+
+
+class _ArgumentParser(argparse.ArgumentParser):
+    """用法错误退出码 3（与 2=FAIL 区分）。"""
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        print(f"[ERROR] {message}", file=sys.stderr)
+        raise SystemExit(3)
+
+
+def plan_deletions(judged):
+    """按文件汇总确定可删项：整行删除（独立行注释）或行尾剥离（行尾注释）。"""
+    plan = {}
+    for comment, verdict in judged:
+        if verdict.action != ACTION_DELETE:
+            continue
+        entry = plan.setdefault(comment.path, {"lines": set(), "strip": {}})
+        if comment.own_line:
+            last_line = comment.line + comment.text.count("\n")
+            entry["lines"].update(range(comment.line, last_line + 1))
+        else:
+            entry["strip"][comment.line] = comment.column - 1
+    return plan
+
+
+def rewrite_lines(text, entry):
+    """按计划重写文本：整行删除 + 行尾剥离；保持原行尾换行形态。"""
+    kept = []
+    for number, line in enumerate(text.splitlines(), start=1):
+        if number in entry["lines"]:
+            continue
+        if number in entry["strip"]:
+            line = line[: entry["strip"][number]].rstrip()
+        kept.append(line)
+    return "\n".join(kept) + ("\n" if text.endswith("\n") else "")
+
+
+def apply_plan(plan, apply=False):
+    """预演或执行：返回 [(path, 原文本, 新文本)]；apply=False 不写盘。"""
+    results = []
+    for path in sorted(plan):
+        file_path = Path(path)
+        try:
+            text = file_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            print(f"[WARN] 跳过不可读文件 {path}: {exc}", file=sys.stderr)
+            continue
+        new_text = rewrite_lines(text, plan[path])
+        if new_text == text:
+            continue
+        if apply:
+            file_path.write_text(new_text, encoding="utf-8")
+        results.append((path, text, new_text))
+    return results
+
+
+def _run_fix(args, judged):
+    """fix 子命令：预演/执行确定可删项的删除，并自检残留。"""
+    plan = plan_deletions(judged)
+    deleted = sum(len(entry["lines"]) + len(entry["strip"]) for entry in plan.values())
+    changes = apply_plan(plan, apply=args.apply)
+    mode = "已写回" if args.apply else "预演（未写盘）"
+
+    if args.json:
+        payload = {
+            "command": "fix",
+            "applied": bool(args.apply),
+            "removed": deleted,
+            "files": [
+                {
+                    "path": path,
+                    "diff": "".join(
+                        difflib.unified_diff(
+                            old.splitlines(keepends=True), new.splitlines(keepends=True),
+                            fromfile=path, tofile=path,
+                        )
+                    ),
+                }
+                for path, old, new in changes
+            ],
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"fix {mode}：确定可删 {deleted} 条，涉及文件 {len(changes)} 个")
+    for path, old, new in changes:
+        print(f"--- {path}")
+        print("".join(difflib.unified_diff(
+            old.splitlines(keepends=True), new.splitlines(keepends=True),
+            fromfile=path, tofile=path,
+        )).rstrip("\n"))
+    if not changes:
+        print("（无改动）")
+    return 0
 
 
 # --------------------------------------------------------------------------- #
@@ -885,8 +999,13 @@ def collect_changed(repo_root, target, parser):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(
-        description="注释质量检查（P69 MVP）—— 候选提取 + diff 限定 + 规则判定"
+    argv = list(sys.argv[1:] if argv is None else argv)
+    command = "check"
+    if argv and argv[0] in ("check", "fix"):
+        command = argv.pop(0)
+
+    parser = _ArgumentParser(
+        description="注释质量检查（P69 MVP）—— 候选提取 + diff 限定 + 规则判定 + 安全修复"
     )
     parser.add_argument("path", help="Java 文件或目录")
     parser.add_argument(
@@ -904,6 +1023,21 @@ def main(argv=None):
     )
     parser.add_argument("--dump-candidates", action="store_true", help="逐条打印候选")
     parser.add_argument("--json", action="store_true", help="以 JSON 输出")
+    parser.add_argument(
+        "--report-only",
+        action="store_true",
+        help="只报不拦：退出码封顶为 1（供 MVP 阶段门禁使用）",
+    )
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="fix 子命令：真正写回文件（默认只做 dry-run 预演）",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="fix 子命令：只预览 unified diff（与默认行为一致，显式写法）",
+    )
     args = parser.parse_args(argv)
 
     if not Path(args.path).exists():
@@ -945,6 +1079,11 @@ def main(argv=None):
     failures = by_action.get(ACTION_DELETE, 0)
     reviews = by_action.get(ACTION_REVIEW, 0)
     exit_code = 2 if failures else (1 if reviews else 0)
+    if args.report_only and exit_code == 2:
+        exit_code = 1                      # MVP 阶段门禁：只报不拦
+
+    if command == "fix":
+        return _run_fix(args, judged)
 
     if args.json:
         payload = {

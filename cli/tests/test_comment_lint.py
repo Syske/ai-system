@@ -591,5 +591,120 @@ class TestExitCodes(unittest.TestCase):
         self.assertEqual(payload["actionable"], 0)
 
 
+class TestFixSafety(unittest.TestCase):
+    """S5：安全修复 —— 默认 dry-run、只删确定类、幂等、不碰 JavaDoc。"""
+
+    SOURCE = (
+        "package demo;\n"
+        "\n"
+        "/**\n"
+        " * 获取用户（JavaDoc 不得被碰）\n"
+        " */\n"
+        "public class A {\n"
+        "\n"
+        "    // 获取用户\n"
+        "    public User getUser(Long id) {\n"
+        "        int total = 0; // 总数\n"
+        "        // 该值由前端传入，需要保留\n"
+        "        return userService.getUser(id);\n"
+        "    }\n"
+        "}\n"
+    )
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.file = self.root / "A.java"
+        self.file.write_text(self.SOURCE, encoding="utf-8")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _run(self, argv):
+        out = io.StringIO()
+        err = io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = cl.main(argv)
+        return code, out.getvalue(), err.getvalue()
+
+    def _check_code(self):
+        out = io.StringIO()
+        with redirect_stdout(out), redirect_stderr(io.StringIO()):
+            code = cl.main([str(self.root), "--json", "--parser", "stdlib"])
+        return code, json.loads(out.getvalue())
+
+    def test_check_reports_delete_before_fix(self):
+        code, payload = self._check_code()
+        self.assertEqual(code, 2)
+        self.assertEqual(payload["summary"]["DELETE"], 1)      # 仅 `// 获取用户` 为确定可删
+        self.assertGreaterEqual(payload["summary"]["REVIEW"], 1)
+
+    def test_dry_run_does_not_touch_file(self):
+        code, out, _ = self._run(["fix", str(self.root), "--parser", "stdlib"])
+        self.assertEqual(code, 0)
+        self.assertIn("预演（未写盘）", out)
+        self.assertIn("-", out)                                 # 有 unified diff
+        self.assertEqual(self.file.read_text(encoding="utf-8"), self.SOURCE)
+
+    def test_apply_removes_only_delete_class(self):
+        code, out, _ = self._run(["fix", str(self.root), "--parser", "stdlib", "--apply"])
+        self.assertEqual(code, 0)
+        self.assertIn("已写回", out)
+        text = self.file.read_text(encoding="utf-8")
+        self.assertNotIn("// 获取用户", text)                    # 确定可删：整行删除
+        self.assertIn("// 该值由前端传入，需要保留", text)       # REVIEW：保留
+        self.assertIn("/**", text)                              # JavaDoc：不得被碰
+        self.assertIn("获取用户（JavaDoc 不得被碰）", text)
+        self.assertIn("public User getUser(Long id) {", text)    # 代码行不动
+        self.assertTrue(text.endswith("\n"))                    # 行尾换行保持
+
+    def test_apply_is_idempotent(self):
+        self._run(["fix", str(self.root), "--parser", "stdlib", "--apply"])
+        first = self.file.read_text(encoding="utf-8")
+        code, out, _ = self._run(["fix", str(self.root), "--parser", "stdlib", "--apply"])
+        self.assertEqual(code, 0)
+        self.assertIn("（无改动）", out)
+        self.assertEqual(self.file.read_text(encoding="utf-8"), first)
+
+    def test_trailing_comment_strips_only_comment(self):
+        source = (
+            "class A {\n"
+            "    void m() {\n"
+            "        userService.process(user); // 处理用户\n"
+            "    }\n"
+            "}\n"
+        )
+        (self.root / "B.java").write_text(source, encoding="utf-8")
+        code, _, _ = self._run(["fix", str(self.root / "B.java"), "--parser", "stdlib", "--apply"])
+        self.assertEqual(code, 0)
+        text = (self.root / "B.java").read_text(encoding="utf-8")
+        self.assertIn("userService.process(user);\n", text)
+        self.assertNotIn("// 处理用户", text)
+
+    def test_fix_json_payload(self):
+        code, out, _ = self._run(["fix", str(self.root), "--parser", "stdlib", "--json"])
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["command"], "fix")
+        self.assertFalse(payload["applied"])
+        self.assertEqual(payload["removed"], 1)
+        self.assertEqual(len(payload["files"]), 1)
+        self.assertIn("-", payload["files"][0]["diff"])
+
+    def test_report_only_caps_exit_at_warn(self):
+        code, _ = self._check_code()
+        self.assertEqual(code, 2)
+        out = io.StringIO()
+        with redirect_stdout(out), redirect_stderr(io.StringIO()):
+            code = cl.main([str(self.root), "--json", "--parser", "stdlib", "--report-only"])
+        self.assertEqual(code, 1)
+        self.assertEqual(json.loads(out.getvalue())["summary"]["DELETE"], 1)
+
+    def test_usage_error_exits_3(self):
+        with self.assertRaises(SystemExit) as ctx:
+            self._run(["--nosuchflag", str(self.root)])
+        self.assertEqual(ctx.exception.code, 3)
+
+
 if __name__ == "__main__":
     unittest.main()
