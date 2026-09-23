@@ -154,7 +154,7 @@ Pending(ImagePullBackOff) 1 · Failed 1` —— 即 **22 个 Pod 的故障原因
 | # | 建议 | 级别 | 依据 |
 |---|---|---|---|
 | 1 | `skills/README.md` 补 `k8s-logs` 行，并统一更正各节计数（On-Demand `(10)` → 实际行数） | 低（文档） | §二 中/低发现；归入 R3 文档批次 |
-| 2 | `tools/path-audit.py` `PATH_RE` 加负向后顾 `(?<![\w./])`（消中间段误报） | 低（**门禁口径**） | §二 低发现 —— **本轮同一根因 2 次实测误报**（`archived/skills/skill-sync/…` 与 `kubeconfig/连接错误时`）；本轮以**措辞规避**保门禁绿，未改门禁语义 |
+| 2 | ~~`tools/path-audit.py` `PATH_RE` 加负向后顾~~ | 低（门禁口径） | ✅ **已执行（用户确认，2026-09-23）**：加 `(?<![\w./\\-])` 词边界。实证 —— 中间段（`archived/skills/skill-sync/…`、`kubeconfig/连接错误时`、`foo-skills/x`）不再命中，真引用（裸/括号/反引号/行首/`../`/Windows 绝对路径）全部仍被捕获；并**还原**两处为绕开误报而改的措辞（SKILL.md 与 maintenance.yaml）+ 4 项回归测试 |
 | 3 | `generate_contract.py` 场景条目补 `服务` 字段（或明确其不在产物契约内） | 低（产物正确性） | §二 信息级发现；建议单独立项 |
 
 ---

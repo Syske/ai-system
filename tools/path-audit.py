@@ -86,7 +86,14 @@ RUNTIME_ROOTS = (
     "repositories/",
 )
 
+# 匹配必须从**记号边界**开始：不得把长路径/长单词的**中间段**当作引用。
+# 实测误报（2026-09-23，一轮内 3 次）：`archived/skills/skill-sync/…` 命中 `skills/skill-sync/…`、
+# `kubeconfig/连接错误时` 命中 `config/连接错误时`。与 DOT_REL_RE 的既有负向后顾同源
+# （另一侧的历史误报：省略号路径 `.../x.java` 的尾部）。
+# 注：本修复只治「中间段」类；「散文里的 word/word」（如 governance/infra commits）仍会被匹配，
+# 那类需改措辞（不是路径引用的语义无法从形态区分）。
 PATH_RE = re.compile(
+    r"(?<![\w./\\-])"
     r"(?:[A-Za-z]:[\\/][^\s`'\")\]，。；;|]+"
     r"|(?:\.\./)+[\w./\-]+"
     r"|(?:ai-system|governance|workflows|templates|skills|loaders|cli|config|tools|"

@@ -220,8 +220,8 @@ last_findings:
   读写告警、memory 门禁非 UTF-8 容错、format-check --check-commit 异常转 WARN、
   generate_contract 缺键显式报错、checks/menu dry-run monkeypatch 恢复、deepseek 查询串感知）
   + 8 回归测试。**残债登记**（报告 §8.4）：**R1 安全/审计 4 已于 R1 批次修复（2026-09-21，
-  +23 测试）** —— 打包排除集 + 疑似凭据拒传（策略模块 sync-policy.js，现位于归档树
-  `archived/` 内，2026-09-23 随 skill-sync 归档）、
+  +23 测试）** —— 打包排除集 + 疑似凭据拒传（`archived/skills/skill-sync/scripts/sync-policy.js`，
+  2026-09-23 随 skill-sync 归档）、
   无协议默认 https + 明文 http 默认拒绝、技能枚举单一来源 `tools/skill_index.py`
   （口径 32/33/33 → **39/39/39**，容器 `architecture/` 下 7 个技能入列并暴露修复 7 个
   description 过短 ERROR）、技能层契约测试补齐。**R2 静默失败/可靠性已修 13/24（2026-09-21，
@@ -305,7 +305,7 @@ last_findings:
   loadConfiguration）**随 skill-sync 归档而关闭** —— Value-Burden 复核无实证（唯一消费者
   skill-optimizer 已于 2026-08-17 归档 · 全仓零条真实 push/pull 运行记录 · 本机三个凭据
   路径均不存在 · 5 次提交首提后全是审计驱动加固），用户裁决 archive；技能 39→38，
-  契约测试随技能移入归档树（skill-sync/tests/），报告见
+  契约测试随技能移入 `archived/skills/skill-sync/tests/`，报告见
   reports/VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md 与 archived/ARCHIVE.md。
   **本轮新发现（待 R3 文档批次）** —— k8s-logs 未登记于 skills/README.md；On-Demand 节
   **R4 二批（S3/S1/S4 已修，`b19049c`，均运行验证）** —— S3 k8s_helper 由 `.status.phase`
@@ -318,6 +318,10 @@ last_findings:
   快捷命令去 cmd.exe 包装。实测 18 断言全过。**R4 归零（§2 八项全部收口）**。
   **本轮顺带新发现（待确认）** —— path-audit.py 的 PATH_RE 无词边界，kubeconfig 后接路径、
   archived 下路径的中间段会被误当引用（一轮内 2 次实测）；建议加负向后顾一行修复。
+  **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：
+  长路径的**中间段**不再被当引用（本轮 3 次实测误报：archived 下 nested 路径、kubeconfig 后接路径、
+  散文里的 word/word）；真引用形态全部仍被捕获。同时**还原**两处为绕开误报而写的规避措辞，
+  并补 4 项回归测试。（残留：散文里的 `word/word` 仍会被匹配——那类无法从形态区分，需措辞处理。）
   **P62 + P64 提案实施（2026-09-23，用户裁决「按修正后方案」）** —— 两份提案 Status → Implemented
   （开放提案 5 → 3）。P64：spec 前置条件 SSOT 落 `workflows/prepare.md` 的 Exit Criteria 内
   （Completion Criteria 四条：规范路径 / 显式 skip+理由 / 遗留命名识别 / 祖父条款），删掉

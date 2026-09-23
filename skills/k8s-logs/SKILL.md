@@ -43,7 +43,7 @@ RBAC 限制：仅命名空间内资源可操作（`get namespaces` 会 Forbidden
 
 ### kubectl 缺失或未配置时（**不要静默换通道**）
 
-WSL 内 `command -v kubectl` 为空，或 `kubectl` 报出 kubeconfig 缺失 / 连不上集群时，**停下来向用户请求授权**，
+WSL 内 `command -v kubectl` 为空，或 `kubectl` 报 kubeconfig/连接错误时，**停下来向用户请求授权**，
 由用户决定是否安装/配置（安装属机器级变更，AI 不得自行执行）：
 
 1. 安装：在 WSL 内安装 kubectl（发行版包管理器或官方二进制），装后 `kubectl version --client` 自检；

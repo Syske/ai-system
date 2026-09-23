@@ -596,6 +596,37 @@ class TestK8sLogsChannelConsistency(unittest.TestCase):
         self.assertEqual(self.kh.kubeconfig_hint(""), "")
 
 
+class TestPathAuditTokenBoundary(unittest.TestCase):
+    """PATH_RE 必须从**记号边界**开始：不得把长路径的中间段当引用。
+
+    实测误报（2026-09-23，一轮内 3 次）：`archived/skills/skill-sync/…` 命中 `skills/skill-sync/…`；
+    `kubeconfig/连接错误时` 命中 `config/连接错误时`。修复前只能靠改措辞规避。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.pa = _load("path_audit_r4", "tools/path-audit.py")
+
+    def _hits(self, text):
+        return [m.group(0).rstrip(".,;:)`'\"*") for m in self.pa.PATH_RE.finditer(text)]
+
+    def test_中间段不再命中(self):
+        self.assertEqual(self._hits("归档树 archived/skills/skill-sync/scripts/x.js 内"), [])
+        self.assertEqual(self._hits("kubectl 报 kubeconfig/连接错误时"), [])
+        self.assertEqual(self._hits("见 foo-skills/bar.md"), [])
+
+    def test_真引用仍被捕获(self):
+        for text, want in [
+            ("见 skills/k8s-logs/SKILL.md", ["skills/k8s-logs/SKILL.md"]),
+            ("（governance/README.md）", ["governance/README.md"]),
+            ("tools/format-check.py 改动", ["tools/format-check.py"]),
+            ("`reports/P62-TASK-COMMIT-TRACEABILITY.md`", ["reports/P62-TASK-COMMIT-TRACEABILITY.md"]),
+            ("见 ../x/y.md", ["../x/y.md"]),
+            (r"C:\Users\a\kube\config 位置", [r"C:\Users\a\kube\config"]),
+        ]:
+            self.assertEqual(self._hits(text), want, text)
+
+
 class TestAuditStrengthUnified(unittest.TestCase):
 
     def test_命令超长与工作流同判(self):
