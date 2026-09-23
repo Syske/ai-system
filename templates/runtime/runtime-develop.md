@@ -203,6 +203,18 @@ Formatting gate (Stage 6 Validation):
     completing (one-line Javadoc, non-ASCII method names, task-id leaks, Map-assembled
     payloads, 4-space indent ratio, method visibility §Visibility, commit subject
     → commit-content.md). `--check-commit` is REQUIRED (last-commit subject check).
+  - `comment-lint` (mandatory; P69 MVP runs it **report-only**, i.e. it never blocks the
+    task in this phase): `python3 ai-system/tools/comment-lint.py <worktree>/src --diff --report-only`
+    — comment-quality gate over **this change's added lines only** (no historical debt):
+    judges each new comment as `KEEP` / `DELETE` / `REVIEW` per
+    `governance/standards/common/documentation.md` → Comment Content / Comment Quality
+    (whitelist-first: business rule / external contract / compatibility / concurrency /
+    performance / security signals are never deleted). Exit: 0 PASS / 1 WARN (REVIEW items
+    need your judgment; `--report-only` caps FAIL at 1) / 2 FAIL (deletable comments remain)
+    / 3 usage or ENV error. **The gate itself is read-only** — to clean up, run
+    `python3 ai-system/tools/comment-lint.py fix <worktree>/src --diff` (dry-run, prints a
+    unified diff) and only then `--apply`; commit the cleanup separately. JavaDoc is never
+    touched. Item-level guidance: skill `comment-cleaner`.
   - `format-jdt-c2` (optional, environment-aware; runs when the local JDT toolchain
     is ready — this machine is ready; on others use explicit `--skip`, exit 3 means
     ENV unavailable) — eclipse JDT formatter dry run against
@@ -257,7 +269,7 @@ Post-Implementation Confirmation (P50, conditional — before the final commit):
   - resource/error semantics (refactor class)
   - reuse-decision execution (per plan reuse scan; any bypass flagged)
   - deviations vs the confirmed plan (plan-level deviations surface as L2 stop-confirm)
-  - gate results summary (format-check-a / format-jdt-c2 / checkstyle / unit tests)
+  - gate results summary (format-check-a / comment-lint / format-jdt-c2 / checkstyle / unit tests)
 - Confirmation requested in the system language (config/menu.yaml → locale).
   Outcome recorded in the per-run diagnostic log. <!-- @keep -->
 

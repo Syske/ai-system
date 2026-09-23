@@ -53,6 +53,11 @@ gates:
       enabled: true
       optional: false
       env: python3
+    - name: comment-lint               # 注释质量（P69 MVP：diff 级，只报不拦；实测后再去掉 --report-only）
+      cmd: "python3 ai-system/tools/comment-lint.py {src} --diff --report-only"
+      enabled: true
+      optional: false
+      env: python3
     - name: format-jdt-c2              # C2 精确格式（eclipse JDT 干跑）
       cmd: "python3 ai-system/tools/format-jdt-gate.py {src} --batch [--skip]"
       enabled: true
