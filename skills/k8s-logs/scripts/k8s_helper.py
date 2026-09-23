@@ -3,6 +3,9 @@
 Kubernetes 日志/终端助手 - 支持状态简写过滤和关键词搜索，权限受限时降级手动输入。
 用法: ./k8s_helper.py [-n NAMESPACE] [keyword]
 
+调用通道：**WSL 侧原生 `kubectl`**（与 SKILL.md 一致）。未安装 / 未配置时**不静默换通道**
+（不回退 `cmd.exe /c`），而是以退出码 2 报出并请求用户授权安装/配置（R4 S2，2026-09-23）。
+
 状态列不是裸 `.status.phase`：`effective_status()` 会把
 `containerStatuses[].state.waiting.reason`、`lastState.terminated.reason` 附到相位后
 （如 `Running(CrashLoopBackOff)`），否则 CrashLoopBackOff / ImagePullBackOff / OOMKilled
@@ -63,6 +66,34 @@ def base_status(status: str) -> str:
     return str(status).split("(", 1)[0].strip()
 
 
+KUBECTL_CHANNEL_HELP = (
+    "调用通道：WSL 侧原生 kubectl（单一口径，不回退 cmd.exe）。\n"
+    "未安装 / 未配置时需你授权后由用户侧完成安装与配置，AI 不自行执行：\n"
+    "  1) 安装 kubectl，装后 kubectl version --client 自检；\n"
+    "  2) 配置 KUBECONFIG（取 ~/.config/ai-system/env.yaml 的 k8s.kubeconfig-wsl-view），\n"
+    "     再以 kubectl get pods -n t2 验证联通；\n"
+    "  3) 将 env.yaml 的 k8s.channel 更新为 wsl-native、kubectl-version 更新为 WSL 侧版本。"
+)
+
+# kubectl 已装但“未配置/连不上”的典型 stderr（提示用户配置，而非把它当一般错误）
+KUBECONFIG_PROBLEM_MARKERS = (
+    "no configuration has been provided",
+    "Missing or incomplete configuration",
+    "invalid configuration",
+    "was refused",
+    "Unable to connect to the server",
+    "no such host",
+)
+
+
+def kubeconfig_hint(stderr: str) -> str:
+    """kubectl stderr 命中「未配置/连不上」特征时返回配置提示，否则空串。"""
+    text = (stderr or "").lower()
+    if any(marker.lower() in text for marker in KUBECONFIG_PROBLEM_MARKERS):
+        return ("疑为 kubeconfig 未配置或集群不可达。\n" + KUBECTL_CHANNEL_HELP)
+    return ""
+
+
 def run_kubectl(args: list[str], capture_output: bool = False):
     cmd = ["kubectl"] + args
     try:
@@ -71,8 +102,11 @@ def run_kubectl(args: list[str], capture_output: bool = False):
             return result.stdout, result.stderr, result.returncode
         return subprocess.run(cmd).returncode
     except FileNotFoundError:
-        print("错误: 未找到 kubectl 命令，请确认已安装并配置 PATH。")
-        sys.exit(1)
+        # R4 S2：原实现只报「未找到 kubectl 命令」；通道口径为原生 kubectl，缺失时应请用户
+        # 授权安装/配置（不静默回退 cmd.exe），退出码 2 与一般失败区分。
+        print("错误: WSL 内未找到 kubectl 命令。", file=sys.stderr)
+        print(KUBECTL_CHANNEL_HELP, file=sys.stderr)
+        sys.exit(2)
 
 
 def get_all_pods(namespace: str):
@@ -225,6 +259,9 @@ def main():
     all_pods, success, error_msg = get_all_pods(namespace)
     if not success:
         print(f"\n无法获取命名空间 [{namespace}] 的 Pod 列表: {error_msg.strip()}")
+        hint = kubeconfig_hint(error_msg)
+        if hint:
+            print(hint, file=sys.stderr)
         try_manual_fallback(namespace)
 
     if not all_pods:

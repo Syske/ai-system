@@ -541,6 +541,61 @@ class TestIdeaMcpSseFailFast(unittest.TestCase):
         self.assertIn("POST 侧异常", str(ctx.exception))
 
 
+class TestK8sLogsChannelConsistency(unittest.TestCase):
+    """R4 S2：SKILL.md 声明 `cmd.exe` 通道 vs helper 直调 `kubectl` —— 已裁定为**原生 kubectl**。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.kh = _load("k8s_helper_s2", "skills/k8s-logs/scripts/k8s_helper.py")
+        cls.skill = (REPO_ROOT / "skills" / "k8s-logs" / "SKILL.md").read_text(
+            encoding="utf-8")
+
+    def test_代码块不再走_cmd_exe(self):
+        import re
+        blocks = re.findall(r"```bash\n(.*?)```", self.skill, re.S)
+        self.assertEqual([b for b in blocks if "cmd.exe" in b], [])
+        self.assertIn("kubectl get pods -n t2 -o wide", self.skill)
+
+    def test_声明原生_kubectl_且明确不回退(self):
+        self.assertIn("WSL 侧原生 `kubectl`", self.skill)
+        self.assertIn("不自动回退到 `cmd.exe /c", self.skill)
+        self.assertIn("不自动安装或改配置", self.skill)
+
+    def test_时间点快照已改为探测式(self):
+        self.assertNotIn("已知环境实况", self.skill)
+        self.assertNotIn("2026-09-05", self.skill)
+        self.assertIn("环境探活（每次实时探测", self.skill)
+
+    def test_缺_kubectl_请求授权且退出码_2(self):
+        import subprocess as sp
+        orig = sp.run
+
+        def fake(cmd, **kw):
+            if cmd and cmd[0] == "kubectl":
+                raise FileNotFoundError(2, "No such file or directory", "kubectl")
+            return orig(cmd, **kw)
+
+        sp.run = fake
+        try:
+            buf = io.StringIO()
+            with redirect_stderr(buf):
+                with self.assertRaises(SystemExit) as ctx:
+                    self.kh.run_kubectl(["get", "pods", "-n", "t2"], capture_output=True)
+        finally:
+            sp.run = orig
+        self.assertEqual(ctx.exception.code, 2)
+        msg = buf.getvalue()
+        for needle in ("安装 kubectl", "KUBECONFIG", "env.yaml", "wsl-native"):
+            self.assertIn(needle, msg)
+
+    def test_kubeconfig_提示只命中未配置类错误(self):
+        self.assertTrue(self.kh.kubeconfig_hint("error: no configuration has been provided"))
+        self.assertTrue(self.kh.kubeconfig_hint(
+            "The connection to the server localhost:8080 was refused"))
+        self.assertEqual(self.kh.kubeconfig_hint('pods "x" not found'), "")
+        self.assertEqual(self.kh.kubeconfig_hint(""), "")
+
+
 class TestAuditStrengthUnified(unittest.TestCase):
 
     def test_命令超长与工作流同判(self):

@@ -58,11 +58,12 @@
 `On-Demand Skills (10)` 声明与实际 **19 行**不符（含 2 行删除标记）；本轮已按实际行数更正**所触碰节**
 （`Optimization & Benchmarking Skills` 由 `(6)` → `(1)`），其余节留给 R3 文档批次统一收口。
 
-### 低 —— `path-audit` PATH_RE 无词边界（**新发现**，本轮实测 2 处误报）
+### 低 —— `path-audit` PATH_RE 无词边界（**新发现**，本轮实测 **2 次**误报）
 
 `PATH_RE` 的路径前缀分支（`skills|reports|config|…`）**无负向后顾**，会匹配更长路径的**中间段**：
-登记 `archived/skills/skill-sync/scripts/sync-policy.js` 时，子串 `skills/skill-sync/scripts/sync-policy.js`
-被当作独立引用并被判 broken（本轮先绕开字面量规避）。同仓 `DOT_REL_RE` 早已用 `(?<![\w./])` 处理过同类误报
+① 登记 `archived/skills/skill-sync/scripts/sync-policy.js` 时，子串 `skills/skill-sync/scripts/sync-policy.js`
+被当作独立引用；② S2 改写中出现 `kubeconfig/连接错误时` 时，子串 `config/连接错误时` 被当作引用。
+两处均以**措辞规避**保住门禁绿（未改门禁语义）。同仓 `DOT_REL_RE` 早已用 `(?<![\w./])` 处理过同类误报
 （`.../x.java` 尾部），属同一治理面。建议一行修复，但**属门禁口径变更 → 需确认后实施**。
 
 ### 信息 —— 未提交改动的日志归属（抽查命中，已归属）
@@ -109,21 +110,32 @@
 |---|---|---|---|
 | 1 | R4 §2.1 `generate_contract` 三项（G1 标量引号 / G2 去重告警 / G3 服务匹配口径统一） | `015f022` | 危险标量回读 18 例 + 端到端产物 `yaml.safe_load` 通过；新增 9 测试 |
 | 2 | skill-sync 归档 + 连带清理（README / T5 断言 / path-audit 注释 / maintenance.yaml 旧路径 / 索引登记） | `7032fb0` | 单测 516 OK · lint **38**/0/0/97 · path 0 broken |
+| 3 | R4 §2.3 S3（k8s 状态掩盖 CrashLoopBackOff）· S1（index-project venv 布局写死）· S4（idea-mcp SSE 断线吞错） | `b19049c` | S3 18 断言 · S1 抽出 SKILL.md 代码块真实执行三种布局 · S4 **0.00s** 快速失败（原 180s）；全套 529 OK |
+| 4 | `MAINTENANCE-2026-09-23.md` 补登 `reports/README.md` 索引 | `b19049c` | **由 proposal-audit 门禁抓出**（proposal-policy §6）→ 补登后恢复 0/0 |
+| 5 | R4 §2.3 S2：`k8s-logs` 通道口径统一 —— 按裁定以 **WSL 原生 `kubectl`** 为准；缺失/未配置时不静默回退 `cmd.exe`，改为退出码 2 + 请求用户授权安装/配置；删 `2026-09-05` 时间点快照改探测式 | 本批 | 18 断言全过（代码块无 cmd.exe 包装 / exit 2 指引含安装·KUBECONFIG·env.yaml·wsl-native / kubeconfig 提示只命中未配置类错误） |
 
-### R4 进度（残债账本）
+### R4 进度（残债账本）—— **已归零**
 
-§2 共 8 项 → **已修 3**（G1/G2/G3）· **随归档关闭 1**（§2.2 `loadConfiguration` 去重：判决前在途重构已撤销，
-不为将归档资产投入重构）· **余 4**（§2.3 S1 index-project venv 探测 · S2 k8s-logs 通道一致性 ·
-S3 k8s_helper CrashLoopBackOff · S4 idea-mcp SSE 断连快速失败）。
+§2 共 8 项 → **已修 7**（§2.1 G1/G2/G3 + §2.3 S1/S2/S3/S4）· **随归档关闭 1**（§2.2）· **余额 0**。
+
+**S2 裁定记录（用户，2026-09-23）**：「kubectl 没有时，让用户授权，安装配置」—— 即**原生 kubectl 为唯一口径**，
+缺失时不得静默换通道，而是停下来请用户授权（安装属机器级变更，AI 不自执行）。
+
+### 机器侧待办（**需你授权后才能做**，本轮未动）
+
+| # | 事项 | 依据 |
+|---|---|---|
+| 1 | WSL 内安装 kubectl（本机实测 `command -v kubectl` 为空） | S2 裁定；装后 `kubectl version --client` 自检 |
+| 2 | 导出 `KUBECONFIG=/mnt/c/Users/syske/.kube/config`（`env.yaml` 的 `k8s.kubeconfig-wsl-view` 已就位）并 `kubectl get pods -n t2` 验通 | 同上 |
+| 3 | `~/.config/ai-system/env.yaml` 的 `k8s.channel` 由 `wsl-cmd` 改为 `wsl-native`，`kubectl-version` 改为 WSL 侧版本 | 同上（不改则文档声明与机器配置不一致） |
 
 ### 建议（**需确认后实施**，本轮未擅自修改）
 
 | # | 建议 | 级别 | 依据 |
 |---|---|---|---|
 | 1 | `skills/README.md` 补 `k8s-logs` 行，并统一更正各节计数（On-Demand `(10)` → 实际行数） | 低（文档） | §二 中/低发现；归入 R3 文档批次 |
-| 2 | `tools/path-audit.py` `PATH_RE` 加负向后顾 `(?<![\w./])`（消中间段误报） | 低（门禁口径） | §二 低发现；与 `DOT_REL_RE` 既有做法一致 |
+| 2 | `tools/path-audit.py` `PATH_RE` 加负向后顾 `(?<![\w./])`（消中间段误报） | 低（**门禁口径**） | §二 低发现 —— **本轮同一根因 2 次实测误报**（`archived/skills/skill-sync/…` 与 `kubeconfig/连接错误时`）；本轮以**措辞规避**保门禁绿，未改门禁语义 |
 | 3 | `generate_contract.py` 场景条目补 `服务` 字段（或明确其不在产物契约内） | 低（产物正确性） | §二 信息级发现；建议单独立项 |
-| 4 | 继续 R4 §2.3 四项（S3 → S1 → S4 → S2） | — | 交接文档 §9 建议顺序 |
 
 ---
 

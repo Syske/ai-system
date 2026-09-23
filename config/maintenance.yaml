@@ -308,5 +308,15 @@ last_findings:
   契约测试随技能移入归档树（skill-sync/tests/），报告见
   reports/VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md 与 archived/ARCHIVE.md。
   **本轮新发现（待 R3 文档批次）** —— k8s-logs 未登记于 skills/README.md；On-Demand 节
-  声明 (10) 而实际 19 行。**R4 余额 4 项** —— S3 k8s_helper CrashLoopBackOff ·
-  S1 index-project venv 探测 · S4 idea-mcp SSE 断连 · S2 k8s-logs 通道一致性。
+  **R4 二批（S3/S1/S4 已修，`b19049c`，均运行验证）** —— S3 k8s_helper 由 `.status.phase`
+  改为 effective_status（waiting.reason + lastState.terminated 仅故障原因，产出 Running(CrashLoopBackOff)），
+  状态过滤仍按相位；S1 index-project 探测 bin/python → Scripts/python → Scripts/python.exe；
+  S4 idea-mcp SSE 断线改快速失败（实测 0.00s vs 原 180s 空等）+ POST 异常计数/WARN 不再静默。
+  **R4 三批（S2 已修，用户裁定通道）** —— 口径定为 **WSL 侧原生 kubectl**（SKILL 与 helper 一致）；
+  缺失/未配置时**不静默回退 cmd.exe**，而是退出码 2 + 请求用户授权安装/配置（指引含 env.yaml 的
+  kubeconfig-wsl-view / KUBECONFIG / channel 更新）；SKILL.md 删 2026-09-05 时间点快照改探测式，
+  快捷命令去 cmd.exe 包装。实测 18 断言全过。**R4 归零（§2 八项全部收口）**。
+  **本轮顺带新发现（待确认）** —— path-audit.py 的 PATH_RE 无词边界，kubeconfig 后接路径、
+  archived 下路径的中间段会被误当引用（一轮内 2 次实测）；建议加负向后顾一行修复。
+  机器侧待办（需用户授权）—— 本机 WSL 未装 kubectl、env.yaml 的 k8s.channel 仍为旧口径 wsl-cmd，
+  授权后安装 kubectl + 导出 KUBECONFIG + 改 channel=wsl-native。
