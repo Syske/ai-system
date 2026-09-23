@@ -91,19 +91,17 @@ def short(text, limit=58):
 
 
 def _norm_field_name(item):
-    """Strip inline annotations from a field name.
+    """剥离字段名尾部括号注解（**单一来源**：`cli.utils.fields`）。
 
-    `Base Branch (default: master)` → `Base Branch`
-    `发布内容 (services, clusters, ...)` → `发布内容`
+    规则：尾部括号注解属元数据，不属字段身份，一律剥离。
 
-    Annotations are metadata, not part of the field identity.
+    R2 修复：本函数原剥离任意尾部括号，而 `menu_config._base` 只剥
+    `(default: …)` → 两处口径不一致（同一字段查得到/查不到取决于调用方）。现统一。
     """
 
-    return re.sub(
-        r"\s*\([^)]*\)\s*$",
-        "",
-        item
-    ).strip()
+    from cli.utils.fields import base_field_name
+
+    return base_field_name(item)
 
 
 def _inputs_struct(inputs):

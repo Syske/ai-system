@@ -313,6 +313,19 @@ def setup_environment(java):
         log(f"下载 {fname} <- {MAVEN}/{url}")
         try:
             urllib.request.urlretrieve(f"{MAVEN}/{url}", str(target))
+
+            # R2：记录 sha256（下载物可审计）；若同目录存在 <jar>.sha256 清单则校验
+            import hashlib
+
+            digest = hashlib.sha256(target.read_bytes()).hexdigest()
+            log(f"  sha256 {target.name}: {digest}")
+
+            expected_file = target.with_name(target.name + ".sha256")
+            if expected_file.exists():
+                expected = expected_file.read_text(encoding="utf-8").split()[0].strip()
+                if expected and expected.lower() != digest.lower():
+                    log(f"ERROR: {target.name} 校验和不匹配（期望 {expected}）")
+                    return 3
         except Exception as e:
             log(f"下载失败（网络/公司源？）: {e}")
             return None
@@ -334,7 +347,11 @@ def setup_environment(java):
 
 def interact(prompt, options):
     while True:
-        ans = input(f"[jdt-gate] {prompt} [{options}] ").strip().lower()
+        try:
+            ans = input(f"[jdt-gate] {prompt} [{options}] ").strip().lower()
+        except EOFError:
+            # R2：非 TTY / stdin 关闭时不得裸崩 —— 取安全缺省（能跳过则跳过，否则终止）
+            return "s" if "s" in options.split("/") else "a"
         if ans:
             return ans[0]
 
@@ -392,7 +409,12 @@ def main(argv=None):
         while True:
             c = interact("JDK 未找到：提供路径 [p]/跳过本次 [s]/终止 [a]？", "p/s/a")
             if c == "p":
-                p = input("[jdt-gate] java 完整路径: ").strip()
+                try:
+                    p = input("[jdt-gate] java 完整路径: ").strip()
+                except EOFError:
+                    # R2：EOF 时按 skip 语义（等价 --skip，exit 0）
+                    log("非交互输入结束：按 --skip 语义跳过本次检查")
+                    return 0
                 java = find_java(p)
                 if java:
                     break

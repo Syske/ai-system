@@ -162,11 +162,11 @@ class MenuConfig:
     def _base(field):
         """Strip a '(default: X)' suffix so lookups also match the base name."""
 
-        return re.sub(
-            r"\s*\(default:[^)]*\)\s*$",
-            "",
-            field
-        )
+        # R2：口径统一到 cli.utils.fields（原只剥 `(default: …)`，
+        # 与 workflow_reader 的「剥任意尾部注解」不一致）
+        from cli.utils.fields import base_field_name
+
+        return base_field_name(field)
 
     def command_next(self, name):
 

@@ -400,6 +400,11 @@ class SkillLauncher(InteractiveCommand):
                 / f"{now.strftime('%y%m%d')}-{descriptor}"
             )
 
+            # R2：同日同描述不再覆写（追加 -N）
+            from cli.utils.file import unique_dir
+
+            report_dir = unique_dir(report_dir)
+
             report_dir.mkdir(parents=True, exist_ok=True)
 
             skill_lines = "\n".join(

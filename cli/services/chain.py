@@ -111,7 +111,10 @@ def create_chain_run(root, chain, outputs_root=None, desc=None):
 
     descriptor = (desc or chain.get("name") or "chain")[:30]
 
-    run_dir = (
+    # R2：同日同描述不再覆写上一运行（追加 -N），实现与文档承诺一致
+    from cli.utils.file import unique_dir
+
+    run_dir = unique_dir(
         Path(outputs_root or (Path(root) / "outputs"))
         / RUN_ROOT_NAME
         / f"{now.strftime('%y%m%d')}-{descriptor}"

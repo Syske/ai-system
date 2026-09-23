@@ -225,7 +225,12 @@ last_findings:
   description 过短 ERROR）、技能层契约测试补齐。**R2 静默失败/可靠性已修 13/24（2026-09-21，
   两批 +22 测试）**：agentdebug 6 项（前驱记录/triage 首要类型/文案/校验短路/unknown 合法/括号）
   + CLI 7 项（§8 前瞻兜底与路径段校验、frontmatter 限定与无 git 根不上行、i18n locale 同源、
-  链注入服务名、最近活跃时间戳）。**余**：R2 剩余 11 项 + R4 工具一致性/重构 32（低优先）；
+  链注入服务名、最近活跃时间戳）。**R2 已完成 24/24（2026-09-21 第二批 11 项）**：
+  唯一目录 `-N`（不再覆写）· scan 目录改 outputs 约定形态 · 字段名归一化单一来源 `cli.utils.fields` ·
+  `_linux_path` 单一来源 `cli.utils.paths` · safe.directory 收窄到本仓 · Lombok 按花括号深度判定 ·
+  checkstyle 增量按 src_dir 过滤 · 交互 EOF 保护 · 下载 sha256 记录/比对 · `--window` 参数化 ·
+  setup 参数越界防护 · extensions-init push 失败返回码；另 2 项经实证判为**误读/有意为之**
+  （`_parse_next` 实为遍历全 token；`"<"` 是退格返回的对外信号）。**余**：R4 工具一致性/重构 32（低优先）；
   另 52 条**文档措辞**已裁决为非代码类，建议下一维护批次批量顺手修。
   基线说明：repo-lint WARN 96 → 97，系 R1 口径统一后 design-review/SKILL.md 首次入 lint 视野
   （正当可见化，非回退）。

@@ -103,10 +103,18 @@ def _parse_args():
 
     if "--workspace" in args:
         index = args.index("--workspace")
+        if index + 1 >= len(args):
+            print("ERROR: --workspace 缺少取值", file=sys.stderr)
+            return 2
+
         workspace = Path(args[index + 1])
 
     if "--environment" in args:
         index = args.index("--environment")
+        if index + 1 >= len(args):
+            print("ERROR: --environment 缺少取值", file=sys.stderr)
+            return 2
+
         environment = args[index + 1]
 
     return interactive, workspace, environment, env_init_only

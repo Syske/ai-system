@@ -195,10 +195,15 @@ class ScanHooks(CommandHooks):
         # every saved scan lands under the configured outputs root, per the
         # outputs convention (outputs-convention.md). A timestamp dir keeps
         # naming deterministic (no agent-derived descriptor needed).
-        scan_dir = (
+        # R2 修复：改用 outputs 约定形态 `{yyMMdd}-{descriptor}` ——
+        # 原 `scan-YYYYMMDD-HHMMSS` 前缀正是 `check_outputs_convention` 判为
+        # legacy 并禁止的形态（文档与实现不一致）。唯一性由 `-N` 保证。
+        from cli.utils.file import unique_dir
+
+        scan_dir = unique_dir(
             outputs_root
             / "scan"
-            / f"scan-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            / f"{datetime.now().strftime('%y%m%d')}-scan"
         )
 
         scan_dir.mkdir(parents=True, exist_ok=True)

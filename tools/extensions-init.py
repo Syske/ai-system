@@ -232,6 +232,8 @@ def init_extensions(
         print("example-hello already exists, skipped")
 
     # 6. 远程绑定（仅 --remote 提供且未配置时）
+    push_failed = False
+
     if remote:
         existing = _git(ext_dir, "remote", "get-url", "origin").stdout.strip()
         if not existing:
@@ -250,6 +252,8 @@ def init_extensions(
             print(push.stdout.strip() or push.stderr.strip())
             if push.returncode != 0:
                 print("push failed (check remote url / auth / commit identity)")
+                # R2：失败必须体现在退出码（原为静默成功返回 0）
+                push_failed = True
         else:
             print(f"remote origin already set: {existing}")
 
@@ -259,7 +263,9 @@ def init_extensions(
     print("  2. 提交者身份合规（Codeup 等平台要求 author==push user）")
     print("  3. 删除示例扩展 example-hello/ 或复制为真实技能")
     print("  4. 公司分支规范等由扩展提供者实现（契约见 ai-system）")
-    return 0
+
+    # R2：push 失败必须反映到退出码（原静默 return 0）
+    return 1 if push_failed else 0
 
 
 def _check(ext_dir: Path) -> int:

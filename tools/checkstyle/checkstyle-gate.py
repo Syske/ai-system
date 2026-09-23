@@ -119,6 +119,13 @@ def main(argv=None):
         else:
             mode = "incremental"
             targets = [str(Path(root) / rel) for rel in rels]
+
+        # R2 修复：增量目标必须落在 --src 之下（原直接取整仓 changed .java，
+        # 会把 src 之外的改动一并送入 checkstyle）。
+        targets = [
+            t for t in targets
+            if Path(t).resolve().is_relative_to(src.resolve())
+        ]
     if args.full or not root:
         mode = "full"
 

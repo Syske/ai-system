@@ -154,26 +154,21 @@ def load_merged_environment(
 
 
 def _normalize_path(value):
-    """Windows 风格绝对路径（D:\\...）归一化为 WSL 路径（/mnt/d/...）。
+    """Windows 风格绝对路径归一化为 WSL 路径。
 
-    仅 Posix 平台（WSL/Linux/macOS）生效——PosixPath 会把反斜杠路径当作
-    相对路径而伪造目录（如 /home/.../D:\\workspace\\...）；原生 Windows 上
-    Path 原生支持盘符路径，原样返回。与 providers._linux_path 同构。
+    单一来源：`cli.utils.paths.linux_path`（R2：#20 原与 providers._linux_path 双实现）。
+    仅 Posix 平台生效；原生 Windows 上盘符路径原样返回（由 `.resolve()` 处理）。
     """
 
-    s = str(value)
+    import sys
+
+    from cli.utils.paths import linux_path
 
     if sys.platform == "win32":
-        return s
+        return str(value)
 
-    if len(s) < 3 or s[1] != ":" or s[2] not in ("\\", "/"):
-        return s
+    return linux_path(value)
 
-    s = s.replace("\\", "/")
-
-    drive = s[0].lower()
-
-    return f"/mnt/{drive}{s[2:]}"
 
 
 def _path(value):

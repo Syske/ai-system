@@ -222,7 +222,8 @@ def main():
         print("  none")
     print("")
     # Active context (what the model currently holds after compaction)
-    window = 1_000_000
+    # R2：窗口不再硬编码（可用 --window 覆盖；缺省 1e6 为通用近似值）
+    window = getattr(args, "window", None) or 1_000_000
     pct = active_tokens / window * 100
     print(f"ACTIVE context (compaction summaries + recent window):")
     print(f"  ~{active_tokens:,} tokens / {window:,} window = {pct:.1f}%")

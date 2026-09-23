@@ -423,7 +423,6 @@ def check_file(path: Path, findings):
         if depth > 0:
             if re.search(r'\breturn\s+null\s*;', s):
                 findings.append(("WARN", f"集合方法返回 null（§Collection：返回空集合）: {path}:{i}"))
-            depth += s.count('{') - s.count('}')
             if depth <= 0:
                 depth = 0
 
@@ -445,14 +444,16 @@ def check_file(path: Path, findings):
             findings.append(("WARN", f"魔法数字 {m.group(1)}（建议提命名常量）: {path}:{i}"))
 
     # 20. Lombok 无意义 getter/setter（java-alibaba.md §Lombok：Prefer @Data；禁无意义手动 getter/setter）
+    # R2 修复：原实现「行首 `}` 即重置」—— 类内**任意**内部块收尾（if/for/匿名类）
+    # 都会提前关闭 Lombok 判定，使注解之后的 getter/setter 仍被误报。
+    # 现按**花括号深度**判定：仅在深度回到 0（类结束）时重置。
     lombok_on = False
+    depth = 0
     for i, ln in enumerate(lines, 1):
         s = ln.strip()
         if _is_comment_line(s):
             continue
-        if s.startswith('}'):
-            lombok_on = False
-        elif LOMBOK_ANNOT_RE.match(s):
+        if LOMBOK_ANNOT_RE.match(s):
             lombok_on = True
         elif not lombok_on:
             m = MANUAL_GETTER_RE.match(s)
@@ -461,6 +462,13 @@ def check_file(path: Path, findings):
             m2 = MANUAL_SETTER_RE.match(s)
             if m2:
                 findings.append(("WARN", f"无意义 setter {m2.group(1)}（§Lombok：用 @Data/@Setter 或省略）: {path}:{i}"))
+
+        # 仅在**深度由 >0 回到 0**（类/块收尾）时重置：注解与 `class X {` 分处两行
+        # 是主流写法，此处不得提前清零；而类内任意内部块收尾也不应关闭判定。
+        new_depth = depth + s.count('{') - s.count('}')
+        if depth > 0 and new_depth <= 0:
+            lombok_on = False
+        depth = new_depth
 
     # 21. JSONObject 组装（java-alibaba.md §MQ：Typed VOs；禁 JSONObject 组装消息）
     for i, ln in enumerate(lines, 1):

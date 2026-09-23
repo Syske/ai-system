@@ -12,23 +12,11 @@ from pathlib import Path
 
 
 def _linux_path(path):
-    """Convert a Windows absolute path (e.g. D:\\workspace\\x) to WSL (/mnt/d/workspace/x).
+    """Windows 路径 → WSL 路径（单一来源：`cli.utils.paths`，R2 合并双实现）。"""
 
-    No-op on Windows or for non-Windows-style paths. Used so workspace.yaml
-    repo paths written on Windows resolve correctly under WSL.
-    """
+    from cli.utils.paths import linux_path
 
-    s = str(path)
-
-    if len(s) < 3 or s[1] != ":":
-        return s
-
-    s = s.replace("\\", "/")
-
-    drive = s[0].lower()
-
-    return f"/mnt/{drive}{s[2:]}"
-
+    return linux_path(path)
 
 def _repo_path(wizard, path):
     """Resolve a repo path from workspace.yaml to a real filesystem path.
@@ -196,7 +184,8 @@ def git_branches(wizard, values):
                     "-C",
                     str(repo),
                     "-c",
-                    "safe.directory=*",
+                    # R2：仅对本仓禁用所有权检查（原 `*` 对所有仓全局关闭）
+                    f"safe.directory={repo}",
                     "branch",
                     "--format=%(refname:short)"
                 ],

@@ -380,6 +380,27 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 
 **登记基线说明**：repo-lint WARN 96 → **97** —— 因 R1 口径统一后 `skills/architecture/design-review/SKILL.md`（339 行、无 workflow.md）**首次进入 lint 视野**，属正当可见化（非回退）。
 
+
+**R2 完成（2026-09-21，第二批 11 项 → R2 24/24 全部处置）**
+
+| # | 项 | 处置 |
+|---|---|---|
+| 7 | 同日同描述 `mkdir(exist_ok)` **覆写** manifest/report | ✅ 新增 `cli.utils.file.unique_dir`（冲突追加 `-N`，单一来源），`chain.py` / `skill_launcher.py` 改用；文档承诺的「追加 -N」成为实现事实 |
+| 8 | scan 目录 `scan-YYYYMMDD-HHMMSS` 与约定冲突 | ✅ 改为 `outputs/scan/{yyMMdd}-scan` + `unique_dir` —— 原形态正是 `check_outputs_convention` 判为 legacy 并禁止的写法（**文档与实现不一致**） |
+| 14 | `_parse_next` 取首个 token | ❌ **误读**（实证）：实现**遍历全部 token** 并返回首个已知工作流；`review` → `verify`（新增行为测试固化） |
+| 15 | `_norm_field_name` 与 `menu_config._base` 归一化不一致 | ✅ 新增 **单一来源** `cli.utils.fields.base_field_name`（尾部括号注解一律剥离），两处委托；`发布内容 (services, …)` 等此前两处结果不同 |
+| 18 | 退格哨兵 `"<"` 吞合法输入 | ❌ **有意为之**：`"<"` 是**退格返回的对外信号**（UI 提示「退格返回 · Esc/Ctrl+C 退出」已声明），仓内无其它产生方；移除会破坏返回语义 → 保留并记录 |
+| 19 | `safe.directory=*` 全局关闭所有权检查 | ✅ 收窄为 `safe.directory=<repo>`（仅当前仓） |
+| 20 | `_linux_path` 双实现 | ✅ 新增 `cli.utils.paths.linux_path` 单一来源；`providers._linux_path` 与 `environment._normalize_path` 均委托（3 例实测一致） |
+| 21 | Lombok 判定「行首 `}` 即重置」 | ✅ 改按**花括号深度**（仅当深度由 >0 回到 0 才重置）—— 原实现下「注解与 `class X {` 分处两行 + 类内 if 块」会**误报**样板 getter |
+| 22 | checkstyle 增量未按 `src_dir` 过滤 | ✅ 目标列表按 `--src` 前缀过滤（原取整仓 changed `.java`） |
+| 23 | 交互 `input()` 无 EOF 保护 | ✅ `interact()` 与 JDK 路径输入捕获 `EOFError` → 取安全缺省（能跳过则跳过，否则终止；不再裸崩） |
+| 24 | 下载无校验和 / `context-audit` 窗口硬编码 / `setup` 参数越界 / `extensions-init` push 失败仍 0 | ✅ 下载记录 **sha256** 并与同名 `.sha256` 清单比对；`--window` 参数化；`--workspace`/`--environment` 缺值报错退出 2；push 失败 `return 1` |
+
+测试：`cli/tests/test_r2_paths_and_gates.py`（+9：唯一目录 / scan 约定 / 归一化一致性 / Lombok 深度两例 / `_parse_next` 实证）。
+
+**R2 合计**：24 项全部处置（22 项修复 + 2 项经实证判为误读/有意为之），累计 **+31 回归测试**。
+
 **R3 · 文档措辞（52）** —（加载顺序互斥 / 阈值 50·60·80 / `skill.md` 大小写 / `python` vs `python3` / 索引计数漂移 / `explore` 双份 / `skills/README` 计数 / Token Efficiency ×3 / Report-Write Guard 双源 / 四反引号围栏 …）建议下一维护批次**批量顺手修**。
 
 **R4 · 工具一致性与重构（低优先，随任务消减）** —（`checks/misc.py` 系列：cli/tests 缺失仅 WARN、`tools_readme` 只扫顶层、`ast.walk` 含嵌套 return、timeout 未捕 `TimeoutExpired`；`checks/workflow.py` 导入无兜底；`bugfix_modes` 硬编码阶段集；`checks/menu.py` 不校验 hidden_*；`repo-metrics` 无 schema 校验；`workflow-command-audit` 强度不一致；`generate_contract` 服务匹配混用子串/精确、`deduplicate` 静默保留首个、YAML 值未引号；`pull.js`/`push.js` 双份 `loadConfiguration`、失败无退出码、网络错与 not-found 不分；`index-project` 硬编码 Windows venv；`k8s-logs` 过时快照 + 通道不一致；`k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff；`idea-mcp` SSE 断线吞错；`spec_updater` 硬编码 `DEFAULT_CHANGE`；`maintain-report` closed 大小写敏感；`proposal-audit` `startswith("P")` 含 PROPOSALS.md；`quick-check` 未用 `_parse_summary`；`dependency-graph` 死分支）。

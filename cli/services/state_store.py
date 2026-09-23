@@ -21,9 +21,14 @@ class StateStore:
                 self.path
             ) or {}
 
+        except FileNotFoundError:
+
+            # 首次运行/尚未写入：无状态文件属**正常**，不告警
+            return {}
+
         except Exception as exc:
 
-            # fail loud：状态文件损坏/不可读不得静默当作"无状态"
+            # fail loud：状态文件**存在但损坏/不可读**不得静默当作"无状态"
             # （否则默认项目高亮/最近目标等记忆静默丢失，行为难以解释）
             print(
                 f"[aic] WARN: 读取状态文件失败 {self.path}: {exc}",
