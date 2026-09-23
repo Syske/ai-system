@@ -121,13 +121,33 @@
 **S2 裁定记录（用户，2026-09-23）**：「kubectl 没有时，让用户授权，安装配置」—— 即**原生 kubectl 为唯一口径**，
 缺失时不得静默换通道，而是停下来请用户授权（安装属机器级变更，AI 不自执行）。
 
-### 机器侧待办（**需你授权后才能做**，本轮未动）
+### 机器侧执行记录（**你已授权**，2026-09-23 完成）
 
-| # | 事项 | 依据 |
+| # | 事项 | 结果 |
 |---|---|---|
-| 1 | WSL 内安装 kubectl（本机实测 `command -v kubectl` 为空） | S2 裁定；装后 `kubectl version --client` 自检 |
-| 2 | 导出 `KUBECONFIG=/mnt/c/Users/syske/.kube/config`（`env.yaml` 的 `k8s.kubeconfig-wsl-view` 已就位）并 `kubectl get pods -n t2` 验通 | 同上 |
-| 3 | `~/.config/ai-system/env.yaml` 的 `k8s.channel` 由 `wsl-cmd` 改为 `wsl-native`，`kubectl-version` 改为 WSL 侧版本 | 同上（不改则文档声明与机器配置不一致） |
+| 1 | 安装 kubectl（WSL，Ubuntu 24.04 / x86_64） | ✅ 官方二进制 + **sha256 校验通过** → `~/.local/bin/kubectl`（0755，已在 PATH；未改系统包） |
+| 2 | 配置 kubeconfig | ✅ 转出 **UTF-8 副本** → `~/.kube/config`（0600）；`~/.kube` 0700；`env.yaml.kubeconfig-wsl-view` 指向它 |
+| 3 | `env.yaml` 更新 | ✅ `channel: wsl-cmd → wsl-native`；`kubectl-version → v1.32.13`；已备份 `env.yaml.bak-20260923-155926`，改后逐键比对**无丢键** |
+
+**端到端验证（真机）**：`kubectl config current-context` 正常 · `get pods -n t2` 列出 92 个 Pod ·
+`get ns` 报 Forbidden（**符合 SKILL 记载的 RBAC 预期**）· `scripts/k8s_helper.py` 走通完整链路。
+
+**顺带发现 3 条**（已写入 SKILL.md「两个已踩过的坑」，可复用）：
+
+| # | 发现 | 影响 |
+|---|---|---|
+| 1 | Windows 侧 kubeconfig 为 **UTF-16（带 BOM）**，Linux `kubectl` **无法解析** | 「`KUBECONFIG` 指向 `/mnt/c/...` 原文件」**行不通**；必须先转 UTF-8 副本 |
+| 2 | 服务端为 **v1.32.7**，而 Windows 侧记录的 kubectl 是 **v1.36.3**（skew 4 minor，超出 ±1） | WSL 侧已改装 v1.32.13 消警；**Windows 侧建议同步对齐**（未动 Windows） |
+| 3 | `env.yaml` 的 `k8s.channel` 实测值为旧口径 `wsl-cmd` | 已随本次执行改为 `wsl-native` |
+
+**S3 修复的真机效果**（同一时刻 92 个 Pod 的状态分布）：
+`Running 69 · Running(OOMKilled) 11 · Running(CrashLoopBackOff) 4 · Running(Error) 6 ·
+Pending(ImagePullBackOff) 1 · Failed 1` —— 即 **22 个 Pod 的故障原因**在原实现下会被
+`.status.phase` 掩盖为单纯的 Running/Pending。
+
+> **安全观察（低）**：t2 应用日志含**明文 Bearer token / 内部域名与租户 ID**（本次取样即命中）。
+> SKILL 安全规则第 4 条已要求「引用到对话时脱敏」；本轮遵守（未复述取值），并建议取日志时默认走
+> `grep` 白名单而非全量贴回。
 
 ### 建议（**需确认后实施**，本轮未擅自修改）
 

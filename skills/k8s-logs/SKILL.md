@@ -23,10 +23,21 @@ description: >
 | 键 | 说明 |
 |---|---|
 | `channel` | 期望值 `wsl-native`（WSL 内直接执行 `kubectl`）。历史值 `wsl-cmd`（`cmd.exe /c`）已**不再使用**——遇到即视为待迁移配置 |
-| `kubeconfig-wsl-view` | WSL 可见的 kubeconfig 路径（形如 `/mnt/c/Users/<win-user>/.kube/config`），配置 `KUBECONFIG` 用 |
-| `kubeconfig-win` | Windows 侧 kubeconfig（迁移/对照用） |
+| `kubectl-version` | WSL 侧实际版本。**须与服务端同 minor 或 ±1**（`kubectl version` 出 skew 警告即需换版本；实测服务端 v1.32.7 → 装 v1.32.x） |
+| `kubeconfig-wsl-view` | WSL 侧**可直接使用**的 kubeconfig 路径（默认 `~/.kube/config`） |
+| `kubeconfig-win` | Windows 侧 kubeconfig（**源头**；迁移/对照用） |
 | `context` / `namespace` | 当前 context / 默认命名空间（t2） |
 | `t2-gateway` | 测试环境服务入口（连通性验证用） |
+
+### 两个已踩过的坑（首次配置必读）
+
+1. **Windows 侧 kubeconfig 是 UTF-16（带 BOM）** —— Linux `kubectl` **无法解析**（报
+   `error loading config file ... invalid argument`）。必须转一份 UTF-8 副本再用：
+   读 `kubeconfig-win` → 解码（UTF-16）→ 写为 UTF-8 到 `kubeconfig-wsl-view`（默认 `~/.kube/config`），
+   并 `chmod 600`（内含 client cert/key，属凭据文件）。直接 `KUBECONFIG=/mnt/c/...` 指向原文件**行不通**。
+2. **客户端版本要对齐服务端**（±1 minor）—— 版本差过大时 `kubectl` 会告警且可能行为不一致；
+   按 `kubectl version` 给出的 server 版本选客户端（如 server v1.32.x → 装 v1.32.x）。
+   安装建议用官方二进制 + `sha256` 校验，落到 `~/.local/bin`（不改系统包）。
 
 RBAC 限制：仅命名空间内资源可操作（`get namespaces` 会 Forbidden——属预期，直接 `-n t2` 操作即可）。
 

@@ -318,5 +318,6 @@ last_findings:
   快捷命令去 cmd.exe 包装。实测 18 断言全过。**R4 归零（§2 八项全部收口）**。
   **本轮顺带新发现（待确认）** —— path-audit.py 的 PATH_RE 无词边界，kubeconfig 后接路径、
   archived 下路径的中间段会被误当引用（一轮内 2 次实测）；建议加负向后顾一行修复。
-  机器侧待办（需用户授权）—— 本机 WSL 未装 kubectl、env.yaml 的 k8s.channel 仍为旧口径 wsl-cmd，
-  授权后安装 kubectl + 导出 KUBECONFIG + 改 channel=wsl-native。
+  **机器侧 config 已随授权更新（细节见 logs/）** —— k8s-logs skill 的配置契约与 SKILL.md 已按真机实测
+  修正（补「Windows 侧 kubeconfig 为 UTF-16、Linux kubectl 无法解析」与「客户端版本须对齐服务端 ±1 minor」
+  两条坑位，见 `skills/k8s-logs/SKILL.md`）。机器级路径/版本/凭据副本等观测只进 per-run 诊断日志，不入本文件。
