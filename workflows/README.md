@@ -136,7 +136,9 @@ Every workflow file must contain these sections, in this order:
 2. Runtime — runtime template path
 3. Preconditions — what must exist before start
 4. Inputs — Required / Optional
-5. Context — minimal load set; loading order Task → Spec → Contract → Standards → Repository
+5. Context — minimal load set; loading order **Task Card → Specification → Contracts → Applied
+   Standards → Repository** (single source: `governance/CONTEXT_LOADING.md`; a workflow may load a
+   specialised tail — e.g. `verify` loads Scenarios — without reordering the first three)
 6. Outputs — generated artifacts
 7. Exit Criteria — Success / Stop conditions
 8. Next — downstream workflow or None

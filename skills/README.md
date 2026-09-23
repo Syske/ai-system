@@ -1,6 +1,6 @@
 # Skills Index
 
-## Workflow-Bound Skills (18)
+## Workflow-Bound Skills (17)
 
 These skills are directly invoked by at least one Workflow Runtime.
 
@@ -9,7 +9,6 @@ These skills are directly invoked by at least one Workflow Runtime.
 | implement | develop, bugfix | Core |
 | bugfix | bugfix | Core |
 | review | review | Quality Gate |
-| review-changes | (manual / on-demand) | Analysis |
 | mock-test | develop | Testing |
 | java-maven | develop, dev-setup | Language |
 | task-splitter | spec | Planning |
@@ -25,7 +24,7 @@ These skills are directly invoked by at least one Workflow Runtime.
 | repository-maintainer | analysis | Governance |
 | contract-maintainer | spec | Governance |
 
-## On-Demand Skills (10)
+## On-Demand Skills (21)
 
 These skills are useful but are manually invoked. They are NOT bound to any Workflow.
 
@@ -37,6 +36,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | explore-codebase | Knowledge-graph-driven codebase exploration | Manual |
 | debug-issue | Knowledge-graph-driven issue debugging | Manual |
 | index-project | Rebuild code semantic index | Manual |
+| k8s-logs | K8s 日志/终端排查（原生 kubectl 通道；t2） | Manual |
 | open-cli | Web API → CLI adapter generation | Manual |
 | spec-updater | 需求变更录入（S1-S3）→ 联动 contract-maintainer（从 methodologies 迁入 2026-09-17） | Manual |
 | openspec-archive-change | 归档已完成的 OpenSpec 变更（从 methodologies 迁入 2026-09-17） | Manual |
@@ -50,6 +50,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | propose-openspec | OpenSpec change creation procedure (loaded by aic-propose) | Command-loaded (aic-propose) |
 | apply-openspec | ~~OpenSpec implementation procedure, develop contract (archived 2026-09-09, zero usage)~~ | removed |
 | memory-capture | Capture verified session experience into Coding Memory (MEMORY_GUIDELINES, dedupe via index) | Session end / explicit request |
+| review-changes | (manual / on-demand) | Analysis |
 
 ## Optimization & Benchmarking Skills (1)
 

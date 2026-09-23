@@ -80,7 +80,7 @@ Resolve:
 
 If environment configuration is missing:
 
-1. Guide the user to run `python tools/setup.py [--environment {environment}]`:
+1. Guide the user to run `python3 tools/setup.py [--environment {environment}]`:
    - Generates `config/environments/{environment}.yaml` interactively
    - Scaffolds workspace base directories (workspaces/ projects/ repositories/ extensions/)
    - Ensures ai-system runtime dirs (metrics/ logs/)

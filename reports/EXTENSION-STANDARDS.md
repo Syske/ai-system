@@ -115,11 +115,11 @@ description: >
 
 | 命令 | 作用 | 失败含义 |
 |------|------|----------|
-| `python tools/check.py` | 完整门禁：编译 + menu 引用 + registry 链 + 命令命名 + prompt 构建 + wizard 冒烟 + repo-lint | exit 1 = 系统可能不可运行 |
-| `python tools/repo-lint.py --repo-root .` | 技能结构/frontmatter/大小/禁止项 | BLOCKER/ERROR = 不可提交 |
-| `python tools/path-audit.py` | 全量路径引用（含全部 skills/） | BROKEN/ABSOLUTE = 断链 |
-| `python tools/dependency-graph.py --repo-root .` | 依赖环 | 真实环 = exit 1 |
-| `python tools/proposal-audit.py` | 提案门禁 + 遗留 action item | gate error = 阻断 |
+| `python3 tools/check.py` | 完整门禁：编译 + menu 引用 + registry 链 + 命令命名 + prompt 构建 + wizard 冒烟 + repo-lint | exit 1 = 系统可能不可运行 |
+| `python3 tools/repo-lint.py --repo-root .` | 技能结构/frontmatter/大小/禁止项 | BLOCKER/ERROR = 不可提交 |
+| `python3 tools/path-audit.py` | 全量路径引用（含全部 skills/） | BROKEN/ABSOLUTE = 断链 |
+| `python3 tools/dependency-graph.py --repo-root .` | 依赖环 | 真实环 = exit 1 |
+| `python3 tools/proposal-audit.py` | 提案门禁 + 遗留 action item | gate error = 阻断 |
 
 ### 结构性变更流程（OPERATIONS §12）
 

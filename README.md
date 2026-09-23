@@ -56,7 +56,7 @@ analysis / knowledge（支撑：系统分析、知识沉淀）
 ```shell
 pip install -e .          # 注册 aic 命令
 aic                        # 交互式向导
-python -m cli.main         # 或直接运行
+python3 -m cli.main         # 或直接运行
 ```
 
 ```text
@@ -80,19 +80,19 @@ ai-system/
 
 ```shell
 # 系统完整性门禁 — 修改后必跑
-python tools/check.py
+python3 tools/check.py
 
 # 规范校验（命名 / 结构）
-python tools/repo-lint.py --repo-root .
+python3 tools/repo-lint.py --repo-root .
 
 # 路径引用审计
-python tools/path-audit.py
+python3 tools/path-audit.py
 
 # 健康指标
-python tools/repo-metrics.py --repo-root .
+python3 tools/repo-metrics.py --repo-root .
 
 # 依赖图
-python tools/dependency-graph.py --repo-root .
+python3 tools/dependency-graph.py --repo-root .
 ```
 
 ## 技术栈
@@ -108,7 +108,7 @@ python tools/dependency-graph.py --repo-root .
 
 1. **阅读 `governance/repo-lint.md`** — 了解命名规则与校验流程。
 2. **遵循 `rfc/` 规范** — RFC-0001（架构）、RFC-0002（skill）、RFC-0003（workflow）、RFC-0004（playbook）。
-3. **运行 `python tools/repo-lint.py --repo-root .` 与 `python tools/check.py`** —
+3. **运行 `python3 tools/repo-lint.py --repo-root .` 与 `python3 tools/check.py`** —
    结构性改动前必须通过（BLOCKER / ERROR 清零）。
 4. **改动架构时更新 `reports/`** 中的架构状态。
 5. **保持工作区产物向后兼容**（`openspec/`、`.opencode/`、`.pi/`）——这些由平台管理，勿在此修改。

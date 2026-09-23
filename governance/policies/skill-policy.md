@@ -42,7 +42,7 @@ Follow RFC-0002 for the exact file format.
 ## 4. Run the Linter
 
 ```shell
-python tools/repo-lint.py --repo-root .
+python3 tools/repo-lint.py --repo-root .
 ```
 
 Fix all BLOCKER and ERROR items before proceeding.
@@ -54,7 +54,7 @@ Follow `review-standard.md` for the review workflow.
 ## 6. Record Metrics Baseline
 
 ```shell
-python tools/repo-metrics.py --repo-root . --snapshot metrics/baseline-<date>.json
+python3 tools/repo-metrics.py --repo-root . --snapshot metrics/baseline-<date>.json
 ```
 
 ## 7. Update the Optimization Report (if applicable)
@@ -70,9 +70,9 @@ review document in `reports/`.
 | Action | Command |
 |---|---|
 | Check overlap | `grep -r "keyword" ai-system/skills/*/skill.md` |
-| Run linter | `python tools/repo-lint.py --repo-root .` |
-| Run linter (JSON) | `python tools/repo-lint.py --repo-root . --json` |
-| Run metrics | `python tools/repo-metrics.py --repo-root .` |
-| Save metrics snapshot | `python tools/repo-metrics.py --repo-root . --snapshot metrics/<name>.json` |
-| Compare metrics | `python tools/repo-metrics.py --repo-root . --compare metrics/<previous>.json` |
-| Dependency graph | `python tools/dependency-graph.py --repo-root .` |
+| Run linter | `python3 tools/repo-lint.py --repo-root .` |
+| Run linter (JSON) | `python3 tools/repo-lint.py --repo-root . --json` |
+| Run metrics | `python3 tools/repo-metrics.py --repo-root .` |
+| Save metrics snapshot | `python3 tools/repo-metrics.py --repo-root . --snapshot metrics/<name>.json` |
+| Compare metrics | `python3 tools/repo-metrics.py --repo-root . --compare metrics/<previous>.json` |
+| Dependency graph | `python3 tools/dependency-graph.py --repo-root .` |

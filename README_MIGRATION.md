@@ -26,7 +26,7 @@ ai-system/ — the full AI Runtime Engine (workflows, skills, governance, CLI)
 5. Verify:
      aic --help          # positional: aic <workflow>
      aic                 # interactive wizard (no arguments)
-     python tools/path-audit.py
+     python3 tools/path-audit.py
 
 ## 迁移载体（2026-09-10 起）
 

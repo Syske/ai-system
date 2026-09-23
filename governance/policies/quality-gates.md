@@ -5,7 +5,7 @@ repository must pass. These gates are enforced by `tools/repo-lint.py`
 and by the repository-governor Skill.
 
 > **Naming disambiguation (G5)**: this file governs the **asset-repo lint
-gates** (skill.md structure / duplication / dependencies, enforced by
+gates** (SKILL.md structure / duplication / dependencies, enforced by
 repo-lint.py). It is **NOT** the workflow runtime readiness gate — that one
 lives in each `workflows/*.md` Exit Criteria and the runtime phase gates
 (e.g. prepare Phase 7 Readiness Assessment). Same word, different meaning;
@@ -17,12 +17,12 @@ do not conflate them.
 
 | Check | Scope | Failure |
 |---|---|---|
-| skill.md exists | Every Skill | Missing entrypoint |
-| YAML frontmatter present | Every skill.md | Missing frontmatter |
-| `name:` matches directory name | Every skill.md | Name mismatch |
-| `description:` present | Every skill.md | Missing description |
-| workflow.md exists (if skill.md > 80 lines) | Skills > 80 lines | Missing workflow |
-| No orphaned files (files not referenced by any skill.md) | All files | Orphan detected |
+| SKILL.md exists | Every Skill | Missing entrypoint |
+| YAML frontmatter present | Every SKILL.md | Missing frontmatter |
+| `name:` matches directory name | Every SKILL.md | Name mismatch |
+| `description:` present | Every SKILL.md | Missing description |
+| workflow.md exists (if SKILL.md > 80 lines) | Skills > 80 lines | Missing workflow |
+| No orphaned files (files not referenced by any SKILL.md) | All files | Orphan detected |
 
 ## Gate 2: Content Quality
 
@@ -32,8 +32,8 @@ do not conflate them.
 | No Maven commands (`mvn ` strings) | Non-java-maven skills | Prohibited command |
 | No absolute paths (`C:\`, `/home/`, `/usr/`) | All files | Hardcoded path |
 | No hardcoded project names | All files | Non-generic content |
-| Description 100-1024 characters | Every skill.md | Invalid length |
-| At least 3 trigger phrases in description | Every skill.md | Insufficient triggers |
+| Description 100-1024 characters | Every SKILL.md | Invalid length |
+| At least 3 trigger phrases in description | Every SKILL.md | Insufficient triggers |
 
 ## Gate 3: Dependency Integrity
 
@@ -56,8 +56,8 @@ do not conflate them.
 
 | Check | Scope | Failure |
 |---|---|---|
-| Stopping conditions defined | Every skill.md | Missing stop conditions |
-| Delegation documented | Every skill.md | Missing delegation |
+| Stopping conditions defined | Every SKILL.md | Missing stop conditions |
+| Delegation documented | Every SKILL.md | Missing delegation |
 | At least 3 workflow stages | Every workflow.md | Insufficient stages |
 
 ---

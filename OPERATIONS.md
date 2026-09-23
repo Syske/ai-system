@@ -175,7 +175,9 @@ maintain     AI routine maintenance (quick-check pre-flight + mode-based inspect
 knowledge    knowledge lifecycle managed by AI inside the maintenance cycle
 ```
 
-Knowledge lifecycle triggers (matching `knowledge` workflow operations):
+Knowledge lifecycle triggers — the maintenance-cycle subset of the `knowledge` workflow
+operations (`workflows/knowledge.md` defines all five: collect / update / search / review / archive;
+update + search are driven by real sessions, not by the maintenance cycle):
 
 ```text
 collect   — after each release or retrospective
@@ -272,7 +274,8 @@ This is guidance for the external capture tooling + the debug diagnosis skill
 
 ## 1.9 Cross-Cutting Discipline
 
-* Context loading order: Task → Spec → Contract → Standards → Repository. Never load the entire repository.
+* Context loading order: **Task Card → Specification → Contracts → Applied Standards → Repository**
+  (single source: `governance/CONTEXT_LOADING.md`). Never load the entire repository.
 * Change control: L1 apply and record / L2 stop and confirm / L3 stop and route to spec.
 * Every completion reports Deviations ("None" if empty).
 

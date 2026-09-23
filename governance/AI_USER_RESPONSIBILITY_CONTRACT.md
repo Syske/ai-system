@@ -114,7 +114,7 @@ anything reversible inside the task defaults to **AI**.
 
 ## 4.1 Must do
 
-- Trigger work through `aic` (`python -m cli.main`) — the AI reads the
+- Trigger work through `aic` (`python3 -m cli.main`) — the AI reads the
   command doc and executes (ADR-0009).
 - Decide at decision points (D1-D5): confirm/approve/reject/choose, using
   the recommended answer as reference.

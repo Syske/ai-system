@@ -98,8 +98,8 @@ Metric: Linter ERROR count
 
 ```shell
 # Collect all metrics via the metrics tool
-python tools/repo-metrics.py --repo-root . --snapshot <repo-root>/metrics/<date>.json
+python3 tools/repo-metrics.py --repo-root . --snapshot <repo-root>/metrics/<date>.json
 
 # Compare with previous snapshot
-python tools/repo-metrics.py --repo-root . --compare <repo-root>/metrics/<previous>.json
+python3 tools/repo-metrics.py --repo-root . --compare <repo-root>/metrics/<previous>.json
 ```

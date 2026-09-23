@@ -12,7 +12,7 @@ ai-system is the AI Runtime Engine, and its own maintenance depends on AI.
 The user is the decision-maker and does not participate in execution
 details. Observed usage:
 
-- The user triggers workflows and commands through `aic` (`python -m cli.main`),
+- The user triggers workflows and commands through `aic` (`python3 -m cli.main`),
   and the AI executes them.
 - The AI performs routine maintenance (`maintain` command), initialization
   (`extensions-init`), and fixes.
@@ -46,7 +46,7 @@ ai-system design.**
 2. **Capabilities must be AI-discoverable**: new capabilities provide an
    `aic-` command entry by default (menu.yaml registration + step-based
    command doc). AI discovers and triggers them via the wizard /
-   `python -m cli.main`. Docs-without-AI-entry are not acceptable.
+   `python3 -m cli.main`. Docs-without-AI-entry are not acceptable.
 3. **Capabilities must be AI-executable**: command docs are step-based
    (Steps are executable commands with explicit inputs/outputs/guardrails);
    the AI can run them directly without user translation.
@@ -67,7 +67,7 @@ ai-system design.**
 
 ### User Interaction Boundary
 
-- User triggers: via `aic` (`python -m cli.main`) selecting workflows and
+- User triggers: via `aic` (`python3 -m cli.main`) selecting workflows and
   commands
 - User decision points: fix-plan confirmation (approval_gate), L2/L3 change
   approval, direction choice, providing sensitive inputs (remote URLs,

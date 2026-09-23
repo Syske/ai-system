@@ -20,7 +20,7 @@
 | `rfc/` | Architecture decisions | RFCs, ADRs | Code implementation |
 | `tools/` | Helper utilities | check.py, repo-lint.py, path-audit.py, setup.py | — |
 | `reports/` | Generated reports | analysis, maintenance, migration reports | Temporary logs |
-| `metrics/` | Health metrics snapshots | maintain-{date}.json | Metric data storage |
+| `metrics/` | Health metrics snapshots | `quick-check-{date}.json` (quick-check) + `maintain-{date}.json` (repo-metrics) | Metric data storage |
 | `logs/` | Operation logs | error logs, maintenance logs | Runtime logs |
 | `archived/` | Retired assets (reference only) | former ai-runtime/, old templates, old routing | Active assets |
 

@@ -223,7 +223,7 @@ Steps:
   - Empty/blank input → return `None`.
 - ai-system only depends on the method name, parameter, and return fields above;
   it never depends on provider-internal parsing details.
-- Provider implementation: scaffold with `python tools/branch-parser-scaffold.py init <name>`
+- Provider implementation: scaffold with `python3 tools/branch-parser-scaffold.py init <name>`
   (generates contract skeleton + contract tests), then fill in the company-specific
   pattern (e.g. `cc{date}_{type}{desc}_{service}`).
 - Gate: `tools/checks/bugfix_modes.py` (check.py item 15) enforces that a configured
@@ -320,7 +320,7 @@ Steps:
   - Provider-internal details (API host, credentials, org id) live in the
     provider script, never in ai-system.
 - Provider implementation: scaffold with
-  `python tools/mr-provider-scaffold.py init <name>` (contract skeleton +
+  `python3 tools/mr-provider-scaffold.py init <name>` (contract skeleton +
   contract tests), then fill the platform-specific logic.
 - Gate: `tools/checks/bugfix_modes.py` (check.py item 15) enforces that a
   configured provider resolves to an existing script with the exact contract.

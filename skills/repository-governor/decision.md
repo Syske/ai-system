@@ -23,7 +23,7 @@
 
 | Finding | Action |
 |---|---|
-| Skill > 1000 lines | Recommend split |
+| Skill > 1000 lines | Recommend split (this is the **split decision** threshold; the authoring budget is ≤ 800 total / ≤ 500 SKILL.md per `skills/skill-author/design.md`) |
 | Skill fails one-sentence test | Recommend split |
 | Two Skills overlap > 60% | Recommend merge |
 | Skill references deprecated Skill | Recommend update |

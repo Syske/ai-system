@@ -37,7 +37,7 @@ templates: [...], checklists: [...], rfc: [...], adr: [...], governance: [...], 
 
 2.1 Run the linter script:
 ```shell
-python tools/repo-lint.py --repo-root .
+python3 tools/repo-lint.py --repo-root .
 ```
 
 2.2 Parse the JSON output:
@@ -74,7 +74,7 @@ python tools/repo-lint.py --repo-root .
 
 3.1 Run the metrics script:
 ```shell
-python tools/repo-metrics.py --repo-root .
+python3 tools/repo-metrics.py --repo-root .
 ```
 
 3.2 Parse the JSON output.

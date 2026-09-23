@@ -40,7 +40,7 @@ reset before continuing.
 | Vague language | "should work", "probably fine", "seems correct" | Verify or ask; do not proceed |
 | Missed constraints | Spec/contract requirements silently dropped | Re-read the task card + contract |
 | Repetitive mistakes | Same error pattern twice in a row | Stop; switch strategy (subagent, fresh read) |
-| Context near limits | Session at/above 60% (CONTEXT_LOADING) | Compact or handoff (CONTEXT_RETENTION) |
+| Context near limits | Session at/above **50%** (compaction trigger — CONTEXT_RETENTION; 60% is the *caution tier* boundary, CONTEXT_LOADING §tiers) | Compact or handoff (CONTEXT_RETENTION) |
 | Long task without checkpoint | > 3 implementation steps since last review | Mid-task reflection checkpoint |
 | Degraded output quality | Shorter, less structured responses | Compact, handoff, or new session |
 
@@ -71,7 +71,7 @@ push through:
 | Condition | Interrupt action |
 |---|---|
 | Same failure twice | Stop retrying; delegate to subagent or ask the user |
-| Context > 60% | Compact (pi `/compact` or opencode pre-compact message) per CONTEXT_RETENTION |
+| Context > 50% | Compact (pi `/compact` or opencode pre-compact message) per CONTEXT_RETENTION |
 | Output degraded (vague/repetitive) | Stop; checkpoint; then resume with a fresh read of the goal |
 | Task exceeds scope | Stop; confirm scope with the user before continuing |
 

@@ -115,7 +115,7 @@ Example `## Configuration` block:
 
 - Reads: `build.java_home`, `build.maven_home` (machine layer
   `~/.config/ai-system/env.yaml`, merged over `config/environments/{env}.yaml`).
-- Resolve: `python -c "from cli.services.environment import resolve_environment;\
+- Resolve: `python3 -c "from cli.services.environment import resolve_environment;\
   print(resolve_environment().get('build'))"` (run from the ai-system root,
   or with `AI_SYSTEM_ROOT` set).
 - If `build.java_home` is absent → ASK the user for the JDK path; do NOT

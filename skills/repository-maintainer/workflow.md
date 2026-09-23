@@ -55,7 +55,7 @@ reports: [...], tools: [...]}`
 
 **Steps:**
 
-3.1 Run `python tools/repo-metrics.py --repo-root . --json` and parse output.
+3.1 Run `python3 tools/repo-metrics.py --repo-root . --json` and parse output.
 
 3.2 If a previous snapshot exists at `ai-system/metrics`, load and compare.
 
@@ -91,7 +91,7 @@ reports: [...], tools: [...]}`
 
 **Steps:**
 
-5.1 Run `python tools/dependency-graph.py --repo-root . --format json` and parse.
+5.1 Run `python3 tools/dependency-graph.py --repo-root . --format json` and parse.
 
 5.2 Identify cycles — circular dependencies between Skills.
 
@@ -318,12 +318,12 @@ NEXT MAINTENANCE: <date>
 
 14.2 After all changes, run validation:
 ```shell
-python tools/repo-lint.py --repo-root .
+python3 tools/repo-lint.py --repo-root .
 ```
 
 14.3 Save metrics snapshot:
 ```shell
-python tools/repo-metrics.py --repo-root . --snapshot ai-system/metrics/<date>.json
+python3 tools/repo-metrics.py --repo-root . --snapshot ai-system/metrics/<date>.json
 ```
 
 14.4 Generate change summary.

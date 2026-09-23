@@ -297,7 +297,7 @@ Example:
 
 I prefer this coding style.
 
-````
+```
 
 Not a memory item.
 
@@ -356,7 +356,7 @@ Related:
 - Skill:
 - Specification:
 - Contract:
-````
+```
 
 ---
 
@@ -658,33 +658,28 @@ A new category should:
 
 # Memory Organization
 
-Recommended structure:
+Canonical structure (**follows the live tree** — a guideline that does not match reality is worse than none):
 
 ```
-ai-system/
-
-└── governance/
-
-    └── memory/
-
-        ├── MEMORY_GUIDELINES.md
-        ├── coding-memory.md
-
-        ├── java/
-
-        │   ├── coding-memory.md
-        │   ├── mq.md
-        │   └── database.md
-
-        ├── python/
-
-        │   └── coding-memory.md
-
-        └── integration/
-
-            ├── wecom.md
-            └── dingding.md
+governance/memory/
+├── MEMORY_GUIDELINES.md
+├── coding-memory.md              # entry point / cross-language index
+├── ai-system/                    # lessons about the AI system itself
+│   ├── coding-memory.md          #   one file per topic (e.g. workflow-chain.md,
+│   │                             #   language-boundary.md, file-contract.md, …)
+└── java/                         # one directory per language / stack
+    ├── coding-memory.md          #   topic index of that directory
+    ├── integration.md            #   cross-system integration lessons
+    ├── mq.md
+    └── spring.md
 ```
+
+Rules:
+
+- One directory per language / stack (`java/`, …); one file per topic inside it;
+  that directory's `coding-memory.md` is its topic index.
+- Lessons about ai-system itself go under `ai-system/` (not under a language dir).
+- Adding a language = adding a directory; adding a topic = adding a file + its index entry.
 
 ---
 

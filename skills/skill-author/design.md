@@ -197,7 +197,7 @@ how a problem was solved once.
 1. **Frontmatter check** — `name` and `description` present and valid
 2. **Description check** — 100-1024 chars, includes triggers and anti-triggers
 3. **Name check** — kebab-case, ≤ 64 chars
-4. **Size check** — SKILL.md ≤ 500 lines, total ≤ 800 lines
+4. **Size check** — SKILL.md ≤ 500 lines, total ≤ 800 lines (authoring budget; the **split decision** threshold is 1000 lines — `skills/repository-governor/decision.md`)
 5. **No project assumptions** — no hardcoded paths or org names
 6. **No duplication** — no repeated content across files
 7. **Responsibility check** — single responsibility test passes

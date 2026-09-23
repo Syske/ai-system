@@ -60,7 +60,7 @@ One-time GUI on the IDEA side:
   `cli/services/environment.py::resolve_environment()` returns `build`/`paths`.
   Portable one-liner (run from the ai-system root or with `AI_SYSTEM_ROOT` set):
   ```
-  python -c "from cli.services.environment import resolve_environment; \
+  python3 -c "from cli.services.environment import resolve_environment; \
     print(resolve_environment().get('build'))"
   ```
 - **Missing/ambiguous config → ASK the user.** Never guess a JDK/Maven/IDEA
