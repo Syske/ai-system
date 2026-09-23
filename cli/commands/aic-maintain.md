@@ -33,6 +33,7 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    ```bash
    python3 tools/repo-lint.py --repo-root .
    python3 tools/repo-metrics.py --repo-root . --snapshot metrics/maintain-{date}.json
+   python3 tools/prompt-metrics.py; python3 tools/context-audit.py   # P70 trend obs (never a token target)
    python3 tools/path-audit.py
    ```
 

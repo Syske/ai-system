@@ -62,6 +62,8 @@ Purpose
 
 * governance/standards/common/ai-coding-rules.md
 
+* governance/standards/common/output-discipline.md
+
 ### For runtime-develop
 
 * governance/standards/common/clean-code.md

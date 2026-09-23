@@ -51,6 +51,14 @@ compaction mechanism.
 - Notes: <risks / blockers>
 ```
 
+## Compression Principle
+
+Context compression may shorten **expression**, but must preserve **constraints, facts,
+decisions, evidence, contracts and required context**. Dropping a constraint or a fact
+is not compression — it is loss. (Applied when summarizing, compacting or handoff-ing;
+the instruments to observe the trend are `tools/prompt-metrics.py` and
+`tools/context-audit.py` — P70.)
+
 ## Related
 
 - `CONTEXT_LOADING.md` — Session Health Levels (40/60/80 thresholds)
