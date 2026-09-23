@@ -402,7 +402,8 @@ def check_cli_tests(c):
 
     tests_dir = ROOT / "cli" / "tests"
     if not tests_dir.exists():
-        c.warn("cli/tests not found, skipped")
+        # R4：测试目录缺失是**严重**状况（测试门禁无从执行）→ ERROR（原为 warn 静默跳过）
+        c.error("cli/tests not found —— 测试门禁无法执行")
         return
 
     result = subprocess.run(

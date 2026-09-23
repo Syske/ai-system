@@ -17,7 +17,7 @@ from .misc import (
     check_tuple_return_arity,
     check_workflow_command_audit,
 )
-from .menu import check_menu, check_wizard_dry_run
+from .menu import check_hidden_registry, check_menu, check_wizard_dry_run
 from .config_yaml import check_config_yaml
 from .jdt_ignore import check_jdt_ignore
 from .memory import check_memory
@@ -46,6 +46,7 @@ def run_all():
     check_cli_tests(c)
     check_tests_collected(c)
     check_menu(c, workflows, commands)
+    check_hidden_registry(c)
     check_registry(c)
     check_next_sections(c, workflows)
     check_workflow_size(c)

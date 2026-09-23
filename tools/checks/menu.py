@@ -151,3 +151,49 @@ def check_wizard_dry_run(c, workflows, commands):
 
     except Exception as exc:
         c.error(f"wizard dry-run failed: {exc!r}")
+
+
+def check_hidden_registry(c):
+    """`hidden_workflows` / `hidden_commands` 的每条必须指向**存在**的目标（R4）。
+
+    原实现完全不校验：删除/重命名工作流后，`hidden_*` 里会留下**悬空条目**
+    （既不报错也不生效），隐藏机制静默失效。
+    """
+
+    import re
+
+    from .base import ROOT, load_yaml
+
+    menu = load_yaml(ROOT / "config" / "menu.yaml") or {}
+
+    if "__error__" in menu:
+        return          # 语法错误已由 config_yaml 检查报出
+
+    known_workflows = {p.stem for p in (ROOT / "workflows").glob("*.md")} - {"README"}
+
+    known_commands = {
+        p.name[len("aic-"):-len(".md")]
+        for p in (ROOT / "cli" / "commands").glob("aic-*.md")
+    }
+
+    for key, known, label in (
+        ("hidden_workflows", known_workflows, "workflow"),
+        ("hidden_commands", known_commands, "command"),
+    ):
+
+        entries = menu.get(key) or []
+
+        if not isinstance(entries, list):
+            c.error(f"config/menu.yaml: {key} 必须是列表")
+            continue
+
+        for entry in entries:
+
+            name = re.sub(r"\s*#.*$", "", str(entry)).strip()
+
+            if name and name not in known:
+
+                c.error(
+                    f"config/menu.yaml: {key} 含悬空条目 '{name}'"
+                    f"（无此 {label}）"
+                )

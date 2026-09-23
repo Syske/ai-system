@@ -134,7 +134,8 @@ def audit_command(p, menu_cmds, all_cmd_names, results):
     text = p.read_text(encoding="utf-8", errors="replace")
     n = len(text.splitlines())
     if n > 100:
-        results["warnings"].append(f"{p.name}: {n} lines (thin-command gate)")
+        # R4：与 `checks/workflow.py` 同条件强度统一（同一 RFC-0003 门禁，原一 error 一 warning）
+        results["errors"].append(f"{p.name}: {n} lines (thin-command gate, RFC-0003)")
 
     name = p.name.replace("aic-", "").replace(".md", "")
     if name not in menu_cmds:

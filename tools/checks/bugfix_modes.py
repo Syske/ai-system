@@ -24,11 +24,42 @@ from .base import ROOT, load_yaml
 CONFIG = ROOT / "config" / "workflows" / "bugfix-modes.yaml"
 
 # 已知阶段：新增阶段必须同步登记到这里（与 config 文件头注释一致）。
-KNOWN_PHASES = {
+# R4：以配置为权威 —— 阶段集从 `config/workflows/bugfix-modes.yaml` 的
+# `phases` 反读（并集）；下列常量仅作配置不可用时的回退（避免"改配置忘了改代码"）。
+KNOWN_PHASES_FALLBACK = {
     "analysis", "reproduce", "root-cause", "plan",
     "branch", "implement", "regress", "commit", "verify", "doc",
     "report", "mr",
 }
+
+
+def known_phases():
+    """返回配置中出现的全部阶段（并集）；配置不可用时回退常量。"""
+
+    from .base import ROOT, load_yaml
+
+    config = load_yaml(ROOT / "config" / "workflows" / "bugfix-modes.yaml") or {}
+
+    phases = set()
+
+    def collect(node):
+
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "phases" and isinstance(value, list):
+                    phases.update(str(v) for v in value)
+                else:
+                    collect(value)
+        elif isinstance(node, list):
+            for item in node:
+                collect(item)
+
+    collect(config)
+
+    return phases or set(KNOWN_PHASES_FALLBACK)
+
+
+KNOWN_PHASES = known_phases()
 
 KNOWN_PLACEHOLDERS = {"date", "type", "desc", "service"}
 

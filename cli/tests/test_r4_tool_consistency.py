@@ -102,3 +102,96 @@ class TestMaintainReportClosedCase(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestHiddenRegistryConsistency(unittest.TestCase):
+    """#1：`hidden_workflows` / `hidden_commands` 悬空条目必须报错。"""
+
+    def _run_with_menu(self, menu_text):
+        import tempfile
+        from checks import base as cbase
+        from checks import menu as cmenu
+
+        original = cbase.ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "config").mkdir(parents=True)
+            (root / "config" / "menu.yaml").write_text(menu_text, encoding="utf-8")
+            (root / "workflows").mkdir()
+            (root / "workflows" / "develop.md").write_text("---\nname: develop\n---\n", encoding="utf-8")
+            (root / "cli" / "commands").mkdir(parents=True)
+            (root / "cli" / "commands" / "aic-scan.md").write_text("---\nname: scan\n---\n", encoding="utf-8")
+            cbase.ROOT = root
+            try:
+                c = Checker()
+                cmenu.check_hidden_registry(c)
+            finally:
+                cbase.ROOT = original
+        return c
+
+    def test_悬空条目报错(self):
+        c = self._run_with_menu(
+            "hidden_workflows:\n  - develop\n  - not-a-workflow\n"
+            "hidden_commands:\n  - scan\n  - not-a-command   # 注释应被剥离\n"
+        )
+        self.assertEqual(len(c.errors), 2, c.errors)
+        self.assertTrue(any("not-a-workflow" in e for e in c.errors))
+        self.assertTrue(any("not-a-command" in e for e in c.errors))
+
+    def test_正常条目无错(self):
+        c = self._run_with_menu(
+            "hidden_workflows:\n  - develop\nhidden_commands:\n  - scan\n")
+        self.assertEqual(c.errors, [])
+
+    def test_真实配置无误(self):
+        from checks import menu as cmenu
+        c = Checker()
+        cmenu.check_hidden_registry(c)
+        self.assertEqual(c.errors, [], c.errors)
+
+
+class TestBugfixPhasesFromConfig(unittest.TestCase):
+
+    def test_阶段集来自配置并集(self):
+        from checks import base as cbase
+        from checks import bugfix_modes
+
+        config = cbase.load_yaml(cbase.ROOT / "config" / "workflows" / "bugfix-modes.yaml") or {}
+        phases = bugfix_modes.known_phases()
+        self.assertTrue(phases)
+
+        found = set()
+
+        def collect(node):
+            if isinstance(node, dict):
+                for k, v in node.items():
+                    if k == "phases" and isinstance(v, list):
+                        found.update(str(x) for x in v)
+                    else:
+                        collect(v)
+            elif isinstance(node, list):
+                for item in node:
+                    collect(item)
+
+        collect(config)
+        self.assertTrue(found <= phases, f"配置阶段 {found - phases} 未进入并集")
+
+
+class TestRepoMetricsSchemaGuard(unittest.TestCase):
+
+    def test_缺字段明确报错(self):
+        mod = _load("repo_metrics_r4", "tools/repo-metrics.py")
+        with self.assertRaises(SystemExit) as ctx:
+            mod._metric({"skills": {}}, "skills", "count")
+        self.assertIn("缺少指标", str(ctx.exception))
+
+    def test_有字段正常返回(self):
+        mod = _load("repo_metrics_r4b", "tools/repo-metrics.py")
+        self.assertEqual(mod._metric({"skills": {"count": 39}}, "skills", "count"), 39)
+
+
+class TestAuditStrengthUnified(unittest.TestCase):
+
+    def test_命令超长与工作流同判(self):
+        text = (REPO_ROOT / "tools" / "workflow-command-audit.py").read_text(encoding="utf-8")
+        self.assertIn('results["errors"].append(f"{p.name}: {n} lines (thin-command gate, RFC-0003)")', text)

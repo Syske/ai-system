@@ -25,6 +25,19 @@ SKILLS_SUBDIR = "skills"
 WORKFLOWS_SUBDIR = "workflows"
 
 
+def _metric(snapshot, section, key):
+    """从历史快照取指标；缺字段**明确报错**（R4：原为裸 KeyError）。"""
+
+    value = (snapshot or {}).get(section, {}).get(key)
+
+    if value is None:
+        raise SystemExit(
+            f"repo-metrics: 历史快照缺少指标 {section}.{key}（快照格式可能已变更）"
+        )
+
+    return value
+
+
 def resolve_root(root):
     """Return the ai-system root regardless of whether repo-root points at
     the workspace (containing ai-system/) or at ai-system/ itself.
@@ -215,16 +228,20 @@ def main():
         with open(args.compare, "r", encoding="utf-8") as f:
             previous = json.load(f)
         deltas = {
-            "skills_delta": metrics["skills"]["count"] - previous["skills"]["count"],
-            "avg_size_delta": metrics["skills"]["average_size_lines"] - previous["skills"]["average_size_lines"],
+            # R4：快照缺字段时给出明确错误，而非裸 KeyError
+            "skills_delta": metrics["skills"]["count"] - _metric(previous, "skills", "count"),
+            "avg_size_delta": (
+                metrics["skills"]["average_size_lines"]
+                - _metric(previous, "skills", "average_size_lines")
+            ),
         }
         if args.json:
             print(json.dumps({"current": metrics, "previous": previous, "deltas": deltas}, indent=2))
         else:
             print(f"\nMetrics Comparison")
             print(f"{'='*60}")
-            print(f"Skills: {previous['skills']['count']} → {metrics['skills']['count']} ({deltas['skills_delta']:+d})")
-            print(f"Avg size: {previous['skills']['average_size_lines']} → {metrics['skills']['average_size_lines']} ({deltas['avg_size_delta']:+d})")
+            print(f"Skills: {_metric(previous, 'skills', 'count')} → {metrics['skills']['count']} ({deltas['skills_delta']:+d})")
+            print(f"Avg size: {_metric(previous, 'skills', 'average_size_lines')} → {metrics['skills']['average_size_lines']} ({deltas['avg_size_delta']:+d})")
     else:
         if args.json:
             print(json.dumps(metrics, indent=2))
