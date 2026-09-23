@@ -24,7 +24,7 @@ These skills are directly invoked by at least one Workflow Runtime.
 | repository-maintainer | analysis | Governance |
 | contract-maintainer | spec | Governance |
 
-## On-Demand Skills (21)
+## On-Demand Skills (22)
 
 These skills are useful but are manually invoked. They are NOT bound to any Workflow.
 
@@ -51,6 +51,7 @@ These skills are useful but are manually invoked. They are NOT bound to any Work
 | apply-openspec | ~~OpenSpec implementation procedure, develop contract (archived 2026-09-09, zero usage)~~ | removed |
 | memory-capture | Capture verified session experience into Coding Memory (MEMORY_GUIDELINES, dedupe via index) | Session end / explicit request |
 | review-changes | (manual / on-demand) | Analysis |
+| comment-cleaner | 注释泔水清理（P69）：本次 diff 新增注释判 KEEP/DELETE/REVIEW，只删确定类（工具 `tools/comment-lint.py`；策略见 documentation.md → Comment Quality） | Develop cleanup (referenced by the `comment-lint` gate) |
 
 ## Optimization & Benchmarking Skills (1)
 

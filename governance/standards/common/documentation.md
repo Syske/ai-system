@@ -93,6 +93,8 @@ other teams who read the code without access to internal task context.
   `tools/repo-lint.py` 检查 —— 本分类**不重复**其职责。
 - 上表规则 id 为**稳定标识**：评审意见、诊断日志、机器检查输出**必须引用它，不得另起别称**
   （机器实现落地后仍以本表为唯一来源）。
+- 机器实现：`tools/comment-lint.py`（diff 级·只报不拦起步；规则 id 与本表一一对应）；
+  清理流程见技能 `skills/comment-cleaner/`。
 
 ## Commit Content（提交信息内容规范）
 
