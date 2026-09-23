@@ -212,9 +212,19 @@ def main():
     parser = argparse.ArgumentParser(description="spec-updater 辅助脚本")
     parser.add_argument("action", choices=["info", "build", "summary"],
                         help="操作: info=初始化检查, build=构建契约, summary=结构摘要")
-    parser.add_argument("--change", default=DEFAULT_CHANGE,
-                        help=f"变更集名称 (默认: {DEFAULT_CHANGE})")
+    # R4：移除硬编码项目名默认值（原 default="wecom-live-integration"：
+    # 共享脚本写死某项目 → 不传参时**静默操作错误项目**）。改为必填。
+    parser.add_argument("--change", default=None,
+                        help="变更集名称（必填；不再使用项目相关的隐式默认值）")
     args = parser.parse_args()
+
+    if not args.change:
+
+        print(
+            "ERROR: 必须显式指定 --change（原硬编码默认值已移除：共享脚本不得写死项目名）",
+            file=sys.stderr
+        )
+        return 2
 
     if args.action == "info":
         cmd_info(args.change)
@@ -225,4 +235,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # R4：传播 main() 的返回码（原 `main()` → 无论返回何值都以 0 退出，失败不可见）
+    import sys as _sys
+
+    _sys.exit(main())

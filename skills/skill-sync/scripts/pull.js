@@ -105,12 +105,14 @@ async function main() {
         console.error('⚠️  Error: Please provide the skill name to pull.');
         console.error('Usage: node scripts/pull.js <skill-name> [custom-target-dir]');
         process.exit(1);
+        process.exit(1);
     }
 
     const { host, apiKey } = loadConfiguration();
     if (!host) {
         console.error('⚠️  Error: Agent Insight Host is not configured.');
         console.error('Please configure AGENT_INSIGHT_HOST in ~/.agent-insight/.env');
+        process.exit(1);
         process.exit(1);
     }
 
@@ -122,7 +124,10 @@ async function main() {
 
         const targetSkill = remoteSkills.find(s => s.name === targetSkillName);
         if (!targetSkill) {
+            // R4：区分「平台无此技能」与「网络/接口异常」——前者是可预期结果，
+            // 后者由下方 catch 报告；两者都须以非零码退出，供 CI/脚本判断。
             console.error(`\n❌ Skill '${targetSkillName}' not found on the platform.`);
+            process.exitCode = 1;
             process.exit(1);
         }
 
@@ -139,7 +144,12 @@ async function main() {
 
     } catch (e) {
         console.error(`\n❌ Pull failed: ${e.message}`);
+        process.exitCode = 1;
     }
 }
 
-main().catch(e => console.error(e));
+// R4：未捕获异常必须以非零码退出（原仅打印 → 失败被当作成功）
+main().catch(e => {
+    console.error(e);
+    process.exit(1);
+});

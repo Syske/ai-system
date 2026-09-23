@@ -431,6 +431,16 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 
 测试：`cli/tests/test_r4_tool_consistency.py` 扩至 **14 项**（新增：悬空条目正反例 / 真实配置无误 / 阶段集来自配置并集 / 快照缺字段报错 / 强度统一断言）。
 
+**R4 第三批（2026-09-21，部分：3 项 → R4 16/32）**
+
+| # | 项 | 修复 |
+|---|---|---|
+| 1 | `pull.js` / `push.js` **失败无退出码** | 失败路径补 `process.exit(1)` / `process.exitCode = 1`（用法错误、host 未配置、平台无此技能、拉取失败、未捕获异常共 8 处）—— 原仅打印，**脚本以 0 退出，CI/脚本无法感知失败** |
+| 2 | 「平台无此技能」与「网络/接口异常」混淆 | 前者置 `process.exitCode = 1` 并加注释区分（后者由 catch 报告），两者均非零退出 |
+| 3 | `spec_updater` **硬编码项目名** | 移除 `default="wecom-live-integration"`（共享脚本写死某项目 → 不传参时**静默操作错误项目**），改为必填并给明确错误；并修复入口未传播返回码（原 `main()` → 恒 exit 0） |
+
+**R4 剩余 16 项（下一批）**：`pull/push` 抽共享 `loadConfiguration`（纯去重）· `generate_contract` 服务匹配统一精确 / 去重告警 / YAML 值引号 · `index-project` Windows venv 探测 · `k8s-logs` 过时快照与通道一致性 · `k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff · `idea-mcp` SSE 断线吞错 · 其余口径统一类与已判定维持项。
+
 **R4 剩余 19 项（下一批）**：**skills 脚本组 12** —— `pull/push` 抽共享 `loadConfiguration` + 失败退出码 + 网络错与 not-found 区分 · `generate_contract` 服务匹配统一精确 / 去重告警 / YAML 值引号 · `spec_updater` 硬编码 `DEFAULT_CHANGE`（项目名写死） · `index-project` Windows venv 探测 · `k8s-logs` 过时快照与通道一致性 · `k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff · `idea-mcp` SSE 断线吞错；**其余** —— `checks/menu.py` 与 `checks/workflow.py` 的其它重复口径统一、`tools_readme` 范围（已判定维持）等。
 
 **R4 剩余（下一批）**：`checks/menu.py` hidden_* 注册一致性 · `repo-metrics` 快照 schema 校验 · `workflow-command-audit` 与 `checks/workflow` 同条件强度统一 · `bugfix_modes` 阶段集从配置反读 · `checks/misc.py` cli/tests 缺失升 ERROR · **skills 脚本组**（`pull/push` 抽共享 `loadConfiguration` + 失败退出码 + 网络错与 not-found 区分 · `generate_contract` 服务匹配统一精确 / 去重告警 / YAML 值引号 · `spec_updater` 硬编码 `DEFAULT_CHANGE` · `index-project` Windows venv 探测 · `k8s-logs` 过时快照与通道一致性 · `k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff · `idea-mcp` SSE 断线快速失败）。

@@ -59,6 +59,7 @@ async function main() {
     const targetPath = process.argv[2];
     if (!targetPath) {
         console.error('⚠️  Error: Please provide the local skill folder path.');
+        process.exit(1);
         console.error('Usage: node scripts/push.js <path-to-skill>');
         process.exit(1);
     }
@@ -91,6 +92,7 @@ async function main() {
     if (!host) {
         console.error('⚠️  Error: Agent Insight Host is not configured.');
         console.error('Please configure AGENT_INSIGHT_HOST in ~/.agent-insight/.env');
+        process.exit(1);
         process.exit(1);
     }
 
