@@ -222,9 +222,13 @@ last_findings:
   +23 测试）** —— 打包排除集 + 疑似凭据拒传（`skills/skill-sync/scripts/sync-policy.js`）、
   无协议默认 https + 明文 http 默认拒绝、技能枚举单一来源 `tools/skill_index.py`
   （口径 32/33/33 → **39/39/39**，容器 `architecture/` 下 7 个技能入列并暴露修复 7 个
-  description 过短 ERROR）、技能层契约测试补齐；**余 56 项**：R2 静默失败/可靠性 24、
-  R4 工具一致性/重构 32（低优先，随任务消减）；另 52 条**文档措辞**已裁决为非代码类，
-  建议下一维护批次批量顺手修。
+  description 过短 ERROR）、技能层契约测试补齐。**R2 静默失败/可靠性已修 13/24（2026-09-21，
+  两批 +22 测试）**：agentdebug 6 项（前驱记录/triage 首要类型/文案/校验短路/unknown 合法/括号）
+  + CLI 7 项（§8 前瞻兜底与路径段校验、frontmatter 限定与无 git 根不上行、i18n locale 同源、
+  链注入服务名、最近活跃时间戳）。**余**：R2 剩余 11 项 + R4 工具一致性/重构 32（低优先）；
+  另 52 条**文档措辞**已裁决为非代码类，建议下一维护批次批量顺手修。
+  基线说明：repo-lint WARN 96 → 97，系 R1 口径统一后 design-review/SKILL.md 首次入 lint 视野
+  （正当可见化，非回退）。
 
   **P65（C2 profile 语义边界与校准）决议登记（2026-09-21）**
   A 已执行 —— 语义边界落 tools/README.md + 本文件 + templates/runtime/runtime-develop.md +

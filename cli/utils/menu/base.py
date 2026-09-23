@@ -23,18 +23,36 @@ def _load_i18n():
     if _I18N is not None:
         return _I18N
 
+    # R2 修复：locale 与 MenuConfig 同源（config/menu.yaml → locale），
+    # 原实现硬编码 zh.yaml —— 切换 locale 后菜单文案仍为中文（静默不一致）。
+    root = Path(__file__).resolve().parents[3]
+
+    locale = "zh"
+
     try:
 
-        _I18N = load_yaml(
-            Path(__file__).resolve().parents[3]
-            / "config"
-            / "i18n"
-            / "zh.yaml"
-        )
+        _menu_cfg = load_yaml(root / "config" / "menu.yaml") or {}
+
+        locale = str(_menu_cfg.get("locale") or "zh").strip() or "zh"
 
     except Exception:
 
-        _I18N = {}
+        locale = "zh"
+
+    for candidate in (locale, "zh"):
+
+        try:
+
+            _I18N = load_yaml(root / "config" / "i18n" / f"{candidate}.yaml")
+
+            if _I18N:
+                return _I18N
+
+        except Exception:
+
+            _I18N = None
+
+    _I18N = {}
 
     return _I18N
 

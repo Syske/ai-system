@@ -325,7 +325,8 @@ def detect_action(record: Dict[str, Any], tools: List[Dict[str, Any]], call_coun
                     "redundant_call",
                     "low",
                     command or name,
-                    "五步窗口内出现第三次及以上相同工具调用，可能是无效重复尝试。",
+                    "同一工具调用（同名 + 同参数）在轨迹中重复出现（第 2 次起判定），"
+                    "可能是无效重复尝试。",
                     0.78,
                     text(tool.get("anchorId"), 120) or anchor,
                     **location,
@@ -338,7 +339,8 @@ def classify_action_error(evidence: str, command: str) -> Tuple[str, str, str]:
     value = f"{evidence}\n{command}".lower()
     if "command not found" in value:
         return "parameter_error", "命令或工具在当前环境不可用，动作参数选择不当。", "medium"
-    if "no such file" in value or "not found" in value and "/" in value:
+    # R2：显式括号，避免 `A or B and C` 的优先级歧义（行为与 Python 现行一致，仅可读性）
+    if "no such file" in value or ("not found" in value and "/" in value):
         return "nonexistent_path", "工具返回路径不存在，后续读写会偏离真实对象。", "medium"
     if "does not match" in value or "no match" in value:
         return "wrong_diff_anchor", "编辑锚点未匹配真实文件内容，修改没有可靠落点。", "high"
@@ -464,9 +466,17 @@ def detect_reflection(
 
 
 def previous_record(records: List[Dict[str, Any]], step: int) -> Optional[Dict[str, Any]]:
+    """返回列表中**紧邻**该 step 记录的前一条记录。
+
+    R2 修复（2026-09-21）：原实现按 `step - 1` **精确匹配**，遇到 step 不连续
+    （如 1, 3, 4 —— 缺 2）时返回 None，使 reflection 检测**静默丢失上下文**。
+    现按列表顺序取前驱，与"前一条记录"的语义一致，且不假设序号连续。
+    """
+    previous: Optional[Dict[str, Any]] = None
     for record in records:
-        if int(record.get("step") or 0) == step - 1:
-            return record
+        if int(record.get("step") or 0) == step:
+            return previous
+        previous = record
     return None
 
 
@@ -482,30 +492,43 @@ def run_phase0_triage(records: List[Dict[str, Any]]) -> Dict[str, Any]:
         elif is_context_overflow(lower):
             system_errors["context_overflow"].append(record)
 
-    for error_type, hits in system_errors.items():
-        if len(hits) >= 2:
-            steps = [int(r["step"]) for r in hits]
-            sorted_steps = sorted(steps)
-            first_location = record_location(hits[0])
-            summary = systemic_summary(error_type, sorted_steps)
-            return {
-                "category": "tool_systemic",
-                "shortCircuited": False,
-                "fatalDiagnosis": {
-                    "errorType": f"tool_systemic.{error_type}",
-                    "toolName": None,
-                    "affectedSteps": sorted_steps,
-                    "affectedTraceStepIndexes": sorted_steps,
-                    "traceNodeLabel": first_location.get("trace_node_label"),
-                    "traceNodeKind": first_location.get("trace_node_kind"),
-                    "summary": summary,
-                    "recommendation": "这是静态预检提示，不会跳过后续认知诊断。请结合关键发现、模块卡片和原始节点判断它是否真的是阻断性环境问题。",
-                    "rawErrorEvidence": truncate(hits[0]["modules"]["system"]["content"], 900),
-                    "anchorId": hits[0].get("anchorId"),
-                },
-                "prefilterHints": {"forceFullSteps": []},
-                "notes": [summary],
-            }
+    # R2 修复（2026-09-21）：原实现按 dict 顺序取**首个** ≥2 命中的类型即返回，
+    # 其余同样系统性的类型被**静默丢弃**。现按命中数取首要（并列时保持声明顺序），
+    # 其余类型写入 notes，保证可见。
+    qualifying = [
+        (error_type, hits)
+        for error_type, hits in system_errors.items()
+        if len(hits) >= 2
+    ]
+
+    if qualifying:
+        error_type, hits = max(qualifying, key=lambda item: len(item[1]))
+        other_types = [t for t, _hits in qualifying if t != error_type]
+        steps = [int(r["step"]) for r in hits]
+        sorted_steps = sorted(steps)
+        first_location = record_location(hits[0])
+        summary = systemic_summary(error_type, sorted_steps)
+        return {
+            "category": "tool_systemic",
+            "shortCircuited": False,
+            "fatalDiagnosis": {
+                "errorType": f"tool_systemic.{error_type}",
+                "toolName": None,
+                "affectedSteps": sorted_steps,
+                "affectedTraceStepIndexes": sorted_steps,
+                "traceNodeLabel": first_location.get("trace_node_label"),
+                "traceNodeKind": first_location.get("trace_node_kind"),
+                "summary": summary,
+                "recommendation": "这是静态预检提示，不会跳过后续认知诊断。请结合关键发现、模块卡片和原始节点判断它是否真的是阻断性环境问题。",
+                "rawErrorEvidence": truncate(hits[0]["modules"]["system"]["content"], 900),
+                "anchorId": hits[0].get("anchorId"),
+            },
+            "prefilterHints": {"forceFullSteps": []},
+            "notes": [summary] + (
+                [f"另有系统性类型（同样命中 ≥2）：{', '.join(other_types)}"]
+                if other_types else []
+            ),
+        }
 
     force_steps = [
         int(r["step"])

@@ -14,10 +14,27 @@ from pathlib import Path
 
 _HEADER_CR = re.compile(r"Change Request:\s*([^\n]+)")
 _HEADER_READINESS = re.compile(r"Readiness:\s*\*\*([^*]+)\*\*")
+# R2 修复：前瞻加 `|\Z` 兜底 —— 原实现要求后面必存在 `## 9.`，
+# 缺少 §9 的产物会让整段澄清问题**静默失配**（读不到 open_questions）。
 _SECTION_8 = re.compile(
-    r"^## 8\.\s*Clarification Questions.*?(?=^## 9\.)",
+    r"^## 8\.\s*Clarification Questions.*?(?=^## 9\.|\Z)",
     re.M | re.S,
 )
+
+# R2 修复：项目/变更 id 必须是**单个安全路径段**（拒绝分隔符与 `..`）——
+# 原实现直接拼接读文件，形如 `../../etc` 的 id 可越出工作区。
+_SAFE_SEGMENT = re.compile(r"^[A-Za-z0-9._-]+$")
+
+
+def _safe_segment(value):
+    """返回安全路径段；不安全（含分隔符/`..`/空）返回 None。"""
+
+    text = str(value or "")
+
+    if not text or text in {".", ".."} or not _SAFE_SEGMENT.match(text):
+        return None
+
+    return text
 _ITEM = re.compile(r"^\d+\.\s*(.+)$", re.M)
 
 
@@ -27,12 +44,18 @@ def change_artifact_path(workspaces_root, project, change_id):
     workspaces_root 为环境解析后的 workspaces 根（环境路径，如
     root.parent/workspaces 或 local.yaml 覆盖值），由调用方传入。
     """
+    safe_project = _safe_segment(project)
+    safe_change = _safe_segment(change_id)
+
+    if safe_project is None or safe_change is None:
+        return None
+
     return (
         Path(workspaces_root)
-        / project
+        / safe_project
         / "openspec"
         / "changes"
-        / change_id
+        / safe_change
         / "proposal.md"
     )
 
@@ -46,6 +69,12 @@ def read_change_artifact(workspaces_root, project, change_id):
     - open_questions: §8 澄清登记中未决项摘要列表（未决 = 无 ~~ 删除线）
     """
     path = change_artifact_path(workspaces_root, project, change_id)
+
+    # R2：非法 id 时 change_artifact_path 返回 None → 视为「无产物」（不崩溃）
+    if path is None:
+
+        return None
+
     if not path.exists():
         return None
 

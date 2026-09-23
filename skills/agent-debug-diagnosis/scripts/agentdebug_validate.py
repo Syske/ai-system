@@ -193,7 +193,12 @@ def validate_findings(findings: Any, issues: Any, errors: List[str], warnings: L
             role = ref.get("role")
             if not issue_id:
                 errors.append(f"findings[{idx}].issueRefs[{ref_idx}] 缺少 issueId。")
-            elif issue_ids and issue_id not in issue_ids:
+            elif not issue_ids:
+                # R2 修复：issues 为空却存在 issueRefs 时必须报错（原实现静默跳过）
+                errors.append(
+                    f"findings[{idx}].issueRefs[{ref_idx}].issueId 无法校验：issues 为空"
+                )
+            elif issue_id not in issue_ids:
                 errors.append(f"findings[{idx}].issueRefs[{ref_idx}].issueId 不存在：{issue_id}")
             if issue_id in seen_refs:
                 errors.append(f"findings[{idx}] 重复引用 issue：{issue_id}")
@@ -217,7 +222,9 @@ def validate_root_cause(root: Any, errors: List[str], warnings: List[str]) -> No
         errors.append("rootCause 必须是对象或 null。")
         return
     module = root.get("criticalModule")
-    if module not in MODULES and module != "others":
+    # R2 修复：`unknown`（未归因到具体模块）是合法取值 —— 原实现把它判为非法，
+    # 却又在下方特判跳过定位字段校验，自相矛盾。现显式纳入合法集合。
+    if module not in MODULES and module not in {"others", "unknown"}:
         errors.append(f"rootCause.criticalModule 非法：{module}")
     if module in {"memory", "reflection", "planning", "action"} and not root.get("evidence"):
         warnings.append("rootCause 缺少 evidence，用户难以理解根因依据。")

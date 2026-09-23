@@ -36,6 +36,7 @@ def _load(name, path):
 
 COMMON = _load("agentdebug_common", SKILL_SCRIPTS / "agentdebug_common.py")
 VALIDATE = _load("agentdebug_validate", SKILL_SCRIPTS / "agentdebug_validate.py")
+STATIC = _load("agentdebug_static", SKILL_SCRIPTS / "agentdebug_static.py")
 SKILL_INDEX = _load("skill_index", REPO_ROOT / "tools" / "skill_index.py")
 
 
@@ -144,3 +145,116 @@ class TestSkillEnumerationSingleSource(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestAgentdebugSilentFailureFixes(unittest.TestCase):
+    """R2 批次：agentdebug 的静默失败修复（前驱记录 / triage 首要类型 / 校验短路）。"""
+
+    def _record(self, step, system="", **extra):
+        record = {
+            "step": step,
+            "traceStepIndex": step,
+            "modules": {"system": {"content": system}},
+        }
+        record.update(extra)
+        return record
+
+    # ── #1 previous_record：不连续序号不得静默返回 None
+
+    def test_前驱记录_序号不连续时取列表前驱(self):
+        records = [self._record(1), self._record(3), self._record(4)]
+        self.assertEqual(
+            STATIC.previous_record(records, 3)["step"], 1
+        )
+        self.assertEqual(
+            STATIC.previous_record(records, 4)["step"], 3
+        )
+        self.assertIsNone(STATIC.previous_record(records, 1))
+
+    def test_前驱记录_未命中返回None(self):
+        self.assertIsNone(STATIC.previous_record([self._record(1)], 9))
+
+    # ── #2 triage：取命中数最多的类型，其余写入 notes（原按 dict 序取首个）
+
+    def test_triage_取最多命中类型并列出其他(self):
+        records = [
+            self._record(1, "HTTP 401 Unauthorized"),
+            self._record(2, "401 unauthorized"),
+            self._record(3, "unauthorized"),
+            # 须匹配 CONTEXT_OVERFLOW_RE（contextoverflow / context_overflow /
+            # context length exceeded / context window exceeded）
+            self._record(4, "context length exceeded"),
+            self._record(5, "context window exceeded"),
+        ]
+        result = STATIC.run_phase0_triage(records)
+        fatal = result["fatalDiagnosis"]
+        self.assertIsNotNone(fatal, result)
+        self.assertEqual(fatal["errorType"], "tool_systemic.auth_failure")
+        self.assertTrue(
+            any("context_overflow" in note for note in result["notes"]),
+            result["notes"],
+        )
+
+    def test_triage_无系统性风险时正常返回(self):
+        result = STATIC.run_phase0_triage([self._record(1, "all good")])
+        self.assertIsNone(result["fatalDiagnosis"])
+
+    # ── #4 issueRefs 在 issues 为空时必须报错（原静默跳过）
+
+    def test_issueRefs_issues为空时报错(self):
+        findings = [{
+            "id": "F-1",
+            "issueRefs": [{"issueId": "I-9", "role": "root"}],
+        }]
+        errors, warnings = [], []
+        VALIDATE.validate_findings(findings, [], errors, warnings)
+        self.assertTrue(
+            any("issues 为空" in e for e in errors), errors
+        )
+
+    def test_issueRefs_存在性仍受校验(self):
+        findings = [{
+            "id": "F-1",
+            "issueRefs": [{"issueId": "I-9", "role": "root"}],
+        }]
+        errors, warnings = [], []
+        VALIDATE.validate_findings(findings, [self._valid_issue()], errors, warnings)
+        self.assertTrue(any("不存在" in e for e in errors), errors)
+
+    # ── #5 criticalModule="unknown" 合法（原判非法却又特判跳过 → 自相矛盾）
+
+    def test_root_cause_unknown_合法(self):
+        errors, warnings = [], []
+        VALIDATE.validate_root_cause(
+            {"criticalModule": "unknown", "summary": "未能归因到具体模块"}, errors, warnings
+        )
+        self.assertEqual(errors, [])
+
+    def test_root_cause_真正非法值仍报错(self):
+        errors, warnings = [], []
+        VALIDATE.validate_root_cause(
+            {"criticalModule": "not-a-module", "summary": "x"}, errors, warnings
+        )
+        self.assertTrue(any("非法" in e for e in errors), errors)
+
+    def _valid_issue(self):
+        return {
+            "id": "I-1",
+            "module": sorted(COMMON.MODULES)[0],
+            "severity": sorted(COMMON.SEVERITIES)[0],
+            "errorType": "NPE",
+            "traceStepIndex": 3,
+        }
+
+    # ── #6 classify_action_error：括号显式（"not found" 无 "/" 不判路径不存在）
+
+    def test_分类_no_such_file_判路径不存在(self):
+        self.assertEqual(
+            STATIC.classify_action_error("No such file: a.txt", "")[0],
+            "nonexistent_path",
+        )
+
+    def test_分类_裸_not_found_不判路径不存在(self):
+        self.assertEqual(
+            STATIC.classify_action_error("not found", "")[0],
+            "parameter_error",
+        )

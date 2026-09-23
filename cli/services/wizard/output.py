@@ -3,6 +3,7 @@
 Split from wizard.py (P0).
 """
 
+import time
 from cli.utils.menu import BACK, e as _e, choose
 
 
@@ -227,7 +228,10 @@ class WizardOutput:
 
         pstate["last_action"] = {
             "name": name,
-            "kind": kind
+            "kind": kind,
+            # R2 修复：记录时间戳 —— 原实现依赖 dict 插入顺序推断"最近活跃"，
+            # 一旦状态被外部编辑/重排即失准（`wizard/__init__.py` 的默认高亮）。
+            "at": time.time(),
         }
 
         if "Task ID" in values:

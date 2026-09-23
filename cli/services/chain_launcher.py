@@ -209,10 +209,28 @@ def run(wizard, agent=None, project=None):
         # 项目上下文注入（仅被块声明的字段过滤后可见）
         if project and btype in ("workflow", "command"):
 
-            for key in ("Project ID", "Project", "Projects", "Workspace"):
+            # R2 修复：仅注入**容器 id 语义**的键。`Projects`（复数）是**服务名**字段
+            # （见 wizard/fields.py 的语义说明）—— 原实现把容器 id 注入其中，
+            # 既绕过了名称校验，也把两类值混为一谈。
+            for key in ("Project ID", "Project", "Workspace"):
 
                 if key not in bargs:
                     bargs[key] = project
+
+            if "Projects" not in bargs:
+
+                try:
+
+                    from cli.services import providers
+
+                    services = providers.container_services(wizard, project)
+
+                except Exception:
+
+                    services = []
+
+                if services:
+                    bargs["Projects"] = ", ".join(services)
 
         parts.append(f"===== 块 {i + 1}/{total} [{btype}] {bname} =====")
 

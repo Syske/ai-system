@@ -21,7 +21,7 @@ import subprocess
 from pathlib import Path
 
 from cli.services import environment as env
-from cli.services.frontmatter import read_frontmatter
+from cli.services.frontmatter import FRONTMATTER_RE, read_frontmatter
 
 FRONTMATTER_NAME = re.compile(r"^name:\s*(.+?)\s*$", re.MULTILINE)
 FRONTMATTER_DESC = re.compile(r"^description:\s*(.+?)\s*$", re.MULTILINE)
@@ -86,11 +86,16 @@ def _read_frontmatter(skill_path):
     if not isinstance(data, dict):
         data = {}
 
+    # R2 修复：回退检索**限定在 frontmatter 块内** —— 原实现对整文件 search，
+    # 正文里出现 `name:` 行会被误取为技能名。
+    block = FRONTMATTER_RE.match(text)
+    head = block.group(1) if block else ""
+
     name = str(data.get("name") or "").strip()
 
     if not name:
 
-        m = FRONTMATTER_NAME.search(text)
+        m = FRONTMATTER_NAME.search(head)
 
         if m:
             name = m.group(1).strip()
@@ -99,7 +104,7 @@ def _read_frontmatter(skill_path):
 
     if not desc:
 
-        m = FRONTMATTER_DESC.search(text)
+        m = FRONTMATTER_DESC.search(head)
 
         if m:
             desc = m.group(1).strip().strip("'\"")
@@ -280,6 +285,11 @@ def scan(root, environment=None, include_local=True):
 
         walker = start
 
+        # R2 修复：**无 git 根时不上行** —— 原实现会逐级走到文件系统根，
+        # 在每一层探测 `{rel}/skills`（大目录树上代价高且结果不可预期）。
+        # 有 git 根时仍按原语义上溯至 git 根。
+        ascend = git_root is not None
+
         while True:
 
             for rel in LOCAL_SUBDIRS:
@@ -287,7 +297,7 @@ def scan(root, environment=None, include_local=True):
                 for name, meta, path in _skills_in(walker / rel):
                     add(meta, path, "local")
 
-            if walker.parent == walker:
+            if not ascend or walker.parent == walker:
                 break
 
             walker = walker.parent

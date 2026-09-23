@@ -366,6 +366,20 @@ doc 层（136k tokens，单判官，形状校验通过），在复现已知项�
 | 交互 `input()` 无 EOF 保护（非 TTY 崩） | `tools/format-jdt-gate.py:270-274,357-372` |
 | （另）`urlretrieve` 无校验和 / `context-audit` 窗口硬编码 / `setup.py` `args[i+1]` IndexError / `extensions-init` push 失败仍 return 0 | 见各文件 |
 
+
+**R2 进度（2026-09-21，两批 13/24 已修，+22 测试）**
+
+| 批次 | 项 | 修复要点 |
+|---|---|---|
+| A（agentdebug 6） | 前驱记录按**列表序**取（原 `step-1` 精确匹配，序号不连续即静默 `None`）· triage 取**命中最多**的系统性类型并把其余写入 notes（原按 dict 序取首个 → 其余静默丢弃）· 重复调用**文案**改为与实现一致（原称"五步窗口/第三次"，实为全局计数、第 2 次触发）· `issueRefs` 在 `issues` 为空时**报错**（原静默跳过）· `criticalModule="unknown"` **纳入合法集合**（原判非法又特判跳过，自相矛盾）· `classify_action_error` 括号显式化 | 
+| B（CLI/wizard 7） | `change_resume`：§8 前瞻加 `|\Z` 兜底（无 §9 不再整段失配）+ 项目/变更 id **路径段校验**（拒绝 `..`/分隔符，防越出工作区）· `skill_scan`：frontmatter 回退检索**限定块内**（正文 `name:` 不再误取）+ **无 git 根时不上行**至文件系统根 · `utils/menu/base`：i18n 的 locale 与 `config/menu.yaml` **同源**（原硬编码 `zh.yaml`）· `chain_launcher`：容器 id 不再注入**服务名**字段 `Projects`（改按容器映射注入服务名）· `wizard`：写入 `last_action.at` 并**按时间戳**取最近活跃（原依赖 dict 插入顺序） | 
+
+测试：`cli/tests/test_skills_contracts.py`（+10 agentdebug 契约）· `cli/tests/test_r2_silent_failures.py`（+12：路径安全/§8/ frontmatter 作用域/ i18n/ 链注入/ 时间戳）。
+
+**R2 剩余 11 项（下一批，含需设计决定或仓外产生方）**：同日**覆写**改 `-N` 目录（产物路径约定需确认）· scan 目录命名与文档对齐 · `_parse_next` 首词约定 · `_norm_field_name` 归一化统一（属 R4）· 退格哨兵 `"<"`（**产生方在仓外**，改动影响 Esc 语义）· `safe.directory=*` 收窄 · `_linux_path` 双实现（R4）· Lombok 状态机 · checkstyle 增量按 `src_dir` 过滤 · 交互 `input()` EOF 保护 · 其余 4 小项（下载校验和 / `context-audit` 窗口硬编码 / `setup` 参数越界 / `extensions-init` push 失败返回码）。
+
+**登记基线说明**：repo-lint WARN 96 → **97** —— 因 R1 口径统一后 `skills/architecture/design-review/SKILL.md`（339 行、无 workflow.md）**首次进入 lint 视野**，属正当可见化（非回退）。
+
 **R3 · 文档措辞（52）** —（加载顺序互斥 / 阈值 50·60·80 / `skill.md` 大小写 / `python` vs `python3` / 索引计数漂移 / `explore` 双份 / `skills/README` 计数 / Token Efficiency ×3 / Report-Write Guard 双源 / 四反引号围栏 …）建议下一维护批次**批量顺手修**。
 
 **R4 · 工具一致性与重构（低优先，随任务消减）** —（`checks/misc.py` 系列：cli/tests 缺失仅 WARN、`tools_readme` 只扫顶层、`ast.walk` 含嵌套 return、timeout 未捕 `TimeoutExpired`；`checks/workflow.py` 导入无兜底；`bugfix_modes` 硬编码阶段集；`checks/menu.py` 不校验 hidden_*；`repo-metrics` 无 schema 校验；`workflow-command-audit` 强度不一致；`generate_contract` 服务匹配混用子串/精确、`deduplicate` 静默保留首个、YAML 值未引号；`pull.js`/`push.js` 双份 `loadConfiguration`、失败无退出码、网络错与 not-found 不分；`index-project` 硬编码 Windows venv；`k8s-logs` 过时快照 + 通道不一致；`k8s_helper` `.status.phase` 掩盖 CrashLoopBackOff；`idea-mcp` SSE 断线吞错；`spec_updater` 硬编码 `DEFAULT_CHANGE`；`maintain-report` closed 大小写敏感；`proposal-audit` `startswith("P")` 含 PROPOSALS.md；`quick-check` 未用 `_parse_summary`；`dependency-graph` 死分支）。

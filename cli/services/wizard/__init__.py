@@ -101,7 +101,23 @@ class Wizard(
 
             projects = self.state["projects"]
 
-            last_active = list(projects)[-1]
+            # R2 修复：按 `last_action.at` 取最近活跃；旧状态无该字段时
+            # 回退到插入顺序（保持既有行为，不制造新的默认高亮）。
+            stamped = [
+                (name, (state or {}).get("last_action", {}).get("at"))
+                for name, state in projects.items()
+            ]
+
+            stamped = [
+                (name, at) for name, at in stamped
+                if isinstance(at, (int, float))
+            ]
+
+            last_active = (
+                max(stamped, key=lambda item: item[1])[0]
+                if stamped
+                else list(projects)[-1]
+            )
 
             self.state["last_project"] = last_active
 
