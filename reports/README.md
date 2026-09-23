@@ -68,6 +68,7 @@
 | [P36](P36-SETUP-ENV-INIT-SCAFFOLD.md) | 初始化脚本完善（--env-init 补齐目录骨架 + 引导指定外部代码仓库；2026-09-03 增补触发层：aic 首次运行只读检测+交互确认，否决静默自动）— **Proposed** | 2026-08-25 |
 | [P37](P37-REQUIRED-INPUTS-TRIAGE.md) | 工作流必填参数必要性评估（降可选/自动推导/保持，提升使用效率）— **Proposed** | 2026-08-25 |
 | [P64](P64-SPEC-PRECONDITION-CONSISTENCY.md) | spec 前置条件口径不一致（"Prepare completed" 无 SSOT + 实测 0/12 变更具备 prepare 产物 + proposal.md 静默替代）— **Implemented**（SSOT 落 `prepare.md` → Exit Criteria → Completion Criteria；删恒真替代；skip/遗留/祖父三条分支；存量 0 STOP） | 2026-09-23 |
+| [P68](P68-WORKQUEUE-HANDOVER.md) | 工作队列式交接（Work-Queue Handover）契约与模板 — **Proposed**（Option B：扩展 `skills/handoff` 增 work-queue 模式 + `templates/prompts/handover-workqueue.md` 9 节契约 + 两处入口；归属/生命周期待裁决） | 2026-09-23 |
 | [P67](P67-STRUCTURAL-SMELL-CAPABILITY.md) | 结构性坏味道：检测 / 映射 / 劣化门（不含自动重构执行）— **Proposed**（Option B 最小切片；阈值与实施触发待 §4.1/§4.2 裁决） | 2026-09-23 |
 | [P62](P62-TASK-COMMIT-TRACEABILITY.md) | 任务提交信息 `T-<id>` 强制性与实践脱节（标准↔实践↔门禁三方不一致）— **Implemented**（分支名为机器判据 + 拆 id 层级 + 模板固定 `T-\d{3}`；真 git 仓正反例 12 项） | 2026-09-23 |
 | [P63](P63-BRANCH-NAMING-NON-ITERATION.md) | 主链分支命名：非迭代形态未文档化 — **Implemented**（预设驱动 `plain`/`ipd` + 场景→预设映射 `config/branch-formats.yaml` + AI 组装/用户确认具体名/冻结、格式串不可手改；含修好 parser 拒绝非迭代形态的实测缺口） | 2026-09-23 |

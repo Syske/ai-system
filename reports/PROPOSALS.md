@@ -70,6 +70,7 @@
 | Implemented | C2 格式 profile 的语义边界与校准（`lineSplit=120` vs `alignment=0`） | 2026-09-21 | `P65-C2-PROFILE-SEMANTICS.md` |
 | Implemented | code-review / change-impact 重复追问项目与分支（应按项目信息直接推断） | 2026-09-21 | `P66-CR-CHANGE-IMPACT-DERIVE.md` |
 | Proposed | 结构性坏味道：检测 / 映射 / 劣化门（不含自动重构执行） | 2026-09-23 | `P67-STRUCTURAL-SMELL-CAPABILITY.md` |
+| Proposed | 工作队列式交接（Work-Queue Handover）契约与模板 | 2026-09-23 | `P68-WORKQUEUE-HANDOVER.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
