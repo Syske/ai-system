@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (standard + tool check + runtime 引用) |
 | Author | AI Maintainer |
 | Created | 2026-09-21 |
@@ -101,4 +101,36 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending** | 2026-09-21 |
+| User (AI Maintainer operator) | **Approved**（按修正后方案实施） | 2026-09-23 |
+| AI Maintainer | **Implemented** | 2026-09-23 |
+
+---
+
+## Implementation Record (2026-09-23)
+
+**Status → Implemented**（用户确认按修正后方案实施）。改动三处 + 一个回归测试文件：
+
+| # | 文件 | 改动 |
+|---|---|---|
+| 1 | `governance/standards/common/commit-content.md` | 新增 `### Id level — Task Card id ≠ plan position`（**修正 §1.3 未涵盖的根因**：卡按计划位置编号时 `T-1.1` 必然 FAIL `T-\d{3}`，AI 因此学会整个省掉 `T-`，即**门禁逼出的规避**）；新增 `## Task-branch rule (enforced)`（分支名判据 + `feat|fix|refactor|perf|test` 强制 + `chore|docs|style|ci|revert`/merge 豁免 + 祖父条款）；Machine check 段补"任务分支缺 `T-` 也 FAIL" |
+| 2 | `tools/format-check.py` | 新增 `TASK_BRANCH_RE` / `COMMIT_TASK_ENFORCED_TYPES` / `COMMIT_TYPE_RE` + `_current_branch()` / `_missing_task_id()`；`--check-commit` 在既有"格式错"之外补"任务分支缺 id"分支（两者均 FAIL，信息含分支名与标准出处） |
+| 3 | `templates/prompts/tasks-template.md` | H1 下补 HTML 注释：`{编号}` = **3 位数字**、文件路径 `tasks/cards/T-{编号}.md`、历史按计划位置编号的旧卡不改名（祖父条款，引用入 body） |
+
+**相对提案的修正（L1，均已在实施前向你说明并获确认）**：
+
+- 提案把根因写成"未定义机器可判定的'是否属任务'"，**实测根因有两层**：① 习惯漂移
+  （`log-volume-reduction` 的卡已是 `T-001…T-011`、**本已合规却仍 18/18 省略**）；
+  ② **结构性冲突**（`qa-housekeeping` 的卡是 `1.1…1.11`，`T-1.1` 与 `T-\d{3}` 不可兼得——
+  日志实证「初次误写 `T-1.1` 已 amend 修正」）。只加分支判据会**原地复发**，故必须先拆 id 层级
+  （任务级 id 进 subject，计划位置进 body），并在模板侧固定 `T-\d{3}` 编号。
+- `templates/runtime/runtime-develop.md` **未改**：其提交纪律段已 `→ commit-content.md` 指针
+  （SSOT），提案 §5.4 的诉求由"标准即单一来源"满足；不再复制一套条款。
+
+**验证（运行实证）**：`cli/tests/test_p62_commit_traceability.py`（12 项）= 纯函数层（强制类型/豁免类型/
+merge/非任务分支/分支形态判据）+ **真临时 git 仓端到端**跑门禁本体：事故场景（任务分支 + `fix` 缺 `T-`）→
+**exit 2**；合规 `T-011` → PASS；任务分支 `chore` → 豁免 PASS；`master` 无 `T-` → PASS（治理仓不受影响）；
+`T-1.1` → 仍判**格式错**（既有规则保留，且正是结构性冲突的留证）；`bugfix/*` 同样受约束；merge → 豁免。
+门禁：`check.py` PASS · 单测全绿 · `repo-lint` / `path-audit` / `proposal-audit` 全绿。
+
+**未处置（转登记）**：业务侧既有任务分支的历史提交（含 18/18 省略者）**不回改、不追溯判负**（祖父条款）；
+受影响仓库下次任务提交起自动受检。

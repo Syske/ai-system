@@ -55,8 +55,9 @@ Provided by Bootstrap Runtime:
 Provided by Prepare Runtime:
 
 - Preparation Report
-- Architecture Summary
-- Impact Analysis
+- Architecture Summary (when produced — on-demand)
+- Impact Analysis (when produced — on-demand)
+- Requirement Summary (when produced — on-demand)
 
 Provided by Runtime Base:
 
@@ -79,16 +80,26 @@ Resolved by Specification Runtime:
 
 ## Pre-flight (Spec precondition check)
 
-Before Phase 1, verify the prepare deliverable is at the expected location and
-non-empty:
+Before Phase 1, apply the **single contract** for "Prepare completed" —
+`workflows/prepare.md` → `## Exit Criteria` → `### Completion Criteria (consumed by spec)`.
+Do **not** restate the criteria here; this section only says how to *apply* them:
 
-- Check that `workspaces/<project_id>/openspec/changes/<change-id>/proposal.md`
-  (or the current change's Preparation Report) exists and is non-empty.
-- If missing or misplaced (e.g. mistargeted to `outputs/proposal/…`) → **Stop**:
-  report that the precondition isn't met / path is wrong, reconcile the artifact
-  to the AGENTS.md main-chain convention
-  (`workspaces/<project-id>/openspec/…`) first, then continue. Never guess the
-  wrong file to start spec work (addresses prepare run P1/P2 artifact drift).
+- Preparation Report present and non-empty at the canonical
+  `workspaces/<project_id>/openspec/changes/<change-id>/prepare/preparation-report.md`
+  → continue.
+- Missing, with an explicit `- **Prepare**: skipped (<reason>)` in the change's OpenSpec
+  `proposal.md` metadata → continue (the reason is the audit trail; empty reason → Stop).
+- Missing otherwise → **Stop**: report the missing item and its canonical path.
+  The change's OpenSpec `proposal.md` **always exists**, so it is **never** the check —
+  the previous `proposal.md (or … Preparation Report)` wording made this gate a no-op
+  that silently passed un-prepared changes.
+- Report stored legacily in the change's `proposal.md` (H1 reads
+  `Preparation Report` / `准备报告`) → treat as present, **WARN** and reconcile it to the
+  canonical path before proceeding.
+- Misplaced otherwise (e.g. under `outputs/proposal/…`) → **Stop** and reconcile to the
+  AGENTS.md main-chain convention (`workspaces/<project-id>/openspec/…`).
+- Grandfathering: changes whose `proposal.md` predates the rule's effective date
+  (**2026-09-23**) → **WARN** instead of Stop.
 
 ---
 

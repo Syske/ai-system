@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural (workflow 前置契约 + runtime Pre-flight + 变更元数据约定) |
 | Author | AI Maintainer |
 | Created | 2026-09-21 |
@@ -132,4 +132,40 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（用户于 2026-09-21 指示立案） | 2026-09-21 |
+| User (AI Maintainer operator) | **Approved**（按修正后方案实施） | 2026-09-23 |
+| AI Maintainer | **Implemented** | 2026-09-23 |
+
+---
+
+## Implementation Record (2026-09-23)
+
+**Status → Implemented**（用户确认按修正后方案实施）。改动四处 + 两个回归测试文件：
+
+| # | 文件 | 改动 |
+|---|---|---|
+| 1 | `workflows/prepare.md` | `## Exit Criteria` 内新增 **`### Completion Criteria (consumed by spec)`** 作为唯一定义（4 条：规范路径+非空 / 显式 skip+理由 / 遗留命名 / 祖父条款）；`## Outputs` 按决议点 D 收敛为**仅 Preparation Report 必需**，3 项摘要转 on-demand。体量 94 行（RFC-0003 门禁上限 100） |
+| 2 | `workflows/spec.md` | Preconditions 改为**引用**该块（删除 `(Preparation Report available)` 的重述） |
+| 3 | `templates/runtime/runtime-spec.md` | Pre-flight 按同一清单实现：删掉 `proposal.md`（或 …）这一**恒真**替代；缺项 → Stop 并报缺失项+规范路径；新增 skip / 遗留 / 祖父分支；Runtime Context 的 3 项摘要标注 `(when produced — on-demand)` |
+| 4 | `templates/runtime/runtime-prepare.md` | `## Outputs` 改为引用判定规则 + **禁止把报告写进 OpenSpec 的 `proposal.md`**（堵住产物碰撞的产生端） |
+
+**相对提案的修正（L1，均已在实施前向你说明并获确认）**：
+
+1. **Completion Criteria 放在 `## Exit Criteria` 内（`###` 子块），不是新增顶层 `##` 小节** ——
+   `workflows/README.md:125` 的工作流小节契约只允许 8 个必需节 + 1 个可选节（When to Use）；
+   新增顶层节会改契约，而 Exit Criteria 语义上正是"何时算完成"。
+2. **新增"遗留命名"判定（提案未含）** —— 实测 4/12 变更的 prepare 产物已落地，只是被写成
+   `proposal.md`（H1 = `Preparation Report` / `准备报告`）。若无此条，生效即拦停 4 个存量变更。
+3. **祖父条款的判据可操作化** —— "生效日前创建"改为可机器观测的
+   「`proposal.md` mtime < 2026-09-23」。
+4. **清单名对偶保留** —— `checks/workflow.py:check_outputs_consistency` 要求 workflow `## Outputs`
+   的每条 bullet 逐字出现在 runtime `# Outputs`；因此产物**名**两侧镜像（由门禁强制的声明↔生产一致性），
+   而**判定规则**仍单一来源。提案 §5.5「不复制条款」按"不复制判定规则"落地。
+
+**验证（运行实证，非只读）**：判定表实现后对**全部 12 个真实变更**跑一遍 →
+`WARN(legacy) 4 · WARN(grandfather) 7 · STOP 0`（**存量零常红**，祖父/遗留条款按设计生效）；
+构造场景 6 例全部符合预期，其中决定性反例「缺产物且无 skip 声明 → **STOP**」在旧口径下**会放行**
+（`proposal.md` 恒存在）；回归测试 `cli/tests/test_p64_prepare_criteria.py`（8 项，含 SSOT 形状断言 +
+判定表）。门禁：`check.py` PASS · 单测全绿 · `path-audit` 0 broken · `workflow-command-audit` 0/0。
+
+**未处置（转登记）**：4 个遗留命名的变更需要**迁移**报告到规范路径（WARN 已标记）——属业务工作区数据整理，
+不在本仓改动范围；下一次触碰这些变更时按 WARN 提示迁移或补 `Prepare: skipped` 声明。

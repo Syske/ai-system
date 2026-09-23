@@ -231,19 +231,31 @@ Status = Blocked
 
 ## Outputs
 
-Generate (required — consumed by spec):
+Produce exactly the artifacts below; the **verdict rules** (completeness, explicit skip, legacy
+storage, grandfathering) live in the single contract block — `workflows/prepare.md` →
+`## Exit Criteria` → `### Completion Criteria (consumed by spec)`. Do not restate them here.
 
-- Requirement Summary
-- Architecture Summary
-- Impact Report
+The names are mirrored with `workflows/prepare.md` by design: `checks/workflow.py` enforces
+output-declaration ↔ runtime-production consistency.
+
+Required (consumed by spec):
+
 - Preparation Report
 
 Generate on-demand only (skip unless the change warrants them):
 
+- Requirement Summary
+- Architecture Summary
+- Impact Report
 - Dependency Report — cross-service / multi-repo dependency changes
 - Risk Report — high-risk changes (release re-assesses independently otherwise)
 - **Location**: Preparation Report → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/preparation-report.md`;
   sub-reports → `workspaces/<project-id>/openspec/changes/<change-id>/prepare/`; captured/temp sources → `workspaces/<project-id>/temp/`
+
+**Never write the Preparation Report into the change's OpenSpec `proposal.md`.** That file belongs
+to OpenSpec (change intent, sibling of `design.md` / `tasks/` / `specs/`) and doubles as the spec
+pre-flight's change metadata — overwriting it collides two conventions and destroys the change intent
+(P64: 4 changes had their report stored there under the wrong name).
 
 ## Reflection
 

@@ -48,6 +48,13 @@ VALUE_FIELD_DECL = re.compile(r'(?:private|public|protected)\s+[^;]+;')
 MAP_DECL = re.compile(r"Map<String,\s*Object>\s+\w+\s*=\s*new\s+HashMap<>\(\)")
 PUT_REF = re.compile(r'\.put\("')
 COMMIT_TASK_PREFIX = re.compile(r"^(feat|fix|docs|style|refactor|perf|test|chore|ci|revert)\([^)]*\):\s*T-\d{3}")
+
+# P62（2026-09-23）：任务分支上的提交必须带任务级 T-<id>。
+# 分支名是**已被治理冻结**的机器判据 —— 原实现只能从消息本身猜"是否属任务"，
+# 因此"缺 T-"这一类永远拦不住（标准↔实践↔门禁三方不一致）。
+TASK_BRANCH_RE = re.compile(r"^(?:cc\d{8}_|task/|bugfix/)")
+COMMIT_TASK_ENFORCED_TYPES = {"feat", "fix", "refactor", "perf", "test"}
+COMMIT_TYPE_RE = re.compile(r"^([a-z]+)")
 # 第 7 项：方法显式访问修饰符检查的辅助正则
 #   1) 顶层类型声明（见 check_file：仅在 depth==0 时识别，支持 public/abstract/final 前缀；
 #      不要求同行 `{`——兼容跨行声明（`public class X\n implements Y {`）
@@ -512,6 +519,30 @@ def _changed_java_files(src_dir):
         return None
 
 
+def _current_branch(root):
+    """当前分支名（判定“是否任务提交”的唯一机器判据，P62）。失败返回空串。"""
+
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True, cwd=str(root)
+        ).strip()
+    except Exception:
+        return ""
+
+
+def _missing_task_id(subject, branch):
+    """任务分支上的强制型提交是否缺 T-<id>（merge 与治理类豁免）。"""
+
+    if not branch or not TASK_BRANCH_RE.match(branch):
+        return False
+    if subject.startswith("Merge "):
+        return False
+    m = COMMIT_TYPE_RE.match(subject)
+    if not m or m.group(1) not in COMMIT_TASK_ENFORCED_TYPES:
+        return False
+    return not COMMIT_TASK_PREFIX.match(subject)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="develop 格式与规范泄漏自检（A 层）")
     ap.add_argument("src_dir", nargs="?", default=".", help="Java 源目录（默认 .）")
@@ -548,10 +579,15 @@ def main(argv=None):
             subj = subprocess.check_output(
                 ["git", "log", "-1", "--format=%s"], text=True, cwd=str(root)
             ).strip()
+            branch = _current_branch(root)
             if "T-" in subj and not COMMIT_TASK_PREFIX.match(subj):
                 findings.append(("FAIL",
                                  f"最近提交 subject 含任务编号但不符合 type(scope): T-xxx 格式"
                                  f"（commit-content.md）: {subj}"))
+            elif _missing_task_id(subj, branch):
+                findings.append(("FAIL",
+                                 f"任务分支 [{branch}] 上的任务提交缺 T-<id>"
+                                 f"（commit-content.md §Task-branch rule）: {subj}"))
         except Exception as exc:
             # fail loud：无法判定提交 subject 时必须可见（非 git/无 git 同理），
             # 否则"提交约定"这条门禁在异常环境下静默失效。

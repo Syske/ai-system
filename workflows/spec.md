@@ -24,7 +24,8 @@ Create specification artifacts for the next task.
 
 ## Preconditions
 
-- Prepare completed for this change (Preparation Report available)
+- Prepare completed for this change — **single definition**: `workflows/prepare.md` →
+  `## Exit Criteria` → Completion Criteria. This workflow never restates the criteria.
 
 ## Inputs
 

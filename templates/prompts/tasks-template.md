@@ -1,5 +1,9 @@
 # T-{编号}: {任务标题}
 
+<!-- {编号} = **3 位数字**（T-001 / T-011）：commit subject 的 `T-<id>` 即此编号（commit-content.md）。
+     文件路径 = `tasks/cards/T-{编号}.md`。
+     历史按**计划位置**编号的旧卡（`1.1.md`）不改名（祖父条款），其引用写进 commit body。 -->
+
 **服务**: {服务名}
 
 **Spec引用**: {spec文件}
