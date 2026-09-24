@@ -4,7 +4,7 @@ Automated governance tooling for the AI repository.
 
 | Tool | Purpose |
 |------|---------|
-| `check.py` | System integrity + runnability gate (9 checks; run after every change) |
+| `check.py` | System integrity + runnability gate (10 checks; run after every change) — 含 P72 受保护路径检测（`checks/protected_paths.py`：受保护路径缺失/被删=ERROR，仓库内出现运行时态=WARN） |
 | `pre_commit_gate.py` | Pre-commit gate Python 主体（.githooks/pre-commit 薄 shim exec 之）——staged 命中 templates/runtime/ + workflows/ 时跑语言检查（repo-lint --files）+ 契约一致性（check-contract）；跨平台（shim 探测 python3/python，Windows Git-Bash 可跑）；可单测（cli/tests/test_pre_commit_gate.py）；exit 0=过 1=拦 |
 | `check-contract.py` | Pre-commit contract-consistency subset（workflow ↔ runtime outputs / frontmatter outputs.base）——薄入口，供 .githooks/pre-commit 在 staged 命中 workflows/ 或 templates/runtime/ 时快速拦截漂移（不含 unittest / repo-lint / path-audit）；exit 0=一致 1=漂移 |
 | `repo-lint.py` | Structural linter — run before every change. Language check (`check_language`) enforces `LANGUAGE_CONVENTION.md`: (1) `cli/commands/aic-*.md` Steps/Guardrails must be English; (2) `cli/**/*.py` + `tools/*.py` comments must be Chinese; (3) `governance/*.md` (excl. archive/, standards/, README, policies) must be English |

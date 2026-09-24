@@ -355,6 +355,35 @@ Commit small. Every commit leaves the branch consistent.
 Before suspending a task: commit or stash.
 Never leave silent uncommitted changes.
 
+## Protected Paths & Destructive Operations (P72)
+
+Single source: `config/protected-paths.yaml`.
+
+Protected paths — machine-local runtime state (`<workspace>/logs`, `<workspace>/metrics`, the
+machine-layer env) and the AI system body (`governance/`, `skills/`, `workflows/`, `templates/`,
+`tools/`, `config/`, `rfc/`, `reports/`) — must NOT be deleted, moved, renamed, replaced,
+truncated or removed as a directory **unless the user explicitly confirms that operation**.
+
+Forbidden by default, workspace-wide:
+
+- `git clean -f` / `-fd` / `-fdx` (a repository-wide sweep also deletes git-ignored state)
+- `git reset --hard`, `git checkout -- .`, `git stash drop|clear`
+- `rm -rf` on a workspace path, a repository, or a protected path
+
+If such a deletion is genuinely required: (1) run the dry-run first (`git clean -ndx`, or list the
+exact targets) and show the list; (2) ask the user to confirm **that list**; (3) execute only then —
+never as a side effect of another command.
+
+**Commit-message shell discipline**: never pass message text containing backticks or `$( )` to
+`git commit -m` — the shell substitutes it. Use `git commit -F -` with a **quoted-delimiter**
+heredoc (`<<'MSGEOF'`). Root cause of the 2026-09-24 incident: `-m "… `git clean -fdx` …"` executed
+that command and wiped ~200 machine-local run records
+(`reports/INCIDENT-2026-09-24-ignored-state-wipe.md`).
+
+Detection: `tools/checks/protected_paths.py` (wired into `check.py`) — a missing/deleted protected
+path is an **error**, runtime state found inside the repo is a **warning**. Detection is
+after-the-fact; the rules above are the prevention.
+
 ---
 
 # Completion

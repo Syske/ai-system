@@ -1,0 +1,48 @@
+# 受保护路径（P72）—— 唯一来源
+#
+# 声明「禁止直接删除 / 移动 / 重命名 / 替换 / 截断 / 整目录移除」的路径；
+# 行为条款见 governance/AI_OPERATING_RULES.md 的 Protected Paths & Destructive Operations；
+# 机器检测见 tools/checks/protected_paths.py。规则与检测都**引用本清单，不复制**。
+#
+# 占位符：<repo> = ai-system 仓库根；<workspace> = 其上层（与 tools/runtime_state.py 同一规则）；~ = 家目录
+# missing: error|warn —— 缺失时的强度。CI/新机器上"机器本地"项可能本就不存在 → warn；
+# 仓库内本体缺失必属异常 → error。
+#
+# 事故依据：reports/INCIDENT-2026-09-24-ignored-state-wipe.md
+
+version: 1
+
+classes:
+  - id: machine-runtime-state
+    why: 机器本地运行时态与机器配置；不在 git，删除后不可恢复（git 恢复无意义）
+    missing: warn
+    paths:
+      - <workspace>/logs      # 逐次运行诊断记录（2026-09-24 前位于仓库内，被一次 git clean 清空）
+      - <workspace>/metrics   # 健康指标快照（历史快照不可再生）
+      - ~/.config/ai-system/env.yaml   # 机器层配置（JDK/Maven/k8s 通道等）
+
+  - id: ai-system-body
+    why: AI 系统本体（规则、能力、契约、工具）；git 可恢复，但整体替换/批量删除代价高，须显式确认
+    missing: error
+    paths:
+      - <repo>/governance
+      - <repo>/skills
+      - <repo>/workflows
+      - <repo>/templates
+      - <repo>/tools
+      - <repo>/config
+      - <repo>/rfc
+      - <repo>/reports
+
+# 历史位置：仓库内**出现即回归信号**（运行时态已迁至工作区层，见 tools/runtime_state.py）
+regression:
+  - <repo>/logs
+  - <repo>/metrics
+
+# 明确不保护（写在这里以避免清单膨胀成"什么都保护"）：
+#   projects/（业务仓由各自 git 管）· workspaces/ · temp/ · outputs/ · __pycache__ · 构建产物
+not_protected:
+  - <workspace>/projects
+  - <workspace>/workspaces
+  - <workspace>/temp
+  - <workspace>/outputs
