@@ -18,7 +18,7 @@
 # 门禁 tools/checks/config_yaml.py（check.py）继续兜底；改后自查：
 #   python3 -c "import yaml;yaml.safe_load(open('config/maintenance.yaml'))"
 
-last_run: 2026-09-23
+last_run: 2026-09-24
 mode: on-demand
 next_maintenance: '2026-09-28'   # weekly 节奏保持 +7d（2026-09-21 补做 09-16 到期周检）；
                                  # 2026-09-23 的 on-demand 专项（R4 残债 + skill-sync 归档）不重置周检节奏
@@ -499,3 +499,12 @@ last_findings:
   clip 追加换行用 `>-`（strip）消除。同步：文件头 5 行禁忌注释 → 1 条「内容行 2 空格缩进」规则；
   skills/repository-maintainer/health.md 增「last_findings 格式」契约；tools/checks/config_yaml.py 保留兜底；
   新增 4 个回归用例（2 个 plain 形态 silent 失效对照 + 1 个块标量安全性 + 1 个迁移守卫）。
+- >-
+  **本 run 收口（2026-09-24）** —— 09-23 起共 66 提交，全部推送（main 与 origin/main 一致，工作树干净）。
+  交付：P69（注释泔水门禁，--report-only 起步）/ P70（输出纪律）/ P72（受保护路径 + 破坏性操作默认拒绝）
+  三项提案实施；P71（Memory 草稿区 C″）已批准待实施；事故复盘 + 日志/指标迁出仓库 + 单一来源
+  tools/runtime_state.py；环境配置口径 15 处修正（权威＝机器层）；机器层补 bugfix.mode=hotfix；
+  maintenance.yaml 块标量陷阱根因解决（plain → 折叠块标量，45 项逐项等价）。
+  门禁：624 单测 OK · check.py PASS(2 已知 warning) · repo-lint 39/0/0/97 · path-audit 0 broken ·
+  workflow-command-audit 0/0/0 · check-contract 0/0 · proposal-audit 0 gate err/0 gate warn · prompt-metrics 16/16。
+  下次巡检 2026-09-28（weekly 节奏不变）。待裁定：checks/bugfix_modes.py 未校验 env 中 bugfix.mode 取值合法性。

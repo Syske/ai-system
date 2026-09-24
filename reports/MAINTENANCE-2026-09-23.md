@@ -194,3 +194,50 @@ Pending(ImagePullBackOff) 1 · Failed 1` —— 即 **22 个 Pod 的故障原因
   - P26-MAIN-CHAIN-BRANCH-RULE.md:52 分支扩展 provider（extensions/ 提供者，按需；契约已预留）
   - P28-CHANGE-ID-GENERATION.md:46 D：AI 可选生成（skill 层落点）——触发条件未到（不引入 wizard LLM，Evolution Principle）
   - P65-C2-PROFILE-SEMANTICS.md:298 C2（按需）：若业务侧提出「门禁须与 IDE 行为同源」，按 CI/批处理形态引入 IDEA 引擎基线（`format.sh`/`format.bat`，需解析 stdout 取代退出码、并处理单实例互斥与冷启动成本）—— 见 §C2 二审
+
+---
+
+## 续（2026-09-24）：事故复盘 · 治理根治 · 提案落地
+
+09-23 收尾后按用户指令继续本 run，以下为增量成果（提交均在 `main`，已全部推送）。
+
+### 1. 事故与恢复
+- **事故**：`git commit -m "…"` 消息内含反引号 → shell 命令替换实际执行了 `git clean -fdx`，
+  清掉仓库内**被忽略**的运行状态（`logs/` ≈200 文件、`metrics/` 历史快照、
+  `config/environments/local.yaml`、`.ai-system/`）；**tracked 文件零损失**。
+- 复盘：`reports/INCIDENT-2026-09-24-ignored-state-wipe.md`
+- 根治链：日志迁出仓库（`3c7dd9f`）→ 指标迁出仓库（`e488ec7`）→ 单一来源
+  `tools/runtime_state.py` → **P72** 立案（`bd5731d`）+ 实施（`cdd5d7f`）。
+- 沉淀记忆教训：**未提交/被忽略 ≠ 安全**；不得以 `logs/**` 作为记忆条目的唯一证据（`d514804`）。
+
+### 2. 提案与治理变更
+| 提案 | 结果 | 关键提交 |
+|---|---|---|
+| P69 AI 注释泔水治理 | **Implemented**（门禁 `--report-only` 起步） | `c964fcc` … `a8df706` |
+| P70 输出纪律 | **Implemented** | `0ad9660` … `57e9641` |
+| P72 受保护路径 + 破坏性操作 | **Implemented** | `bd5731d` · `cdd5d7f` |
+| P71 Memory 草稿区（C″） | **Approved，未实施** | 待指令 |
+
+观测期裁定：P69 维持 `--report-only`（`aec9eec`，记录 3 条转 FAIL 信号）。
+
+### 3. 环境配置口径修正（用户裁定：不迁移，只修描述）
+- 权威位置＝**机器层** `~/.config/ai-system/env.yaml`；仓库内 `config/environments/{env}.yaml`
+  为**可选覆盖**（缺失正常、被 gitignore、可被仓库级清理误删）。
+- 15 处描述修正（`bbbc7ff`）：CLI 帮助/docstring、setup.py、OPERATIONS、README_MIGRATION、
+  runtime-bootstrap、java-maven / idea-build skill、模板与 .gitignore。
+- 机器层补 `bugfix.mode: hotfix`（`87cbfd4` 登记；三个 provider 已就绪）→ bugfix 走 hotfix 链。
+
+### 4. 工具陷阱根治
+- `config/maintenance.yaml` 的 `last_findings` 由**多行 plain scalar** 改为**折叠块标量 `- >-`**
+  （`f8fcb34`）：三次写坏（前导短横 / 半角冒号×2）的根因是 plain scalar 允许「看起来像 YAML 语法」
+  的序列改变解析——实测 1 种 loud 失效 + **2 种 silent 失效**（静默变 dict / 静默截断），
+  silent 正是「文档 + 事后门禁」抓不住的原因。迁移 45 项**逐项精确相等 45/45**；回归测试 +4。
+
+### 5. 收口状态（2026-09-24）
+- 门禁：单测 **624 OK** · `check.py` PASS（2 已知 warning）· repo-lint 39 技能 0 BLOCKER/0 ERROR/97 WARN ·
+  path-audit 0 broken · workflow-command-audit 0/0/0 · check-contract 0/0 · proposal-audit 0 gate err/0 gate warn ·
+  prompt-metrics prefix 16/16
+- 本 run 共 **66 提交**（09-23 起），`main` 与 `origin/main` 一致，工作树干净
+- 开放提案 4：P42（defer）· P46（blocked，需真机 TR5）· P67（待真实触发）· P68（待裁定）；P71 已批未实施
+- 顺带发现待裁定：`checks/bugfix_modes.py` 不校验 env 中 `bugfix.mode` 取值合法性（笔误静默走非预期路径）
+- 下次巡检：**2026-09-28**（weekly 节奏不变）
