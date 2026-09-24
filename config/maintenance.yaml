@@ -500,7 +500,7 @@ last_findings:
   skills/repository-maintainer/health.md 增「last_findings 格式」契约；tools/checks/config_yaml.py 保留兜底；
   新增 4 个回归用例（2 个 plain 形态 silent 失效对照 + 1 个块标量安全性 + 1 个迁移守卫）。
 - >-
-  **本 run 收口（2026-09-24）** —— 09-23 起共 67 提交，全部推送（main 与 origin/main 一致，工作树干净）。
+  **本 run 收口（2026-09-24）** —— 09-23 起共 68 提交（截至 P73 立案），全部推送（main 与 origin/main 一致，工作树干净）。
   交付：P69（注释泔水门禁，--report-only 起步）/ P70（输出纪律）/ P72（受保护路径 + 破坏性操作默认拒绝）
   三项提案实施；P71（Memory 草稿区 C″）已批准待实施；事故复盘 + 日志/指标迁出仓库 + 单一来源
   tools/runtime_state.py；环境配置口径 15 处修正（权威＝机器层）；机器层补 bugfix.mode=hotfix；
@@ -508,3 +508,13 @@ last_findings:
   门禁：624 单测 OK · check.py PASS(2 已知 warning) · repo-lint 39/0/0/97 · path-audit 0 broken ·
   workflow-command-audit 0/0/0 · check-contract 0/0 · proposal-audit 0 gate err/0 gate warn · prompt-metrics 16/16。
   下次巡检 2026-09-28（weekly 节奏不变）。待裁定：checks/bugfix_modes.py 未校验 env 中 bugfix.mode 取值合法性。
+- >-
+  **新需求评估与立案（2026-09-24，用户裁定「先收尾，后续再落地」）** —— 同事提出 code-review 需支持
+  「选择历史产物」（类似开发主链）。评估结论：现状只有一种输入范围（目标分支 vs 基线分支）、不读历史产物、
+  CLI 参数进不来、报告只记分支名不记 SHA 且不可机器解析、无任何代码扫描 outputs 作输入、历史目录命名混用。
+  用户明确形态＝**两条路**：① 现状（零变化）② 选择项目 → 载入历史报告与分支 → 输入新需求（交互对齐主链；
+  新需求为空 = 仅重载）。据此立案 **P73**（`e911232`，本 run 第 68 提交，Status: Proposed）：含 7 条实测事实、
+  Option A~D 对比、分层改动清单（workflow 正文 96/100 行＝主要约束 · runtime 新增重入 Phase ·
+  providers.review_sessions 候选 · 会话元数据 sidecar 复用 outputs-convention 槽位）、8 条验收标准、
+  6 条风险、§4.1 六项待裁定子决策；明确非目标（不改路径 1 / 不写主链 review/<task-id>/ / 不做 findings
+  对账 / 不加 CLI 直传）。**未实施**（后续再落地）；顺带修正 reports/README.md 中 P71 的陈旧状态。
