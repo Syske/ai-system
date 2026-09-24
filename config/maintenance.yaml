@@ -411,6 +411,14 @@ last_findings:
   已做（fix 类，非新能力）：logs 与 metrics 迁至工作区层（仓库外）· 两处断链修复 · 日志目录重建。
   新增能力护栏已按流程立案 P72（受保护路径 + 破坏性操作默认拒绝；不做快照），待裁定六项。
   运行时态路径单一来源 = tools/runtime_state.py。开放提案 5。
+  **P72 实施完成（2026-09-24，用户审批）** —— 受保护路径 + 破坏性操作默认拒绝：
+  config/protected-paths.yaml（machine-runtime-state 3 项 missing=warn + ai-system-body 8 项 missing=error
+  + regression 历史位置 + not_protected 防膨胀）· AI_OPERATING_RULES 新节（默认拒绝 delete/move/rename/
+  replace/truncate/整目录移除；例外 = 先 dry-run 列清单 + 用户确认；禁 git clean -fdx / reset --hard /
+  checkout -- . / stash drop / rm -rf 工作区；提交信息禁 -m + 反引号，一律 git commit -F - + 引号定界 heredoc）
+  · checks/protected_paths.py 接入 check.py（第 10 项）· 8 项单测。反证实测：真仓库建 logs/ 报 WARN、
+  改名 skills/ 报缺失。成本 +404 tok/run（Always Load 实测）。**不做快照**（用户裁定）；
+  日志 retention 归档为独立议题（Evolution Principle 待真实需要）。开放提案 4。
   **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：
   长路径的**中间段**不再被当引用（本轮 3 次实测误报：archived 下 nested 路径、kubeconfig 后接路径、
   散文里的 word/word）；真引用形态全部仍被捕获。同时**还原**两处为绕开误报而写的规避措辞，

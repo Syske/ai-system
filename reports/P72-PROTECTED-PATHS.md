@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Implemented** |
 | Type | Structural（新增声明式清单 `config/protected-paths.yaml` + Operating Rules 条款 + 一处机器检测 + 单测） |
 | Author | AI Maintainer |
 | Created | 2026-09-24 |
@@ -142,8 +142,47 @@
 
 | Reviewer | Decision | Date |
 |---|---|---|
-| User (AI Maintainer operator) | **Pending**（用户 2026-09-24 提出收敛方案"受保护路径 + 破坏性操作默认拒绝、不做快照"，并要求"新增能力需要提案"；§4.2 六项待裁定） | 2026-09-24 |
+| User (AI Maintainer operator) | **Approved** —— 采纳收敛方案：① 受保护路径 + 破坏性操作默认拒绝 ② **不做快照**（logs 本就不入 git，快照无意义）③ 日志归档 retention 属独立生命周期问题，不在本提案；并要求「新增能力需要提案」（本提案即按此流程补立） | 2026-09-24 |
+| User (AI Maintainer operator) | **Implemented** —— §4.2 六项按建议执行（清单两类 / 缺失 error·机器本地 warn / shell 纪律入规则 / 不加 aic 命令 / 不做 retention / 检测落 `checks/protected_paths.py`） | 2026-09-24 |
 
 ## Implementation Record
 
-*(待实施后填写)*
+**实施时间**：2026-09-24（1 个能力提交 `cdd5d7f`；事故复盘另见 `reports/INCIDENT-2026-09-24-ignored-state-wipe.md`）
+
+### §4.2 六项裁决的执行结果
+
+| # | 裁决 | 执行 |
+|---|---|---|
+| 1 | 清单范围 | 按两类收敛：`machine-runtime-state`（3 项，missing=warn）+ `ai-system-body`（8 项，missing=error）；并显式写入 `not_protected`（projects/workspaces/temp/outputs）防膨胀 |
+| 2 | 检测强度 | 受保护路径缺失→按类 error/warn · git 中删除/重命名→error · 仓库内出现历史位置→warn · 非 git 工作树→warn · 清单缺失→warn（跳过不崩） |
+| 3 | shell 纪律入 Operating Rules | ✅ 写入 `AI_OPERATING_RULES.md` 新节：禁 `-m` + 反引号/`$( )`；一律 `git commit -F -` + 引号定界 heredoc（本次事故直接原因） |
+| 4 | aic 命令入口 | 未加（清单是配置、检测在门禁，命令面无收益） |
+| 5 | 日志 retention | 未做（独立生命周期问题） |
+| 6 | 检测落点 | `tools/checks/protected_paths.py` + `checks/__init__.py` 接线（check.py 第 10 项） |
+
+### 验证（提案 §6 要求）
+
+1. **反证（真仓库实测，均已撤销）**：
+   - 仓库内建 `logs/` → 检测**正确 WARN**；且 `test_real_repo_is_clean` 守卫测试 **fail-loud**（预期行为）
+   - 把 `skills/` 临时改名 → 受保护路径缺失被检出；**同时相关测试与门禁集体 fail-loud** ——
+     证明"改名/移动受保护目录"这类操作确实会造成广泛破坏，正是本能力要挡住的类型
+2. **单测**：`cli/tests/test_protected_paths.py` 8 项（缺失 error/warn 分流 · git 删除 · 历史位置回归 ·
+   非 git 工作树 · 清单缺失不崩 · 真仓库应干净）；全仓单测 **620 OK**（612 + 8）
+3. **不误报**：干净树上本检测 0 findings（`check.py` 仍 PASS 且 2 个已知 warning 未变）；
+   CI/新机器场景由 `missing: warn`（机器本地类）覆盖
+4. **规则可达性**：新节在 `governance/AI_OPERATING_RULES.md` 内，该文件已在 `standards-loader` 的
+   `### Always Load` → 每次运行必进上下文
+5. **成本实测**：`AI_OPERATING_RULES.md` 14,366 → 15,985 字节（**+1,619 字节 ≈ +404 tok/run**，
+   441 → 476 行）；Always Load 固定成本；`prompt-metrics` 前缀稳定 16/16 未破
+
+### 与提案的偏差
+
+- 清单新增 1 项超出提案示例：`<workspace>/metrics`（提案 §4.1 已含）与 3 项工作区/仓库占位符解析
+  （`<repo>` / `<workspace>` / `~`）——机械实现细节，无实质偏差。
+- `tools/README.md` 的 `check.py` 行同步为 **10 checks**（原写 9，属既有陈旧计数）。
+
+### 未做 / 残留（诚实边界）
+
+- **检测只能事后发现**，无法阻止命令本身（git 无 pre-clean 钩子）。预防 = 位置（运行时态在仓库外）+
+  Always-Load 规则（默认拒绝 + dry-run/确认流程）+ 本检测。
+- 不做快照/append-only/Mutation Guard（用户裁定）；日志 retention 归档为独立议题，按 Evolution Principle 待真实需要。
