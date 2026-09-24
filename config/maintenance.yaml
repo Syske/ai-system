@@ -11,19 +11,20 @@
 # Write path (AI-manual): read next_maintenance at session start (ADR-0009);
 # write last_run / mode / next_maintenance / last_findings at run end.
 #
-# last_findings is a block sequence of multi-line PLAIN scalars — three characters
-# terminate a scalar early and break the file (validated by tools/checks/config_yaml.py):
-#   1. a line starting with `- ` (starts a new list item)
-#   2. the ASCII sequence `: ` (parsed as a nested mapping)
-#   3. the ASCII sequence ` #` (starts a comment; e.g. `format-check #23` — use「第 23 项」)
-# After editing, always self-check with: python3 -c "import yaml;yaml.safe_load(open('config/maintenance.yaml'))"
+# last_findings 是「折叠块标量（`- >-`）」序列（2026-09-24 起）—— 内容行一律**字面**：
+# `- ` / `: ` / ` #` / 行首 `#` / `*` / `%` / `[` / `{` 都不再改变结构。此前用多行 plain
+# scalar，被前导短横、半角冒号、空格井号**三次**写坏（症状治理不收敛），故改为块标量根治。
+# 唯一纪律：**内容行保持 2 空格缩进**（不要出现顶格行）。
+# 门禁 tools/checks/config_yaml.py（check.py）继续兜底；改后自查：
+#   python3 -c "import yaml;yaml.safe_load(open('config/maintenance.yaml'))"
 
 last_run: 2026-09-23
 mode: on-demand
 next_maintenance: '2026-09-28'   # weekly 节奏保持 +7d（2026-09-21 补做 09-16 到期周检）；
                                  # 2026-09-23 的 on-demand 专项（R4 残债 + skill-sync 归档）不重置周检节奏
 last_findings:
-- 计划内周检（weekly，2026-09-21 补做，原排期 2026-09-16 逾期 5 天）：工具门禁全绿
+- >-
+  计划内周检（weekly，2026-09-21 补做，原排期 2026-09-16 逾期 5 天）：工具门禁全绿
   （check.py PASS/325 单测/八段 15/15/path 0 broken/extensions 0-0/workflow-command-audit 0-0）。
   周度专项：依赖图 33 技能/4 层、真实依赖无环（3 条 doc-only 提及环复核为指引非依赖）；
   孤儿资产 0；权威层（199 文件）跨资产标题级重复 0（唯一重合=八段契约结构）、逐字重复段 0；
@@ -37,7 +38,8 @@ last_findings:
   （合同 §2 图已含 logs//archived/、aic-maintain 98 行 ≤100）。知识生命周期：203 条日志高频主题
   均已有捕获载体，无新增捕获项。机器/环境观察（metrics 快照命名两口径、D 盘池、extensions 历史
   遗留）仅入诊断日志。小修 2 项待用户确认。
-- on-demand 全链闭环（2026-09-21，用户逐项确认）：核心产出——P57/P58/P59 立项并全部实施；
+- >-
+  on-demand 全链闭环（2026-09-21，用户逐项确认）：核心产出——P57/P58/P59 立项并全部实施；
   P57 候选驱动 service 选择（Projects 候选=容器 workspace.yaml 映射服务）+ 死循环出口；
   P58 projects/ 真实目录 + repositories 源按需 clone（含本机解链迁移 + worktree repair）；
   P59 模板层作者纪律（实测折行收益 0.03% → 回退）。实测发现并修 3 处选择循环
@@ -50,7 +52,8 @@ last_findings:
   盘面：NOT CLOSED 3→2（P42/P46）；open action items 4（P22×2 / P26 / P28）。
   next_maintenance 2026-09-16 已到期待另排 weekly；机器观察（local.yaml 残留、D 盘池、
   双副本历史）均入诊断日志，不入本文件。
-- on-demand 专项（scan 循环选择项目 + 缺少 service 选择）：根因分层——①机器层
+- >-
+  on-demand 专项（scan 循环选择项目 + 缺少 service 选择）：根因分层——①机器层
   config/environments/local.yaml 残留 /tmp 测试路径（projects_root 指向不存在目录 →
   Projects/Branch 字段 0 选项，机器观察，进诊断日志，修复待确认）；②F2 scan 字段收集
   死循环：ScanHooks.validate 失败 → steps.py step=2 全量重收 → 无限循环（唯一出口选
@@ -60,49 +63,57 @@ last_findings:
   缺口：integration.md/coding-memory.md 未提交中文块（466/187 CJK）check.py FAIL，
   pre-commit 只跑 repo-lint Rule 4 不覆盖 memory 门禁（实测 --files exit 0），
   2026-09-16/18 两次同类后复发 → 应固化门禁；⑤run-log 覆盖：memory 改动无归属日志
-- 修复建议（read-first，未就改）：设计方向已确认（参照 code-review 交互流程）→
+- >-
+  修复建议（read-first，未就改）：设计方向已确认（参照 code-review 交互流程）→
   立提案 P57-SCAN-SERVICE-SELECTION（B Projects 候选=容器 workspace.yaml 映射服务；
   C 死循环出口+_scope_empty 验名，候选驱动：单候选自动/多候选选择/零候选询问，
   不猜测不 double-ask）待评审；A 机器层 local.yaml 就地修正（待确认）；
   D pre-commit 补 memory CJK 门禁（治理→提案）；E memory 中文块翻译提交 + 归属日志
   （小修待确认）；提案遗留 P41/P42/P46 + P26/P28 继续 defer；
   next_maintenance 2026-09-16 已到期待另排 weekly
-- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+- >-
+  方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
   （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
   ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
   （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
   验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
   P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
-- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+- >-
+  方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
   （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
   ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
   （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
   验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
   P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
-- on-demand 专项：aic 项目菜单 (no repo mapped) 根因 = 映射存储源与显示源脱节——
+- >-
+  on-demand 专项：aic 项目菜单 (no repo mapped) 根因 = 映射存储源与显示源脱节——
   dev-setup 只持久化 contexts/project-context.yaml（Phase 6 repository/worktrees），从不写
   workspace.yaml（ADR-0008 执行步骤悬空，2026-08-08 遗留未接）；wizard 显示仅读
   providers.project_repos() → workspace.yaml → repository.available；已复现 7/8 项目显示
   (no repo mapped)，其中 4 个业务项目（cool-test/italent-sync-plus/security-storage/
   qa-housekeeping）实际已绑定仓库；次级：project_meta 读 contexts/project.yaml（全工作区
   不存在）、repo_path_for 回退 projects_root/<pid> 不命中（P22/2026-08-14 来源统一遗留未解）
-- 修复建议（read-first，未就改）：A 显示回退 project-context.yaml（L2 待确认）；B dev-setup
+- >-
+  修复建议（read-first，未就改）：A 显示回退 project-context.yaml（L2 待确认）；B dev-setup
   Phase 10 生成/刷新 workspace.yaml（推荐，恢复 ADR-0008 契约，结构待提案）；C 数据源统一
   （季度候选）；run-log 覆盖 1 观察项（governance/memory/java/integration.md 2026-09-16 修改
   无当日日志，记忆捕获归属性提交前确认）；next_maintenance 2026-09-16 已到期建议另排 weekly
-- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+- >-
+  方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
   （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
   ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
   （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
   验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
   P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
-- 方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
+- >-
+  方案 B 已实施（用户确认 2026-09-17）：runtime-dev-setup.md Phase 10 增补 Repository Mapping
   （workspace.yaml）生成/刷新规则；workflows/dev-setup.md Outputs+Exit Criteria 同步；
   ADR-0008 执行者由悬空「AI 手动」接线为 dev-setup Phase 10；存量回填 4 项目 workspace.yaml
   （italent 4 服务 / security-storage 2 / qa-housekeeping 2 / cool-test 0+2 unavailable）；
   验证：project_repos 8/8 读通、aic 菜单实测 3 业务项目显示服务名、check.py PASS（2 WARN 为既有
   P41/P42/P46 + P26/P28）、单测 268 OK、path-audit 0 broken、无新增 CJK；方案 A 废弃、方案 C 季度候选
-- 方案 X 已实施（用户确认 2026-09-17，细化「统一落 review」）：release 产物布局显式化——release 包
+- >-
+  方案 X 已实施（用户确认 2026-09-17，细化「统一落 review」）：release 产物布局显式化——release 包
   （sql、checklists、聚合 release-branch-review、变更/风险/环境矩阵）→ workspace 下 release 子目录；
   逐卡分支差异审查 review-{task-id}.md → workspace 下 review 子目录按任务分目录（与 review 工作流报告
   统一）；verify 报告 → verify 子目录；runtime-release、runtime-review、runtime-verify 三份模板的
@@ -111,111 +122,144 @@ last_findings:
   review/verify 子目录、会话快照 → temp、34 处 task cards 与日志引用更新）；italent 18 个 release 下
   review-T-*.md 同步归入 review 子目录；验证：check.py PASS、单测 268 OK、path-audit 0 broken、
   0 残留旧路径引用、security-storage openspec validate 通过、无新增 CJK
-- 遗留观察项：italent openspec-cn validate 存量失败（reconcile-state/spec.md 7 需求缺 Scenario 块，
+- >-
+  遗留观察项：italent openspec-cn validate 存量失败（reconcile-state/spec.md 7 需求缺 Scenario 块，
   spec 合规债，建议走 spec/grilling，与迁移无关）；security-storage reports/ 保留 prepare 期分析子报告
   （非 release 产物）；方案 C（repo 数据源统一）季度候选；run-log 覆盖观察项（memory 文件归属）仍待提交前确认
-- agent 自动检测已实施（方案 B，用户确认 2026-09-17，三轮迭代）：新建 cli/services/agent_detect.py
+- >-
+  agent 自动检测已实施（方案 B，用户确认 2026-09-17，三轮迭代）：新建 cli/services/agent_detect.py
   （PATH + 已知安装位置 + 配置目录信号，7 个已知 agent：opencode/pi/claude/codex/qoder/aider/gemini，
   进程内缓存）；启动菜单与 skill-launch 选择器统一走 merge_picker_entries；未安装 agent 不展示、
   图标用 providers.yaml/KNOWN_AGENTS（TTY 显示）；按使用次数排序（wizard record_agent_usage/agent_usage
   → state.agent_usage，sort_by_usage 稳定降序，配置序>检测序并列保持）；+15 单测（全量 286 OK）；
   验证：真实系统渲染（opencode/pi/qoder，claude 隐藏）、模拟 ×12/×5/×2 排序正确、check.py PASS、
   lint 25 基线、path 0 broken
-- Windows/npm 检测已补齐（反馈 5）：npm 全局 bin（win32 不拼 /bin + APPDATA\npm；WSL 扫
+- >-
+  Windows/npm 检测已补齐（反馈 5）：npm 全局 bin（win32 不拼 /bin + APPDATA\npm；WSL 扫
   /mnt/c/Users/*/AppData/Roaming/npm）+ Windows PATH 目录 + 全平台 .exe/.cmd/.bat/.com 变体 +
   OSError 防护（/mnt/c 不可读目录实测拦截）；单测 294 OK
-- 检测路径接入启动层（反馈 6）：resolve_launch_command（providers.yaml command 覆盖 → 检测路径 →
+- >-
+  检测路径接入启动层（反馈 6）：resolve_launch_command（providers.yaml command 覆盖 → 检测路径 →
   名字；WSL 下 .cmd/.bat 自动 cmd.exe /c + 路径转换）；main.py 两处启动调用接入；实测
   opencode/pi/qoder 解析到真实检测路径，Windows npm agent 可一键启动
-- SenSpec 价值吸收 1+2（用户确认）：①E1-E4 证据等级上提主链——新建
+- >-
+  SenSpec 价值吸收 1+2（用户确认）：①E1-E4 证据等级上提主链——新建
   governance/standards/common/evidence-levels.md（E1 代码事实/E2 文档事实/E3 推断/E4 假设 +
   ⚠️ 待确认 占位符），任务卡模板（task-splitter + templates/prompts/tasks-template.md 两处对齐）新增证据等级
   字段、review SKILL findings 要求标等级；②读账本+硬上限——CONTEXT_LOADING.md 新增 Read
   Discipline（同文件 Step ≤2 次/整篇 ≤1 次、触限停止改占位符、检索优先、读后总结，全英文）；
   门禁全绿（lint 25 基线、check.py PASS、单测 294 OK）
-- SenSpec 价值吸收 P2（用户确认）：⑥ TR5 图形规则单一事实源（extensions/tr5/references/
+- >-
+  SenSpec 价值吸收 P2（用户确认）：⑥ TR5 图形规则单一事实源（extensions/tr5/references/
   drawing-rules.md，画不画/画什么/怎么画/落盘/配说明/自查六节）；⑦ 修复重验熔断
   （runtime-review/verify 新增 Fix-Reverify Circuit：同任务驳回/FAIL 循环 ≤2 轮，第 3 次停
   交用户裁决，每轮 fresh）；③ 指针不重抄禁令（runtime-develop Phase 1 Pointer discipline，
   任务卡/计划单一事实源只引用不重抄）；门禁全绿
-- methodologies 整体移除（用户确认，非强依赖判定）：tasks-template.md 迁至 templates/prompts/
+- >-
+  methodologies 整体移除（用户确认，非强依赖判定）：tasks-template.md 迁至 templates/prompts/
   （早前）；3 skill 迁入 ai-system/skills（spec-updater/openspec-archive-change/openspec-explore，
   On-Demand，spec-updater 为 task-splitter 输入硬依赖）；2 skill 不迁（propose/apply 与主链重复）；
   22 处引用清理（代码/配置/模板/工作区）；methodologies/ 目录删除；门禁全绿
-- wayfinder 终局（用户决策，skill-source 流程）：先 TRIAL 终止（0 案例）→ 第三方仓库复核（上游
+- >-
+  wayfinder 终局（用户决策，skill-source 流程）：先 TRIAL 终止（0 案例）→ 第三方仓库复核（上游
   5 次提交全为打磨、无方法论变化）→ 日常价值分析（原则已由 grilling/task-splitter/指针纪律/
   E1-E4 吸收兑现）→ 阶段适配评估（develop 等执行阶段错配）→ **接入 prepare**（use-skill 显式
   触发 desc，非低显式度可选附注；spec/develop 保持终止）；本地副本补 Refer by name；
   测试断言恢复 skills/wayfinder；门禁全绿
-- aic 交互提示新手可读性（用户反馈，全链路）：推导确认 header 化（清屏修复：_frame 每帧清屏，
+- >-
+  aic 交互提示新手可读性（用户反馈，全链路）：推导确认 header 化（清屏修复：_frame 每帧清屏，
   菜单前 print 被吞 → 字段列表+术语入 header 槽）+ 三分支（Task ID 未推导回退正常收集选卡，
   修复 P38 多卡空 Task ID 运行）；3 处确认选项补 `— 说明`；✏️→📝（VS16 渲染失败）；
   Task ID 选择器：task_card_summaries 卡片概述 + 专属标签（手动输入=描述/指定卡、AI 自行选择）；
   i18n note 加详 + `**` 内联高亮组件（_paint_note，bold-cyan 关键术语）；296 OK（+2 测试）、
   check.py PASS、pty 实测
-- README pack.py 残留清理（用户报告）：README.md:49/95 + README_MIGRATION.md 引用已删除的
+- >-
+  README pack.py 残留清理（用户报告）：README.md:49/95 + README_MIGRATION.md 引用已删除的
   pack 打包脚本（04ea2cf 移除时漏清）——README_MIGRATION 重构为 git 迁移载体说明（Setup on a New Machine，
   删 Packed/Excluded/Run pack 段）；README.md 删 pack 命令行 + 维护说明更新
-- memory 英文门禁（2026-09-18 会话写入中文）：integration.md 跨库表归属实测 + coding-memory.md
+- >-
+  memory 英文门禁（2026-09-18 会话写入中文）：integration.md 跨库表归属实测 + coding-memory.md
   跨分支合并冲突纪律 → 英文翻译；check.py PASS（基线 2 WARN）
-- 顺带 minor-fix：governance/memory/java/integration.md 2026-09-16 追加块 8 CJK 字符（memory 必须
+- >-
+  顺带 minor-fix：governance/memory/java/integration.md 2026-09-16 追加块 8 CJK 字符（memory 必须
   英文，check.py FAIL）→ 已英文化；该文件 2026-09-16 追加内容归属仍需提交前确认（未提交）
-- 工具门禁全绿：quick-check OK / lint 0/0/25 / path 712 refs 0 broken / workflow-command-audit
+- >-
+  工具门禁全绿：quick-check OK / lint 0/0/25 / path 712 refs 0 broken / workflow-command-audit
   0/0（15 workflows 13 commands）/ proposal-audit 0 gate error / extensions-lint 0/0
-- 指标：Skills 30 / Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平（上期
+- >-
+  指标：Skills 30 / Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平（上期
   maintain-2026-09-11 口径）；快照（该期快照文件已随 2026-09-24 的 ignored 路径误清而丢失）；
   15 commits 涉及 cli、config、
   reports、skills、templates、tools、workflows 七个区域，以流程修订/平台修复为主
-- 一致性抽查 8 项：7 过 / 1 失败（doc-vs-reality=映射数据源 workspace.yaml vs
+- >-
+  一致性抽查 8 项：7 过 / 1 失败（doc-vs-reality=映射数据源 workspace.yaml vs
   project-context.yaml，即本专项发现）；状态卫生（.aic-state 引用全存）过、注册表最小化过、
   链接健康过、提案遗留过（P41/P42/P46 保持 defer 季度回顾，P26/P28 无新触发）
-- 报告：MAINTENANCE-2026-09-17.md 已补登 reports/README.md；语言门禁 PASS（cjk 0.33）
-- 本专项 read-first：除报告/索引/状态外未做任何就地修改，方案 A/B/C 输出建议待用户决策
-- on-demand 专项：按今日 code-review 日志 review code-review 流程（scope 指定）；工具门禁全绿（lint 0/0/25、path 715 refs 0 broken、workflow-command-audit 0/0、proposal-audit 0 gate error、quick-check OK）
-- 指标：Skills 32→30（repo-metrics 口径，apply-openspec/archive-openspec 随 639494b 移除）；Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平；implement +46 / repository-maintainer +26 / review +6 为近 2 日流程修订
-- 核心发现：M2 runtime-code-review「不修改业务实现」声明 vs spec-comparison 实际执行 fix+merge+push+wiki（今日三仓推送 origin）自相矛盾 → **已修复（用户确认）**：声明改为「默认 review-only、显式授权可扩展」+ 新增 Spec-Comparison Fix-Apply Extension 阶段（Sync→Fix-Apply→Build/Check→Commit&Push→Record，授权规则：未授权永不运行 + L1 登记 + 未解决项不静默实施）；L1 HotFix loop wiki 行为 → **已同步**（远程 wiki 用户自管，agent 仅写本地 change-summary-wiki.md）；M1 code-review.md 节顺序违规已修复（用户 L2 批准：Target Branch Resolution→Context 子节、Spec-Comparison Review Mode→Outputs 子节，内容逐字保留，门禁全绿）；M3（相邻 review/verify）T-011 重跑覆盖 2026-09-10 verification-report（workspaces 无 git 不可恢复）→ 建议写报告前目标文件冲突检查（待确认）
-- 交互层评估（执行建议 1 前置）：aic code-review 菜单交互链路（menu flow_analysis → wizard frontmatter 字段收集 → prompt_builder → opencode 会话）评估完成，4 项发现：P1 i18n 缺口（Target Theme/Confluence Spec Page Id 无 field_note；Output Directory 备注默认值错配）→ 已补齐（field_note/icon）+ Output Directory 输入已移除（错配消除）+ P2 分支解析双重询问 → 已减少（Branch Mapping 直接采用、Target Theme 唯一命中直接采用）；P3 review/code-review 条目易混淆 + P4 Target Theme/Branch Mapping 无动态候选 provider → 交互层结构建议待变更管理；Review Focus 优化已落地（10 预置候选 + 多选 + 默认全面审查）；skill 加载缺陷已修复（F1：extension SKILL.md description 块标量 `>` 误解析 → 改用共享 YAML 解析器 cli/services/frontmatter.py，扫描 0 残留、全 CLI 单测 259 OK）；可配置技能源目录已落地（F2：skill-groups.yaml 新增 skill_roots 配置驱动发现，先配置 core+extensions；core_skills 白名单退役；core 组 2→29 全量可达，extensions 未登记回退 env layers.skills）；skill 菜单分组高亮（cyan 系配色统一）+ 每屏 10 项可筛选 + 长描述截断 50 字符/预览全文（F3：section 主题色 + max_visible=10 + _skill_label 截断）；aic 向导项目菜单置顶无项目入口（F4：system/AI 引导 → 前两项，索引偏移同步）；skill 菜单选中行黑字白底、非选中无背景、每屏 20 项、公司技能组提前一级（F5 修订 3）；非开发主链菜单体检（F7：env-init 重复字段修复 + 字段备注/图标 0 缺失 + 交互层英文文案已本地化 A3）；chain 链路无项目无用问题已修复（F8：required 链强制项目留空=取消 + wizard 项目透传 launcher）；chain 交互调整（F9 修订：先选链再输入任务内容 + 保留「描述你的场景」选项，场景文本即内容）；chain 从 wizard 菜单直达链路选择（F10：fields_for/steps 早返加入 chain，不再收集默认字段/弹输出菜单）；chain 重复链路合并（F11：删 hotfix-doc-publish，发布 wiki 作可选块 optional，launcher 逐块询问）；aic 菜单输入中文过滤崩溃已修复（F6：_read_raw UTF-8 lead byte 补齐续字节 + latin-1 回退，+4 回归单测 263 OK）
-- 一致性抽查 8 项：6 过 / 2 失败（workflows 八段=code-review.md、doc-vs-reality=code-review runtime 声明），其余（注册表最小化/链接/状态卫生/run-log 覆盖/提案）全过；ai-system git 干净
-- 提案：P41/P42/P46 保持 defer 季度回顾；P26/P28 action items 无新触发；无新增提案
-- 报告索引：MAINTENANCE-2026-09-11.md 已补登 reports/README.md；语言门禁 PASS（cjk 0.35）
-- 本专项 read-first：除已批准执行的建议 1（L2 节归位）+ 建议 2（用户确认的 runtime/loop 文档修正）外未做其他就地修改，其余输出建议待用户决策
+- >-
+  报告：MAINTENANCE-2026-09-17.md 已补登 reports/README.md；语言门禁 PASS（cjk 0.33）
+- >-
+  本专项 read-first：除报告/索引/状态外未做任何就地修改，方案 A/B/C 输出建议待用户决策
+- >-
+  on-demand 专项：按今日 code-review 日志 review code-review 流程（scope 指定）；工具门禁全绿（lint 0/0/25、path 715 refs 0 broken、workflow-command-audit 0/0、proposal-audit 0 gate error、quick-check OK）
+- >-
+  指标：Skills 32→30（repo-metrics 口径，apply-openspec/archive-openspec 随 639494b 移除）；Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平；implement +46 / repository-maintainer +26 / review +6 为近 2 日流程修订
+- >-
+  核心发现：M2 runtime-code-review「不修改业务实现」声明 vs spec-comparison 实际执行 fix+merge+push+wiki（今日三仓推送 origin）自相矛盾 → **已修复（用户确认）**：声明改为「默认 review-only、显式授权可扩展」+ 新增 Spec-Comparison Fix-Apply Extension 阶段（Sync→Fix-Apply→Build/Check→Commit&Push→Record，授权规则：未授权永不运行 + L1 登记 + 未解决项不静默实施）；L1 HotFix loop wiki 行为 → **已同步**（远程 wiki 用户自管，agent 仅写本地 change-summary-wiki.md）；M1 code-review.md 节顺序违规已修复（用户 L2 批准：Target Branch Resolution→Context 子节、Spec-Comparison Review Mode→Outputs 子节，内容逐字保留，门禁全绿）；M3（相邻 review/verify）T-011 重跑覆盖 2026-09-10 verification-report（workspaces 无 git 不可恢复）→ 建议写报告前目标文件冲突检查（待确认）
+- >-
+  交互层评估（执行建议 1 前置）：aic code-review 菜单交互链路（menu flow_analysis → wizard frontmatter 字段收集 → prompt_builder → opencode 会话）评估完成，4 项发现：P1 i18n 缺口（Target Theme/Confluence Spec Page Id 无 field_note；Output Directory 备注默认值错配）→ 已补齐（field_note/icon）+ Output Directory 输入已移除（错配消除）+ P2 分支解析双重询问 → 已减少（Branch Mapping 直接采用、Target Theme 唯一命中直接采用）；P3 review/code-review 条目易混淆 + P4 Target Theme/Branch Mapping 无动态候选 provider → 交互层结构建议待变更管理；Review Focus 优化已落地（10 预置候选 + 多选 + 默认全面审查）；skill 加载缺陷已修复（F1：extension SKILL.md description 块标量 `>` 误解析 → 改用共享 YAML 解析器 cli/services/frontmatter.py，扫描 0 残留、全 CLI 单测 259 OK）；可配置技能源目录已落地（F2：skill-groups.yaml 新增 skill_roots 配置驱动发现，先配置 core+extensions；core_skills 白名单退役；core 组 2→29 全量可达，extensions 未登记回退 env layers.skills）；skill 菜单分组高亮（cyan 系配色统一）+ 每屏 10 项可筛选 + 长描述截断 50 字符/预览全文（F3：section 主题色 + max_visible=10 + _skill_label 截断）；aic 向导项目菜单置顶无项目入口（F4：system/AI 引导 → 前两项，索引偏移同步）；skill 菜单选中行黑字白底、非选中无背景、每屏 20 项、公司技能组提前一级（F5 修订 3）；非开发主链菜单体检（F7：env-init 重复字段修复 + 字段备注/图标 0 缺失 + 交互层英文文案已本地化 A3）；chain 链路无项目无用问题已修复（F8：required 链强制项目留空=取消 + wizard 项目透传 launcher）；chain 交互调整（F9 修订：先选链再输入任务内容 + 保留「描述你的场景」选项，场景文本即内容）；chain 从 wizard 菜单直达链路选择（F10：fields_for/steps 早返加入 chain，不再收集默认字段/弹输出菜单）；chain 重复链路合并（F11：删 hotfix-doc-publish，发布 wiki 作可选块 optional，launcher 逐块询问）；aic 菜单输入中文过滤崩溃已修复（F6：_read_raw UTF-8 lead byte 补齐续字节 + latin-1 回退，+4 回归单测 263 OK）
+- >-
+  一致性抽查 8 项：6 过 / 2 失败（workflows 八段=code-review.md、doc-vs-reality=code-review runtime 声明），其余（注册表最小化/链接/状态卫生/run-log 覆盖/提案）全过；ai-system git 干净
+- >-
+  提案：P41/P42/P46 保持 defer 季度回顾；P26/P28 action items 无新触发；无新增提案
+- >-
+  报告索引：MAINTENANCE-2026-09-11.md 已补登 reports/README.md；语言门禁 PASS（cjk 0.35）
+- >-
+  本专项 read-first：除已批准执行的建议 1（L2 节归位）+ 建议 2（用户确认的 runtime/loop 文档修正）外未做其他就地修改，其余输出建议待用户决策
   （runtime-develop.md Stage 6 gates 段 7 行 + workflows/develop.md 存量 3 行）；自查范围结论：
   yaml desc/工具注释/报告中文惯例合法保留；LANGUAGE_CONVENTION 中文为规范自身示例与简体要求；
   用户可见输出遵循系统语言 zh；运行时语言门禁由 runtime-base Complete 步骤执行（P45）
-- 工作区迁移 WSL（9p 双视图根因解决，用户主导方案 A）：全工作区迁 WSL 文件系统单视图（9p 读缓存假象/false samefile/stat 假死/git add 漏扫根治）；git 仓重新 clone 最新 + 可复制内容 rsync（排除 worktrees/.git/工具状态）；projects 为符号链接指向业务仓物理（87 仓未迁、Windows 工作流保持、归档仓 ext4 副本为日常/D 盘旧仓备份）；worktree 业务仓 4 个 git 链不受影响；路径适配（archive_sync 常量/模板占位化/公开仓不携带本机路径）；aic（pip editable）指向修复（finder+dist-info）；develop 前置规则固化：无 Dev Setup 先跑 dev-setup 禁止自推/跳步（workflows/develop.md，提交 c7c6496）；完成报告目录约定 completion-reports/（runtime-develop Location 对齐 da469ab）；验证基线：unittest 178 OK / lint 0/0 / 归档 dry-run 0 / 三仓 M=0；详细运维日志（含本机路径）在 logs/（gitignored 不公开）
-- 待办（2026-09-03 定案）：P46(b)「验证状态核验」推荐实施——review/verify 无验证标记形式化
+- >-
+  工作区迁移 WSL（9p 双视图根因解决，用户主导方案 A）：全工作区迁 WSL 文件系统单视图（9p 读缓存假象/false samefile/stat 假死/git add 漏扫根治）；git 仓重新 clone 最新 + 可复制内容 rsync（排除 worktrees/.git/工具状态）；projects 为符号链接指向业务仓物理（87 仓未迁、Windows 工作流保持、归档仓 ext4 副本为日常/D 盘旧仓备份）；worktree 业务仓 4 个 git 链不受影响；路径适配（archive_sync 常量/模板占位化/公开仓不携带本机路径）；aic（pip editable）指向修复（finder+dist-info）；develop 前置规则固化：无 Dev Setup 先跑 dev-setup 禁止自推/跳步（workflows/develop.md，提交 c7c6496）；完成报告目录约定 completion-reports/（runtime-develop Location 对齐 da469ab）；验证基线：unittest 178 OK / lint 0/0 / 归档 dry-run 0 / 三仓 M=0；详细运维日志（含本机路径）在 logs/（gitignored 不公开）
+- >-
+  待办（2026-09-03 定案）：P46(b)「验证状态核验」推荐实施——review/verify 无验证标记形式化
   检查（runtime-verify 0 相关步骤），编译阻断→验证义务传递靠文本约定；维护窗口实施：
   runtime-review/runtime-verify 新增「验证状态核验」步骤（检查开发产物/任务卡 compile/unittest
   验证标记，WARN 级，不阻断）+ 完成报告可选「验证状态」字段（对齐 P47 completion-reports 约定）；
   与 P46(a)/P41/P42（tr5 家族）解耦独立；模板改动不影响进行中会话（后续会话生效）
-- 待办（2026-09-04 定案）：L2 配置对象化（季度窗口）——同类 @Value 收敛为
+- >-
+  待办（2026-09-04 定案）：L2 配置对象化（季度窗口）——同类 @Value 收敛为
   @ConfigurationProperties 配置 POJO（默认值集中 POJO 字段一处、new Properties() 自带默认供
   测试直构、字段 final 杜绝双写），根治默认多源；新代码默认范式写入 spring.md；
   前置 L1 已落地（spring.md §Configuration Injection + format-check 第 8 项，36d19e9）；
   批尺寸防御校验（batchSize<=0 拦截）纳入存量修复清单
-- 试点基线回退（业务侧决策，2026-09-04）：platform-api 本地 master 回退 775f09e4/60670b450
+- >-
+  试点基线回退（业务侧决策，2026-09-04）：platform-api 本地 master 回退 775f09e4/60670b450
   （style 格式基线 + checkstyle 资产）→ 0d594b55f（8-21），本地=远端（ahead 0）；原因=业务侧
   未采纳基线（master 提交纯格式优化顾虑）。影响：C2 门禁在开发改动时回归全量差分（需 --skip），
   checkstyle 因仓内无资产 SKIP（资产缺失语义）。可逆：reflog（60670b450）/远端 style 分支
   （suppressions 4845 完整副本）/format-baseline 一键重跑。脚本语义验证（回退实验）：增量无改动
   三连 gate 全 PASS（存量不可见）；checkstyle-gate 资产缺失 SKIP（对齐模板语义，9656c3e）
-- Windows 侧 ai-system 逐步移除（2026-09-04）：D 盘 ai-workspace/ai-system → ai-system-bak（观察）；
+- >-
+  Windows 侧 ai-system 逐步移除（2026-09-04）：D 盘 ai-workspace/ai-system → ai-system-bak（观察）；
   ai.bat 入口废弃删除（用户确认主链全在 WSL，Windows 不再启动 aic）。前提核查：D 盘副本落后
   （aaadbc2 < WSL 3476486）无备份价值（git 远端即备份）、0 未提交/未推送；projects symlink 指向
   D 盘 project-resources 不受影响。观察期后无回归 → 正式删除 ai-system-bak。业务仓 Windows 工作流
   （IDEA/Maven）保持 D 盘物理
-- GitHub Actions CI 移除（2026-09-04）：删除 workflows 下的 CI workflow 文件。理由：ai-system 为本地维护
+- >-
+  GitHub Actions CI 移除（2026-09-04）：删除 workflows 下的 CI workflow 文件。理由：ai-system 为本地维护
   工具仓（主链 WSL），CI 与本地 check.py 门禁重复；GitHub Actions 环境（ubuntu、无 ~/.local/jre17、
   无本机配置）与全量 unittest 结构性错配 → 经常性报错（此前 D701ce2 修 JRE 印证）；无外部协作价值。
   回归闸回归到本地 check.py + 全量单测（每次提交前跑）。如需恢复，该 workflow 文件在 git 历史可随时找回。
-- 语言门禁 L2 实验结论（2026-09-05，周巡检驱动）：「机制级静态语言门禁」经实验**判定不可行**
+- >-
+  语言门禁 L2 实验结论（2026-09-05，周巡检驱动）：「机制级静态语言门禁」经实验**判定不可行**
   ——英文纪律区（templates/runtime + workflows）逐行 CJK 检测 134 处，全为合理中文（用户可见报告
   模板标题、团队术语「转测文档」、yaml 字段注释、行尾注释、命名格式「概述-用户名」）；整行纯中文
   =0。混合语言生态（执行提示词英文 + 术语/注释/报告中文惯例）无法用静态逐行检查区分 → 静态门禁
   必然误报（2 次实验证明）。语言合规机制维持：P45 运行时门禁（language-gate.py，用户可见文本）
   + 语言自查惯例（b5b09b0/4c0125a）；不引入静态逐行 CJK 门禁。本次顺手修复 runtime-develop
   L157-161 真中文（d28eb20 引入的增量说明→英文）。
-- 存量债基线登记（2026-09-05，周巡检 + 用户决策 A）：format-check 全量扫活跃 worktree——
+- >-
+  存量债基线登记（2026-09-05，周巡检 + 用户决策 A）：format-check 全量扫活跃 worktree——
   knowledge-api 171 FAIL/3147 WARN + 日志中文 17 文件；resource-manager 10 FAIL/242 WARN +
   日志中文 0（@Value 会话已处理过）。处理：**基线化**（不海量修改业务仓——大 diff/干扰任务/
   评审成本 > 价值）；门禁 --changed 增量语义复验通过（存量仓无改动 PASS、新增行精确拦截，
@@ -306,7 +350,8 @@ last_findings:
   → **决策：不修改工具代码**，仅声明作用域。其 2 处单行 Javadoc（FAIL）已顺手改为多行
   （纯注释、零语义改动），故全量扫由 FAIL=2 降为 FAIL=0/WARN=5。**门禁判定以 `--changed` 为准**：
   工作树干净 → PASS（exit 0）。
-- 盲检残债 R4 收尾 + skill-sync 归档（on-demand，2026-09-23）：预检 quick-check 0 findings、
+- >-
+  盲检残债 R4 收尾 + skill-sync 归档（on-demand，2026-09-23）：预检 quick-check 0 findings、
   工具门禁全绿（check PASS / 526 单测 / repo-lint 38 skills 0-0 / path 0 broken /
   workflow-command-audit 0-0）。R4 §2.1 generate_contract 三项已修（G1 标量引号 ·
   G2 去重告警 · G3 服务匹配口径统一，+9 测试）。R4 §2.2（pull/push 抽共享
@@ -340,7 +385,7 @@ last_findings:
   → 不去重。Governance 计数 60→62（两个新文件）。**R3 全部收口**。
   **P67 立案（2026-09-23，用户需求评估）** —— 结构性坏味道：检测 / 映射 / 劣化门（**不含自动重构执行**，
   Option B 最小切片）。评估要点：层分离（诊断/执行）本仓已有 → 缺的是**仪器**不是架构；
-  `smell-baseline.md` 的「味道→手法」处方**已存在但无自动触发**；结构类门禁仅 1 项（format-check 第 23 项）+ 
+  `smell-baseline.md` 的「味道→手法」处方**已存在但无自动触发**；结构类门禁仅 1 项（format-check 第 23 项）+
   1 条 checkstyle warning，类大小/方法数**全仓无阈值**。外部核验：86 项目注解偏差与 24.17% lint 回归
   **成立**（后者以 convention 级为主 → 本仓 format-check 已覆盖该类）、雷达第 10 项成立且推荐载体即我们已有形态、
   **DesigniteJava「F1 98.82%」未证实**（不作为引入依据）。阈值沿用仓内 40/3/20、「方法 ≤80」并入既有待审提案；
@@ -444,3 +489,13 @@ last_findings:
   **机器侧 config 已随授权更新（细节见 logs/）** —— k8s-logs skill 的配置契约与 SKILL.md 已按真机实测
   修正（补「Windows 侧 kubeconfig 为 UTF-16、Linux kubectl 无法解析」与「客户端版本须对齐服务端 ±1 minor」
   两条坑位，见 `skills/k8s-logs/SKILL.md`）。机器级路径/版本/凭据副本等观测只进 per-run 诊断日志，不入本文件。
+- >-
+  **maintenance.yaml 块标量陷阱根因解决（2026-09-24，用户要求根治）** —— 三次写坏（09-21 前导短横、
+  09-24 半角冒号×2）后，把 last_findings 由「多行 plain scalar」改为「折叠块标量 `- >-`」：内容行一律字面，
+  `- ` / `: ` / ` #` / 行首 `#` / `*` / `%` / `[` / `{` 全部失去语法意义，三条禁忌随之作废。
+  根因实测：plain 形态有 1 种 loud 失效（同行两次半角冒号 → ScannerError）与 2 种 **silent** 失效
+  （半角冒号 → 静默变 dict；空格井号 → 静默截断为注释）—— silent 才是「文档 + 事后门禁」抓不住的原因。
+  迁移 45 项：yaml.safe_load 前后逐项**精确相等 45/45**，其余键一致；行尾空白归一 1 处；
+  clip 追加换行用 `>-`（strip）消除。同步：文件头 5 行禁忌注释 → 1 条「内容行 2 空格缩进」规则；
+  skills/repository-maintainer/health.md 增「last_findings 格式」契约；tools/checks/config_yaml.py 保留兜底；
+  新增 4 个回归用例（2 个 plain 形态 silent 失效对照 + 1 个块标量安全性 + 1 个迁移守卫）。

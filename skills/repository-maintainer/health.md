@@ -185,6 +185,10 @@ Report fields, the `config/maintenance.yaml` update contract and the
   last_findings: [...]                    # 本次问题摘要（系统级 only）
   ```
 
+- **last_findings 格式**：每项用**折叠块标量** `- >-`（内容行一律字面 —— `- ` / `: ` /
+  ` #` / 行首 `#` / `*` / `%` 都不再有语法意义，2026-09-24 根治前三次写坏的根因）；
+  唯一纪律是内容行**保持 2 空格缩进**。门禁 `tools/checks/config_yaml.py` 继续兜底。
+
 - **last_findings 纪律**：只放系统级（指标/工具门禁/提案/修复）。机器/环境观察
   （如本机 python shim、extensions 仓未提交、本机是否生成 ~/.config）**只进 per-run
   diagnostic-log（logs/，本地）**，不写入此提交态文件。判定触发词：含

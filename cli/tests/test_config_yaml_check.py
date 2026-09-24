@@ -118,6 +118,72 @@ class TestRepositoryAndWiring(unittest.TestCase):
         cy.check_config_yaml(c)
         self.assertEqual(c.errors, [], c.errors)
 
+class TestMaintenanceFindingsFormat(unittest.TestCase):
+    """Root fix (2026-09-24): `last_findings` items are folded block scalars (`- >-`).
+
+    Before this, items were multi-line PLAIN scalars and the file was broken three
+    times (leading dash -> `*` alias; ASCII `: `; space-hash). Documenting the three
+    terminators was symptom treatment: measured, the plain form has one LOUD failure
+    (ScannerError, needs two colons) and two SILENT ones (a dict instead of a string;
+    comment truncation) — silence is what survives review. A folded block scalar
+    makes content lines literal, so the whole class of early terminators disappears.
+    """
+
+    PROSE = [
+        "- 短横开头（原禁忌 1：会另起列表项）",
+        "关键词A: B 值（原禁忌 2：半角冒号+空格 → 被当成嵌套映射）",
+        "正文 # 行内井号（原禁忌 3：空格井号 → 注释截断）",
+        "# 行首井号",
+        "* 星号（未加引号时曾被解析为别名）",
+        "% 百分号 · [中括号] · {花括号} · 引号 \"x\" 'y' · & 与号 · ! 叹号",
+    ]
+
+    def _load(self, text):
+        td = tempfile.TemporaryDirectory()
+        path = Path(td.name) / "maintenance.yaml"
+        path.write_text(text, encoding="utf-8")
+        self.addCleanup(td.cleanup)
+        return cy.strict_load(path)
+
+    def test_prose_that_used_to_break_the_file_is_now_literal(self):
+        """块标量下：全部危险形态原样保留，结构不变。"""
+        text = "last_findings:\n- >-\n" + "".join(f"  {line}\n" for line in self.PROSE)
+        data, error = self._load(text)
+        self.assertIsNone(error)
+        self.assertEqual(len(data["last_findings"]), 1, data)
+        item = data["last_findings"][0]
+        for line in self.PROSE:
+            self.assertIn(line, item)          # 零截断、零逃逸变形
+
+    def test_plain_scalar_form_silently_mutates_or_fails(self):
+        """对照（根因证据）：同样的散文用 plain scalar 承载 —— 半角冒号静默变 dict。"""
+        data, error = self._load("last_findings:\n- 关键词A: B 值\n")
+        self.assertIsNone(error, error)        # 连报错都没有
+        self.assertIsInstance(data["last_findings"][0], dict)   # 散文被吃掉成映射
+
+    def test_space_hash_plain_form_silently_truncates(self):
+        """对照（根因证据）：空格井号在 plain scalar 下静默截断成注释。"""
+        data, error = self._load("last_findings:\n- 正文 # 行内井号\n")
+        self.assertIsNone(error, error)
+        self.assertEqual(data["last_findings"][0], "正文")
+
+    def test_repository_findings_use_folded_block_scalars(self):
+        """迁移守卫：仓内每一项都必须以 `- >-` 引入（防退化回 plain scalar）。"""
+        path = REPO_ROOT / "config" / "maintenance.yaml"
+        text = path.read_text(encoding="utf-8")
+        body = text.split("last_findings:", 1)[1]
+        markers = {line.strip() for line in body.splitlines() if line.startswith("-")}
+        self.assertEqual(markers, {"- >-"},
+                         f"非折叠块标量的项: {sorted(markers)}")
+
+        data, error = cy.strict_load(path)
+        self.assertIsNone(error)
+        findings = data["last_findings"]
+        self.assertTrue(findings, "last_findings 为空")
+        for item in findings:
+            self.assertIsInstance(item, str)
+            self.assertTrue(item.strip())
+
     def test_check_is_wired_into_run_all(self):
         """Wiring guard: the gate must actually invoke this check."""
         source = (REPO_ROOT / "tools" / "checks" / "__init__.py").read_text(encoding="utf-8")
