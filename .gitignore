@@ -17,6 +17,8 @@ __pycache__/
 node_modules/
 
 # Machine-specific environment config
+# 可选 workspace 层覆盖（机器级配置请写机器层 ~/.config/ai-system/env.yaml）；
+# 位于仓库内且被忽略 → 可能被仓库级清理误删（2026-09-24 事故）
 config/environments/local.yaml
 config/environments/context.yaml
 config/environments/wsl.yaml

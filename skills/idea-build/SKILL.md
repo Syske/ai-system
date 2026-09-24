@@ -17,7 +17,8 @@ Optional compile backend: drives IntelliJ IDEA's built-in MCP Server
 (`build_project`) so compile verification uses IDEA's resident incremental
 compiler — the same speed advantage IDEA has over CLI. This skill is **not
 the default**: the standard path is `java-maven` (CLI). It activates only
-when `config/environments/{env}.yaml` sets `build.backend: idea`.
+when the merged env config sets `build.backend: idea` (machine layer
+`~/.config/ai-system/env.yaml` first, optional workspace layer `config/environments/{env}.yaml` second).
 
 **Why separate from java-maven:** IDEA is a machine-specific, GUI-dependent
 tool (per-user install path, MCP server must be enabled, project must be
@@ -53,7 +54,8 @@ One-time GUI on the IDEA side:
 ## Configuration
 
 - Reads: `build.backend`, `build.java_home`, `build.maven_home`, `build.idea.*`
-  from `ai-system/config/environments/{env}.yaml`.
+  from the **merged env config** — machine layer `~/.config/ai-system/env.yaml` first,
+  optional workspace layer `ai-system/config/environments/{env}.yaml` second.
 - Resolve (standalone, without the aic wizard):
   `AI_SYSTEM_ROOT` env → walk up from CWD/SKILL.md to the ancestor holding
   `config/environments/`; then
@@ -113,8 +115,8 @@ empty until then).
 
 Any failure (IDEA not running, MCP unreachable, project not open) → return a
 clear message and fall back to the `java-maven` CLI skill, using the JDK and
-Maven configured in `ai-system/config/environments/{env}.yaml` (`build.java_home` /
-`build.maven_home`), NOT bare `mvn` / `mvnw` (often not on PATH):
+Maven configured in the **merged env config** (machine layer `~/.config/ai-system/env.yaml`
+first; `build.java_home` / `build.maven_home`), NOT bare `mvn` / `mvnw` (often not on PATH):
 
 ```bash
 JAVA_HOME="$build.java_home" "$build.maven_home/bin/mvn" -s <settings> -pl <mod> -am compile -o

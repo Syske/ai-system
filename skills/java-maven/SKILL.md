@@ -56,7 +56,7 @@ Stage 8 — Retry incrementally
 |---|---|
 | Should Maven run? | pom.xml exists AND user goal is build-related |
 | Which settings.xml? | Resolution order below; ALWAYS pass `-s <path>` — never run bare mvn |
-| Which JDK / Maven? | From `ai-system/config/environments/{env}.yaml` → build (java_home / maven_home); never assume PATH |
+| Which JDK / Maven? | From the merged env config → `build` (java_home / maven_home): **machine layer** `~/.config/ai-system/env.yaml` first, optional workspace layer `ai-system/config/environments/{env}.yaml` second; never assume PATH |
 | What scope? | Smallest that achieves the goal |
 | Wrapper available? | Use it, not raw mvn |
 | Multi-module? | `-pl <mod> -am` for single-module changes |
@@ -71,7 +71,7 @@ Resolve settings.xml in this order; stop at the first hit:
 
 1. `AIC_MAVEN_SETTINGS` environment variable (manual session-level override)
 2. `repositories/{service_id}.yaml` → `build.settings` (explicit per-service declaration)
-3. Environment config `ai-system/config/environments/{env}.yaml` → `build.maven_settings` (shared default)
+3. Merged env config → `build.maven_settings` (machine layer `~/.config/ai-system/env.yaml` first, then the optional workspace layer `ai-system/config/environments/{env}.yaml`)
 4. `~/.m2/settings.xml`
 5. None found → STOP. Ask the user; never run bare mvn against unknown mirrors.
 

@@ -2,8 +2,9 @@
 
 Scans, in priority order:
 
-1. The config-driven extensions root (`layers.skills` in
-   config/environments/{env}.yaml, default `{workspace_root}/extensions`).
+1. The config-driven extensions root (`layers.skills` in the merged environment config —
+   machine layer ~/.config/ai-system/env.yaml first, optional workspace layer
+   config/environments/{env}.yaml second; default `{workspace_root}/extensions`).
    Company/platform skills live here and are NOT auto-discovered by agents
    (the dir name `extensions` is outside the `skills`/`.claude/skills`/
    `.agents/skills` discovery paths) — the launcher loads them explicitly.

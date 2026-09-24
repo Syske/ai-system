@@ -157,7 +157,7 @@ def main():
 
     parser.add_argument(
         "--environment",
-        help="Environment name; resolves config/environments/{environment}.yaml (default: local). Pre-fills the wizard Environment field when given"
+        help="Environment name; resolves the machine layer ~/.config/ai-system/env.yaml over the optional workspace layer config/environments/{environment}.yaml (default: local). Pre-fills the wizard Environment field when given"
     )
 
     parser.add_argument(

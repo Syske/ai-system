@@ -74,7 +74,8 @@ Requires Project Context and Workspace Context from a previous dev-setup.
 bugfix 支持多种运行模式，行为差异**全部收敛到配置**，流程文档不散落条件分支：
 
 - 配置唯一来源：`config/workflows/bugfix-modes.yaml`（模式结构 / phases / 分支模板 / 解析器）
-- 运行开关：`config/environments/{env}.yaml → bugfix.mode`（机器级，不入库）
+- 运行开关：**机器层** `~/.config/ai-system/env.yaml → bugfix.mode`（机器级，不入库；
+  未设置时**默认 standard**；可选 workspace 层 `config/environments/{env}.yaml` 仅作覆盖）
 - 门禁：`tools/checks/bugfix_modes.py`（check.py 第 15 项）——新增/修改模式必须通过
   结构、phases、模板占位符、解析器契约四重校验，配置错字或死引用无法静默通过
 

@@ -8,11 +8,14 @@ ai-system/ — the full AI Runtime Engine (workflows, skills, governance, CLI)
 
 ## Post-Migration Steps
 
-1. Edit ai-system/config/environments/local.yaml.template:
+1. Configure the **machine layer** — `~/.config/ai-system/env.yaml` (outside the repo; generated
+   on first run by `tools/setup.py`, per platform):
    - workspace.root — absolute path to the new workspace root
-   - workspace.repository_root — path to cloned code repositories (can be a junction)
    - build.java_home / build.maven_home / build.maven_settings — local tool paths
-   - Rename to local.yaml
+
+   The repo-side `ai-system/config/environments/local.yaml.template` is the **optional workspace
+   layer** (legacy/compat): its absence is normal and it must never hold machine-level keys — it
+   sits inside the repo and is git-ignored, so a repo-level cleanup can delete it.
 
 2. Create or rebuild the projects/ junction:
      mklink /J projects D:\path\to\code-repositories

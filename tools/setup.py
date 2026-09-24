@@ -10,13 +10,14 @@ Usage:
 Non-destructive: creates missing directories and repository links only.
 Never deletes or overwrites existing config, directories, or links.
 
---env-init mode: generates ONLY the two config layers (workspace
-config/environments/{env}.yaml + machine-layer ~/.config/ai-system/env.yaml
-with platform detection) and prints merged resolution; skips scaffold /
+--env-init mode: generates the two config layers (machine layer
+~/.config/ai-system/env.yaml — the authoritative one, with platform detection — plus the
+optional/legacy workspace layer config/environments/{env}.yaml) and prints merged resolution; skips scaffold /
 repo links / baseline / audit (those belong to the full setup flow).
 
 Steps:
-1. Generate config/environments/{environment}.yaml from template structure (if missing)
+1. Generate the machine layer ~/.config/ai-system/env.yaml (authoritative) + the optional
+   workspace layer config/environments/{environment}.yaml from template structure (if missing)
 2. Scaffold workspace base directories (workspaces/ projects/ repositories/ extensions/)
 3. Ensure runtime dirs exist (workspace-level logs/ + metrics/)
 4. Auto-detect code repositories at the workspace root and link them into projects/
@@ -412,8 +413,9 @@ def env_init(
 ):
     """配置聚焦初始化（aic env-init 的后端，幂等、非破坏）。
 
-    1. workspace 层 config/environments/{environment}.yaml（缺失才生成）
-    2. 机器层 ~/.config/ai-system/env.yaml（缺失才生成，按系统检测+探测）
+    1. 机器层 ~/.config/ai-system/env.yaml（缺失才生成，按系统检测+探测）—— **权威位置**
+    2. 可选 workspace 层 config/environments/{environment}.yaml（缺失才生成；仓库内且被 gitignore，
+       属兼容/覆盖用途，请勿在此写机器级键）
     3. P36 方案 A：补齐目录骨架（scaffold）+ runtime 目录 + 外部仓库引导（link_repos）
     最后打印合并解析冒烟（workspace_root / build）供确认。
 

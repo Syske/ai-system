@@ -1,3 +1,6 @@
+# 可选 workspace 层覆盖模板（**非**权威位置）。
+# 权威位置是机器层 ~/.config/ai-system/env.yaml；本文件位于仓库内且被 gitignore，
+# 可能被仓库级清理误删（2026-09-24 事故），因此**不要在此写机器级键**。
 # 本地环境配置模板。
 #
 # 机器相关配置默认走机器层 ~/.config/ai-system/env.yaml（首启由 tools/setup.py

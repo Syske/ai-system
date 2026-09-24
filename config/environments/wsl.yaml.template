@@ -5,7 +5,9 @@
 #   替换 {wsl_workspace_root} 为实际 WSL 工作区根(如 /home/<user>/ws/ai-workspace)
 #   aic --environment wsl 使用
 #
-# 说明: 机器级配置, 不入库(gitignore); 模板保持占位符, 实际路径按机器填写。
+# 说明: 本模板属**可选 workspace 层覆盖**（非权威位置）—— 机器级配置请写机器层
+#   ~/.config/ai-system/env.yaml；本文件位于仓库内且被 gitignore，可能被仓库级清理误删
+#   （2026-09-24 事故）。模板保持占位符，实际路径按机器填写。
 
 workspace:
   root: {wsl_workspace_root}

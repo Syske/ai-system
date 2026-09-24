@@ -87,7 +87,8 @@ README_TEMPLATE = """# Extensions — 公司/平台技能扩展目录
   （`skills` / `.claude/skills` / `.agents/skills`），技能不会污染 agent 上下文。
 - **显式加载**：通过 `aic skill-launch`（选 skill + agent + 任务）显式触发。
 - **配置驱动**：分组/组合/任务模板见 `ai-system/config/skill-groups.yaml`；
-  位置经 `config/environments/{env}.yaml → layers.skills` 配置（默认本目录）。
+  位置经**合并后的环境配置**的 `layers.skills` 决定（机器层 ~/.config/ai-system/env.yaml 优先，
+  可选 workspace 层 config/environments/{env}.yaml 兜底；默认本目录）。
 
 ## 目录约定
 

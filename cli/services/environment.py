@@ -1,9 +1,18 @@
-"""Local environment config (config/environments/local.yaml).
+"""Environment config resolution (machine layer preferred).
 
-Resolves all base paths from the machine-specific environment file and
-falls back to the default directory layout when the file is missing or
-unparsable. The derivation mirrors runtime-bootstrap.md Phase 2 so the CLI
-and the bootstrap runtime share one source of truth.
+Authoritative location — **machine layer**: `~/.config/ai-system/env.yaml`
+(auto-generated on first run by `tools/setup.py`, per platform; holds
+`build.*` such as java_home / maven_home / backend, `runtime.jdt.*`,
+`workspace.root`, `k8s.*`, and machine-level switches such as `bugfix.mode`).
+
+Optional — **workspace layer** `config/environments/{env}.yaml` (inside the repo, git-ignored):
+legacy/optional overrides for workspace-shared items. It is **absent by default and its absence
+is normal**; do not put machine-level keys here — and note that being inside the repo + ignored
+makes it reachable by a repository-level cleanup (2026-09-24 incident).
+
+Merge order: machine layer wins over the workspace layer; the default directory layout is derived
+when neither provides a key. Mirrors runtime-bootstrap.md Phase 2 so the CLI and the bootstrap
+runtime share one source of truth.
 """
 
 import os

@@ -18,7 +18,7 @@ Automated governance tooling for the AI repository.
 | `blind-bundle.py` | 外部盲检投喂包构建器 + 卫生校验（P61）：按层（doc/cli/tools-config/skills）打包 git 跟踪文件；排除内部结论（reports/logs/metrics/workspaces/archived）与二进制；身份脱敏（远端 owner/repo、主机、机器用户名、家目录 → `<redacted>`）；`--check` 机器校验卫生（tier-A 泄漏/排除目录文件头/二进制），`--strict-name` 把仓库裸名升为硬失败 |
 | `path-audit.py` | Path reference integrity audit (skips runtime/placeholder/generated refs) |
 | `proposal-audit.py` | Proposal/action-item audit + proposal-policy gate (Status/Review/Implementation consistency) |
-| `setup.py` | Environment configuration provision (generates config/environments/*.yaml) |
+| `setup.py` | Environment configuration provision——生成**机器层** `~/.config/ai-system/env.yaml`（权威）+ 可选/兼容的 workspace 层 `config/environments/*.yaml`；另含目录骨架、runtime 目录、仓库引导与基线快照 |
 | `workflow-scaffold.py` | New-workflow scaffold (generates 8-section md + config yaml + runtime skeleton, appends registry) |
 | `command-scaffold.py` | New-command scaffold (generates aic-<name>.md + registration checklist) |
 | `branch-parser-scaffold.py` | Branch-name parser provider scaffold (init generates contract skeleton + contract tests for the bugfix hotfix mode) |

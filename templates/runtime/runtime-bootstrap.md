@@ -70,9 +70,10 @@ The Bootstrap Runtime is responsible for:
 
 # Phase 1 — Load Environment Configuration
 
-Locate:
+Locate (machine layer first; the workspace layer is optional/legacy):
 
-- ai-system/config/environments/{environment}.yaml
+- `~/.config/ai-system/env.yaml` (machine layer — authoritative)
+- `ai-system/config/environments/{environment}.yaml` (optional workspace-layer override)
 
 Resolve:
 
@@ -81,7 +82,8 @@ Resolve:
 If environment configuration is missing:
 
 1. Guide the user to run `python3 tools/setup.py [--environment {environment}]`:
-   - Generates `config/environments/{environment}.yaml` interactively
+   - Generates the machine layer `~/.config/ai-system/env.yaml` (authoritative)
+     + the optional workspace layer `config/environments/{environment}.yaml`
    - Scaffolds workspace base directories (workspaces/ projects/ repositories/ extensions/)
    - Ensures workspace-level runtime dirs (`logs/`, `metrics/` — both outside every repo)
    - Links detected code repositories into projects/
