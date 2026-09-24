@@ -74,6 +74,7 @@
 | Implemented | AI 注释泔水治理（Comment Quality Gate） | 2026-09-23 | `P69-AI-COMMENT-SLOP-GATE.md` |
 | Implemented | `aic-workflow` Authoring Command | 2026-08-05 | `P7-WORKFLOW-AUTHOR-COMMAND.md` |
 | Implemented | AI 输出纪律（Output Discipline：回复文本 · 阶段形态 · 子代理契约） | 2026-09-23 | `P70-OUTPUT-DISCIPLINE.md` |
+| Proposed | Memory 候选暂存区 + 巡检确认提取（Memory Inbox） | 2026-09-24 | `P71-MEMORY-INBOX.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
 
