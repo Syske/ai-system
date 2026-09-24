@@ -21,7 +21,7 @@
 | `tools/` | Helper utilities | check.py, repo-lint.py, path-audit.py, setup.py | — |
 | `reports/` | Generated reports | analysis, maintenance, migration reports | Temporary logs |
 | `metrics/` | Health metrics snapshots | `quick-check-{date}.json` (quick-check) + `maintain-{date}.json` (repo-metrics) | Metric data storage |
-| `logs/` | Operation logs | error logs, maintenance logs | Runtime logs |
+| `<workspace>/logs/` (workspace level, outside the repo) | Operation logs | error logs, maintenance logs, per-run diagnostic records | Runtime logs |
 | `archived/` | Retired assets (reference only) | former ai-runtime/, old templates, old routing | Active assets |
 
 ---
@@ -90,7 +90,7 @@ ai-system/                         Is it business project code?
 Rules:
 - Knowledge, shared, long-lived assets → `ai-system/`.
 - Business project code → `projects/` (references ai-system, never duplicates).
-- Generated outputs → `logs/`, `metrics/`, `reports/`; never commit temp/cache.
+- Generated outputs → workspace-level `logs/` (machine-local, outside every repo), ai-system `metrics/`, `reports/`; never commit temp/cache.
 - Generated reports → subject decides location: ai-system's own improvement → `ai-system/reports/`;
   a specific business project's deploy/risk/migration matter → `workspaces/{project_id}/outputs/<workflow>/`
   (e.g. `outputs/release/`, `outputs/review/`).

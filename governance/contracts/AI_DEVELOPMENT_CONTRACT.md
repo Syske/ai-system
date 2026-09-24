@@ -91,9 +91,7 @@ ai-system/
 ├── metrics/
 │   Runtime metrics
 │
-├── logs/
-│   Runtime logs
-│
+├── (per-run logs live at workspace level: <workspace>/logs/)
 └── archived/
     Retired assets (reference only, including the former ai-runtime/ platform adapter sketch)
 

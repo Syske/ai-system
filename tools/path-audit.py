@@ -22,8 +22,8 @@ FALSE_POSITIVES = {
     "ai-system/config/environments/context.yaml",
     # metrics/ 被 gitignore（运行时快照）；CI checkout 中不存在ckouts
     "ai-system/metrics",
-    # logs/ 被 gitignore（运行时诊断产物）；CI checkout 中不存在，但
-    # workflow/command 运行时生存在该目录，引用合法（与 metrics/ 同类）
+    # 运行时诊断日志已移到工作区层 <workspace>/logs/（仓库外，2026-09-24 事故后），
+    # 仓库内不再存在；文档里残留的 logs/ 引用仍属合法（与 metrics/ 同类，均非仓库内路径）
     "ai-system/logs/",
     "ai-system/logs",
     "logs/",

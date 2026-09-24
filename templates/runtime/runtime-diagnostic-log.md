@@ -11,9 +11,15 @@ not a second, divergent schema.
 ## Where Writes Land
 
 ```
-ai-system/logs/
-└── <command|workflow>-<YYYYMMDD-HHMMSS>.md   # one record per run
+<workspace>/logs/                                  # workspace level, OUTSIDE every repository
+└── <command|workflow>-<YYYYMMDD-HHMMSS>.md        # one record per run
 ```
+
+The log directory lives **beside `ai-system/`, outside any git working tree** (2026-09-24).
+Reason: `logs/` was previously `ai-system/logs/` and git-ignored, which put it inside the blast
+radius of repository-level cleanup — a single `git clean -fdx` in `ai-system` destroyed ~200
+run records in one command. Keeping the same machine-local, non-versioned semantics but moving
+the directory out of every repo makes repo operations structurally unable to touch it.
 
 - Filename begins with the run object (e.g. `aic-scan-20260817-183000.md`,
   `develop-20260817-190000.md`); timestamp prevents overwrite.
@@ -58,8 +64,8 @@ evidence; never "should succeed">
 A run's full walkthrough (raw命令输出、复现步骤、长 stack trace、完整逐文件 diff)
 SHOULD NOT be inlined into the main diagnostic record — it bloats grep/read. Instead:
 
-- Write the detail to a sibling file: `logs/…-<timestamp>.detail.md`
-- The main record keeps one **reference line**: `## 详细日志: logs/…-<timestamp>.detail.md`
+- Write the detail to a sibling file: `<workspace>/logs/…-<timestamp>.detail.md`
+- The main record keeps one **reference line**: `## 详细日志: <workspace>/logs/…-<timestamp>.detail.md`
 - Rule of thumb: if a section would exceed ~30 lines, split it out and reference it.
 
 This keeps every main record a one-page summary + a pointer, and lets full detail
@@ -68,9 +74,10 @@ drop exploration noise).
 
 ## Archival Layering & Version Control
 
-- `logs/` (the per-run record files) is a **runtime state** directory and is
-  git-ignored (see ROOT .gitignore, "Runtime state" group) — records live on the
-  local machine only; they do not ride the repository/PR evolution.
+- The log directory (per-run record files) is a **runtime state** area — records live
+  on the local machine only; they do not ride the repository/PR evolution. It now sits
+  **at workspace level, outside every repository** (see "Where Writes Land"), so it is
+  neither committed nor reachable by a repository's `git clean` / `checkout`.
 - This template + the governance references are the **versioned**, tracked
   specification of the archival convention (not the records themselves).
 - If cross-environment or history-long tracing is ever required, revisit whether to

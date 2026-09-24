@@ -138,7 +138,7 @@ Run-time evidence (index, bundles, raw outputs, logs) stays in the workspace run
 2. Route the KEEPs: in-place minor fix (with confirmation) or a proposal per
    `governance/policies/proposal-policy.md §1.1`.
 3. Register the report in `reports/README.md`; register proposals in `reports/PROPOSALS.md`.
-4. Record the run in the diagnostic log (`logs/`).
+4. Record the run in the per-run diagnostic log (per `runtime-diagnostic-log.md`).
 
 ## Outputs
 

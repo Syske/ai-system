@@ -373,7 +373,7 @@ Risks
 
 Next Recommendation
 
-Every workflow completion persists a per-run diagnostic record to `logs/`
+Every workflow completion persists a per-run diagnostic record to the workspace-level log dir (`<workspace>/logs/`, outside every repo)
 per `templates/runtime/runtime-diagnostic-log.md` (fields mirror this Completion
 Report; failures must carry root cause; normal runs keep a one-page summary +
 pointer, splitting out detail on demand). Do not declare completion without writing

@@ -23,6 +23,7 @@ config/environments/wsl.yaml
 
 # Runtime state (wizard state, generated snapshots)
 workspaces/.aic-state.yaml
+# logs/ 为历史位置（2026-09-24 已迁至工作区层 <workspace>/logs/，仓库外）；保留忽略仅防回归
 logs/
 metrics/
 .ai-system/generated/

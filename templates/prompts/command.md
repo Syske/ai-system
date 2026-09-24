@@ -6,7 +6,7 @@ Load and obey {{ai_system_root}}/governance/AI_OPERATING_RULES.md before executi
 
 Change control levels (L1 / L2 / L3) and workspace discipline apply to this run.
 
-On completion of this run, WRITE a per-run diagnostic record to `{{ai_system_root}}/logs/`
+On completion of this run, WRITE a per-run diagnostic record to `{{workspace_root}}/logs/`
 per `{{ai_system_root}}/templates/runtime/runtime-diagnostic-log.md` (fields mirror the
 Completion Report + Reflection checklist; failures carry root cause + reproduction;
 normal runs keep a one-page summary, splitting out detail on demand). Filename:

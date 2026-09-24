@@ -239,9 +239,9 @@ Formatting gate (Stage 6 Validation):
     `python3 ai-system/tools/checkstyle/checkstyle-gate.py <worktree>/src [--config <xml>]`
     — `git status`-driven: checks only `.java` files of this change (relative to the
     repo root, matching `suppressions.xml`); no changes / non-git → fast PASS or full scan.
-- Gate results MUST be recorded in the per-run diagnostic log (logs/...md, like the
-  runtime-base language gate): each gate name + exit/pass state, so the chain audit
-  can verify gates actually ran.
+- Gate results MUST be recorded in the per-run diagnostic log (per
+  `runtime-diagnostic-log.md`; like the runtime-base language gate): each gate name +
+  exit/pass state, so the chain audit can verify gates actually ran.
 - Gate enable/disable only edits `main-chain-capabilities.yaml → gates.develop`
   (enabled field); templates are not touched.
 - Existing files not touched by this change MUST NOT be re-formatted wholesale

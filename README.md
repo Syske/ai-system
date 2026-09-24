@@ -72,7 +72,6 @@ ai-system/
 ├── workflows/    工作流入口契约（README 含选择表）
 ├── reports/      生成的分析与维护报告
 ├── metrics/      健康指标快照（repo-metrics 输出）
-├── logs/         运行日志
 └── archived/     已归档资产（workflows/skills/templates 等）
 ```
 

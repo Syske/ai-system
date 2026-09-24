@@ -64,8 +64,9 @@ Persist
 
 Complete
 
-On Complete, every Runtime MUST persist a per-run diagnostic record to
-`ai-system/logs/` per `templates/runtime/runtime-diagnostic-log.md` (Completion
+On Complete, every Runtime MUST persist a per-run diagnostic record to the
+**workspace-level** log dir (`<workspace>/logs/`, outside every repo) per
+`templates/runtime/runtime-diagnostic-log.md` (Completion
 Report + Reflection fields; fails carry root cause + reproduction; normal runs one
 page + pointer). Filename `<workflow>-<YYYYMMDD-HHMMSS>.md`.
 

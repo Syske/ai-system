@@ -18,7 +18,7 @@ repo links / baseline / audit (those belong to the full setup flow).
 Steps:
 1. Generate config/environments/{environment}.yaml from template structure (if missing)
 2. Scaffold workspace base directories (workspaces/ projects/ repositories/ extensions/)
-3. Ensure ai-system runtime dirs exist (metrics/ logs/)
+3. Ensure runtime dirs exist (ai-system metrics/ + workspace-level logs/)
 4. Auto-detect code repositories at the workspace root and link them into projects/
 5. Record a metrics baseline snapshot (metrics/baseline-{date}.json, if missing)
 6. Run tools/path-audit.py to verify all referenced paths resolve
@@ -438,7 +438,7 @@ def env_init(
     created = scaffold(workspace_root)
     if created:
         print(f"scaffold: created {created} directory(ies) under workspace root")
-    rt = ensure_runtime_dirs()
+    rt = ensure_runtime_dirs(workspace_root)
     if rt:
         print(f"runtime dirs: created {rt}")
 
@@ -487,20 +487,24 @@ def scaffold(workspace_root):
     return created
 
 
-def ensure_runtime_dirs():
+def ensure_runtime_dirs(workspace_root=None):
 
-    """Create ai-system runtime dirs (metrics/, logs/) that the contract
-    declares and generated artifacts depend on.
+    """Create the runtime dirs the contract declares.
+
+    - `ai-system/metrics/`   — in-repo, regenerable snapshots
+    - `<workspace>/logs/`    — **outside every repo** (2026-09-24: a repo-level
+      `git clean` wiped the former in-repo, git-ignored `ai-system/logs/`)
 
     Non-destructive: existing dirs are skipped.
     """
 
     created = 0
+    targets = [ROOT / "metrics", (Path(workspace_root).resolve() if workspace_root else ROOT.parent) / "logs"]
 
-    for name in ("metrics", "logs"):
+    for target in targets:
 
-        if _ensure_dir(ROOT / name):
-            print(f"created: {ROOT / name}")
+        if _ensure_dir(target):
+            print(f"created: {target}")
             created += 1
 
     return created
@@ -718,7 +722,7 @@ def main():
 
     scaffold(workspace_root)
 
-    ensure_runtime_dirs()
+    ensure_runtime_dirs(workspace_root)
 
     link_repos(
         workspace_root,
