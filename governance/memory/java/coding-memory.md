@@ -206,3 +206,19 @@ Related:
 - Avoidance: hand-written `<select>` must always `column as camelCaseAlias` (or use a `resultMap`); `resultType=int/long/map` is unaffected (in the map case column names are the keys and need aliasing yourself).
 - Guard: lock the convention with a static test before merging (this project's `MapperXmlColumnAliasGuardTest`: entity statements whose column fragments contain underscore columns must carry camelCase aliases).
 - Lesson: **unit tests with mocked mappers can never catch this class of runtime mapping issue** — you need runtime verification or a static guard.
+
+## Never anchor a field insertion on the field-declaration line (it strips the annotation above)
+
+- **Symptom**: a script anchored on `private X y;` and inserted a new field carrying its own
+  comment/annotation; the original field's `@Autowired` was "inherited" by the new field —
+  producing a **duplicate `@Autowired`** while the original field **lost its annotation** →
+  runtime injection failure (NPE), with the compiler and syntax checks staying silent
+  (the most dangerous class of defect).
+- **Rule**: when inserting a member, the anchor must include the annotation/comment above it
+  (e.g. use the whole `@Autowired\n    private X y;` as oldText), or insert *before* the
+  annotation line; after inserting, always re-inspect the three adjacent lines.
+- **Verification**: `awk '/@Autowired/{if(p=="Autowired") print FILENAME": "NR; p="Autowired"; next} {p=""}' <file>`
+  — detects consecutive duplicate annotations; additionally confirm every newly injected field
+  still carries its annotation.
+- **Instance**: adding `OssClientService` to `MigrationJobServiceImpl` stripped `@Autowired`
+  from `PrivateOssClientService` (fixed in `fedf58884`).
