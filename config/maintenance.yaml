@@ -500,7 +500,7 @@ last_findings:
   skills/repository-maintainer/health.md 增「last_findings 格式」契约；tools/checks/config_yaml.py 保留兜底；
   新增 4 个回归用例（2 个 plain 形态 silent 失效对照 + 1 个块标量安全性 + 1 个迁移守卫）。
 - >-
-  **本 run 收口（2026-09-24）** —— 09-23 起共 66 提交，全部推送（main 与 origin/main 一致，工作树干净）。
+  **本 run 收口（2026-09-24）** —— 09-23 起共 67 提交，全部推送（main 与 origin/main 一致，工作树干净）。
   交付：P69（注释泔水门禁，--report-only 起步）/ P70（输出纪律）/ P72（受保护路径 + 破坏性操作默认拒绝）
   三项提案实施；P71（Memory 草稿区 C″）已批准待实施；事故复盘 + 日志/指标迁出仓库 + 单一来源
   tools/runtime_state.py；环境配置口径 15 处修正（权威＝机器层）；机器层补 bugfix.mode=hotfix；

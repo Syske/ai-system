@@ -237,7 +237,7 @@ Pending(ImagePullBackOff) 1 · Failed 1` —— 即 **22 个 Pod 的故障原因
 - 门禁：单测 **624 OK** · `check.py` PASS（2 已知 warning）· repo-lint 39 技能 0 BLOCKER/0 ERROR/97 WARN ·
   path-audit 0 broken · workflow-command-audit 0/0/0 · check-contract 0/0 · proposal-audit 0 gate err/0 gate warn ·
   prompt-metrics prefix 16/16
-- 本 run 共 **66 提交**（09-23 起），`main` 与 `origin/main` 一致，工作树干净
+- 本 run 共 **67 提交**（09-23 起，含本收口提交），`main` 与 `origin/main` 一致，工作树干净
 - 开放提案 4：P42（defer）· P46（blocked，需真机 TR5）· P67（待真实触发）· P68（待裁定）；P71 已批未实施
 - 顺带发现待裁定：`checks/bugfix_modes.py` 不校验 env 中 `bugfix.mode` 取值合法性（笔误静默走非预期路径）
 - 下次巡检：**2026-09-28**（weekly 节奏不变）
