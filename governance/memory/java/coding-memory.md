@@ -189,7 +189,10 @@ Scope:
 
 Related:
 
-- No governance standard for Maven publishing yet (candidate: a company-standard Maven conventions doc); incident record: `ai-system/logs/env-maven-distmgmt-deploy-20260918-110006.md`
+- No governance standard for Maven publishing yet (candidate: a company-standard Maven conventions doc).
+  The original incident record lived only in the machine-local, git-ignored `logs/` area and was destroyed
+  on 2026-09-24 (repository-wide `git clean` of ignored paths) — **lesson: never cite `logs/**` as the sole
+  evidence of a memory entry; cite durable evidence (commit sha, `file:line`) or mark it `[machine-local]`.**
 
 ## Cross-branch merge conflict resolution discipline (2026-09 evidence)
 

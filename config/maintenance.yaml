@@ -163,7 +163,8 @@ last_findings:
 - 工具门禁全绿：quick-check OK / lint 0/0/25 / path 712 refs 0 broken / workflow-command-audit
   0/0（15 workflows 13 commands）/ proposal-audit 0 gate error / extensions-lint 0/0
 - 指标：Skills 30 / Workflows 15 / RFC 14 / Governance 59 / Templates 22 持平（上期
-  maintain-2026-09-11 口径）；快照 metrics/maintain-2026-09-17.json；15 commits 涉及 cli、config、
+  maintain-2026-09-11 口径）；快照（该期快照文件已随 2026-09-24 的 ignored 路径误清而丢失）；
+  15 commits 涉及 cli、config、
   reports、skills、templates、tools、workflows 七个区域，以流程修订/平台修复为主
 - 一致性抽查 8 项：7 过 / 1 失败（doc-vs-reality=映射数据源 workspace.yaml vs
   project-context.yaml，即本专项发现）；状态卫生（.aic-state 引用全存）过、注册表最小化过、
