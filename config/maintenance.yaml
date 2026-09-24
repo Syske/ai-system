@@ -421,6 +421,13 @@ last_findings:
   日志 retention 归档为独立议题（Evolution Principle 待真实需要）。开放提案 4。
   **推送同步（2026-09-24）** —— 本地 main 与 origin/main 已同步（111 提交，bc679b6..55cacd2）；
   推送前做了秘密扫描（无泄漏）、忽略项核对（仅 __pycache__）与运行时态位置核对（均在仓库外）。
+  **机器层配置变更（2026-09-24）** —— `~/.config/ai-system/env.yaml` 追加 bugfix 段（mode=hotfix）
+  （原两侧均缺失 → 静默回落 standard）。改前备份 env.yaml.bak-20260924-125751；追加式改动、不动既有段；
+  实测 load_merged_environment → bugfix.mode=hotfix，其余键不受影响，单测 620 OK。生效：bugfix 走 hotfix 链
+  （master 基线 + 审批门 + P63 分支 + 强制提交信息 + 验证后 MR(codeup-submit-mr) + 留档(hotfix-test-doc)；
+  三个 provider 均已就绪）。注意该键机器层不入库 → 换机需重设。
+  **顺带缺口（待裁定）**：checks/bugfix_modes.py 只校验模式配置，不校验 env 中 bugfix.mode 取值合法性
+  → 笔误会静默走非预期路径；补它属新增能力，需先立案。
   **path-audit PATH_RE 词边界修复（2026-09-23，用户确认）** —— 加 `(?<![\w./\\-])`：
   长路径的**中间段**不再被当引用（本轮 3 次实测误报：archived 下 nested 路径、kubeconfig 后接路径、
   散文里的 word/word）；真引用形态全部仍被捕获。同时**还原**两处为绕开误报而写的规避措辞，
