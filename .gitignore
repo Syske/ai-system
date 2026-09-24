@@ -23,7 +23,8 @@ config/environments/wsl.yaml
 
 # Runtime state (wizard state, generated snapshots)
 workspaces/.aic-state.yaml
-# logs/ 为历史位置（2026-09-24 已迁至工作区层 <workspace>/logs/，仓库外）；保留忽略仅防回归
+# logs/ 与 metrics/ 均为历史位置（2026-09-24 已迁至工作区层 <workspace>/{logs,metrics}/，仓库外）；
+# 保留忽略仅为防回归；仓库内再出现这两个目录即属异常（见 config/protected-paths.yaml）
 logs/
 metrics/
 .ai-system/generated/

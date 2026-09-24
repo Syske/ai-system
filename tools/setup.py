@@ -18,9 +18,9 @@ repo links / baseline / audit (those belong to the full setup flow).
 Steps:
 1. Generate config/environments/{environment}.yaml from template structure (if missing)
 2. Scaffold workspace base directories (workspaces/ projects/ repositories/ extensions/)
-3. Ensure runtime dirs exist (ai-system metrics/ + workspace-level logs/)
+3. Ensure runtime dirs exist (workspace-level logs/ + metrics/)
 4. Auto-detect code repositories at the workspace root and link them into projects/
-5. Record a metrics baseline snapshot (metrics/baseline-{date}.json, if missing)
+5. Record a metrics baseline snapshot (<workspace>/metrics/baseline-{date}.json, if missing)
 6. Run tools/path-audit.py to verify all referenced paths resolve
 """
 
@@ -491,15 +491,20 @@ def ensure_runtime_dirs(workspace_root=None):
 
     """Create the runtime dirs the contract declares.
 
-    - `ai-system/metrics/`   — in-repo, regenerable snapshots
-    - `<workspace>/logs/`    — **outside every repo** (2026-09-24: a repo-level
-      `git clean` wiped the former in-repo, git-ignored `ai-system/logs/`)
+    - `<workspace>/metrics/` — health snapshots (regenerable)
+    - `<workspace>/logs/`    — per-run diagnostic records
+
+    Both live **outside every repo**: on 2026-09-24 a repo-level `git clean -fdx`
+    wiped the then in-repo, git-ignored `ai-system/logs/` (~200 records). See
+    `tools/runtime_state.py` (single source) and `config/protected-paths.yaml`.
 
     Non-destructive: existing dirs are skipped.
     """
 
     created = 0
-    targets = [ROOT / "metrics", (Path(workspace_root).resolve() if workspace_root else ROOT.parent) / "logs"]
+    from runtime_state import LOG_DIR, METRICS_DIR
+
+    targets = [METRICS_DIR, LOG_DIR]
 
     for target in targets:
 
@@ -521,7 +526,9 @@ def record_baseline():
 
     import datetime
 
-    metrics_dir = ROOT / "metrics"
+    from runtime_state import METRICS_DIR
+
+    metrics_dir = METRICS_DIR
 
     if not metrics_dir.is_dir():
         return False

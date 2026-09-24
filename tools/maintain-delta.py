@@ -10,7 +10,7 @@ Usage:
     python tools/maintain-delta.py --check --json      # JSON 输出
     python tools/maintain-delta.py --record            # 记录当前 HEAD+日期（完整巡检完成后调用）
 
-状态文件: metrics/maintain-delta-state.json（gitignored 运行时数据，非版本控制）。
+状态文件: <workspace>/metrics/maintain-delta-state.json（仓库外·运行时数据，非版本控制；见 tools/runtime_state.py）。
 """
 
 import argparse
@@ -22,7 +22,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-STATE = ROOT / "metrics" / "maintain-delta-state.json"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import runtime_state  # noqa: E402  （运行时态路径单一来源）
+
+STATE = runtime_state.METRICS_DIR / "maintain-delta-state.json"
 
 # 区域 → 受影响时建议运行的审计
 AREA_TOOLS = {

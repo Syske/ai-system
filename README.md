@@ -71,7 +71,6 @@ ai-system/
 ├── tools/        repo-lint、check、path-audit、setup 等维护脚本
 ├── workflows/    工作流入口契约（README 含选择表）
 ├── reports/      生成的分析与维护报告
-├── metrics/      健康指标快照（repo-metrics 输出）
 └── archived/     已归档资产（workflows/skills/templates 等）
 ```
 

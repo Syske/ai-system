@@ -102,6 +102,6 @@ drop exploration noise).
 
 - Does NOT replace `OPTIMIZATION_LOG.md` (skill实战优化) — that is per-skill and
   written only on optimization.
-- Does NOT replace `metrics/*.json` (system health snapshots) — those are quantitative;
+- Does NOT replace the workspace-level `metrics/*.json` (system health snapshots) — those are quantitative;
   this is textual per-run diagnostics.
 - Does NOT introduce background collection / third-party logging / a database.

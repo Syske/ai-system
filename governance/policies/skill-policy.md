@@ -54,7 +54,7 @@ Follow `review-standard.md` for the review workflow.
 ## 6. Record Metrics Baseline
 
 ```shell
-python3 tools/repo-metrics.py --repo-root . --snapshot metrics/baseline-<date>.json
+python3 tools/repo-metrics.py --repo-root . --snapshot <workspace>/metrics/baseline-<date>.json
 ```
 
 ## 7. Update the Optimization Report (if applicable)
@@ -73,6 +73,6 @@ review document in `reports/`.
 | Run linter | `python3 tools/repo-lint.py --repo-root .` |
 | Run linter (JSON) | `python3 tools/repo-lint.py --repo-root . --json` |
 | Run metrics | `python3 tools/repo-metrics.py --repo-root .` |
-| Save metrics snapshot | `python3 tools/repo-metrics.py --repo-root . --snapshot metrics/<name>.json` |
-| Compare metrics | `python3 tools/repo-metrics.py --repo-root . --compare metrics/<previous>.json` |
+| Save metrics snapshot | `python3 tools/repo-metrics.py --repo-root . --snapshot <workspace>/metrics/<name>.json` |
+| Compare metrics | `python3 tools/repo-metrics.py --repo-root . --compare <workspace>/metrics/<previous>.json` |
 | Dependency graph | `python3 tools/dependency-graph.py --repo-root .` |

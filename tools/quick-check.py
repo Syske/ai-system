@@ -14,7 +14,7 @@ Usage:
     python tools/quick-check.py --no-record     # run only, no disk write
     python tools/quick-check.py --history       # print recent snapshots
 
-Output: metrics/quick-check-{date}.json (gitignored runtime artifact).
+Output: <workspace>/metrics/quick-check-{date}.json (runtime artifact, outside every repo).
 Verdict: ISSUES when BLOCKER/ERROR/FAIL items were collected (report to user);
 WARNING/INFO are counted separately and never flip the verdict.
 
@@ -31,7 +31,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-METRICS = ROOT / "metrics"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import runtime_state  # noqa: E402  （运行时态路径单一来源）
+
+METRICS = runtime_state.METRICS_DIR
 
 
 def _run(cmd: list[str]) -> str:

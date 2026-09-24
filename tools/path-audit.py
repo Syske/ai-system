@@ -15,7 +15,12 @@ KNOWN_PLACEHOLDER_DEBT = {
 
 FALSE_POSITIVES = {
     "../ai-runtime/",
+    # 运行时态（logs/ metrics/）已迁至工作区层（2026-09-24），仓库内不再存在；
+    # 文档中的 logs/… metrics/… 引用属合法（与 metrics/baseline- 同类，均非仓库内路径）
     "metrics/baseline-",
+    "metrics/maintain-",
+    "metrics/prompt-",
+    "metrics/quick-check-",
     # 命令/运行时文档引用的生成产物（运行时产生）uced at run time)
     "../ai-system-pack",
     "config/environments/local.yaml",

@@ -4,10 +4,10 @@ r"""prompt-metrics.py — 提示词体积与缓存友好性实测（Q2：R1/R2 �
 构建全部 workflow + command 提示词并记录：
 - 各提示词体积（chars / 估算 token ≈ chars/4）与合计 —— R2（提示词级成本趋势）
 - 前缀稳定性：同工作流不同输入下静态前缀/动态后缀占比 —— token 缓存命中友好性
-- 结果写入 metrics/prompt-{date}.json（gitignored 运行时数据），供 maintain-report 引用
+- 结果写入 <workspace>/metrics/prompt-{date}.json（仓库外·运行时数据），供 maintain-report 引用
 
 Usage:
-    python tools/prompt-metrics.py                    # 测 + 记录 metrics/prompt-{date}.json
+    python tools/prompt-metrics.py                    # 测 + 记录 <workspace>/metrics/prompt-{date}.json
     python tools/prompt-metrics.py --json             # 紧凑 JSON 输出
 """
 
@@ -19,7 +19,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-METRICS = ROOT / "metrics"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import runtime_state  # noqa: E402  （运行时态路径单一来源）
+
+METRICS = runtime_state.METRICS_DIR
 
 
 def measure(workflows, commands):

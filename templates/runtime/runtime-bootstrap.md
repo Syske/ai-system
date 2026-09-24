@@ -83,7 +83,7 @@ If environment configuration is missing:
 1. Guide the user to run `python3 tools/setup.py [--environment {environment}]`:
    - Generates `config/environments/{environment}.yaml` interactively
    - Scaffolds workspace base directories (workspaces/ projects/ repositories/ extensions/)
-   - Ensures runtime dirs: ai-system `metrics/` + workspace-level `logs/` (outside every repo)
+   - Ensures workspace-level runtime dirs (`logs/`, `metrics/` — both outside every repo)
    - Links detected code repositories into projects/
    - Records the metrics baseline snapshot (metrics/baseline-{date}.json, if missing)
    - Runs `tools/path-audit.py` to verify paths

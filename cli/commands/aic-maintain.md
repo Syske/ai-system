@@ -10,7 +10,7 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 
 **AI scheduling** (ADR-0009):
 - Session start: run `python3 tools/quick-check.py` (read-only), record issues
-  to metrics/quick-check-{date}.json.
+  to <workspace>/metrics/quick-check-{date}.json (outside the repo).
 - Check `config/maintenance.yaml → next_maintenance`; when due, prompt the
   user for authorization before running. User decides only whether to run and Mode/Scope.
 
@@ -32,7 +32,7 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 
    ```bash
    python3 tools/repo-lint.py --repo-root .
-   python3 tools/repo-metrics.py --repo-root . --snapshot metrics/maintain-{date}.json
+   python3 tools/repo-metrics.py --repo-root . --snapshot ../metrics/maintain-{date}.json
    python3 tools/prompt-metrics.py; python3 tools/context-audit.py   # P70 trend obs (never a token target)
    python3 tools/path-audit.py
    ```

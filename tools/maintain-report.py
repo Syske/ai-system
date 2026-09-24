@@ -18,7 +18,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-METRICS = ROOT / "metrics"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import runtime_state  # noqa: E402  （运行时态路径单一来源）
+
+METRICS = runtime_state.METRICS_DIR
 REPORTS = ROOT / "reports"
 
 
