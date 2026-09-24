@@ -76,6 +76,7 @@
 | Implemented | AI 输出纪律（Output Discipline：回复文本 · 阶段形态 · 子代理契约） | 2026-09-23 | `P70-OUTPUT-DISCIPLINE.md` |
 | Approved | Memory 候选暂存区 + 巡检确认提取（Memory Inbox） | 2026-09-24 | `P71-MEMORY-INBOX.md` |
 | Implemented | 受保护路径 + 破坏性操作默认拒绝（Protected Paths & Destructive Operations） | 2026-09-24 | `P72-PROTECTED-PATHS.md` |
+| Proposed | code-review 历史重入（选择项目 → 载入历史报告与分支 → 输入新需求） | 2026-09-24 | `P73-CODE-REVIEW-HISTORY-REENTRY.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
 
