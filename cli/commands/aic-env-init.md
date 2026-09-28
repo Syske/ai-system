@@ -1,5 +1,5 @@
 ---
-description: 初始化/校验环境配置（workspace config/environments/{env}.yaml + 机器层 ~/.config/ai-system/env.yaml，跨平台按系统生成）— 新环境/首次运行/环境配置丢失时使用
+description: 初始化/校验环境配置（机器层 ~/.config/ai-system/env.yaml 为权威位置，跨平台按系统生成；workspace config/environments/{env}.yaml 为可选兜底覆盖）— 新环境/首次运行/环境配置丢失时使用
 ---
 
 Initialize or verify the environment configuration (cross-platform).
@@ -23,11 +23,14 @@ auto-derived — parent of `ai-system/`, never hardcode).
      [--environment <env>] [--workspace <root>]
    ```
 
-   - generates workspace `config/environments/<env>.yaml` if missing
-   - generates machine-layer `~/.config/ai-system/env.yaml` if missing:
-     platform auto-detected (windows / wsl / linux), common JDK/Maven
-     locations probed; special cases (e.g. WSL `/mnt/d/...`) — the user
-     edits the generated file directly
+   - generates the **machine layer** `~/.config/ai-system/env.yaml` if
+     missing — **authoritative** (P29): platform auto-detected
+     (windows / wsl / linux), common JDK/Maven locations probed; special
+     cases (e.g. WSL `/mnt/d/...`) — the user edits the generated file
+     directly
+   - generates the **workspace layer** `config/environments/<env>.yaml` if
+     missing — **optional fallback override only**; its absence is normal
+     (see Guardrails)
    - prints merged resolution (`workspace_root` / `build`) for verification
 
 3. Verify resolution:
@@ -42,9 +45,10 @@ auto-derived — parent of `ai-system/`, never hardcode).
 
 **Output**
 
-- `config/environments/<env>.yaml` (workspace layer, created only if missing)
-- `~/.config/ai-system/env.yaml` (machine layer, created only if missing,
-  platform-detected)
+- `~/.config/ai-system/env.yaml` (**machine layer — authoritative**,
+  created only if missing, platform-detected)
+- `config/environments/<env>.yaml` (workspace layer — optional fallback
+  override, created only if missing; absence is normal)
 - Merged resolution verification result
 
 **Guardrails**
@@ -52,6 +56,11 @@ auto-derived — parent of `ai-system/`, never hardcode).
 - Never delete or overwrite existing config (idempotent by design).
 - Machine-specific paths (`build.*`, `workspace.root` anchor) live in the
   home config, never in the repository.
+- The workspace layer is **optional** (P29): it sits inside the repo and is
+  git-ignored, so a repo-level cleanup can delete it. Its absence is a
+  normal state and is **not** an uninitialized-environment condition —
+  `aic` checks the machine layer only for the first-run prompt
+  (2026-09-28 fix, see `reports/MAINTENANCE-2026-09-28.md`).
 - Workspace-scoped keys (`bugfix.mode`, `layers`) stay in the workspace
   `config/environments/{env}.yaml` — do not move them to the home config
   (cross-platform drift).
