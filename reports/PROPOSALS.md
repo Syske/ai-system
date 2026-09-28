@@ -78,6 +78,7 @@
 | Implemented | 受保护路径 + 破坏性操作默认拒绝（Protected Paths & Destructive Operations） | 2026-09-24 | `P72-PROTECTED-PATHS.md` |
 | Proposed | code-review 历史重入（选择项目 → 载入历史报告与分支 → 输入新需求） | 2026-09-24 | `P73-CODE-REVIEW-HISTORY-REENTRY.md` |
 | Proposed | reports/ 目录分类治理（按类型建子目录 + 引用地址治理） | 2026-09-28 | `P74-REPORTS-DIRECTORY-GOVERNANCE.md` |
+| Proposed | runtime 模板体量治理（体量门禁 + 报告模板外提 + 契约下沉 base） | 2026-09-28 | `P75-RUNTIME-TEMPLATE-SIZE-GOVERNANCE.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
 
