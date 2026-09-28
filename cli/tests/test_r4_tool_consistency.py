@@ -6,6 +6,7 @@
 - `checks/misc.py`：外部门禁工具超时/不可执行 → **报错而非崩溃**
 - `proposal-audit.py`：`PROPOSALS.md`（索引文件）不得被当作提案
 - `maintain-report.py`：关闭状态大小写不敏感（与 proposal-audit 同口径）
+- `checks/bugfix_modes.py`：合并后 env 的 `bugfix.mode` 必须是已登记模式（拼错会静默回落）
 
 Run:
     python -m unittest cli.tests.test_r4_tool_consistency
@@ -20,6 +21,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr
+from unittest import mock
 from pathlib import Path
 
 import yaml
@@ -180,6 +182,106 @@ class TestBugfixPhasesFromConfig(unittest.TestCase):
 
         collect(config)
         self.assertTrue(found <= phases, f"配置阶段 {found - phases} 未进入并集")
+
+
+class TestBugfixActiveModeGate(unittest.TestCase):
+    """bugfix.mode 取值合法性门禁（2026-09-24 巡检缺口）。
+
+    此前 check_bugfix_modes 只校验 modes 配置自洽，`bugfix.mode` 拼错会静默
+    回落 default 且零告警。本组覆盖：合法值放行 / 非法值报错 / 缺配置静默。
+    """
+
+    def _cfg(self):
+        from checks import base as cbase
+
+        return cbase.load_yaml(
+            cbase.ROOT / "config" / "workflows" / "bugfix-modes.yaml"
+        ) or {}
+
+    def test_合法模式不报错(self):
+        from checks import base as cbase
+        from checks import bugfix_modes
+
+        cfg = self._cfg()
+
+        for mode in (cfg.get("modes") or {}):
+            with mock.patch.object(bugfix_modes, "_configured_mode", return_value=mode):
+                c = cbase.Checker()
+                bugfix_modes._check_active_mode(c, cfg)
+            self.assertEqual(c.errors, [], f"{mode} 应放行: {c.errors}")
+
+    def test_非法模式报错(self):
+        from checks import base as cbase
+        from checks import bugfix_modes
+
+        cfg = self._cfg()
+
+        with mock.patch.object(bugfix_modes, "_configured_mode", return_value="htfix"):
+            c = cbase.Checker()
+            bugfix_modes._check_active_mode(c, cfg)
+
+        self.assertEqual(len(c.errors), 1, c.errors)
+        self.assertIn("htfix", c.errors[0])
+        self.assertIn("not a registered mode", c.errors[0])
+
+    def test_未配置时静默跳过(self):
+        from checks import base as cbase
+        from checks import bugfix_modes
+
+        cfg = self._cfg()
+
+        with mock.patch.object(bugfix_modes, "_configured_mode", return_value=None):
+            c = cbase.Checker()
+            bugfix_modes._check_active_mode(c, cfg)
+
+        self.assertEqual(c.errors, [], c.errors)
+        self.assertEqual(c.warnings, [], c.warnings)
+
+    def test_真实环境当前值放行(self):
+        from checks import base as cbase
+        from checks import bugfix_modes
+
+        cfg = self._cfg()
+        mode = bugfix_modes._configured_mode()
+
+        if mode is None:
+            self.skipTest("本机无合并后的 bugfix.mode（CI/未初始化环境）")
+
+        c = cbase.Checker()
+        bugfix_modes._check_active_mode(c, cfg)
+        self.assertEqual(c.errors, [], c.errors)
+
+    def test_异常配置不误报(self):
+        """_configured_mode 读取失败 / 结构异常时返回 None，门禁静默跳过。"""
+        from checks import base as cbase
+        from checks import bugfix_modes
+
+        cfg = self._cfg()
+
+        # load_merged_environment 抛异常 → None
+        with mock.patch(
+            "cli.services.environment.load_merged_environment",
+            side_effect=RuntimeError("boom"),
+        ):
+            self.assertIsNone(bugfix_modes._configured_mode())
+
+        # bugfix 段不是 mapping → None
+        with mock.patch(
+            "cli.services.environment.load_merged_environment",
+            return_value={"bugfix": "hotfix"},
+        ):
+            self.assertIsNone(bugfix_modes._configured_mode())
+
+        # 空白 mode → None
+        with mock.patch(
+            "cli.services.environment.load_merged_environment",
+            return_value={"bugfix": {"mode": "   "}},
+        ):
+            self.assertIsNone(bugfix_modes._configured_mode())
+
+        c = cbase.Checker()
+        bugfix_modes._check_active_mode(c, cfg)
+        self.assertEqual(c.errors, [], c.errors)
 
 
 class TestRepoMetricsSchemaGuard(unittest.TestCase):

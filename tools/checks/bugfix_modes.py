@@ -8,6 +8,8 @@ Ensures every configured bugfix mode is actually usable:
 - branch.parser (if set) resolves to an existing provider script that
   implements the contract (script name / method / return fields)
 - default mode is registered
+- the active `bugfix.mode` in the merged environment config (machine layer
+  first, workspace layer fallback) is one of the registered modes
 
 Contract owner: templates/runtime/runtime-bugfix.md Phase 4.6.
 Provider scaffold: tools/branch-parser-scaffold.py.
@@ -172,6 +174,59 @@ def check_bugfix_modes(c):
                 f"{CONFIG.name} [{name}]: phases contains 'mr' "
                 "but no mr.provider configured"
             )
+
+    _check_active_mode(c, cfg)
+
+
+def _configured_mode():
+    """读取合并后的运行时 bugfix.mode（机器层优先 → workspace 层 → None）。
+
+    合并口径与运行时一致（cli.services.environment.load_merged_environment），
+    故本门禁校验的就是实际生效值。非安装根（测试/备用克隆）不套用机器层。
+    """
+    try:
+        from cli.services.environment import load_merged_environment
+    except Exception:
+        return None
+
+    try:
+        env = load_merged_environment(ROOT) or {}
+    except Exception:
+        return None
+
+    section = env.get("bugfix") or {}
+
+    if not isinstance(section, dict):
+        return None
+
+    mode = section.get("mode")
+
+    return mode if isinstance(mode, str) and mode.strip() else None
+
+
+def _check_active_mode(c, cfg):
+    """env 中 bugfix.mode 的取值必须落在已登记 modes 内。
+
+    缺口来源（2026-09-24 巡检）：本门禁只校验 modes 配置自身自洽，
+    拼错 `bugfix.mode`（如 `htfix`）会静默回落到 default，行为与预期不符
+    且无任何告警。配置缺失时静默跳过（不制造新依赖）。
+    """
+    mode = _configured_mode()
+
+    if mode is None:
+        return
+
+    modes = cfg.get("modes") or {}
+
+    if mode not in modes:
+        c.error(
+            f"bugfix.mode '{mode}' in the merged environment config is not a "
+            f"registered mode (known: {sorted(modes)}, "
+            f"default: {cfg.get('default')!r}) — a typo would silently fall "
+            f"back to the default mode. Fix the machine layer "
+            f"~/.config/ai-system/env.yaml or the workspace layer "
+            f"config/environments/*.yaml"
+        )
 
 
 def _extensions_available() -> bool:

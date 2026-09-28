@@ -4,7 +4,10 @@ version: 1
 # - 流程差异集中于此，避免在 skill/runtime 中散落条件分支。
 # - 由 tools/checks/bugfix_modes.py 门禁校验（check.py 第 15 项）：
 #   结构合法 / phases 已知 / template 占位符合法 / parser 解析可用。
-# - 运行时开关：config/environments/{env}.yaml → bugfix.mode（default: standard）。
+# - 运行时开关：bugfix.mode（default: standard）。取值来自**合并后**的环境配置
+#   （机器层 ~/.config/ai-system/env.yaml 优先 → workspace 层 config/environments/{env}.yaml 兜底，
+#   P29）；取值必须是下方 modes 中已登记的名字，否则 check.py 第 15 项报错
+#   （拼错会静默回落到 default）。
 
 # 已知阶段（新增阶段必须同步登记到 tools/checks/bugfix_modes.py KNOWN_PHASES）：
 #   analysis reproduce root-cause plan branch implement regress commit verify mr doc report
