@@ -27,12 +27,20 @@ class TestEnvUninitialized(unittest.TestCase):
     def _root(self):
         return REPO_ROOT
 
-    def test_missing_workspace_config(self):
-        with tempfile.TemporaryDirectory() as td:
-            td_path = Path(td)
-            # workspace local.yaml 缺失
-            with mock.patch.object(Path, "exists", return_value=False):
-                self.assertTrue(cm._env_uninitialized())
+    def test_missing_home_config(self):
+        # 机器层 env.yaml 缺失 → 未初始化
+        with mock.patch.object(Path, "exists", return_value=False):
+            self.assertTrue(cm._env_uninitialized())
+
+    def test_workspace_layer_optional(self):
+        # P29：workspace 层 local.yaml 缺失**不**算未初始化（可选兜底，仓库级清理会删）
+        ws_cfg, home_cfg = cm._config_files()
+
+        def _exists(self):
+            return self == home_cfg
+
+        with mock.patch.object(Path, "exists", _exists):
+            self.assertFalse(cm._env_uninitialized())
 
     def test_all_present(self):
         # 配置齐全（exists 全 True）→ 未初始化判定为 False

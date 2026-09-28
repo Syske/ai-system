@@ -23,15 +23,18 @@ def _config_files():
 
 
 def _env_uninitialized():
-    """只读检测：workspace local.yaml 与机器层 env.yaml 是否缺失（任一缺失即未初始化）。"""
-    ws_cfg, home_cfg = _config_files()
-    return not ws_cfg.exists() or not home_cfg.exists()
+    """只读检测：机器层 env.yaml 是否缺失（P29 权威位置）。
+
+    workspace 层 config/environments/{env}.yaml 是**可选兜底**（仓库内、被
+    gitignore、仓库级清理会删），其缺失不构成「未初始化」——否则每次 aic
+    都会误报（2026-09-28 巡检发现）。见 reports/P29-HOME-ENV-CONFIG.md。
+    """
+    return not _config_files()[1].exists()
 
 
 def _offer_env_init():
     """P36 T-b：未初始化 + TTY → 中文提示确认后执行 env-init；非交互 stderr 一行指引。"""
-    ws_cfg, home_cfg = _config_files()
-    missing = [str(p) for p in (ws_cfg, home_cfg) if not p.exists()]
+    missing = [str(_config_files()[1])] if _env_uninitialized() else []
 
     if not sys.stdin.isatty():
         print(

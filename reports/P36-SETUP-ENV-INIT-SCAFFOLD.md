@@ -116,3 +116,22 @@
 
 **Validation**：测试 +5（test_main_p36：未初始化判定/非交互指引/确认执行/拒绝跳过）；
 全量 242 tests OK、check.py PASS、path-audit 0/0。Status → Implemented。
+
+---
+
+## Implementation Record (2026-09-28) — 触发层判据收敛
+
+**背景**：本触发层写于 P29 之前，其「两份配置存在性」判据未随 P29 的环境配置权威位置迁移同步，
+导致每次执行 aic 都误报「环境未初始化」（`config/environments/local.yaml` 缺失）。
+详见 `reports/MAINTENANCE-2026-09-28.md` §二 中 1。
+
+**变更**：`_env_uninitialized()` / `_offer_env_init()` 的判据收敛为**仅机器层
+`~/.config/ai-system/env.yaml`**（P29 §2 确立的权威位置）。workspace 层
+`config/environments/{env}.yaml` 是可选兜底（仓库内、被 gitignore、仓库级清理会删），
+其缺失不再触发提示，缺失清单也只列机器层路径。
+
+**Validation**：`cli/tests/test_main_p36.py` 6/6 OK（`test_missing_home_config` 取代
+`test_missing_workspace_config`，新增 `test_workspace_layer_optional`）；全量 625 tests OK；
+check.py PASS；quick-check OK / findings 0。
+
+**注**：§5 改动项 6 与上方 2026-09-05 记录中的「两份配置」措辞为**历史描述**，已被本次判据取代。

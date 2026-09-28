@@ -18,11 +18,26 @@
 # 门禁 tools/checks/config_yaml.py（check.py）继续兜底；改后自查：
 #   python3 -c "import yaml;yaml.safe_load(open('config/maintenance.yaml'))"
 
-last_run: 2026-09-24
+last_run: 2026-09-28
 mode: on-demand
-next_maintenance: '2026-09-28'   # weekly 节奏保持 +7d（2026-09-21 补做 09-16 到期周检）；
-                                 # 2026-09-23 的 on-demand 专项（R4 残债 + skill-sync 归档）不重置周检节奏
+next_maintenance: '2026-10-05'   # weekly 节奏保持 +7d（本次为用户报障触发的 on-demand 专项，
+                                 # 2026-09-28 原定 weekly 到期日已由本次覆盖）
 last_findings:
+- >-
+  on-demand 专项（2026-09-28，用户报障「每次 aic 都提示环境未初始化」）：根因 = cli/main.py
+  触发层判据与 P29 契约冲突——_env_uninitialized() 要求 workspace local.yaml 与机器层 env.yaml
+  **两份都在**，而 P29 已确立机器层 ~/.config/ai-system/env.yaml 为权威位置、workspace 层为
+  **可选兜底**（仓库内、被 gitignore、仓库级清理会删，2026-09-24 事故已实证）。本机机器层
+  配置齐备、workspace 层缺失（正常态）→ 每次误报。按用户确认取方案 A（治本）而非补文件（治标）：
+  判据收敛为仅机器层，_offer_env_init 缺失清单同步只列机器层；P36 提案补 Implementation Record
+  标注「两份配置」为历史描述。附带修中 1 项：仓库内 logs/develop-20260924-180000.md 运行态
+  日志落在仓库内（违反 AGENTS.md 工作区层约定），阻塞 check.py FAIL 与单测 1 FAILED
+  （test_protected_paths.test_real_repo_is_clean），经确认迁至 <workspace>/logs/ 并移除仓库内
+  logs/ 目录。验证：test_main_p36 6/6、全量 625 OK（修前 624 中 1 FAILED）、check.py PASS、
+  quick-check OK/findings 0、path-audit 0 broken、repo-lint 0 BLOCKER/0 ERROR、language-gate PASS。
+  指标 09-24→09-28 全项持平（Skills 39/Workflows 16/RFC 14/Governance 63/Templates 27）。
+  提案盘面 5 开放（P42/P46/P67/P68/P73）+ 5 open items（P22×2/P26/P28/P65-C2），均属在途项。
+  建议（未实施）：aic-env-init.md 措辞仍以 workspace+机器层并列描述，未标 workspace 层为可选。
 - >-
   计划内周检（weekly，2026-09-21 补做，原排期 2026-09-16 逾期 5 天）：工具门禁全绿
   （check.py PASS/325 单测/八段 15/15/path 0 broken/extensions 0-0/workflow-command-audit 0-0）。
