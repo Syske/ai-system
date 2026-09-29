@@ -549,6 +549,97 @@ Discard reasons:
 | User (AI Maintainer operator) | **Approved（第三追加）** —— ⑨ **增加 operational metric**（§5.9）：验收不再看「`drafts/` 是否为空」（该观测**无法区分**「全部沉淀」与「Agent 根本没产生候选」，而后者已实测存在），改为每次巡检记录五项计数（candidates generated / triaged / canonical memories created / redirected / discarded + **逐条 discard 理由**）与四个派生指标（候选产生率 / 沉淀率 / 丢弃率 / 积压）。**「Memory 实际复用率」不列入首版** —— 当前无机制记录反向引用，无数据来源。⑩ **路线图与优先级**（§5.8）：**P71 C″ = 9/10 应该落地**；**Hindsight = 7.5/10 保留为下一阶段 PoC**，且其职责**只做 Recall / Reflect，不做 Governance / Triage**（否则等于让未审核内容借 Recall 通道重新进入知识面，正是 §4.10 要防的）；并给出触发下一阶段的三个前置条件。⑪ 确认 §2.1 实测为 **P71 的核心论据** —— 「14 提交 / 6 条经验 / 捕获 0 条」比「833 行指南没人读」更直接，因为它证明的是**机制在真实工作流中已失灵**，而非「可能没人读」 | 2026-09-29 |
 | User (AI Maintainer operator) | **Approved（再追加）** —— ⑥ **语义改名 Experience Inbox**：不是 "memory 的草稿"，而是**未经审核的经验候选队列**；生命周期显式为 Experience → Candidate → Inbox → Triage → {Memory / Standards / Skill / Project Workspace / Discard+理由}（§4.7）。**理由**：多数候选最终不是记忆；叫「草稿」会诱发「Agent 可以读草稿」这一危险误区。⑦ **「非正典、不得被引用」升级为硬规则**（§4.10）：**Agent 默认不得读 Inbox 当知识使用**；列禁止行为 5 条 / 允许行为 4 条（仅写入与 triage 角色可读）。⑧ **取消「4~6 行」硬限制**，改为**最低结构 5 字段必填**（`Candidate` / `What` / `Why` / `Source` / `Candidate Category`），行数不限；**优先保证来源与事实完整性而非行数** —— 理由：行数上限会诱发为压行数而丢 `Why` / `Source`，而这两者恰是 triage 最不可省的部分 | 2026-09-29 |
 
-## Implementation Record
+## Implementation Record (2026-09-29) — S1 + S2
 
-*(待实施后填写)*
+§5 的 8 项必做全部落地（#9 陈旧草稿 WARN 与 #10 L3 按提案保持「可选 / 待裁定」，未做）。
+§6 的验证计划**实际执行**，未执行项逐条说明。
+
+### S1.1 交付物（commit `f0e9e0c`）
+
+| 文件 | 内容 |
+|---|---|
+| `governance/memory/MEMORY_GUIDELINES.md` | `# Experience Inbox` 节（~100 行）：硬规则 · 五字段 · 语言分层 · triage 去向 |
+| `.gitignore` | 忽略 `governance/memory/drafts/`，附理由 |
+| `tools/checks/memory.py` | `DRAFTS_DIR` 豁免，`language_violations` 与 `check_memory` **双路径** |
+| `skills/memory-capture/SKILL.md` | 双路径（Inbox 默认 / 直写正典为例外）+ Source 纪律 |
+| `cli/tests/test_memory_drafts_exemption.py` | 新增 12 例 |
+
+### S1.2 交付物（commit `460f813`）
+
+| 文件 | 内容 |
+|---|---|
+| `cli/commands/aic-maintain.md` | step 2.6 triage + 五项计数；Guardrails 加 Inbox 只读硬规则；99 → **100 行**（贴薄命令门禁上限） |
+| `OPERATIONS.md` | §1.7.1 Experience Inbox：职责分工 + 节奏 + 三条分界 |
+| `templates/runtime/runtime-{develop,review,bugfix}.md` | 各 +22 行 `## Experience Candidates` |
+
+### S1.3 验证计划执行结果（§6）
+
+| # | 项 | 结果 |
+|---|---|---|
+| 1 | 门禁不破 | **通过**。Inbox 含中文 + 缺字段时 `check.py` PASS、`pre_commit_gate` exit 0。**反证**：正典缺 `Lesson` → ERROR；正典写中文 → ERROR（`4 CJK chars`）。豁免未扩大到正典 |
+| 2 | 端到端 + 五项计数 | **部分通过**。3 候选 → `generated=3 / triaged=3 / promoted=1 / redirected=0 / discarded=2`，逐条 discard 理由非空。假 Source（`adr.py:999`，该文件仅 92 行）**被拒**。「本轮无候选」的反向用例未跑（需真实会话） |
+| 3 | 摩擦对比 | **通过**。Inbox 路径：写 12 行草稿、**0 次**读 833 行指南、**0 次**提交 |
+| 4 | 直写正典不退化 | **通过**。`## [ai-system] …` + `Lesson:` 独占一行 → 0 errors |
+| 5 | 场景集成有效 | **未执行** —— 需真实 develop/review/bugfix 收尾。无候选的合法结果已有措辞兜底，但**未实测** |
+| 6 | 硬规则可判定 | **部分通过**。规则文本存在性已由 `test_guidelines_document_the_hard_rule` 断言。「普通会话不引用候选」与「triage 能读到」两个方向**未实测** |
+| 7 | 长候选不被压扁 | **通过**。12 行候选（含第 12 行尾标）完整保留，行数无截断 |
+
+### S1.4 实施中发现的四个问题
+
+**① 薄命令门禁比提案预估的更严（提案 §7 已预警，实测更甚）**
+P71 §5-5 写「当前 99 行，需重写措辞守住 100 行」。该门禁在
+`tools/workflow-command-audit.py`（**不在 `check.py` 内**），且是 **error 不是
+warning**。加完 triage 113 行 → FAIL。压回 100 的优先级：**删重复**（triage 细节改为
+指向 `MEMORY_GUIDELINES`，初稿把路由表重述了一遍 = 第二份真相）→ 合并 bash 块 →
+删解释性从句。**未删** step 0/1/2 的实际检查项 —— 门禁该守的是薄，不是空。
+
+**② 门禁豁免需双路径（提案只写一处）**
+`checks/memory.py` 有两条独立遍历路径。只改 `check_memory` 会让 `language_violations`
+继续对 Inbox 报 CJK ERROR，豁免形同无效。
+
+**③ 提案的示例路径被自己的门禁拦下**
+`MEMORY_GUIDELINES` 的禁止反例原写 `20260929-foo.md`，被 `path-audit` 判为 broken。
+改为 `{yyyymmdd}-{session|topic}.md` 模板形态 —— **改文档适配门禁，不是给门禁加豁免**。
+
+**④ 豁免的「格式」那一半是理论性的**
+实测 `check_memory` 只校验 `## [Category] Title` 形状的条目；候选的 `## Candidate:`
+**无论有没有豁免都会被它忽略**。真正起作用的是语言那一半。已更正 `tools/checks/memory.py`
+的注释（原注释把两处理由写成等价）。若日后候选格式改为方括号式，此豁免才具格式意义。
+
+### S1.5 一个已修的破坏性缺陷（测试自身）
+
+`test_memory_drafts_exemption` 的 `_cleanup` 原本是
+`for p in DRAFTS.glob("*"): p.unlink()` —— **跑一次单测会清空整个真实 Inbox**。
+Inbox 是 git-ignored 的，清空后**无痕迹、不可恢复**。已改为只删本测试创建的文件，
+并加 `test_cleanup_does_not_touch_foreign_candidates` 钉住该性质。
+
+同批修掉两处测试自身的脆弱性：
+- 断言用 `"_probe"` 子串匹配，误伤真实 memory 树里任何同名探测文件 → 改为按
+  `DRAFTS_DIR` 匹配
+- 「同内容对照」用例的前提不成立（`## Candidate:` 根本不是 canonical 形状）→ 改为
+  准确陈述格式那一半为理论性
+
+### S1.6 验证计划带出的一个新规则：Source 的**形式**与存在性同等重要
+
+端到端 triage 跑出的实测：候选引用 `tools/checks/memory.py:20` **实质正确**，
+但 `DRAFTS_DIR` 已漂移到第 31 行。
+
+- **严格按行号核验** → 误拒一个真声明
+- **只按文件存在核验** → 放过一个伪造的（`adr.py:999` 文件存在但行号越界）
+
+故 triage 对**行号过期/越界**判为「需确认」而非「已证伪」，并按内容确认。
+并在 `MEMORY_GUIDELINES` 写入 Source 形式强度排序：
+
+| 形式 | 源文件被编辑后仍可核验 |
+|---|---|
+| commit hash | **是** —— 不可变 |
+| 引用片段 / 命令输出 | **是** —— 自包含 |
+| `file:line` | **否** —— 行号随文件演进漂移 |
+
+**能在自己的源文件下一次编辑后存活的候选，才值得晋升。**
+
+### S1.7 未做（按提案保持）
+
+#9 陈旧草稿 WARN（提案「先不做」）、#10 L3 草稿原文不丢（待裁定）、
+PII 检测、门禁内 LLM 语义判定。§5.9 的真实数据须待实际会话与巡检产生 ——
+**当前五项计数全为空是正常的，代码已部署但尚未运行**。

@@ -10,14 +10,19 @@ MEMORY_ROOT = ROOT / "governance" / "memory"
 MEMORY_INDEX = "governance/memory/coding-memory.md"
 
 # Experience Inbox (P71). Git-ignored, so .gitignore does not stop the
-# rglob below from walking it — the exemption has to be explicit. Two
-# independent reasons, and they must not be conflated:
+# rglob below from walking it — the exemption has to be explicit.
 #
-#   1. Language: candidates are captured in any language by design; only the
-#      canonical layer is English. Applying the canonical rule here would make
-#      low-friction capture impossible.
-#   2. Entry format: candidates carry five required fields, not the eleven-field
-#      canonical entry. A format check would reject every one of them.
+# Only the first reason is load-bearing:
+#
+#   1. Language (real): candidates are captured in any language by design;
+#      only the canonical layer is English. Applying the canonical rule here
+#      would make low-friction capture impossible.
+#   2. Entry format (largely theoretical): `check_memory` only validates
+#      entries shaped `## [Category] Title`; a candidate shaped
+#      `## Candidate:` is ignored by it whether or not this exemption exists.
+#      Kept because the exemption is about the directory, not about one
+#      function, and the language rule must not reach drafts through the
+#      format path either.
 #
 # This exemption covers the drafts directory ONLY. Content security is a
 # separate gate that does apply there: secret + injection scan

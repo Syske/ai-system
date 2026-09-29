@@ -824,6 +824,25 @@ Five fields are mandatory, all of them:
 - Candidate Category: memory | standards | skill | project-workspace
 ```
 
+`Source` is the field that makes triage possible, and its **form** matters as
+much as its presence. Verification strength, strongest first:
+
+| Form | Verifiable after the source file is edited? |
+|---|---|
+| Commit hash (`git show abc1234:path`) | **Yes** — immutable |
+| Quoted snippet or command output | **Yes** — self-contained |
+| `file:line` | **No** — the line drifts as the file evolves |
+
+Measured during the P71 S2 end-to-end run: a candidate citing
+`tools/checks/memory.py:20` was substantively correct, but `DRAFTS_DIR` had
+moved to line 31. A line-exact check would have rejected a true claim; a
+file-exists-only check would have passed a fabricated one.
+
+Triage therefore treats a stale or out-of-range `file:line` as **needs
+confirmation**, not as proof of fabrication, and confirms by content. Capture
+should prefer a commit hash or a quoted snippet when one is available — a
+candidate that survives its own source's next edit is the one worth promoting.
+
 Language is not constrained at capture. The **canonical** layer stays English
 (`MEMORY_GUIDELINES.md` Language section, enforced by the pre-commit gate). The
 translation is the triage step's responsibility, not capture's — capture does
