@@ -1,4 +1,26 @@
-# Change Proposal: P71 — Memory 候选暂存区 + 巡检确认提取（Memory Inbox）
+# Change Proposal: P71 — Experience Inbox（经验候选队列）+ 巡检确认提取
+
+> **命名（用户 2026-09-29 追加裁定）**：`governance/memory/drafts/` 在语义上**不是**
+> "memory 的草稿文件"，而是**未经审核的经验候选队列（Experience Inbox）**。
+> 路径保留在 `governance/memory/` 下只为就近，但**读法必须按 Inbox**：
+>
+> ```text
+> Experience
+>     ↓
+> Candidate
+>     ↓
+> Inbox                                    ← 未经审核，不可作为知识使用
+>     ↓
+> Triage
+>     ├── Memory                （正典条目：英文 + 格式 + 索引）
+>     ├── Standards             （本就是规则）
+>     ├── Skill                 （本就是能力）
+>     ├── Project Workspace     （单项目需求）
+>     └── Discard               （+ 必须记录理由）
+> ```
+>
+> **由此产生一条硬规则**（原「非正典、不得被引用」是软纪律，现升级）：
+> **Agent 默认不得读 Inbox 当知识使用。** 见 §4.10。
 
 | Field | Value |
 |---|---|
@@ -37,6 +59,33 @@
 | **F4** | **分层判断放错**：是否属"经验"（→memory）、"规则"（→standards）、"单项目需求"（→workspace） | 规则写在 `MEMORY_GUIDELINES` 的归属边界章节，但判断发生在**写入时**，而读 833 行的人几乎没有 |
 | **F3** | **无前置查重**：只有事后 Jaccard ≥0.8 告警，没有写入前查重 | `memory.py` 相似度检查在 check 阶段 |
 | 反例（**不是**缺口） | 2026-09-23 那条记忆**走的正是设计路径**（memory-capture 直写正典），格式与最近两条一致、内容经核实无误 | 故本提案**不推翻**直写能力，只补"低摩擦入口 + 提交纪律 + 分层前置" |
+
+### 2.1 **核心论据：捕获机制在真实工作流中没有形成闭环**（2026-09-29 实测）
+
+比「833 行指南没人读」更直接的证据 —— **拿一次真实的高经验密度会话测**：
+
+| 观测 | 数值 |
+|---|---|
+| 2026-09-29 单日提交（`cd6f366..edd5feb`） | **14 个** |
+| 期间明确产生的工程经验 | **至少 6 条**（逐条可指认） |
+| 经 `memory-capture` 捕获流程进入 `governance/memory/` 的 | **0 条** |
+
+这 6 条经验（均非一次性笔误，全部满足 `MEMORY_GUIDELINES` 的
+Verified / Reusable / Experience / Non-duplicate）：
+
+1. 门禁自证本身也会写错（`or ["*"]` 把门禁反转而非关闭）
+2. 短路变异脚本本身也需要审查（锚点写错 ≠ 门禁失效）
+3. 「负例失败」≠「该检查被覆盖」——冗余检查必须构造只有自己能报的场景
+4. 无法失败的负例比没有负例更糟（报告了不存在的覆盖）
+5. 门禁 bug 是「对文件格式的细节假设」而非逻辑错误（`re.M` / 权威源 / YAML 转义）
+6. 分类门禁须用**白名单**而非排除法（`analysis-*` 既是类别也是 workflow 名）
+
+**必须精确表述的一点**：当日 `governance/memory/` 确有 2 个提交改动
+（`7de56c7` / `edd5feb`），但那 4 条 memory 条目是**门禁自证规范落地时顺带写的实证**，
+属"做别的事时附带记录"，**不是捕获机制主动产出的**。按捕获路径计，产出为 **0**。
+
+**这条证据的分量**：F1（指南太长）只是**可能**没人读；本表是**已经**发生且可量化的
+失灵。§6 的 operational metric 就是为了持续监测这条曲线，而不是靠一次性论证。
 
 ## 3. 用户提案评估（`logs/memory/` + 运维确认提取）
 
@@ -134,27 +183,48 @@
 ### 4.7 **最终裁定：C″ —— 草稿区 `governance/memory/drafts/` + 巡检必沉淀必提交 + 草稿记清来源**（用户 2026-09-24）
 
 ```text
-日常会话（默认路径，零负担、不提交）
-  └─ governance/memory/drafts/{yyyymmdd}-{session|topic}.md
-     每条候选 ≥4 行，**必须含来源**（可中文、不要求正典格式、不读 833 行指南、不改索引）
-                        │
+Experience（会话中遇到的经验）
+    ↓
+Candidate（判断够格 → 写成候选；不够格则不写，「无候选」是合法结果）
+    ↓
+Inbox —— governance/memory/drafts/{yyyymmdd}-{session|topic}.md
+        最低结构 5 字段（可中文、不要求正典格式、不读 833 行指南、不改索引、不提交）
+        ⚠ 未审核：**Agent 不得读 Inbox 当知识使用**（§4.10 硬规则）
+                        ↓
 周巡检 / 日常巡检 —— aic-maintain step 2.6
-  └─ 逐条 triage（用来源字段去核验/查重）：① 蒸馏进 governance/memory/<category>/（英文+格式+索引）
-                                             ② 改投 standards/ 或 skills/（本是规则/能力）
-                                             ③ 写进 workspaces/<project_id>/（单项目需求）
-                                             ④ 丢弃（重复/瞬时/无价值）——记理由
-  └─ **提交沉淀结果**（提交蒸馏后的正典，不是草稿原文）· 删除已处理草稿 · 结果写进巡检报告
+  └─ 逐条 triage（**先用 Source 核验真伪**，再查重）：
+       ① 蒸馏进 governance/memory/<category>/（英文 + 格式 + 索引）  → Memory
+       ② 改投 standards/                                            → Standards
+       ③ 改投 skills/                                                → Skill
+       ④ 写进 workspaces/<project_id>/                               → Project Workspace
+       ⑤ 丢弃（重复/瞬时/无价值）—— **必须记录理由**                → Discard
+  └─ **提交沉淀结果**（提交的是蒸馏后的正典，不是 Inbox 原文）
+  └─ 删除已处理候选 · 结果写进巡检报告
 ```
 
-**草稿条目最小 schema（4~6 行，可中文）**：
+**注意 Inbox 的四类去向里只有一类是 Memory** ——这正是它不叫「memory 草稿」的原因：
+多数候选最终**不是**记忆（是规则、是能力、是单项目需求、是垃圾）。
+
+**候选条目：最低结构 5 字段（可中文；行数不限）**：
 
 ```text
-## <一句话：学到什么>
-- 来源: <会话/日期> · <项目或仓库> · <触发: 事故 / 评审发现 / 复盘 / 用户要求>
-- 证据: <commit sha / file:line / 命令与输出摘要>（若只存在于本机日志 → 标 [机器本地]）
-- 候选归属: memory(<category>) | standards | skills | workspace(<project>) | 丢弃
-- 要点: <1~3 行>
+Candidate: <一句话：学到什么>
+What:  <发生了什么 / 结论是什么>
+Why:   <为什么值得沉淀 —— 下一个任务或另一个服务会不会再遇到>
+Source: <会话/日期> · <项目或仓库> · <触发: 事故 / 评审发现 / 复盘 / 用户要求>
+        <证据: commit sha / file:line / 命令与输出摘要>
+        <若只存在于本机日志 → 标 [机器本地]>
+Candidate Category: memory(<category>) | standards | skill | workspace(<project>) | discard
 ```
+
+**行数不设上限**（用户 2026-09-29 追加裁定：原文的「4~6 行」是**误设的硬限制**）。
+理由：把「4~6 行」当约束会诱发**为压行数而丢上下文**——而 `Why` 与 `Source` 恰恰
+是 triage 时最不可省的部分（前者决定值不值得沉淀，后者决定能不能核验）。
+**优先保证来源与事实完整性，而不是行数。** 3 行可以，8 行也可以。
+
+**5 个字段全部必填**（不是「建议包含」）：缺 `Source` 则无法核验真伪，缺
+`Candidate Category` 则 triage 无从下手，缺 `Why` 则无法判断是否够格。
+字段**可以换行展开**（如上 `Source` 示例）。
 
 **为什么要求来源**：① 巡检 poter 核验真伪（避免把"应该是 X"沉淀成记忆）② 去重时可比对来源
 ③ 事后审计能回答"这条记忆从哪来" ④ 显式区分**持久证据**（commit sha、业务仓 file:line）与
@@ -183,7 +253,7 @@
 见 §4.9。
 
 **四条护栏（缺一即退化）**：① 每次巡检都沉淀（挂周巡检 + 日常巡检；月度 review 仍只管去重/查矛盾/查过期）
-② 沉淀后**必须提交 + 必须删草稿**（陈旧草稿 WARN 先不做）③ 草稿层**非正典、不得被任何规则/技能/报告引用**
+② 沉淀后**必须提交 + 必须删草稿**（陈旧草稿 WARN 先不做）③ **Inbox 硬规则**（§4.10）：Agent 不得读 Inbox 当知识使用；任何规则/技能/报告不得引用其路径
 ④ 目录存在性：gitignored 目录不入库，故**草稿由会话按需 `mkdir -p` 创建**（空目录 git 不跟踪），
 路径约定写在 `MEMORY_GUIDELINES` 与 `memory-capture` 技能里（两处均为 tracked 文档）。
 
@@ -224,44 +294,213 @@ memory|capture|lesson 的命中数**全为 0** —— 三个真正产生工程�
 **建议不做**：草稿的原始素材在会话记录与本机日志中另有一份，且要点与来源会随沉淀进入正典；
 只有"未沉淀即丢失"这一周窗口内的原文会损失。**待用户裁定**。
 
+## 4.10 **硬规则：Inbox 不是知识，Agent 不得读它当知识使用**
+
+（用户 2026-09-29 追加裁定，把原「非正典、不得被引用」的**软纪律升级为硬规则**）
+
+### 规则
+
+> **Agent 默认不得把 `governance/memory/drafts/`（Inbox）的内容作为知识依据。**
+
+具体地，**禁止**：
+
+| 禁止的行为 | 反例形态 |
+|---|---|
+| 在回答中引用 Inbox 内容作为事实依据 | 「根据经验候选 X，……」（而 X 未经审核） |
+| 在规则/技能/报告/正典条目中链接或引用 Inbox 路径 | `` 见 `governance/memory/drafts/20260929-foo.md` `` |
+| 把 Inbox 内容当作「已验证的经验」推理 | 用未核验的候选去支持一个技术判断 |
+| 把 Inbox 路径写进任何 tracked 资产 | 索引、脚本文档、ADR、报告 |
+| 在 memory 门禁豁免的名义下扩大豁免范围 | 往 Inbox 塞「其实想长期保留」的内容 |
+
+**允许**（且仅限）：
+
+| 允许的行为 | 条件 |
+|---|---|
+| 写入候选 | 会话结束时 |
+| **triage 时读取** | 仅巡检角色（`aic-maintain` step 2.6） |
+| triage 后删除 | 沉淀完成即删 |
+| 报告「Inbox 现有 N 条待 triage」 | 巡检报告 |
+
+### 为什么必须升级为硬规则
+
+**最危险的误区**是：一旦它被叫「memory 的草稿」，Agent 会自然推断「memory 我可以读」——
+于是把**未经审核、甚至有假证据**的候选当知识使用。提案 §4.7 的来源字段设计正是为了
+让 triage 能**拒绝**假证据；但若候选在 triage 前就被当作知识引用，核验机制形同虚设。
+
+**路径仍在 `governance/memory/` 下**（就近），这是唯一的妥协点——因此**命名与文档必须
+明确它不是 memory 的草稿**，否则路径本身就在持续误导。§5-7 的草稿层声明必须以本节的
+措辞书写，不得弱化为「建议不要」。
+
+### 与既有设计的一致性
+
+本规则不新增机制，只把三处既有约定**合并升格**：
+
+- §5-3 门禁豁免只针对 `drafts/` 目录（永久内容不得进 Inbox）
+- §5-4 技能双路径（直写正典仍可用，且**那才是** Agent 可读的知识路径）
+- `MEMORY_GUIDELINES.md` 的归属边界（判断在 triage 时做，不在写入时）
+
+---
+
 ## 5. Proposed Changes（Option C″ + D）
 
 | # | 改动 | 落点 | 规模 |
 |---|---|---|---|
-| 1 | **草稿区约定**：`governance/memory/drafts/{yyyymmdd}-{session\|topic}.md`，每条含 §4.7 的最小 schema（**必须含来源**）；中文/任意格式/**不提交**；会话按需 `mkdir -p` | 约定写入 `MEMORY_GUIDELINES` 与技能（tracked 文档） | 极小 |
+| 1 | **Inbox 约定**：`governance/memory/drafts/{yyyymmdd}-{session\|topic}.md`（语义 = **Experience Inbox**，非 memory 草稿），每条含 §4.7 的**最低结构 5 字段**（`Candidate` / `What` / `Why` / `Source` / `Candidate Category`，全必填，**行数不限**）；中文/任意格式/**不提交**；会话按需 `mkdir -p` | 约定写入 `MEMORY_GUIDELINES` 与技能（tracked 文档） | 极小 |
 | 2 | **gitignore**：忽略 `governance/memory/drafts/`（草稿不进 git，避免 `??` 噪音与 `git add -A` 误提交） | `.gitignore` +1 行 | 极小 |
 | 3 | **门禁豁免**：`checks/memory.py` 跳过 `drafts/`（因它是 `rglob` 遍历，gitignore 挡不住；否则草稿中文 → error） | `tools/checks/memory.py` + 1 条单测 | 小 |
 | 4 | 技能双路径：**默认写草稿**（零负担、含来源）；会话确定且能合规、或用户要求立即沉淀时仍可直写正典；二者都不要求会话提交 | `skills/memory-capture/SKILL.md`（+5~6 行） | 小 |
 | 5 | 巡检沉淀：读 `drafts/*.md` → 用来源核验 → triage（正典 / 改投 standards·skills / workspace / 丢弃）→ **提交沉淀结果** → 删草稿 → 记报告 | `cli/commands/aic-maintain.md` step 2.6（**当前 99 行，需重写措辞守住 100 行薄命令门禁**） | 中 |
 | 6 | 节奏与职责划分：沉淀挂周巡检/日常巡检；月度 review 仍只管去重/矛盾/过期 | `OPERATIONS.md §1.7`（+2~3 行） | 小 |
-| 7 | 草稿层声明：非正典、不得被引用、含来源要求、巡检后清空 | `governance/memory/MEMORY_GUIDELINES.md` 一节（~12 行） | 小 |
+| 7 | **Inbox 硬规则声明**：以 §4.10 的措辞写入（**Agent 不得读 Inbox 当知识使用**；禁止行为 5 条 / 允许行为 4 条；5 字段必填且行数不限；巡检后清空） | `governance/memory/MEMORY_GUIDELINES.md` 一节（~20 行） | 小 |
 | 8 | **场景集成**：develop / review / bugfix 三个 runtime 收尾各加一条「经验候选」指令（英文；含资格门槛与「无候选是合法结果」） | `templates/runtime/runtime-{develop,review,bugfix}.md`（各 +3~4 行） | 小 |
 | 9 | （可选）陈旧草稿 WARN（>1 个巡检周期未处理）→ **先不做**，等真实需要 | — | 待定 |
+| 9b | **Operational Metric 记录**：每次巡检在报告与 `config/maintenance.yaml` 记录 §5.9 的五项计数（含逐条 discard 理由） | `cli/commands/aic-maintain.md` step 2.6（与 #5 同处改，注意 100 行）+ `aic-maintain` Outputs 段 | 小 |
 | 10 | （可选，**待裁定**）L3 草稿原文不丢：drafts 改 tracked + 巡检归档提交 | `.gitignore` · `checks/memory.py` · `pre_commit_gate` · 巡检步骤 | 中 |
 
 **成本**：**零新增 tracked 文件**（草稿区 gitignored；空目录不入库）· gitignore +1 行 · 门禁豁免 1 处 + 1 单测 ·
 **8 处文档/技能/runtime 小改（约 50 行）** · 无新工具/命令 · 固定 token 成本 **0**
 （草稿不在任何提示词路径上；runtime 三处各 +3~4 行随该阶段提示词加载）。
 
+## 5.8 **路线图与优先级**（用户 2026-09-29 定）
+
+```text
+现在
+ │
+ ├─ P71 C″（本提案）
+ │    ├─ 低摩擦 Experience Inbox
+ │    ├─ Triage（去 Memory / Standards / Skill / Workspace / Discard+理由）
+ │    ├─ Source verification（先核验再沉淀）
+ │    ├─ Persistence / commit discipline（沉淀必提交，草稿必删）
+ │    └─ Runtime 收尾候选入口（develop / review / bugfix）
+ │
+ ↓
+观察一段时间（用 §5.9 的五项计数 + 四个派生指标）
+ │
+ ├─ 候选产生率   —— 入口是否真被用
+ ├─ 沉淀率       —— triage 是否真做筛选
+ ├─ 丢弃率       —— 资格门槛 / 来源核验是否失效
+ └─ Memory 实际复用率 —— 正典是否真被用
+ │
+ ↓
+若 **Canonical Memory 稳定增长**
+ │
+ ↓
+再评估 **Hindsight**
+ │
+ └─ Hindsight 负责 **Recall / Reflect**，
+    **不负责 Governance / Triage**
+```
+
+**优先级判定**：
+
+| 项 | 评分 | 处置 |
+|---|---|---|
+| **P71 C″** | **9 / 10** | **应该落地** —— 缺口有实证（§2.1 捕获 0 条）、方案已裁定、成本低 |
+| **Hindsight** | **7.5 / 10** | **保留为下一阶段 PoC** —— 有价值，但**依赖 P71 先跑出数据**：没有稳定增长的正典，Recall/Reflect 无对象 |
+
+**职责边界必须写死**：Hindsight 做 Recall / Reflect；Governance / Triage 仍归 P71
+的巡检流程。理由：把「审核与晋升」外包给检索层，等于让**未审核内容**借 Recall
+通道重新进入知识面——正是 §4.10 硬规则要防的事。
+
+**触发下一阶段的前置条件**（缺一不动 Hindsight）：
+① 连续 ≥4 次巡检记录了完整的 §5.9 五项计数（证明 metric 可持续采集）；
+② 正典条目周累计稳定增长；③ 至少 1 条正典条目被实际复用并被记录。
+
+---
+
+## 5.9 **Operational Metric —— 验收靠指标，不靠「目录空不空」**
+
+（用户 2026-09-29 追加裁定）
+
+P71 有大量结构性检查，但最终要证明的是**它真的降低了经验沉淀摩擦**。而
+「`drafts/` 是否为空」**不是有效指标**：
+
+| `drafts/` = 0 的两种含义 | 后果 |
+|---|---|
+| ① 所有经验都成功沉淀了 | 理想 |
+| ② **Agent 根本没产生候选** | 失败，但指标看不出来 |
+
+§2.1 已实测第 ② 种确实存在（14 提交 / 6 条经验 / 捕获 0 条）——**而这两种情况在
+`drafts/ = 0` 这个观测下完全无法区分**。故必须改用可区分的计数指标。
+
+### 每次巡检必须记录的五项
+
+```text
+Experience Inbox — <日期>
+  Candidates generated:   N      ← 本期新增候选数（入口是否真的被用）
+  Candidates triaged:     N      ← 本期处理数（入口是否积压）
+  Canonical memories created: N  ← 去向 ①（正典）
+  Redirected: standards N / skills N / workspaces N   ← 去向 ②③④
+  Discarded:             N      ← 去向 ⑤
+  Discard reasons:       <逐条一行，不允许只给总数>
+```
+
+**示例（一次巡检）**：
+
+```text
+Candidates: 7 → Memory: 2 · Standards: 1 · Skill: 0 · Project: 1 · Discard: 3
+Discard reasons:
+  - gate 自证反转实例 → 与 policies/quality-gates.md §Rule 2 重复（规则已在，不重复沉淀）
+  - 一次性 CLI 传参笔误 → 不满足 Reusable
+  - 路径大小写差异 → 属本次改动细节，已在该 commit 说明
+```
+
+### 派生指标（观察期用）
+
+| 指标 | 定义 | 读法 |
+|---|---|---|
+| **候选产生率** | Candidates generated / 期间有经验密度的会话数 | 长期为 0 → **入口没被用**（§2.1 第②种失败） |
+| **沉淀率** | Canonical created / Candidates triaged | 过高（≈100%）→ triage 走过场，未真做筛选 |
+| **丢弃率** | Discarded / Candidates triaged | 过高 → 资格门槛或来源核验失效，Inbox 成了垃圾堆 |
+| **积压** | Candidates generated − Candidates triaged | 持续为正 → 巡检没跟上 |
+| **正典增长** | Canonical memories created 的周累计 | **最终目标曲线**：稳定增长才说明闭环成立 |
+| **Memory 实际复用率** | 正典条目在后续会话/任务中被引用的比例 | 决定 §11 的下一阶段是否值得做 |
+
+### 落点
+
+写入**巡检报告**（`reports/MAINTENANCE-<date>.md` 的巡检发现节）+ 追加一行到
+`config/maintenance.yaml` 的 `last_findings`（供跨会话对比趋势）。
+
+**不新建指标文件**（避免又一处需要维护的状态源）；`drafts/` 是否清空仍作为
+**必要但不充分**的检查保留。
+
+### 为什么不用「Memory 实际复用率」做首版验收
+
+复用率需要统计"正典条目被引用次数"，当前无任何机制记录引用关系（memory 门禁不解析
+反向引用）。**首版只观测前五项**；复用率待有数据来源后再纳入（列入 §11 观察期）。
+
+---
+
 ## 6. Validation Plan
 
 1. **门禁不破**：`check.py`（含 memory 第 8 项）· `pre_commit_gate`（staged CJK 记忆）· `repo-lint` 全绿；
    `drafts/` 豁免后**正典检查强度不变**（反证：故意缺 `Lesson` 的正典仍须 error；故意在正典写中文仍须 error）。
-2. **端到端一次**：模拟日常会话写 2 条草稿（1 条中文经验、1 条其实是「规则」）→ 跑巡检 step 2.6 →
-   验证 ① 经验条晋升为正典（英文 + 索引已更新）② 「规则」条被改投 standards ③ 草稿被删除 ④ **来源字段能被核验**
-   （故意写一条假证据 → 巡检须拒绝沉淀）。
+2. **端到端一次 + 指标核对**：模拟日常会话写 2 条候选（1 条中文经验、1 条其实是「规则」）→
+   跑巡检 step 2.6 → 验证 ① 经验条晋升为正典（英文 + 索引已更新）②「规则」条被改投 standards
+   ③ Inbox 清空 ④ **Source 字段能被核验**（故意写一条假证据 → 巡检须拒绝沉淀）
+   ⑤ **§5.9 五项计数与实际一致**（generated=2 / triaged=2 / memory=1 / standards=1 / discard=0，
+   且 discard 逐条理由非空当 discard>0）。
+   **关键反证**：另跑一次「本轮无候选」的巡检 → 必须记录 `generated: 0`，
+   **不得**把它记成「全部成功沉淀」（§5.9 表格第 ② 种失败）。
 3. **摩擦对比**：完成一次 capture 所需的**读写文件数**：现状（读 833 行指南 + 写正典 + 改索引 + 提交）
    vs 新路径（写 5 行草稿、**不提交**）。
 4. **不退化**：直写正典路径仍可用（用一次真实捕获验证）。
-5. **场景集成有效**：跑一次 develop（或 review/bugfix）任务收尾 → 验证 ① 满足资格者写进草稿
-   ② 不满足者明确报告「无经验候选」（两个方向都要测，防"为交差硬写"）③ 草稿来源字段可核验。
+5. **场景集成有效**：跑一次 develop（或 review/bugfix）任务收尾 → 验证 ① 满足资格者写进 Inbox
+   ② 不满足者明确报告「无经验候选」（两个方向都要测，防"为交差硬写"）③ Source 字段可核验。
+6. **硬规则可判定**（§4.10）：造一份 Inbox 候选后跑一次常规 develop/bugfix 会话 → 验证
+   **prompt 与产物中不出现该候选内容**；再跑巡检 → 验证 **triage 角色能读到**它。
+   （两个方向都要测：只测「不被引用」会漏掉「triage 读不到」这个反向失效。）
+7. **长候选不被压扁**：写一条 10+ 行、`Why` 与 `Source` 完整的候选 → 验证巡检核验时
+   信息完整、triage 结论不因行数而失真（反向：不得出现「因超行数而跳过核验」）。
 
 ## 7. Risks
 
 | 风险 | 缓解 |
 |---|---|
 | `drafts/` 变成**垃圾堆**（只进不出） | 巡检每次清空；不设"永久参考区"；（可选）陈旧草稿 WARN |
-| 与正典出现**两套记忆** | 草稿层明文声明「非正典、不得被引用」；沉淀即删；索引不列它 |
+| 与正典出现**两套记忆** | §4.10 硬规则：Agent 不得读 Inbox 当知识使用；沉淀即删；索引不列它 |
+| **Agent 把 Inbox 当知识读取**（误认为「memory 草稿」） | §4.10 硬规则（禁止行为 5 条 / 允许行为仅限写入与 triage）；`MEMORY_GUIDELINES` 与技能两处均须以硬规则措辞书写，不得弱化为「建议」 |
+| **为压行数而丢上下文** | 行数不限；5 字段必填；`Why` 与 `Source` 是 triage 最不可省的部分 |
 | 巡检负担增加 | 草稿是结构化小文件（比扫 200 个 logs 更快）；可与既有 logs 扫描合并成一次 |
 | 门禁豁免被滥用（往 `drafts/` 塞永久内容） | 豁免只针对 `drafts/` 目录；巡检每次清空；正典检查强度不变（已列反证） |
 | `aic-maintain.md` 触及 100 行薄命令门禁 | 改措辞压缩（当前 99 行，需重写而非追加） |
@@ -277,6 +516,8 @@ memory|capture|lesson 的命中数**全为 0** —— 三个真正产生工程�
 |---|---|---|
 | User (AI Maintainer operator) | **Approved** —— 采纳 §4.7 **C″**：① 草稿区落在 **`governance/memory/drafts/`**（明确否决 `logs/memory/`：草稿紧挨正典，语义自解释、不在日志清理范围）② 日常会话**不要求提交** ③ **巡检必沉淀并提交**（持久性由沉淀结果保证）④ 草稿**必须记清来源**以便溯源 | 2026-09-24 |
 | User (AI Maintainer operator) | **Approved（追加）** —— ⑤ 在 develop / review / bugfix **集成 memory 捕获**以扩大样本（§4.8）；并确认持久性边界按 §4.7 表执行（**草稿原文不保证不丢**，能保证的是提交过的正典）；L3 是否要做见 §4.9 | 2026-09-24 |
+| User (AI Maintainer operator) | **Approved（第三追加）** —— ⑨ **增加 operational metric**（§5.9）：验收不再看「`drafts/` 是否为空」（该观测**无法区分**「全部沉淀」与「Agent 根本没产生候选」，而后者已实测存在），改为每次巡检记录五项计数（candidates generated / triaged / canonical memories created / redirected / discarded + **逐条 discard 理由**）与四个派生指标（候选产生率 / 沉淀率 / 丢弃率 / 积压）。**「Memory 实际复用率」不列入首版** —— 当前无机制记录反向引用，无数据来源。⑩ **路线图与优先级**（§5.8）：**P71 C″ = 9/10 应该落地**；**Hindsight = 7.5/10 保留为下一阶段 PoC**，且其职责**只做 Recall / Reflect，不做 Governance / Triage**（否则等于让未审核内容借 Recall 通道重新进入知识面，正是 §4.10 要防的）；并给出触发下一阶段的三个前置条件。⑪ 确认 §2.1 实测为 **P71 的核心论据** —— 「14 提交 / 6 条经验 / 捕获 0 条」比「833 行指南没人读」更直接，因为它证明的是**机制在真实工作流中已失灵**，而非「可能没人读」 | 2026-09-29 |
+| User (AI Maintainer operator) | **Approved（再追加）** —— ⑥ **语义改名 Experience Inbox**：不是 "memory 的草稿"，而是**未经审核的经验候选队列**；生命周期显式为 Experience → Candidate → Inbox → Triage → {Memory / Standards / Skill / Project Workspace / Discard+理由}（§4.7）。**理由**：多数候选最终不是记忆；叫「草稿」会诱发「Agent 可以读草稿」这一危险误区。⑦ **「非正典、不得被引用」升级为硬规则**（§4.10）：**Agent 默认不得读 Inbox 当知识使用**；列禁止行为 5 条 / 允许行为 4 条（仅写入与 triage 角色可读）。⑧ **取消「4~6 行」硬限制**，改为**最低结构 5 字段必填**（`Candidate` / `What` / `Why` / `Source` / `Candidate Category`），行数不限；**优先保证来源与事实完整性而非行数** —— 理由：行数上限会诱发为压行数而丢 `Why` / `Source`，而这两者恰是 triage 最不可省的部分 | 2026-09-29 |
 
 ## Implementation Record
 
