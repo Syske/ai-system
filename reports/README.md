@@ -8,6 +8,45 @@
 
 ---
 
+## 分类与归属
+
+`reports/` 只放**AI 系统自身的分析与治理记录**，不是任何其他产品交付物的存放地。
+
+**业务产物应落**：工作流自身产物 → `outputs/<workflow>/<yyMMdd>-<descriptor>/`；
+项目变更产物 → `workspaces/<project-id>/…`（按 workflow 的 Outputs 段）；
+机器本地运行记录 → `<workspace>/logs/`、`<workspace>/metrics/`。
+
+> 反例（2026-09-28 处置）：某第三方产品的 7 份 `prepare` 业务报告以一次
+> `chore:` 提交进入 `reports/`，并被完整登记进索引——**所有既有门禁均未告警**，
+> 因为 §6 只要求报告「被登记」，从不校验它「是否属于这里」。那是一份零引用、
+> 无对应工作区项目、仅一次提交后再无改动的孤儿产物。
+
+**类别与命名**（门禁 `tools/checks/reports_scope.py` 强制，check.py 第 17 项）：
+
+| 类别 | 命名模式 | 示例 |
+|---|---|---|
+| `proposals` | `P<编号>-<主题>.md` / `<主题>-PROPOSAL.md` | `P76-PHASE-CONTRACT.md` |
+| `maintenance` | `MAINTENANCE-<日期>[-<范围>].md` / `DAILY-<日期>.md` | `MAINTENANCE-2026-09-28.md` |
+| `assessments` | 含 `ASSESSMENT`/`REVIEW`/`DIAGNOSIS`/`ANALYSIS`/`REEVALUATION`/`OPTIMIZATION`/`REPORT`/`HANDOVER`（不区分大小写） | `ARCHITECTURE-ASSESSMENT-2026-07.md` |
+| `incidents` | `INCIDENT-<日期>-<主题>.md` | `INCIDENT-2026-09-24-ignored-state-wipe.md` |
+| `migrations` | `MIGRATION-<主题>.md` | `MIGRATION-PLAN-v2.md` |
+| `decisions` | `VALUE-BURDEN-DECISION-<主题>.md` | `VALUE-BURDEN-DECISION-skill-sync-2026-09-23.md` |
+| `standards` | `EXTENSION-STANDARDS*.md` | `EXTENSION-STANDARDS.md` |
+| `analysis` | `analysis-<日期>-<主题>/`（目录） | `analysis-2026-08-01-structure-governance/` |
+| `skill-sources` | `skill-source-<日期>-<技能>/`（目录） | `skill-source-2026-08-17-wayfinder/` |
+
+顶层索引文件 `README.md` 与 `PROPOSALS.md` 豁免。
+
+**分类按白名单而非排除法**——首段是 workflow 名无法作为判据（`analysis-*` 既是类别
+也是 workflow 名，而 `prepare-<项目>-*` 是工作流的业务产出，两者首段同类）。
+
+**本文件与 `PROPOSALS.md` 的职责**：本文件是全量分类索引（按报告类型分节）；
+`PROPOSALS.md` 只管 P 系列提案的状态机，状态由 proposal-audit 维护。
+
+详细规则见 `governance/policies/proposal-policy.md` §6.1。
+
+---
+
 ## 提案（P 系列）
 
 状态与门禁见 [PROPOSALS.md](PROPOSALS.md)，此处仅列主题索引：

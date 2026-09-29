@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Approved** (S1 implemented 2026-09-29; S2 pending) |
 | Type | Structural（资产目录布局契约：分类维度、迁移映射、门禁与引用同步） |
 | Author | AI Maintainer |
 | Created | 2026-09-28 |
@@ -219,8 +219,8 @@ reports/
 
 | # | 决策点 | 选项 | 建议 |
 |---|---|---|---|
-| ① | 整体方案 | A 仅门禁 / B 命名规范 / **C 子目录** / D 归档 | **C 分两期**（S1 先做） |
-| ② | 分类粒度 | 7 类（本文）/ 3 类（proposals·maintenance·other）/ 9 类（+ 更细） | 7 类（每类 ≥1 实存文件，无空类） |
+| ① | 整体方案 | A 仅门禁 / B 命名规范 / **C 子目录** / D 归档 | ✅ 用户 2026-09-29 确认 C 分两期；**S1 已完成**（见下），S2 待授权 |
+| ② | 分类粒度 | 7 类（本文）/ 3 类 / 9 类（+ 更细） | ✅ 实施中按门禁首跑结果落为 **9 类**：原 7 类 + `decisions`（VALUE-BURDEN-DECISION-*）+ `standards`（EXTENSION-STANDARDS*）。理由见 §S1-1 |
 | ③ | `analysis/` 与 `skill-sources/` 是否合并为 `multi-file/` | 合并 / 分列 | 分列（两类产出者不同：结构分析 vs skill 溯源） |
 | ④ | `INCIDENT-*` 是否独立成类 | 独立 / 归 assessments | 独立（事故复盘有独立读者与响应流程，且已有 `INCIDENT-2026-09-24` 先例） |
 | ⑤ | S2 迁移是否用 `git mv` 保留历史 | `git mv` / 删除重建 | `git mv`（保留 blame） |
@@ -233,4 +233,86 @@ reports/
 
 | Role | Verdict | Notes |
 |---|---|---|
-| User | **Pending** | 需裁定 §8 七项子决策；建议先批 S1（独立有价值、零迁移风险），S2 待 S1 落地后另行授权 |
+| User | **Approved** | 2026-09-29 确认方案 C 分两期，授权先做 S1（零迁移、直接止血 09-28 事故）；S2 待 S1 落地后另行授权 |
+
+
+---
+
+## Implementation Record (2026-09-29) — S1
+
+**范围**（用户确认）：归属门禁 + 分类定义写进治理 + README 分类清单 + 测试。
+**不含** S2（子目录迁移 + 149 引用同步 + `glob`→`rglob`）。
+
+### 交付物
+
+| 文件 | 内容 |
+|---|---|
+| `governance/policies/proposal-policy.md` §6.1 | 新增「Ownership and Classification」小节：业务产物落点表 + 9 类别命名表 + 3 条规则（含「分类按白名单而非排除法」的理由） |
+| `tools/checks/reports_scope.py` | 3 条检查（check.py 第 17 项） |
+| `cli/tests/test_reports_scope.py` | 11 用例，每条检查配负例 + 真实仓库零 findings |
+| `reports/README.md` | 顶部新增「分类与归属」小节（9 类别表 + 本文件与 PROPOSALS.md 的职责分工） |
+
+### 关键设计：白名单而非排除法
+
+原提案设想过「首段是已注册 workflow 名 → 业务产物」。**实施时实测否决**：
+`analysis-*` 既是合法类别又是 workflow 名，而 `prepare-<project>-*` 是业务产出
+——两者首段同类，排除法无法区分。改为**类别模式白名单**，不匹配即报告
+（而非猜测它像什么）。
+
+### S1-1 — 门禁首跑暴露 10 项分类缺口（真实存量债）
+
+首次对真实仓库运行报 15 项，逐个查证后确认**全部是合法 AI 系统报告**，
+是门禁模式表不够宽 —— 不是文件错了。其中：
+
+- **2 项是门禁真 bug**：`assessments` 正则大小写敏感，漏掉
+  `architecture-review-2026-07.md` 与 `wayfinder-value-reevaluation-2026-09-17.md`
+- **8 项是真实分类缺口**：新增 `decisions` / `standards` 两类，
+  并扩 `maintenance`（`DAILY-*` / `EXTENSIONS-MAINTENANCE-*`）、
+  `assessments`（加 `REPORT` / `HANDOVER` 后缀 + 大小写不敏感）、
+  `proposals`（`<TOPIC>-PROPOSAL.md` 非 P 系列变体）
+
+处置原则（P74 §8-② 精神的延伸）：**扩类别表是政策变更，改文件名以迎合门禁不是
+替代方案**。已在 policy 与 README 两处同步，并注明新增类别的由来。
+
+### S1-2 — 门禁自身的 2 个 bug（负例测试抓出）
+
+1. **目录类别正则要求尾斜杠**：`iterdir()` 返回的 `name` 不带 `/`，
+   导致 5 个合法目录全部误报。修正为不带尾斜杠。
+2. **S2 首段匹配贪婪**：`re.match(r"^([a-z][a-z0-9-]*)-(.+)$", "prepare-beecount-2608")`
+   得到 head=`prepare-beecount`（不是 workflow 名）→ 精确提示失效，业务产物落到
+   通用目录错误。改为**按 workflow 名长度倒序做前缀匹配**（非贪婪）。
+
+### S1-3 — S3 检查曾被 S1 冗余覆盖（自证暴露）
+
+首次自证时短路 S3 后测试仍全绿。查因：`random-collection` 这类非 workflow 开头的
+目录，**S1 也会报错**（只是文案不同）→ S3 对该形状是冗余的。
+
+S3 的独立价值只在「S1/S2 都不命中」时成立，即 workflow 名开头但后缀无第二个横杠
+（`prepare-single`）。据此改写负例夹具，重跑自证 → S3 有效。
+
+**教训**：「负例失败」不等于「该检查被覆盖」——若另一条检查兜住了同一形状，
+短路它不会暴露测试缺陷。**冗余检查必须构造只有自己能报的场景。**
+
+### 门禁自证
+
+| 短路 | 结果 |
+|---|---|
+| S1 未分类单文件 | 1 项失败 ✓ |
+| S2 工作流业务产物 | 2 项失败 ✓ |
+| S3 目录类别（改写夹具后） | 1 项失败 ✓ |
+
+### Validation
+
+全量 673 单测 OK（+11）· check.py PASS（2 WARN 为既有开放提案 / 开放项）·
+quick-check OK/findings 0 · path-audit 0 broken · repo-lint 0 BLOCKER/0 ERROR ·
+workflow-command-audit 0-0-0 · proposal-audit 0 gate error / 0 gate warn ·
+归属门禁真实仓库 0 error。
+
+**已知增量**：repo-lint WARN 115 → 127（12 条来自新文件的英文代码注释，与既有
+基线同类，WARN 级不在 pre-commit strict 范围）。
+
+### S2 待授权
+
+七子目录迁移 + 149 处引用同步 + `proposal-audit` 的 4 处 `glob`→`rglob`
+（含**迁移前后份数相等断言**）+ 引用完整性门禁 + 索引迁移。**风险 R1
+（门禁静默失明）仍未消解，S2 必须单独提交、单独验证。**

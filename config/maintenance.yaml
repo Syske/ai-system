@@ -18,11 +18,35 @@
 # 门禁 tools/checks/config_yaml.py（check.py）继续兜底；改后自查：
 #   python3 -c "import yaml;yaml.safe_load(open('config/maintenance.yaml'))"
 
-last_run: 2026-09-28
+last_run: 2026-09-29
 mode: on-demand
-next_maintenance: '2026-10-05'   # weekly 节奏保持 +7d（本次为用户报障触发的 on-demand 专项，
-                                 # 2026-09-28 原定 weekly 到期日已由本次覆盖）
+next_maintenance: '2026-10-06'   # weekly 节奏保持 +7d（本轮为连续 on-demand 专项，
+                                 # 2026-10-05 原定到期日顺延 1 天以对齐实际节奏）
 last_findings:
+- >-
+  on-demand 连做四轮（2026-09-29，用户逐项确认推进）：①P22:143 交互向导循环检测入库
+  （cli/tests/test_wizard_loop_guard.py，7 用例，**6 条门禁逐条短路自证**；open items 5→4；
+  测试脚本自身修正两处设计错误——必填留空无限重问是**正确**行为、hook 恒失败的出口是
+  用户 BACK/Esc 而非自动终止）②P76 Phase Contract S1+S2 全交付（规范 305 行 + 16 workflow
+  共 117 Phase 契约块 + 8 条门禁 + 15 负例 + **Phase Contract 注入 prompt** —— 5 个
+  hotfix-only Phase 的 Activation 首次对 agent 可见，此前只存在于 runtime 标题后缀与
+  正文「Activate only when」句中而骨架化不保留；顺带修 2 处既有缺陷：runtime-develop 的
+  Phase 1/2 无标题致骨架化失配（agent 完全看不到这两阶段）、release Phase 5 用空格非
+  em dash；code-review 压缩 99→92 行；bugfix Phase 6 的 G1 失效 skill 名 + G2 补
+  pass_criterion 引用既有判据）③门禁自证纪律落地两处（policies/quality-gates.md 新增
+  § Writing a Gate That Can Be Proven to Fail + governance/memory/ai-system/
+  gate-self-verification.md 实证）④P74 S1 归属门禁（tools/checks/reports_scope.py +
+  proposal-policy §6.1 + 9 类别白名单 + 11 负例）。
+  **AI 误判纠正两次**：仅读历史 last_findings 未核实落地，把 7 项已闭环项误列为待办；
+  以及门禁首跑暴露 8 项真实分类缺口 + 2 个门禁自身 bug（目录正则尾斜杠、S2 首段贪婪匹配
+  把 prepare-beecount 当 workflow 名）。**自证暴露的冗余检查**：短路 S3 后测试仍全绿，
+  查因是 S1 兜住了同一形状 —— 负例失败≠该检查被覆盖，冗余检查必须构造只有自己能报的
+  场景（改用 prepare-single）。
+  门禁：673 单测 OK · check.py PASS(2 WARN 既有开放提案/开放项) · quick-check OK/0 ·
+  path-audit 0 broken · repo-lint 0-0-127 · workflow-command-audit 0-0-0 ·
+  proposal-audit 0 gate err/0 warn。体积：prompt 147117→161562 字符
+  （+3611 tok / +9%，补的是此前缺失的契约信息，prefix_stable 16/16 保持）。
+  开放提案 8→5（P74/P76 已 Approved/Implemented 移出盘面）。
 - >-
   on-demand 专项（2026-09-28，用户报障「每次 aic 都提示环境未初始化」）：根因 = cli/main.py
   触发层判据与 P29 契约冲突——_env_uninitialized() 要求 workspace local.yaml 与机器层 env.yaml

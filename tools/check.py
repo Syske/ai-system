@@ -24,6 +24,8 @@ Validates:
     and the active `bugfix.mode` in the merged environment config is registered
 16. Phase contract: frontmatter `phases` vs runtime Phase headings, activation
     expressions, pass_criterion references, declared artifacts (P76)
+17. reports/ ownership: every entry matches a declared category pattern;
+    business artifacts rejected (P74)
 
 The check logic lives in `tools/checks/` submodules; this file keeps the
 documented command entrypoint stable.
