@@ -473,7 +473,7 @@ yyy.service.timeout=5000
 
 ---
 
-# Phase 5 Dependency Validation
+# Phase 5 — Dependency Validation
 
 Verify:
 

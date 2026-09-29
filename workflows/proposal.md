@@ -12,6 +12,19 @@ workflow:
   next: [None]
   outputs:
     base: "outputs/proposal/{yyMMdd}-{title}/"
+  phases:
+    - id: "1"
+      name: "Background Collection"
+    - id: "2"
+      name: "Option Generation"
+    - id: "3"
+      name: "Trade-off Analysis"
+    - id: "4"
+      name: "Solution Recommendation"
+    - id: "5"
+      name: "Risk Identification"
+    - id: "6"
+      name: "Solution Document"
 ---
 # Workflow: Proposal
 

@@ -15,6 +15,19 @@ workflow:
   next: [None]
   outputs:
     base: "outputs/code-review/{yyMMdd}-{target}/"
+  phases:
+    - id: "1"
+      name: "Target Resolution"
+    - id: "2"
+      name: "Scope Definition"
+    - id: "3"
+      name: "Code Review"
+    - id: "4"
+      name: "Baseline Comparison"
+    - id: "5"
+      name: "Finding Classification"
+    - id: "6"
+      name: "Review Report"
 ---
 # Workflow: Code Review
 

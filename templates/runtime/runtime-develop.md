@@ -73,9 +73,7 @@ Resolved by Development Runtime:
 
 ---
 
-## Phase 1
-
-Resolve Development Context.
+## Phase 1 — Resolve Development Context
 
 Load:
 
@@ -143,9 +141,7 @@ Conditions / karpathy Stop Conditions):
 
 ---
 
-## Phase 2
-
-Planning.
+## Phase 2 — Planning
 
 Output:
 

@@ -11,6 +11,25 @@ workflow:
   next: [develop]
   outputs:
     base: "workspaces/<project-id>/"
+  phases:
+    - id: "1"
+      name: "Release Scope Analysis"
+    - id: "2"
+      name: "Database Change Analysis"
+    - id: "3"
+      name: "Data Migration Analysis"
+    - id: "4"
+      name: "Configuration Analysis"
+    - id: "5"
+      name: "Dependency Validation"
+    - id: "6"
+      name: "Dependency Analysis"
+    - id: "7"
+      name: "Deployment Preparation"
+    - id: "8"
+      name: "Risk Assessment"
+    - id: "9"
+      name: "Release Readiness"
 ---
 # Workflow: Release
 

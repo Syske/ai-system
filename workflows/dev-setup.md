@@ -11,6 +11,27 @@ workflow:
   next: [develop]
   outputs:
     base: "workspaces/<project-id>/"
+  phases:
+    - id: "1"
+      name: "Resolve Project"
+    - id: "2"
+      name: "Load Project Configuration"
+    - id: "3"
+      name: "Resolve Project Standards"
+    - id: "4"
+      name: "Resolve Project Knowledge"
+    - id: "5"
+      name: "Build Project Context"
+    - id: "6"
+      name: "Bind Project"
+    - id: "7"
+      name: "Resolve Working Environment"
+    - id: "8"
+      name: "Resolve Specification Reference"
+    - id: "9"
+      name: "Build Workspace Context"
+    - id: "10"
+      name: "Persist"
 ---
 # Workflow: Dev Setup
 

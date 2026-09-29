@@ -11,6 +11,23 @@ workflow:
   next: [release, develop]
   outputs:
     base: "workspaces/<project-id>/"
+  phases:
+    - id: "1"
+      name: "Verification Preparation"
+    - id: "2"
+      name: "Specification Verification"
+    - id: "3"
+      name: "Contract Verification"
+    - id: "4"
+      name: "Behaviour Verification"
+    - id: "5"
+      name: "Test Verification"
+    - id: "6"
+      name: "Quality Verification"
+    - id: "7"
+      name: "Validation Status Check"
+    - id: "8"
+      name: "Final Assessment"
 ---
 # Workflow: Verify
 

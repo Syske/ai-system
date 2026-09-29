@@ -3,6 +3,7 @@
 from .base import Checker, ROOT
 from .adr import check_adr
 from .bugfix_modes import check_bugfix_modes
+from .phase_contract import check_phase_contract
 from .misc import (
     check_build,
     check_commands,
@@ -66,6 +67,7 @@ def run_all():
     check_protected_paths(c)
     check_adr(c)
     check_bugfix_modes(c)
+    check_phase_contract(c)
 
     print(
         f"discovered: {len(workflows)} workflows, "

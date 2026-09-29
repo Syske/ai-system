@@ -10,6 +10,23 @@ workflow:
   next: [verify, develop, bugfix, spec]
   outputs:
     base: "workspaces/<project-id>/"
+  phases:
+    - id: "1"
+      name: "Review Preparation"
+    - id: "2"
+      name: "Design Review"
+    - id: "3"
+      name: "Code Review"
+    - id: "4"
+      name: "Standards Review"
+    - id: "5"
+      name: "Quality Review"
+    - id: "6"
+      name: "Review Summary"
+    - id: "7"
+      name: "Task Card Verification"
+    - id: "8"
+      name: "Validation Status Check"
 ---
 # Workflow: Review
 

@@ -11,6 +11,15 @@ workflow:
   next: [review]
   outputs:
     base: "workspaces/<project-id>/"
+  phases:
+    - id: "1"
+      name: "Resolve Development Context"
+    - id: "2"
+      name: "Planning"
+    - id: "3"
+      name: "Invoke Implement Skill"
+    - id: "4"
+      name: "Completion"
 ---
 # Workflow: Develop
 

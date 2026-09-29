@@ -14,6 +14,23 @@ workflow:
   next: [None]
   outputs:
     base: "reports/"
+  phases:
+    - id: "1"
+      name: "Scope and Judge Selection"
+    - id: "2"
+      name: "Bundle Preparation (hygiene first)"
+    - id: "3"
+      name: "Isolated Judge Runs"
+    - id: "4"
+      name: "Shape Check and Retry"
+    - id: "5"
+      name: "Cross-Model Reconciliation"
+    - id: "6"
+      name: "Verification Before Counting"
+    - id: "7"
+      name: "Curated Durable Report"
+    - id: "8"
+      name: "Inbound Gate and Follow-up"
 ---
 # Workflow: External Review
 

@@ -11,6 +11,25 @@ workflow:
   next: [dev-setup]
   outputs:
     base: "workspaces/<project-id>"
+  phases:
+    - id: "1"
+      name: "Requirement Discovery"
+    - id: "2"
+      name: "Architecture Analysis"
+    - id: "2.5"
+      name: "Design Decision Pressure Test (Optional)"
+    - id: "3"
+      name: "Specification"
+    - id: "4"
+      name: "Contracts"
+    - id: "5"
+      name: "Business Scenarios"
+    - id: "6"
+      name: "Task Planning"
+    - id: "7"
+      name: "Consistency Review"
+    - id: "8"
+      name: "Development Readiness"
 ---
 # Workflow: Spec
 

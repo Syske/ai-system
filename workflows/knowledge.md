@@ -8,6 +8,19 @@ workflow:
       - name: Knowledge Scope
       - name: Source
   next: [None]
+  phases:
+    - id: "1"
+      name: "Knowledge Discovery"
+    - id: "2"
+      name: "Knowledge Extraction"
+    - id: "3"
+      name: "Knowledge Classification"
+    - id: "4"
+      name: "Knowledge Validation"
+    - id: "5"
+      name: "Knowledge Storage"
+    - id: "6"
+      name: "Knowledge Retrieval"
 ---
 # Workflow: Knowledge
 

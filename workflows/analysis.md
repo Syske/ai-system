@@ -8,6 +8,19 @@ workflow:
       - name: Analysis Scope
       - name: Existing Reports
   next: [knowledge, prepare]
+  phases:
+    - id: "1"
+      name: "Context Analysis"
+    - id: "2"
+      name: "Structure Analysis"
+    - id: "3"
+      name: "Dependency Analysis"
+    - id: "4"
+      name: "Consistency Analysis"
+    - id: "5"
+      name: "Quality Assessment"
+    - id: "6"
+      name: "Recommendations"
 ---
 # Workflow: Analysis
 

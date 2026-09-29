@@ -14,6 +14,21 @@ workflow:
   next: [spec]
   outputs:
     base: "workspaces/<project-id>/"
+  phases:
+    - id: "1"
+      name: "Requirement Collection"
+    - id: "2"
+      name: "Repository Analysis"
+    - id: "3"
+      name: "Architecture Analysis"
+    - id: "4"
+      name: "Dependency Analysis (on-demand)"
+    - id: "5"
+      name: "Impact Analysis"
+    - id: "6"
+      name: "Risk Assessment (on-demand)"
+    - id: "7"
+      name: "Readiness Assessment"
 ---
 # Workflow: Prepare
 

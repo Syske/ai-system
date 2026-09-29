@@ -13,6 +13,19 @@ workflow:
   next: [prepare, develop, None]
   outputs:
     base: "outputs/change-impact/{yyMMdd}-{target}/"
+  phases:
+    - id: "1"
+      name: "Target Resolution"
+    - id: "2"
+      name: "Impact Scope Analysis"
+    - id: "3"
+      name: "Risk Analysis"
+    - id: "4"
+      name: "Modification Plan"
+    - id: "5"
+      name: "Spec/Task Impact Analysis"
+    - id: "6"
+      name: "Report"
 ---
 # Workflow: Change Impact
 

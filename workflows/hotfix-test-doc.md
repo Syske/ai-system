@@ -11,6 +11,21 @@ workflow:
   next: [None]
   outputs:
     base: "outputs/hotfix-test-doc/{yyMMdd}-{desc}/"
+  phases:
+    - id: "1"
+      name: "Extract Branch Facts"
+    - id: "2"
+      name: "Gather Details"
+    - id: "3"
+      name: "Resolve Parent Page"
+    - id: "4"
+      name: "Fill Template"
+    - id: "5"
+      name: "Validate Before Publish (mandatory)"
+    - id: "6"
+      name: "Create Confluence Page (exact title)"
+    - id: "7"
+      name: "Verify After Publish (mandatory)"
 ---
 # Workflow: HotFix Test Doc
 

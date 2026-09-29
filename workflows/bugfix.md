@@ -17,6 +17,37 @@ workflow:
     - hotfix-test-doc
   outputs:
     base: "outputs/bugfix/{yyMMdd}-{descriptor}/"
+  phases:
+    - id: "1"
+      name: "Issue Analysis"
+    - id: "2"
+      name: "Reproduction"
+    - id: "3"
+      name: "Root Cause Analysis"
+    - id: "4"
+      name: "Fix Planning"
+    - id: "4.5"
+      name: "Approval Gate"
+      activation: "WHEN mode.approval_gate"
+    - id: "4.6"
+      name: "Branch"
+      activation: "WHEN mode.phases ∋ branch"
+    - id: "5"
+      name: "Implement"
+    - id: "6"
+      name: "Regression Verification"
+      pass_criterion: "Verification Status = PASS (runtime-verify Phase 7/8 criteria)"
+    - id: "6.5"
+      name: "Commit"
+      activation: "WHEN mode.phases ∋ commit"
+    - id: "6.6"
+      name: "Submit MR"
+      activation: "WHEN mode.phases ∋ mr ∧ phase(\"6.5\").completed"
+    - id: "6.7"
+      name: "Doc"
+      activation: "WHEN mode.phases ∋ doc ∧ phase(\"6\").passed"
+    - id: "7"
+      name: "Completion"
 ---
 # Workflow: BugFix
 

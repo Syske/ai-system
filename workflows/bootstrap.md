@@ -8,6 +8,17 @@ workflow:
       - name: Environment
         default: local
   next: [prepare]
+  phases:
+    - id: "1"
+      name: "Load Environment Configuration"
+    - id: "2"
+      name: "Derive Base Paths"
+    - id: "3"
+      name: "Build Environment Context"
+    - id: "4"
+      name: "Persist"
+    - id: "5"
+      name: "Initialize Workspace"
 ---
 # Workflow: Bootstrap
 
