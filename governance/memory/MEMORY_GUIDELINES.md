@@ -769,6 +769,89 @@ governance/memory/java/integration.md
 
 ---
 
+# Experience Inbox
+
+`governance/memory/drafts/` is the **Experience Inbox**: a low-friction staging
+area for unverified candidates, not memory and not a memory draft. It sits under
+`governance/memory/` only for proximity; the name and this section exist because
+the path alone invites the wrong inference.
+
+The directory is git-ignored. Its content never reaches the repository.
+
+## Hard Rule: Inbox Is Not Knowledge
+
+> **An agent must not use `governance/memory/drafts/` content as a basis for
+> knowledge by default.**
+
+Forbidden:
+
+| Forbidden | Counter-example form |
+|---|---|
+| Citing Inbox content as a fact in an answer | "Per candidate X, ..." where X was never verified |
+| Linking or referencing an Inbox path in rules, skills, reports, or canonical entries | ``see `governance/memory/drafts/{yyyymmdd}-{session|topic}.md` `` |
+| Reasoning from Inbox content as "verified experience" | using an unverified candidate to support a technical judgement |
+| Writing an Inbox path into any tracked asset | index, script doc, ADR, report |
+| Widening the memory gate exemption under the guise of this rule | parking "actually worth keeping long term" content in the Inbox |
+
+Permitted, and only under these conditions:
+
+| Permitted | Condition |
+|---|---|
+| Writing a candidate | at session end |
+| Reading during triage | the triage role only (`aic-maintain` step 2.6) |
+| Deleting after triage | once the outcome is committed |
+| Reporting "the Inbox holds N candidates awaiting triage" | in the triage report |
+
+The most dangerous misreading is that something called a memory draft is memory
+itself, and therefore readable. A candidate can carry a plausible story and a
+false citation; the source field exists so triage can **reject** it. If candidates
+are cited as knowledge before triage, source verification becomes theatre.
+
+## Candidate Format
+
+Filename: `governance/memory/drafts/{yyyymmdd}-{session|topic}.md`. Create the
+directory on demand (`mkdir -p`). Any language, any format. No line limit —
+completeness of the source beats brevity.
+
+Five fields are mandatory, all of them:
+
+```markdown
+## Candidate: <one-line title>
+
+- What: <what happened or was learned>
+- Why: <why it matters beyond this session>
+- Source: <file:line, commit hash, command output, or URL>
+- Candidate Category: memory | standards | skill | project-workspace
+```
+
+Language is not constrained at capture. The **canonical** layer stays English
+(`MEMORY_GUIDELINES.md` Language section, enforced by the pre-commit gate). The
+translation is the triage step's responsibility, not capture's — capture does
+not translate.
+
+## Triage
+
+Triage runs on the maintenance cadence (`OPERATIONS.md` 1.7), reading
+`drafts/*.md`. For each candidate, verify the source **first**, then dedupe,
+then route it:
+
+| Destination | Route to |
+|---|---|
+| Canonical experience | `governance/memory/<category>/` (English, full entry format) |
+| A rule, not an experience | `governance/standards/` |
+| A capability, not an experience | `skills/` |
+| Belongs to one project only | the project workspace |
+| Discard | record the reason, per candidate |
+
+After triage: commit what was promoted, delete the drafts, record the counts.
+Counts are mandatory — see the maintenance operational metric (P71 5.9). A
+triage run that reports no counts is not a completed triage run.
+
+No candidate is a legitimate outcome. An empty Inbox after triage is a normal
+result, not a failure.
+
+---
+
 # Lifecycle Triggers
 
 Coding Memory is maintained through the `knowledge` workflow operations.

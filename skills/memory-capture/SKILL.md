@@ -34,6 +34,39 @@ repository — NOT rules, NOT task state, NOT reports.
 - One-off incidents without a reusable lesson
 - Content duplicating an existing memory entry (update the old one instead)
 
+## Two Paths
+
+Both paths record the same thing. They differ only in when triage happens.
+
+| Path | When | Cost |
+|---|---|---|
+| **Inbox (default)** | Session end, when the session is verified but the entry does not have to be canonical right now | Lowest. Five fields, any language, git-ignored, no commit required |
+| **Direct to canonical** | The session is settled and the entry already meets the full format, or the user asks to record it now | Higher. Eleven fields, English, index update |
+
+Prefer the Inbox. Direct-to-canonical is the exception, not the parallel norm
+— two equally weighted paths is how one of them quietly stops being used.
+
+**Inbox path.** Write to `governance/memory/drafts/{yyyymmdd}-{session|topic}.md`
+(`mkdir -p` on demand). All five fields are mandatory, in any language, no line
+limit:
+
+```markdown
+## Candidate: <one-line title>
+
+- What: <what happened or was learned>
+- Why: <why it matters beyond this session>
+- Source: <file:line, commit hash, command output, or URL>
+- Candidate Category: memory | standards | skill | project-workspace
+```
+
+`Source` is the field that makes triage possible. An entry without it is a
+claim; with it, a claim someone can check. Never invent or reconstruct a source
+— an unverified citation is worse than no entry, because triage will spend its
+time trusting it.
+
+You may write candidates and, during triage, read them. **Nothing else.**
+See the hard rule in `MEMORY_GUIDELINES.md` — *Experience Inbox*.
+
 ## Steps
 
 ### 1. Screen the session
@@ -72,6 +105,15 @@ Append the new entry title to the scope index
 Summarize: what was captured (or updated / skipped as duplicate), and why.
 
 ## Validation
+
+Inbox path:
+
+- Five mandatory fields present on every candidate
+- `Source` is a real, checkable reference — not reconstructed
+- The file is under `governance/memory/drafts/`
+- No Inbox path referenced from any tracked asset
+
+Both paths:
 
 - Lesson field present on every entry (memory.py gate)
 - No duplicate Lesson across files (memory.py warns)

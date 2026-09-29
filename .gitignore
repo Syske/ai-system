@@ -36,3 +36,8 @@ metrics/
 
 # eclipse JDT 干跑 gate（C2）编译产物
 tools/jdt-format-gate/build/
+
+# Experience Inbox — 未核验候选，git-ignored（P71）
+# 内容永不进版本库：草稿可含中文、未经核验的来源与未定的判断。
+# 晋升路径只有一条 —— triage 写入正典并提交（MEMORY_GUIDELINES "Experience Inbox"）。
+governance/memory/drafts/

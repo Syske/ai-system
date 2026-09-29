@@ -83,9 +83,16 @@ Boundaries that are deliberate, not gaps in effort:
   its own output, and any CI artifact, into a second copy of the leak.
 
 Exemptions are explicit and greppable, never inferred: `ai-secret-scan: allow` on a
-line, or `ai-secret-scan: allow-file` in a file header. Two files carry the marker
-today: this module's detector (every pattern is a literal in it) and its test file
-(every negative case is a sample in it).
+line, or `ai-secret-scan: allow-file` as the first lines of the module or file
+docstring. The gate never guesses an exemption, so a file that legitimately needs
+one must carry the marker or the commit will be blocked — which is the intended
+behaviour, not an obstacle to route around with `--no-verify`.
+
+A file needs `allow-file` when it necessarily contains what the gate detects:
+detector modules (every pattern is a literal in them) and their tests (every
+negative case is a sample in them), plus any document that quotes a detection
+pattern in order to explain it. A single quoted example should use the inline
+`allow` marker instead, leaving the rest of the file scanned.
 
 ### Prompt and Instruction Injection
 

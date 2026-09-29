@@ -9,6 +9,22 @@ MEMORY_ROOT = ROOT / "governance" / "memory"
 
 MEMORY_INDEX = "governance/memory/coding-memory.md"
 
+# Experience Inbox (P71). Git-ignored, so .gitignore does not stop the
+# rglob below from walking it — the exemption has to be explicit. Two
+# independent reasons, and they must not be conflated:
+#
+#   1. Language: candidates are captured in any language by design; only the
+#      canonical layer is English. Applying the canonical rule here would make
+#      low-friction capture impossible.
+#   2. Entry format: candidates carry five required fields, not the eleven-field
+#      canonical entry. A format check would reject every one of them.
+#
+# This exemption covers the drafts directory ONLY. Content security is a
+# separate gate that does apply there: secret + injection scan
+# (tools/checks/secret_scan.py, P78). The two gates are complementary —
+# memory rules language and format, the security gate rules content.
+DRAFTS_DIR = "governance/memory/drafts/"
+
 CJK_RE = re.compile(r"[\u4e00-\u9fff]")
 
 MEMORY_REQUIRED = ("Lesson",)
@@ -50,6 +66,9 @@ def language_violations(files=None):
             continue
 
         if rel == MEMORY_INDEX:
+            continue
+
+        if rel.startswith(DRAFTS_DIR):
             continue
 
         if p.suffix != ".md" or not p.is_file():
