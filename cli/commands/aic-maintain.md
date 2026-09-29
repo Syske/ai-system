@@ -56,18 +56,16 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
      captured to Coding Memory / env.yaml / a proposal → decide capture /
      machine-config / proposal (Issue Capture triage). Skip single-shot
      transients.
-   - **Experience Inbox triage** (P71) — procedure and the read-only hard rule
-     are in `MEMORY_GUIDELINES.md` "Experience Inbox"; do not restate them here.
-     Runs even when the Inbox looks empty. **Verify each `Source` before
-     promoting**; discard needs a recorded reason per candidate; no candidate is
-     a legitimate result. Commit promotions, then delete the drafts.
+   - **Experience Inbox triage** (P71) — procedure and the read-only hard rule live
+     in `MEMORY_GUIDELINES.md` "Experience Inbox"; do not restate them here. Runs even
+     when empty. **Verify each `Source` before promoting**; discard needs a reason per
+     candidate; no candidate is a legitimate result. Commit promotions, delete drafts.
    - **Record the five counts, always** (P71 5.9): generated / triaged / promoted /
      redirected / discarded + per-discard reasons, into the report and
-     `config/maintenance.yaml`. A run reporting no counts is not a completed
-     run — "the folder is empty" is not a metric.
+     `config/maintenance.yaml` (append to `last_findings`). No counts = run incomplete.
 
 3. **Governance consistency spot check** (always — these recur otherwise)
-   - workflows/*.md: eight sections present and in order; terminology matches workflows/README.md; Runtime refs exist; Preconditions/Next chain closes
+   - workflows/*.md: eight sections in order; terminology matches workflows/README.md; Runtime refs exist; Preconditions/Next chain closes
    - config/workflows/*.yaml: registry stays minimal (name/workflow/runtime), no re-bloating into inputs/outputs/next (prevent A1 recurrence)
    - Referenced paths exist (governance/standards/, loaders/, templates/prompts/, cli/commands/); junction/symlink targets like projects/ resolve
    - Doc-vs-reality: AGENTS.md + AI_DEVELOPMENT_CONTRACT diagrams, OPERATIONS sections match the actual layout
@@ -88,13 +86,13 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 
 ## Maintenance Report
 
-报告字段、`config/maintenance.yaml` 更新与 last_findings 纪律见 `skills/repository-maintainer/health.md` §Maintenance State Update（aic-maintain Output）。
+报告字段、`config/maintenance.yaml` 更新与 last_findings 纪律见 `skills/repository-maintainer/health.md` §Maintenance State Update。
 
 **Guardrails**
 
 - Follow AI_DEVELOPMENT_CONTRACT (no redesign / no responsibility moves / structural changes → suggestions only); confirm before each batch of fixes (Change Control)
 - Inspection is read-first; modifications limited to confirmed minor fixes
-- Maintains ai-system ARCHITECTURE only; aic-tool health runs via quick-check (OPERATIONS 1.8.1)
+- Maintains ai-system ARCHITECTURE only; tool health runs via quick-check (OPERATIONS 1.8.1)
 - Maintenance experience is recorded in reports/ — consult the index, not this file
 - CI without the extensions repo: parser/mr.provider checks degrade to WARN, not ERROR
-- The Inbox is read for triage only; never cite a candidate as knowledge (P71 4.10)
+- The Inbox is triage-read only; never cite a candidate as knowledge (P71 4.10)
