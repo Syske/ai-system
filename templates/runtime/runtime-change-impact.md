@@ -239,3 +239,31 @@ Present the next-action choices to the user in the system language:
 | spec/task 需要调整 | → **prepare**（scoped re-entry，OPERATIONS.md 1.5）或 **aic-trace** 对账/backfill |
 | 实现就绪 | → **develop**（需提供 Project ID 与 Task ID） |
 | 仅分析，不继续 | → 结束（保留 change-impact-report.md） |
+
+## Experience Candidates
+
+If this analysis produced a reusable lesson — a non-obvious coupling between
+modules, a boundary that turns out to be wrong, an impact that surprised you,
+a spec/task relationship worth remembering — record it as a candidate via the
+`memory-capture` skill (Inbox path by default).
+
+Qualification: **verified** (the coupling is real, not suspected) · **reusable**
+(a future impact analysis would hit it) · **experience** (a lesson, not a rule —
+rules go to `governance/standards/`) · **not a duplicate** of an existing memory
+entry or of a candidate already written by this change's `develop` / `review`
+close-out.
+
+The duplicate clause matters more here than in other runtimes: an impact
+analysis and the change it analyses look at the same material from two
+directions, so they surface the *same* lesson with different wording. Prefer the
+one with the verifiable `Source`; if both are already in the Inbox, say so and
+let triage merge them rather than writing a third.
+
+Write five fields: What / Why / Source / Candidate Category. `Source` must be a
+real, checkable reference (file:line, commit, command output).
+
+**No qualifying candidate is a valid outcome.** Do not manufacture one to appear
+thorough, and do not pad the Inbox.
+
+Language is free here; canonical memory is English, and translation is the
+triage step's job, not the candidate's.

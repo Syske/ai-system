@@ -60,10 +60,10 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
      redirected / discarded + per-discard reasons + `<machine>`, into the report and
      `last_findings`. No counts = run incomplete.
    - **Snapshot the run denominator** (P71 5.9) — never read the rate back off `logs/`,
-     it has been wiped before (INCIDENT-2026-09-24): count develop / review / bugfix
-     logs, append `{ts, watermark, develop, review, bugfix, files}` to
-     `metrics/by-machine/<machine-id>/knowledge-runs.jsonl` (newer than `watermark`
-     only; keep `files` verbatim so the count stays auditable).
+     it has been wiped before (INCIDENT-2026-09-24): count the four instrumented
+     workflow logs, append `{ts, watermark, develop, review, bugfix, change-impact,
+     files}` to `metrics/by-machine/<machine-id>/knowledge-runs.jsonl` (newer than
+     `watermark` only; keep `files` verbatim so the count stays auditable).
 
 3. **Governance consistency spot check** (always — these recur otherwise)
    - workflows/*.md: eight sections in order; terminology matches workflows/README.md; Runtime refs exist; Preconditions/Next chain closes
