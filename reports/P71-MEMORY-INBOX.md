@@ -193,6 +193,8 @@ Inbox —— governance/memory/drafts/{yyyymmdd}-{session|topic}.md
                         ↓
 周巡检 / 日常巡检 —— aic-maintain step 2.6
   └─ 逐条 triage（**先用 Source 核验真伪**，再查重）：
+       ⓪ **若候选非英文，在此完成语言转换**（Capture 层不限语言；**转换责任在
+          triage，不在 Capture** —— 见下方「语言分层」）
        ① 蒸馏进 governance/memory/<category>/（英文 + 格式 + 索引）  → Memory
        ② 改投 standards/                                            → Standards
        ③ 改投 skills/                                                → Skill
@@ -251,6 +253,24 @@ Candidate Category: memory(<category>) | standards | skill | workspace(<project>
 **暴露窗口** = 自上次巡检起（周巡检 → 最多 7 天；日常巡检触发则更短）。
 **没有任何未提交的内容可以保证不丢** —— 能保证的只有「提交过的东西」。若要连草稿原文也不丢，
 见 §4.9。
+
+**语言分层（2026-09-29 追加，源自 P77 §10 的 Multilingual 讨论）**：
+
+```text
+Capture 层（Inbox）    ── 不限语言，中文候选原样沉淀
+        ↓
+Triage 层             ── **在此完成语言转换**（Capture 不承担翻译）
+        ↓
+Canonical 层（正典）  ── 仍强制英文（MEMORY_GUIDELINES + pre_commit_gate 阻断 CJK）
+```
+
+**为什么必须显式分层**：本提案同时要求「Inbox 可中文（低摩擦）」与「正典强制英文」，
+但**从未规定转换发生在哪一步**——triage 描述里只有「蒸馏进正典（英文）」这一句结果性
+表述，过程缺位。分层后责任唯一：**triage 转换，Capture 不翻译**。
+
+这不是取舍（Capture 要中文 **且** 正典要英文，两者不冲突），而是**把已有但未言明的
+责任归属写死**。同一分层在 Hindsight 的 multilingual 设计中亦被独立得出
+（capture 保留原语言，canonical 层语言另定）——见 `reports/P77-HINDSIGHT-EVALUATION.md` §10.4-③。
 
 **四条护栏（缺一即退化）**：① 每次巡检都沉淀（挂周巡检 + 日常巡检；月度 review 仍只管去重/查矛盾/查过期）
 ② 沉淀后**必须提交 + 必须删草稿**（陈旧草稿 WARN 先不做）③ **Inbox 硬规则**（§4.10）：Agent 不得读 Inbox 当知识使用；任何规则/技能/报告不得引用其路径
@@ -403,8 +423,17 @@ memory|capture|lesson 的命中数**全为 0** —— 三个真正产生工程�
 通道重新进入知识面——正是 §4.10 硬规则要防的事。
 
 **触发下一阶段的前置条件**（缺一不动 Hindsight）：
-① 连续 ≥4 次巡检记录了完整的 §5.9 五项计数（证明 metric 可持续采集）；
-② 正典条目周累计稳定增长；③ 至少 1 条正典条目被实际复用并被记录。
+
+| # | 条件 | 状态 |
+|---|---|---|
+| ① | 连续 ≥4 次巡检记录了完整的 §5.9 五项计数（证明 metric 可持续采集） | 本提案 §5.9 |
+| ② | 正典条目周累计稳定增长 | 本提案 §5.9 |
+| ③ | 至少 1 条正典条目被实际复用并被记录 | 本提案 §5.9 |
+| ④ | **「普通检索够不够」的前置验证结论为「不够」** | **`reports/P77-HINDSIGHT-EVALUATION.md` §6（2026-09-29 追加）** |
+
+> **④ 必须在 ①②③ 之后**，因为「检索够不够」的答案**依赖正典规模** —— 19 条时普通
+> grep 很可能已经够用，此时做验证会得出「Hindsight 无价值」的**错误结论**；规模翻倍
+> 后答案可能相反。**不得在当前规模下验证并据此下结论。**
 
 ---
 
@@ -516,6 +545,7 @@ Discard reasons:
 |---|---|---|
 | User (AI Maintainer operator) | **Approved** —— 采纳 §4.7 **C″**：① 草稿区落在 **`governance/memory/drafts/`**（明确否决 `logs/memory/`：草稿紧挨正典，语义自解释、不在日志清理范围）② 日常会话**不要求提交** ③ **巡检必沉淀并提交**（持久性由沉淀结果保证）④ 草稿**必须记清来源**以便溯源 | 2026-09-24 |
 | User (AI Maintainer operator) | **Approved（追加）** —— ⑤ 在 develop / review / bugfix **集成 memory 捕获**以扩大样本（§4.8）；并确认持久性边界按 §4.7 表执行（**草稿原文不保证不丢**，能保证的是提交过的正典）；L3 是否要做见 §4.9 | 2026-09-24 |
+| User (AI Maintainer operator) | **Approved（第四追加）** —— ⑫ **显式写入「语言分层」**（源自 P77 对 Hindsight multilingual 的讨论）：Capture 层（Inbox）不限语言、中文候选原样沉淀；**语言转换发生在 triage**（Capture 不承担翻译）；Canonical 层仍强制英文。这补上了本提案一直缺位的一环——此前同时要求「Inbox 可中文」与「正典强制英文」，却从未规定转换责任在哪一步 | 2026-09-29 |
 | User (AI Maintainer operator) | **Approved（第三追加）** —— ⑨ **增加 operational metric**（§5.9）：验收不再看「`drafts/` 是否为空」（该观测**无法区分**「全部沉淀」与「Agent 根本没产生候选」，而后者已实测存在），改为每次巡检记录五项计数（candidates generated / triaged / canonical memories created / redirected / discarded + **逐条 discard 理由**）与四个派生指标（候选产生率 / 沉淀率 / 丢弃率 / 积压）。**「Memory 实际复用率」不列入首版** —— 当前无机制记录反向引用，无数据来源。⑩ **路线图与优先级**（§5.8）：**P71 C″ = 9/10 应该落地**；**Hindsight = 7.5/10 保留为下一阶段 PoC**，且其职责**只做 Recall / Reflect，不做 Governance / Triage**（否则等于让未审核内容借 Recall 通道重新进入知识面，正是 §4.10 要防的）；并给出触发下一阶段的三个前置条件。⑪ 确认 §2.1 实测为 **P71 的核心论据** —— 「14 提交 / 6 条经验 / 捕获 0 条」比「833 行指南没人读」更直接，因为它证明的是**机制在真实工作流中已失灵**，而非「可能没人读」 | 2026-09-29 |
 | User (AI Maintainer operator) | **Approved（再追加）** —— ⑥ **语义改名 Experience Inbox**：不是 "memory 的草稿"，而是**未经审核的经验候选队列**；生命周期显式为 Experience → Candidate → Inbox → Triage → {Memory / Standards / Skill / Project Workspace / Discard+理由}（§4.7）。**理由**：多数候选最终不是记忆；叫「草稿」会诱发「Agent 可以读草稿」这一危险误区。⑦ **「非正典、不得被引用」升级为硬规则**（§4.10）：**Agent 默认不得读 Inbox 当知识使用**；列禁止行为 5 条 / 允许行为 4 条（仅写入与 triage 角色可读）。⑧ **取消「4~6 行」硬限制**，改为**最低结构 5 字段必填**（`Candidate` / `What` / `Why` / `Source` / `Candidate Category`），行数不限；**优先保证来源与事实完整性而非行数** —— 理由：行数上限会诱发为压行数而丢 `Why` / `Source`，而这两者恰是 triage 最不可省的部分 | 2026-09-29 |
 
