@@ -430,6 +430,21 @@ bugfix G1·G2 修复）。
 quick-check OK/findings 0 · path-audit 0 broken · repo-lint 0 BLOCKER/0 ERROR ·
 workflow-command-audit 0-0-0 · 16 个 workflow frontmatter YAML 全部合法。
 
+### 过程教训的落地位置（用户 2026-09-29 定：两处）
+
+| 内容 | 位置 | 理由 |
+|---|---|---|
+| 方法论规则（每条门禁配负例 · 逐条短路自证 · 短路变更本身须验证 · 门禁 bug 是细节假设）+ 上线检查清单 | `governance/policies/quality-gates.md` § "Writing a Gate That Can Be Proven to Fail" | 门禁**作者**的行为规范，读者是写门禁的 AI/人，与既有 `Gate Severity` 同层；`policies/` 是跨层规则落点（`phase-contract.md` 已确立该先例） |
+| 本轮实证（6 条短路结果表 · `or ["*"]` 反转实例 · 3 个门禁 bug 的症状表 · 顺带暴露的 2 个内容缺陷） | `governance/memory/ai-system/gate-self-verification.md`（新建，登记进 `ai-system/coding-memory.md` 索引） | 一次性**证据**进 memory，规则进 policy——`MEMORY_GUIDELINES.md` 明写「experience repository, not a rule repository」 |
+
+**未落 `AI_OPERATING_RULES.md`**：那是跨层通用行为约束，而「写门禁要配负例」是具体技术
+实践，塞进去会稀释该文件密度。
+
+**未落 `skills/`**：门禁编写不是 skill 能力，是 policy 级纪律。
+
+memory 门禁校验：0 error / 0 warning（三条目均含 `Context`/`Problem`/`Scope`/`Lesson`/
+`Solution` 五字段，`Lesson` 为 `MEMORY_REQUIRED`）。
+
 ### S2 待授权
 
 `## Phases` 第九段（16 workflow，固定 3 行入口）· prompt 渲染注入 Phase Contract ·
