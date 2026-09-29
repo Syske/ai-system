@@ -21,11 +21,8 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    ```bash
    python3 tools/quick-check.py            # lint + path + extensions, records findings
    python3 tools/quick-check.py --history  # recent snapshots (trend for report)
-   python3 tools/maintain-delta.py --check # delta verdict: NO_CHANGES -> skip full audits
+   python3 tools/maintain-delta.py --check # prints verdict + suggested subset; follow it
    ```
-
-   - `maintain-delta.py --check`: FIRST_RUN → full audit; NO_CHANGES (no commits
-     since last full run) → skip heavy audits; CHANGED → affected-area subset
 
 1. **Tool checks** (run in the ai-system directory)
 
@@ -42,8 +39,7 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 2. **Mode-based inspection** (per skills/repository-maintainer and OPERATIONS.md section 9)
    - weekly: duplication / dependency graph / orphan assets / health score
    - monthly: architecture review / capability matrix / lifecycle report / evolution
-   - quarterly: workflow redesign / capability restructuring / Playbook / knowledge cleanup
-   - on-demand: run the corresponding items above per Scope
+   - quarterly: workflow redesign / capability restructuring / Playbook / knowledge cleanup; on-demand: the above per Scope
    - Scope=extensions: `extensions-lint.py` (+ `--fix-missing-log`), verify repo sync (`git -C <workspace>/extensions status`), report per-extension health (SKILL.md / OPTIMIZATION_LOG coverage)
 
 2.5 **AI system health (analysis workflow, internal)** — run its checks as an
@@ -61,14 +57,19 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
      when empty. **Verify each `Source` before promoting**; discard needs a reason per
      candidate; no candidate is a legitimate result. Commit promotions, delete drafts.
    - **Record the five counts, always** (P71 5.9): generated / triaged / promoted /
-     redirected / discarded + per-discard reasons, into the report and
-     `config/maintenance.yaml` (append to `last_findings`). No counts = run incomplete.
+     redirected / discarded + per-discard reasons + `<machine>`, into the report and
+     `last_findings`. No counts = run incomplete.
+   - **Snapshot the run denominator** (P71 5.9) — never read the rate back off `logs/`,
+     it has been wiped before (INCIDENT-2026-09-24): count develop / review / bugfix
+     logs, append `{ts, watermark, develop, review, bugfix, files}` to
+     `metrics/by-machine/<machine-id>/knowledge-runs.jsonl` (newer than `watermark`
+     only; keep `files` verbatim so the count stays auditable).
 
 3. **Governance consistency spot check** (always — these recur otherwise)
    - workflows/*.md: eight sections in order; terminology matches workflows/README.md; Runtime refs exist; Preconditions/Next chain closes
    - config/workflows/*.yaml: registry stays minimal (name/workflow/runtime), no re-bloating into inputs/outputs/next (prevent A1 recurrence)
    - Referenced paths exist (governance/standards/, loaders/, templates/prompts/, cli/commands/); junction/symlink targets like projects/ resolve
-   - Doc-vs-reality: AGENTS.md + AI_DEVELOPMENT_CONTRACT diagrams, OPERATIONS sections match the actual layout
+   - Doc-vs-reality: AGENTS.md + AI_DEVELOPMENT_CONTRACT diagrams, OPERATIONS sections vs actual layout
    - State hygiene: project/change references in workspaces/.aic-state.yaml still exist
    - **Run-log coverage**: uncommitted changes vs logs/ records — changes with no run log are flagged for attribution before commit (2026-09-01)
    - **Proposal leftovers**: `python3 tools/proposal-audit.py --refresh-index`; report each open proposal / `- [ ]` item's disposition (approve / implement / reject / defer)
@@ -76,9 +77,9 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
 4. **Persist report**
    - Skeleton first: `python3 tools/maintain-report.py --date {date}`, then fill
      findings / consistency / fix list. Non-destructive.
-   - Write reports/MAINTENANCE-{date}.md: findings by severity, fix suggestions,
-     metric comparison (vs previous snapshot), and the P71 5.9 counts.
-   - Language-gate the report before presenting (P45): `python3 tools/language-gate.py reports/MAINTENANCE-{date}.md`
+   - Write reports/MAINTENANCE-{date}.md: findings by severity, fix suggestions, metric
+     comparison (vs previous snapshot), P71 5.9 counts + run-denominator snapshot path.
+   - Language-gate the report (P45): `python3 tools/language-gate.py reports/MAINTENANCE-{date}.md`
    - Minor issues fixed in place after confirmation and recorded; structural
      changes **suggestions only** (OPERATIONS 11: Analyze → Propose → Review → Approve)
 
