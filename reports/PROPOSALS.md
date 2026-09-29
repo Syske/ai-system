@@ -81,7 +81,7 @@
 | Proposed | runtime 模板体量治理（体量门禁 + 报告模板外提 + 契约下沉 base） | 2026-09-28 | `P75-RUNTIME-TEMPLATE-SIZE-GOVERNANCE.md` |
 | Implemented | Phase Contract（Phase 一等契约：第九段 + Activation 语义 + Declares 校验） | 2026-09-28 | `P76-PHASE-CONTRACT.md` |
 | Proposed | Hindsight 评估：Experience Knowledge Layer 候选定位与前置验证 | 2026-09-29 | `P77-HINDSIGHT-EVALUATION.md` |
-| Approved | Secret 与 Prompt-Injection 门禁（AI 自动写入内容的入库防线） | 2026-09-29 | `P78-SECRET-INJECTION-GATE.md` |
+| Implemented | Secret 与 Prompt-Injection 门禁（AI 自动写入内容的入库防线） | 2026-09-29 | `P78-SECRET-INJECTION-GATE.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
 

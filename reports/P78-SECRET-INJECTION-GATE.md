@@ -8,7 +8,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Approved**（用户 2026-09-29 立即落地；不依赖 Hindsight，不等待 P71） |
+| Status | **Implemented**（S1 全部落地，2026-09-29，commit `5b935e7`；已推送 `origin/main`） |
 | Type | Fix（补齐既有安全纪律的机器执行；新增 injection 结构检测类目）。**不含 Hindsight 兼容层**（见 §7） |
 | Author | AI Maintainer |
 | Created | 2026-09-29 |
@@ -334,11 +334,106 @@ Triage → Canonical Memory → Git
 
 ---
 
+## Implementation Record (2026-09-29) — S1
+
+### S1.1 §4 六项全部落地
+
+| # | 改动 | 状态 |
+|---|---|---|
+| 1 | `tools/checks/secret_scan.py` | ✓ 6 条规则 + git 跟踪集限定 + 掩码报告 |
+| 2 | `check.py` **第 18 项** | ✓ |
+| 3 | `pre_commit_gate.py` **第 4 道闸** | ✓ 覆盖 staged 全类型文件（不限于 memory 区） |
+| 4 | `security-policy.md` | ✓ 漂移已修 + Machine Execution 节 + injection 类目 |
+| 5 | `cli/tests/test_secret_scan.py` | ✓ 34 例 + `test_pre_commit_gate.py` +5 例 |
+| 6 | `README.md` / `PROPOSALS.md` | ✓ |
+
+### S1.2 实施中偏离提案的四处（均已回写 §3）
+
+提案写于门禁运行**之前**。带测实现时有三处设计与提案不符，均以实测为准：
+
+**① `.env` 语义改为「已跟踪即 ERROR」。** 提案 §3.3 写「`.env` 存在即 ERROR」，
+但全量扫描一旦只看工作树，任何持有本地未跟踪 `.env` 的开发者都会被门禁拦住 ——
+门禁不可用。故全量路径限定 `git ls-files`，`.env` 判定改为**在版本库中即 ERROR**，
+且该判定**先于**排除规则（staged 的 `.env` 即将提交，绝不可跳过）。
+
+**② 报告须掩码 —— 提案未要求。** 首版 `excerpt` 原样打印命中行，使 check.py 输出与
+CI artifact 成为**泄漏的第二份副本**。现对 S1–S5 全量掩码（`k = '[redacted]'`），
+并有负例断言 secret 不出现在报错文本中。
+
+**③ 豁免标记位置成为约束。** 提案只说「行内标记 + 文件清单」，未定义文件标记位置。
+首版按「前 20 行内」判定，pre-commit 闸随即**拦下了本次提交**（检测器测试文件的
+标记落在长 docstring 末尾）。约定收紧为「置于 docstring 首行」。未用 `--no-verify`。
+
+**④ I1 极性修正 —— 提案 §3.1.1 的反例设计暴露了缺陷。** 提案的反例表已指出
+「非祈使句不命中」，但首版把 `never skip verification`（**禁止**跳过，
+正是期望行为）判为注入，误伤 `skills/implement/planning.md` 与
+`reports/P70-OUTPUT-DISCIPLINE.md`。**关键词扫描无法区分「指示违规」与
+「禁止违规」** —— 这正是外部评委警告的失效模式。修正：仅
+`always`/`from now on` + skip 触发；`never`/`绝不` 不触发。
+
+真实仓库 findings 收敛：**67 → 15 → 0**。
+
+### S1.3 自证纪律的实际产出（`policies/quality-gates.md`）
+
+本次不是「补了负例测试」而是**测试与真实扫描各抓到独立缺陷**：
+
+| 来源 | 缺陷 | 后果（若未修） |
+|---|---|---|
+| 真实仓库扫描 | S4 任意值命中 38/38，全是 `os.getenv()` / `args.api_key` 变量管道 | 门禁无法使用 |
+| 真实仓库扫描 | I1 B 组单独命中 27/27，全是 YAML 键与 Python kwarg | 同上 |
+| 真实仓库扫描 | 极性混淆，误伤 2 个正典文件的**禁止性规则** | 门禁与治理文本对立 |
+| 负例测试 | `excerpt` 复现 secret | **引入门禁即制造泄漏** |
+| 负例测试 | 短路自证的 restore 把正则包成 tuple | 后续规则全部静默失效 |
+| 门禁存在性验证 | 未跟踪文件被跳过却「看起来在工作」 | 一次**假验证** |
+| 提交时 | pre-commit 闸拦下本 commit | 豁免机制约定不清 |
+
+其中「门禁存在性验证」一次值得单列：初次植入探测 secret 时 check.py 报 PASS，
+原因是该文件未被 git 跟踪而落在扫描集外。**「门禁没报错」与「门禁在工作」是两件事**
+—— 据此补了防空转断言（tracked 集 > 200 且含 governance 核心文件），
+否则 `git ls-files` 返回空会让全部仓库测试假绿。
+
+### S1.4 验证结果
+
+| 项 | 结果 |
+|---|---|
+| 全量单测 | **721 OK**（682 → 721，+39） |
+| `check.py` | PASS（2 WARN 为既有基线） |
+| 真实仓库 findings | **0** —— 门禁可用 |
+| 植入 secret（`git add -N`） | check.py FAIL + pre-commit exit 1，输出 `[redacted]` |
+| 移除后 | 均还原 |
+| quick-check | OK / findings 0 |
+| path-audit | 0 broken |
+| repo-lint | 0 BLOCKER / 0 ERROR / 161 WARN |
+| workflow-command-audit | 0 / 0 / 0 |
+
+### S1.5 未做（与 §7 一致）
+
+Hindsight SDK 依赖 · MCP client · bank/detector 映射 · 配置项 · PII 检测 ·
+历史提交扫描 · 门禁内 LLM 语义判定 · 自动 redact · 可配置 `default_action`。
+
+### S1.6 遗留观察（不阻塞，供后续提案）
+
+**① 「引用即命中」是本门禁的结构性成本。** 任何讨论这些模式的文档（提案、测试、
+policy 自身）都会命中，需显式标记。本次共 4 处。文档密度上升后，标记本身会成为
+噪声源 —— 届时须复核是否存在**按目录豁免**的正当需求（当前**不**建议，
+因为目录级豁免会让该目录完全脱离扫描）。
+
+**② 漏报边界未量化。** 提案 §6-R2 已写明「规则集无法覆盖未知厂商格式」，
+但**没有测过漏报率**。可考虑用已知公开的泄密样本集做一次性评估（非持续门禁），
+结论应是「降低风险」而非「保证安全」。
+
+**③ S4 与 I1 的 WARN 会持续产生噪声。** 当前真实仓库为 0，但随着 `reports/` 增长
+（AI 生成内容的主要去处），预计会出现需要逐条判定的条目。**建议在 P71 观察期内
+统计 WARN 命中率**，据此决定是否收紧规则或把部分类别升级为 ERROR。
+
+---
+
 ## Review Log
 
 | Role | Verdict | Notes |
 |---|---|---|
 | 外部评委 | **支持立项 + 9 项裁定** | 风险等级高（Memory 是 AI 自动产生且可能入 Git，secret 一旦进正典即持久泄漏）；现状确实有缺口（`memory_language_check` 只管语言/格式）；与 P71 解耦（无论最终用 drafts/triage、Hindsight 还是别的方案，这两个检查都是入正典前必须存在的边界）。要求：Secret **硬阻断**、Injection **检测+隔离/人工判断**、**自动 redact 不作为默认沉淀策略**、**不新建独立 governance 体系**（接入 `security-policy.md`）、Secret 覆盖凭据/高风险配置/PII 三类。定位一句话：「任何进入 Canonical Knowledge 的 AI-generated content，必须经过 Memory Security Gate」 |
 | AI 三次评估 | **采纳 9 / 修正 2 / 降级 1** | **修正①**：评委设想的 `BLOCK/QUARANTINE/CLEAN` 三态在本仓**无处安放** —— 实测 `tools/checks/base.py` 的 `Checker` 只有 `error`/`warn`，`check.py` 只能返回 exit 0/1。改用 severity 表达「谁有决策权」（ERROR=不可覆写 / WARN=强制 Triage 判定），与 P76 C2 同构。**修正②**：评委要求 injection 做**语义判定**（「是否越权成为 Instruction/Policy」）在技术上正确但**本仓做不到** —— 实测门禁层零 LLM 依赖、17 项检查全为结构性，加 LLM 破坏 ADR-0009 分层与 `check.py` 确定性。降级为**结构共现检测 + 强制 Triage 判定**（§3.1.1），并给出双向反例验证「描述一次失误」不误伤。**补**：评委未提机器层 `~/.config/ai-system/env.yaml` 必须排除（P29 权威机器配置位置，误报会使门禁不可用） |
+| AI 实施 | **S1 完成** | §4 六项全落地，commit `5b935e7` 已推送。**四处偏离提案**（`.env` 跟踪语义 / 报告掩码 / 标记位置约定 / I1 极性），均以实测为准并回写 §3 —— 提案写于门禁运行之前，真实扫描与负例测试各抓到独立缺陷（见 S1.3） |
 | User | **Approved（两次追加）** | ① 2026-09-29「独立立项，立即落地；不依赖 Hindsight，不等待 P71」②「把 Hindsight 的 Memory Defense 放到**未来适配项**；这次 Fix **不要实现 Hindsight 兼容层**」→ 已落为 §7，含明确的「不做」清单与「本门禁不因 Hindsight 而放宽」声明 |
 | AI | **Proposed** | 缺口由 P77 §10.4-① 揭示；本提案为其自建落点 |
