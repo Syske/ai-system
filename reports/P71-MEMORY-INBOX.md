@@ -399,7 +399,8 @@ memory|capture|lesson 的命中数**全为 0** —— 三个真正产生工程�
  ├─ 候选产生率   —— 入口是否真被用
  ├─ 沉淀率       —— triage 是否真做筛选
  ├─ 丢弃率       —— 资格门槛 / 来源核验是否失效
- └─ Memory 实际复用率 —— 正典是否真被用
+ └─ 积压         —— 巡检是否跟上
+    （**不含**「复用率」—— 已裁定 v1 不解决，见 §5.9-未）
  │
  ↓
 若 **Canonical Memory 稳定增长**
@@ -428,7 +429,7 @@ memory|capture|lesson 的命中数**全为 0** —— 三个真正产生工程�
 |---|---|---|
 | ① | 连续 ≥4 次巡检记录了完整的 §5.9 五项计数（证明 metric 可持续采集） | 本提案 §5.9 |
 | ② | 正典条目周累计稳定增长 | 本提案 §5.9 |
-| ③ | 至少 1 条正典条目被实际复用并被记录 | 本提案 §5.9 |
+| ③ | 至少 1 条正典条目在真实任务中被实际复用，且该事实被**人工记录**（非计数 —— §5.9 已裁定不建引用计数） | 本提案 §5.9 |
 | ④ | **「普通检索够不够」的前置验证结论为「不够」** | **`reports/P77-HINDSIGHT-EVALUATION.md` §6（2026-09-29 追加）** |
 
 > **④ 必须在 ①②③ 之后**，因为「检索够不够」的答案**依赖正典规模** —— 19 条时普通
@@ -483,7 +484,6 @@ Discard reasons:
 | **丢弃率** | Discarded / Candidates triaged | 过高 → 资格门槛或来源核验失效，Inbox 成了垃圾堆 |
 | **积压** | Candidates generated − Candidates triaged | 持续为正 → 巡检没跟上 |
 | **正典增长** | Canonical memories created 的周累计 | **最终目标曲线**：稳定增长才说明闭环成立 |
-| **Memory 实际复用率** | 正典条目在后续会话/任务中被引用的比例 | 决定 §11 的下一阶段是否值得做 |
 
 ### 落点
 
@@ -493,10 +493,33 @@ Discard reasons:
 **不新建指标文件**（避免又一处需要维护的状态源）；`drafts/` 是否清空仍作为
 **必要但不充分**的检查保留。
 
-### 为什么不用「Memory 实际复用率」做首版验收
+### 已知缺口 · v1 不解决：正典引用计数（用户 2026-09-29 裁定）
 
-复用率需要统计"正典条目被引用次数"，当前无任何机制记录引用关系（memory 门禁不解析
-反向引用）。**首版只观测前五项**；复用率待有数据来源后再纳入（列入 §11 观察期）。
+「正典是否真被用」这个数据**不采集**。裁定为 **v1 不解决**：不独立立项、不在
+观察期实施、不修改 `MEMORY_GUIDELINES` 的 Load 规则。
+
+**「不解决」的语义是「不值得」，不是「不需要」**：不是正典有没有被用不重要，
+而是当前系统不值得为这个指标改变 Memory 的**读取语义**。「不值得」可被后续
+证据推翻，「不需要」不可 —— 这个区别决定了它未来可以被重新评估。
+
+三条理由（完整论证见 `reports/P77-HINDSIGHT-EVALUATION.md` §12）：
+
+1. **它不是一个小指标。** 引用计数会展开成 usage telemetry system：read event →
+   计数更新 → 持久化 → 去重/并发/失败重试 → 统计 → 才谈得上指标意义。而 P71 的
+   目标是「经验产生 → 候选落地 → 正确分层 → 正典持久化」。
+2. **read count 是粗 proxy。** `read count ≠ useful`；且 `read count = 0` 更可能
+   说明**召回机制不好**而非知识无价值 —— 把它记成「无价值」会导向删掉那些
+   「读不到」的 Memory，而它们恰是召回层最该修好的对象。未来若做，优先路径是
+   `recalled → used → task outcome`，而不是「读即计数」。
+3. **危险 KPI。** 一旦「复用率」成为指标，反向激励会把系统推向
+   「为提高使用率而被迫加载大量 Memory」，与 `CONTEXT_LOADING.md` 的预算纪律
+   正面冲突 —— 指标会把系统推向它本该避免的行为。
+
+**因此显式禁止**把下列三项写入观察期指标：Memory read count · Memory reference
+count · Memory utilization %。
+
+未来若出现明确的 Memory 价值评估需求，可重新立项，起点应为 §12.4 的「有效使用」
+链路，而非引用计数。
 
 ---
 
@@ -548,6 +571,8 @@ Discard reasons:
 | User (AI Maintainer operator) | **Approved（第四追加）** —— ⑫ **显式写入「语言分层」**（源自 P77 对 Hindsight multilingual 的讨论）：Capture 层（Inbox）不限语言、中文候选原样沉淀；**语言转换发生在 triage**（Capture 不承担翻译）；Canonical 层仍强制英文。这补上了本提案一直缺位的一环——此前同时要求「Inbox 可中文」与「正典强制英文」，却从未规定转换责任在哪一步 | 2026-09-29 |
 | User (AI Maintainer operator) | **Approved（第三追加）** —— ⑨ **增加 operational metric**（§5.9）：验收不再看「`drafts/` 是否为空」（该观测**无法区分**「全部沉淀」与「Agent 根本没产生候选」，而后者已实测存在），改为每次巡检记录五项计数（candidates generated / triaged / canonical memories created / redirected / discarded + **逐条 discard 理由**）与四个派生指标（候选产生率 / 沉淀率 / 丢弃率 / 积压）。**「Memory 实际复用率」不列入首版** —— 当前无机制记录反向引用，无数据来源。⑩ **路线图与优先级**（§5.8）：**P71 C″ = 9/10 应该落地**；**Hindsight = 7.5/10 保留为下一阶段 PoC**，且其职责**只做 Recall / Reflect，不做 Governance / Triage**（否则等于让未审核内容借 Recall 通道重新进入知识面，正是 §4.10 要防的）；并给出触发下一阶段的三个前置条件。⑪ 确认 §2.1 实测为 **P71 的核心论据** —— 「14 提交 / 6 条经验 / 捕获 0 条」比「833 行指南没人读」更直接，因为它证明的是**机制在真实工作流中已失灵**，而非「可能没人读」 | 2026-09-29 |
 | User (AI Maintainer operator) | **Approved（再追加）** —— ⑥ **语义改名 Experience Inbox**：不是 "memory 的草稿"，而是**未经审核的经验候选队列**；生命周期显式为 Experience → Candidate → Inbox → Triage → {Memory / Standards / Skill / Project Workspace / Discard+理由}（§4.7）。**理由**：多数候选最终不是记忆；叫「草稿」会诱发「Agent 可以读草稿」这一危险误区。⑦ **「非正典、不得被引用」升级为硬规则**（§4.10）：**Agent 默认不得读 Inbox 当知识使用**；列禁止行为 5 条 / 允许行为 4 条（仅写入与 triage 角色可读）。⑧ **取消「4~6 行」硬限制**，改为**最低结构 5 字段必填**（`Candidate` / `What` / `Why` / `Source` / `Candidate Category`），行数不限；**优先保证来源与事实完整性而非行数** —— 理由：行数上限会诱发为压行数而丢 `Why` / `Source`，而这两者恰是 triage 最不可省的部分 | 2026-09-29 |
+
+| User | **裁定（v1 不解决）** —— 2026-09-29：**正典引用计数缺口 v1 不解决**。不独立立项、不在观察期实施、不修改 `MEMORY_GUIDELINES` 的 Load 规则以实现「读即计数」。理由是**不值得为它改变 Memory 的读取语义**，而非「不需要知道」—— 前者可被后续证据推翻，后者不可。三条理由：①它会展开成 usage telemetry system（read event → 计数 → 持久化 → 去重/并发/重试 → 统计），而 P71 的目标是「经验产生 → 候选落地 → 正确分层 → 正典持久化」②`read count ≠ useful`，且 `read count = 0` 更可能说明**召回机制不好**而非知识无价值——记成「无价值」会导向删掉「读不到」的 Memory，而它们恰是召回层最该修好的对象 ③**危险 KPI**：为提高「使用率」被迫加载大量 Memory，与 `CONTEXT_LOADING.md` 预算纪律正面冲突。**显式禁止**把 Memory read count / reference count / utilization % 写入观察期指标。未来若重做，起点是 `recalled → used → task outcome` 而非计数 | 2026-09-29 |
 
 ## Implementation Record (2026-09-29) — S1 + S2
 

@@ -345,9 +345,9 @@ P71 §5.9 定义了派生指标 **「Memory 实际复用率」**，并已注明�
 | # | 决策点 | 建议 |
 |---|---|---|
 | ① | 整体方案 | **Option C（前置验证）+ §4.3 硬边界登记**；不做 PoC |
-| ② | §4.3 硬边界登记落点 | 记入本提案即可；**若认为需要长期生效**，另立 policy 小节（倾向后者，因硬约束不该只存在于提案里） |
+| ② | §4.3 硬边界登记落点 | ✅ **已裁定**（用户 2026-09-29）—— 需要独立 policy，**暂不创建**；P77 先作为架构硬边界记录；待 P77 主体裁定采用 Hindsight/reflect 后创建。**该 policy 不绑定 Hindsight** —— 它解决的是 **Dynamic/Derived Knowledge 与 Authoritative Knowledge 的边界**。详见 §11 |
 | ③ | §6.3 通过线（80%/2 轮 vs 60%/4 轮） | 按此定线；**关键是先定，避免事后找理由** |
-| ④ | 「正典引用计数」缺口是否单独立项 | **是** —— 它同时是 P71 §5.9 与本提案 §6 的共同盲区 |
+| ④ | 「正典引用计数」缺口是否单独立项 | ✅ **已裁定：不解决（v1）**（用户 2026-09-29）—— 不立项、不改 Load 语义、记为已知缺口。理由不是「不需要知道」，而是**不值得为它改变 Memory 的读取语义**。详见 §12 |
 | ⑤ | 是否现在就做 §6 验证（不等 P71） | **否** —— 19 条时普通检索很可能已够，此时验证会给出「Hindsight 无价值」的错误结论 |
 
 ---
@@ -469,6 +469,214 @@ Option C 的结论**——因为三项中两项可自建（§10.4-②），第�
 
 ---
 
+## 11. 裁定 ②：硬边界的形式与时机（用户 2026-09-29）
+
+### 11.1 裁定内容
+
+| 项 | 决定 |
+|---|---|
+| 是否需要独立 Policy | **需要** |
+| 现在是否创建 | **暂不创建** |
+| P77 当前怎么处理 | **作为架构硬边界记录** |
+| 未来何时创建 | **P77 主体裁定采用 Hindsight/reflect 之后** |
+| **Policy 是否绑定 Hindsight** | **不应该** |
+| 主要解决的问题 | **Dynamic / Derived Knowledge 与 Authoritative Knowledge 的边界** |
+
+### 11.2 「不绑定 Hindsight」改变了边界的措辞 —— 这不是措辞洁癖
+
+若 policy 写成「Hindsight 的 `reflect` 产出不得成为权威」，那么：
+
+- policy 的存续理由绑在一个**尚未裁定采用的组件**上
+- 换一个派生机制（本地推理、外部评审、模型内省）时，policy 看起来就不适用了
+- 而**规则本身其实与来源无关** —— 无害的是「派生」，不是「Hindsight」
+
+因此边界必须以**来源类别**而非**具体组件**陈述：
+
+```text
+Derived / Dynamic Knowledge  ——  由推理、检索、聚合、外部输入产生
+   ✓ 可作参考   ✓ 可作线索   ✗ 不可作权威   ✗ 不可覆写 Authoritative 层
+                     ↓
+              须经显式晋升（triage / review / 人工确认）
+                     ↓
+Authoritative Knowledge     ——  Contract / Standards / Skills / 正典 memory
+   ✓ 可作权威   ✓ 可被 Runtime 与 Skill 直接依赖
+```
+
+措辞判据：**若把 Hindsight 换成任何其他派生通道，这句话仍然成立** —— 成立才该写进
+policy；只对 Hindsight 成立的部分留在 P77。
+
+### 11.3 本仓已有该概念的窄版本，不是从零开始
+
+`governance/SOURCE_OF_TRUTH.md` Rule 0 已经写着：
+
+> Conclusions produced by an **external AI / analyst / share link** are
+> **unverified inputs**, NOT sources of truth. They do not sit anywhere in the
+> hierarchy above and never override Contract / Specification / Task Card /
+> repository evidence.
+
+这正是 Derived → Authoritative 边界的一个**具体实例**，只是范围限定在
+「外部 AI 结论」。未来的 policy 应是它的**一般化**：把「外部 AI 结论」扩展为
+「任何派生通道的输出」，并把「不得覆写」写成可判定的条件。
+
+**复用而非新建**：policy 落在 `SOURCE_OF_TRUTH.md` 的延长线上（`governance/policies/`），
+而不是与它平行的第二套「真值」概念 —— 否则会出现两处都说「什么是权威」。
+
+### 11.4 术语冲突已存在（本轮实测）
+
+`governance/AI_OPERATING_RULES.md:18` 中的 `reflect` 指的是 **Reflection 机制**
+（`REFLECTION_RULES.md`，工作流收尾自查），与 Hindsight 的 `reflect` 操作
+**同名不同义**。
+
+这是暂不创建 policy 的**补充理由**：边界一旦成文，必须先解决术语占位 ——
+否则「reflect 产出不得成为权威」在本文档体系内有两种读法。
+未来 policy 应使用不与 Reflection 机制撞车的词（如 `derived` / `inference`），
+把 Hindsight 的 `reflect` 作为一个**映射示例**提及，而非术语本身。
+
+### 11.5 现在（P77）承担什么
+
+P77 在本次裁定下承担的是**架构硬边界记录**，不是 policy。三条边界现在就写清楚，
+不依赖 Hindsight 是否被采用：
+
+| 边界 | 内容 |
+|---|---|
+| B1 | `reflect` 产出**不得**直接成为 Governance / Standard / Runtime Contract（§4.3） |
+| B2 | 任何 Recall / 检索通道的产物**不得**进入 Runtime 决策依据，只能作参考 |
+| B3 | Hindsight 若引入，其 Learned Memory **不得**绕过 Triage 晋升（与 P71 §4.10 硬规则同构） |
+
+B1/B2 在 Hindsight 未被采用时**依然为真** —— 它们约束的是「派生通道」这一类，
+不是某个产品。P78 已在同一方向上走了第一步：其边界明确写为「本门禁**不因
+Hindsight 而放宽**」，Hindsight 提供纵深，不提供替代。
+
+### 11.6 仍未裁定
+
+①（Option C）· ③（通过线）· ④（引用计数缺口）· ⑤（是否现在验证）——
+其中 ①③⑤ 为一组，④ 单独。§9 保持 Pending。
+
+---
+
+## 12. 裁定 ④：正典引用计数缺口 —— 明确「不解决（v1）」（用户 2026-09-29）
+
+### 12.1 裁定内容
+
+| 项 | 决定 |
+|---|---|
+| 独立提案 | ❌ |
+| P71 观察期实施 | ❌ |
+| v1 建立引用计数 | ❌ |
+| 修改 Load 规则以产生副作用 | ❌ |
+| **明确记录为已知缺口** | ✅ |
+| **记录「不解决」的理由** | ✅ |
+| 未来重新评估 | ✅ |
+| 未来若评估，优先研究「有效使用」而非单纯 read count | ✅ |
+
+### 12.2 「不解决」的确切语义 —— 比「不需要」更窄，也更诚实
+
+不是「不需要知道正典有没有被使用」，而是：
+
+> **当前系统不值得为了获得引用计数而改变 Memory 的读取语义。**
+
+「不需要」是关于**世界**的判断（仿佛正典有没有被用不重要）；「不值得」是关于
+**当前系统**的判断（重要，但代价高于收益，且收益未被证明）。后者才可被后续证据
+推翻 —— 新的数据可以改变「不值得」，但不能改变「不需要」。
+
+### 12.3 为什么它不是「一个小指标」
+
+引用计数的实现路径会自然展开成一套 usage telemetry system：
+
+```text
+Agent Load Memory
+      ↓
+  记录 read event
+      ↓
+  更新引用计数
+      ↓
+  持久化
+      ↓
+  去重 / 并发 / 失败重试        ← 从此有了状态一致性问题
+      ↓
+  统计
+      ↓
+再考虑指标意义
+```
+
+从第一行到最后一行，每一步都合理，合起来是一套**有状态的遥测系统**。而 P71 的
+核心目标是：
+
+```text
+经验产生 → 候选落地 → 正确分层 → 正典持久化
+```
+
+**不是**「精确测量每条知识的使用次数」。为一个尚未证明会驱动决策的指标去污染
+读取路径，不划算。
+
+### 12.4 read count 是一个粗 proxy —— 这是比「成本高」更根本的理由
+
+真正的诉求大概率不是「这条 Memory 被读了 37 次还是 42 次」，而是
+「**Memory 是否真的改善了 Agent 的工作**」。两者不是一回事：
+
+```text
+read count ≠ useful
+```
+
+而且 **`read count = 0` 也不能推出「知识没价值」** —— 那更可能说明**召回机制不好**，
+而非知识无用。把召回失败记成知识无价值，会导向一个完全错误的结论：删掉那些
+「读不到」的 Memory，而它们恰恰是召回层最该修好的对象。
+
+所以即使未来要做，也**未必应该从「读即计数」开始**。优先路径应是：
+
+```text
+Memory recalled → Agent used / referenced → Task outcome
+```
+
+即「哪些 Memory 在实际任务中被召回，并对结果产生了可观察影响」。这已经更接近
+**Hindsight / Recall 层**，而不是 Git 中静态 Memory 文件的引用计数 ——
+也正是 P77 判定 Hindsight 有真实增量的那个位置。
+
+### 12.5 附带的危险 KPI（这条比成本论更重要）
+
+一旦「Memory 复用率」成为指标，就会出现一个**反向激励**：
+
+```text
+为了提高「Memory 使用率」
+      ↓
+Agent 被迫加载大量 Memory
+      ↓
+与轻量 / 低 token / 按需加载的直接冲突
+```
+
+即：**指标会把系统推向它本该避免的行为。** 一个只在被优化时才产生反效果的指标，
+比没有指标更糟 —— 它主动教系统做错事。这与 `CONTEXT_LOADING.md` 的预算纪律
+正面冲突。
+
+**因此裁定不仅是不做，还要在 P71 侧显式禁止把这三个词写进观察期指标**：
+
+- Memory read count
+- Memory reference count
+- Memory utilization %
+
+### 12.6 顺带消解了 P71 的一处内部矛盾
+
+P71 §5.8 的路线图与 §5.9 的派生指标表**都列了**「Memory 实际复用率」，
+而 §5.9 下方又说不用它做首版验收。已按本裁定统一：从 §5.8 路线图与 §5.9 派生
+指标表**移除**，改为一条显式的「已知缺口 · v1 不解决」记录（含本节理由摘要）。
+
+这不只是格式统一 —— 一个「列在指标表里但又说不要用」的指标，在观察期真正开始
+记录时会被**当作目标**。留着的代价是它会悄悄变成 KPI。
+
+### 12.7 与本轮其余裁定的关系
+
+本裁定不改变 P77 的任何结论，但**收紧了 ⑤ 的前置条件**：
+
+P77 §5.8 触发 Hindsight 评估的前置条件 ③ 是「至少 1 条正典条目被实际复用并被
+记录」。既然我们**刻意不建引用计数**，条件 ③ 没有数据来源 —— 它只能靠**人工
+观察**（会话中是否真的引用了某条 Memory）来满足，且必须**如实标注为人工观察**，
+不得用「读了多少次」来近似。
+
+**建议改写 ③**：「至少 1 条正典条目在真实任务中被实际复用，且该事实被**人工记录**
+（非计数）」。理由与 §12.4 相同：召回失败与知识无价值必须能区分。
+
+---
+
 ## Review Log
 
 | Role | Verdict | Notes |
@@ -477,4 +685,6 @@ Option C 的结论**——因为三项中两项可自建（§10.4-②），第�
 | AI 二次评估 | **部分采纳 + 修正时间安排** | 认同定位（§1）；**不认同「下一阶段 PoC」**——顺序倒置（捕获产出 0，PoC 问题③无法回答）；提出 Option C 前置验证并追加触发条件 ④；补 4 条评委遗漏（其中 Memory Defense 是我们的硬需求、Disposition traits 是风险项）；指出评委 §8 文字与 §9 图自相矛盾；补 2 项未评估（LLM 成本、成熟度） |
 | 外部评委（二次） | **上调两项 + 新增 Directives 论断** | 「Knowledge Pages + Memory Defense 与你们架构高度同构」；Knowledge Pages ⭐⭐⭐⭐⭐、Memory Defense ⭐⭐⭐⭐⭐（硬需求）、Multilingual ⭐⭐⭐⭐⭐（Capture/Canonical 分层）；新增 `Disposition`(how to reason) vs `Directive`(what must be obeyed) 之别，提出治理映射构想；Observation 下调为非第一优先级 |
 | AI 三次评估 | **采纳 4 / 部分保留 1 / 不采纳 1** | 全部新论断一手核实通过（§10.2），Directives 的 strict 语义（**违反即响应被拒**）比评委描述更硬。**不采纳 Directives 治理映射**（§10.5：Directives 只作用于 reflect，而 reflect 正是 §4.3 禁止产生权威输出的通道——映射自相矛盾；且三条 bank 配置全部只作用于 reflect，**反向印证 §4.3 的正确性**）。**部分保留 Memory≠Knowledge 分层**（Knowledge 在我们体系里 = `standards`，硬加一层会重叠）。三项上调能力**不改变 Option C 结论**：两项可自建、一项有未解冲突。新增待裁定 ⑥⑦ |
-| User | **Pending** | 需裁定 §9 的 ①②③④⑤ + §10.7 的 ⑥⑦ |
+| User | **裁定 ②** | 2026-09-29：需要独立 policy 但**暂不创建**；P77 先作为架构硬边界记录；待 P77 主体裁定采用 Hindsight/reflect 后创建；**该 policy 不绑定 Hindsight**，解决的是 Dynamic/Derived Knowledge 与 Authoritative Knowledge 的边界。AI 据此补充两点：①「不绑定」改变了措辞判据（若换成任何其他派生通道仍成立才该写进 policy）②本仓已有窄版本可复用（`SOURCE_OF_TRUTH.md` Rule 0「外部 AI 结论 = unverified inputs」），未来 policy 应是它的**一般化**而非第二套真值概念；另实测 `AI_OPERATING_RULES.md:18` 的 `reflect` 是 Reflection 机制，与 Hindsight `reflect` 同名不同义 —— 这是暂不创建的补充理由 |
+| User | **裁定 ④** | 2026-09-29：引用计数缺口 **v1 不解决**，不立项、不改 Load 语义、记为已知缺口。AI 据此补充三点：①「不解决」的语义是「**不值得为它改变读取语义**」而非「不需要知道」—— 前者可被后续证据推翻，后者不可 ②`read count ≠ useful`，且 `read count = 0` 更可能说明**召回机制不好**而非知识无价值，故未来若做也**未必该从「读即计数」开始**，优先 `recalled → used → task outcome` ③附带**危险 KPI**：为提高「使用率」而被迫加载大量 Memory，与 `CONTEXT_LOADING.md` 预算纪律正面冲突。裁定同时收紧了 §5.8 前置条件 ③（见 §12.7） |
+| User | **Pending** | 仍需裁定：①（Option C）· ③（通过线）· ⑤（是否现在验证）。其中 ①③⑤ 为一组 |
