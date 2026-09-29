@@ -91,6 +91,77 @@ removes the branch before concluding the negative test is missing.
 
 ---
 
+## [AI System] A Gate With No Negative Test Is a Gate That Cannot Be Proven
+
+Context:
+
+Applying the rule above to the whole `tools/checks/` directory (2026-09-29,
+after landing the policy) by counting how many checks each test file
+references.
+
+Problem:
+
+`checks/adr.py` — the gate over `rfc/ADR-*.md` numbering, status, date,
+required sections, numbering continuity and README registration — had **zero
+test references**. It ran on every `check.py` invocation and always reported
+0 findings on the real repository, so it looked healthy. Nothing had ever
+established that any of its six rules could fire.
+
+It was also structurally untestable: `check_adr(c)` used a module-level
+`_RFC_DIR = ROOT / "rfc"` with no `root` parameter, so it could only ever be
+pointed at the real repository. Every other check under `tools/checks/`
+accepts an injectable root.
+
+Scope:
+
+Any check under `tools/checks/` — audit by counting how many test files
+reference it before assuming it works.
+
+Lesson:
+
+Counting gate-to-test coverage is a cheap audit, and a check with no negative
+test is a check whose failure modes are all hypothetical. A gate that cannot
+be pointed at a broken fixture cannot be proven to work at all.
+
+Solution:
+
+1. Give the check an injectable `root` (matching the other checks), so a
+   fixture repository can drive it.
+2. Add `cli/tests/test_checks_adr.py` — 9 cases covering all six rules plus a
+   real-repository-is-clean assertion.
+3. Short-circuit each rule and confirm the matching test fails:
+
+| Neutered rule | Negative tests failing |
+|---|---|
+| status presence / validity | 1 |
+| date presence | 1 |
+| numbering continuity | 1 |
+| README registration | 1 |
+| file-name pattern | 1 |
+
+Two of the five mutation attempts reported "still green" on the first try.
+Both were wrong **anchors in the mutation script**, not inert gates: one
+matched a line that did not exist in the source, the other matched a
+substring that occurred with different indentation. The lesson from
+`[AI System] The Short-Circuit Mutation Must Itself Be Verified` applies
+recursively — a short-circuit harness is code too, and it needs the same
+scrutiny as the gate it is probing.
+
+Two fixture-authoring mistakes also surfaced, both cases where the test
+passed for the wrong reason:
+
+- The README fixture used `| [ADR-0001](ADR-0001-one.md) | … |` while the real
+  `rfc/README.md` uses `| ADR-0001 | … |`; the parser matched neither, so the
+  "clean repo passes" baseline failed and a registration negative test was
+  passing vacuously.
+- The numbering-gap test added ADR-0003 next to 1 and 2, which stays
+  continuous — a gap needs a *skipped* number (ADR-0004 alone).
+
+**A negative test that cannot fail is worse than no negative test**: it reports
+coverage that does not exist.
+
+---
+
 ## [AI System] Gate Bugs Are Detail Assumptions About the File Format
 
 Context:

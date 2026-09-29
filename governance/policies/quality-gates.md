@@ -84,6 +84,18 @@ ai-system has hit this failure class repeatedly (three times in 2026-09 alone:
 references inside `reports/`, `check_outputs_consistency` returning early when
 its extracted list was empty). Each looked green while enforcing nothing.
 
+### Rule 0 — Audit the coverage before trusting it
+
+Count how many test files reference each check under `tools/checks/`. A check
+with **zero** references has never been observed to fire, regardless of how
+clean the real repository looks.
+
+Measured 2026-09-29: `checks/adr.py` (numbering / status / date / required
+sections / continuity / README registration, six rules) had no test at all —
+and was structurally untestable, because it hardcoded its directory instead of
+accepting an injectable `root` like every other check. A gate that cannot be
+pointed at a broken fixture cannot be proven to work.
+
 ### Rule 1 — Every gate ships with a negative test
 
 For each check, construct a fixture that violates **only** that rule and assert

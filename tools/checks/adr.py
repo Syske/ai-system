@@ -10,9 +10,9 @@ _ADR_RE = re.compile(r"^ADR-(\d{4})-(.+)\.md$")
 _STATUSES = {"Accepted", "Proposed", "Deprecated", "Rejected", "Superseded"}
 
 
-def _parse_readme_table():
+def _parse_readme_table(root=None):
     """Parse the ADR table in rfc/README.md into {number: title}."""
-    readme = _RFC_DIR / "README.md"
+    readme = (root or ROOT) / "rfc" / "README.md"
     if not readme.exists():
         return {}
     text = readme.read_text(encoding="utf-8")
@@ -24,13 +24,21 @@ def _parse_readme_table():
     return table
 
 
-def check_adr(c):
-    """Validate ADR files: numbering, status, RFC reference, README registry."""
+def check_adr(c, root=None):
+    """Validate ADR files: numbering, status, RFC reference, README registry.
 
-    if not _RFC_DIR.exists():
+    `root` is injectable so the gate can be exercised against a fixture
+    (every other check under tools/checks/ accepts it; without it this gate
+    could only be run against the real repository, i.e. never observed to
+    fail — see policies/quality-gates.md
+    § "Writing a Gate That Can Be Proven to Fail").
+    """
+    rfc_dir = (root or ROOT) / "rfc"
+
+    if not rfc_dir.exists():
         return
 
-    adr_files = sorted(_RFC_DIR.glob("ADR-*.md"))
+    adr_files = sorted(rfc_dir.glob("ADR-*.md"))
     if not adr_files:
         return
 
@@ -78,7 +86,7 @@ def check_adr(c):
             c.warn(f"ADR numbering gap: missing {missing}")
 
     # README registry: every ADR must be registered
-    table = _parse_readme_table()
+    table = _parse_readme_table(root)
     for num in numbers:
         if num not in table:
             c.error(f"ADR-{num:04d} not registered in rfc/README.md table")
