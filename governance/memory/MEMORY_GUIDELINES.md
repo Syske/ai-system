@@ -813,7 +813,7 @@ Filename: `governance/memory/drafts/{yyyymmdd}-{session|topic}.md`. Create the
 directory on demand (`mkdir -p`). Any language, any format. No line limit —
 completeness of the source beats brevity.
 
-Five fields are mandatory, all of them:
+Six fields are mandatory, all of them:
 
 ```markdown
 ## Candidate: <one-line title>
@@ -822,7 +822,15 @@ Five fields are mandatory, all of them:
 - Why: <why it matters beyond this session>
 - Source: <file:line, commit hash, command output, or URL>
 - Candidate Category: memory | standards | skill | project-workspace
+- Origin Workflow: develop | review | bugfix | change-impact
 ```
+
+`Origin Workflow` records which runtime produced the candidate. It exists for
+one reason: the per-workflow capture rate is only computable if candidates can
+be attributed, and without it the observation period can report a single total
+that hides an unused entry point behind a busy one. `develop` and `review`
+usually run as a pair over the same change, so an unattributed candidate could
+be counted against either.
 
 `Source` is the field that makes triage possible, and its **form** matters as
 much as its presence. Verification strength, strongest first:

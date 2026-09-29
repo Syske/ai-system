@@ -57,6 +57,7 @@ limit:
 - Why: <why it matters beyond this session>
 - Source: <file:line, commit hash, command output, or URL>
 - Candidate Category: memory | standards | skill | project-workspace
+- Origin Workflow: develop | review | bugfix | change-impact
 ```
 
 `Source` is the field that makes triage possible. An entry without it is a
@@ -108,7 +109,7 @@ Summarize: what was captured (or updated / skipped as duplicate), and why.
 
 Inbox path:
 
-- Five mandatory fields present on every candidate
+- Six mandatory fields present on every candidate
 - `Source` is a real, checkable reference — not reconstructed
 - The file is under `governance/memory/drafts/`
 - No Inbox path referenced from any tracked asset

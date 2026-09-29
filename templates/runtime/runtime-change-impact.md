@@ -259,7 +259,11 @@ directions, so they surface the *same* lesson with different wording. Prefer the
 one with the verifiable `Source`; if both are already in the Inbox, say so and
 let triage merge them rather than writing a third.
 
-Write five fields: What / Why / Source / Candidate Category. `Source` must be a
+Write six fields: What / Why / Source / Candidate Category / Origin Workflow.
+Add `- Origin Workflow:` naming the runtime that produced it (`develop` / `review` /
+`bugfix` / `change-impact`). Without it the per-workflow capture rate is not
+computable, and the only honest reading is the all-workflow total.
+ `Source` must be a
 real, checkable reference (file:line, commit, command output).
 
 **No qualifying candidate is a valid outcome.** Do not manufacture one to appear

@@ -523,8 +523,18 @@ bugfix 三类**每次运行都留有诊断日志**（实测 22 份），而这�
 **③ 追加式 + watermark，且必须可审计。** 因 `logs/` 可能被清空，计数是**累积**的：
 
 ```jsonl
-{"ts":"2026-09-28T00:00:00","watermark":"20260929-165225","develop":6,"review":1,"bugfix":0,"files":["develop-20260929-144455.md","..."]}
+{"ts":"2026-09-29T18:00:00","machine":"<machine-id>","watermark":"20260929-165225",
+ "counts":{"generated":3,"triaged":3,"promoted":1,"redirected":1,"discarded":1},
+ "by_type":{"develop":2,"review":1},
+ "runs":{"develop":7,"review":1,"bugfix":0,"change-impact":0},
+ "files":["develop-20260929-165225.md","..."]}
 ```
+
+**`by_type` 是分型比率的唯一依据**，故候选必须可归因 —— 这就是第六字段
+`Origin Workflow` 存在的原因（`develop` / `review` / `bugfix` / `change-impact`）。
+**缺 `by_type` 时不得用 `generated` 总数除以单一类型的 n**：那会产出大于 1 的比率
+（实现该工具时首版即犯此错，`review` 出现 `3.00 (3/1)`）。缺归因时读作
+**not attributable**，不是 0。
 
 - **watermark** = 本次计入的最后一条日志时间戳，防止重复计数
 - **files** = 本次计入的日志文件名**全量留存**。计数本身不可信 —— 要求同时记下
@@ -533,6 +543,32 @@ bugfix 三类**每次运行都留有诊断日志**（实测 22 份），而这�
 
 **④ 分子也要带机器标识。** 捕获发生在开发机、triage 发生在巡检机，两者常常不同机。
 五项计数的记录中须带 `machine` 字段，否则跨机比率的分子分母会错配。
+
+#### 读取：`tools/knowledge-metric.py`（只读汇总器）
+
+采集已定义但**读取原本没有定义** —— 每次巡检后要手工求和、算比率、附带 n。
+手算不是不能做，但它是**唯一无纪律约束的环节**，而「比率必带 n」「低于下限报样本
+不足」两条纪律靠人记的结果通常是前几轮守、后面忘。故加一个**只读**汇总器：
+
+```bash
+python3 tools/knowledge-metric.py --workspace <ws>
+python3 tools/knowledge-metric.py --workspace <ws> --json
+```
+
+它把两条纪律从约定变成**输出格式的约束** —— 没有不带 n 的输出形态：
+
+| 纪律 | 机制 |
+|---|---|
+| 比率必带 n | `rate_cell()` 对 n=0 输出 `n/a` 而非 `0`；零比率渲染为 `0.00 (0/n)` |
+| 低于下限报样本不足 | `n < 4` → `insufficient sample`，**不写** `ENTRY UNUSED` |
+| 分型不得用总数凑 | 缺 `by_type` → `not attributable`，不用 `generated` 总数除单型 n |
+| 捕获但未消化 | `generated > 0 且 triaged == 0` → 显式告警「循环停滞」而非安静的成功 |
+| 缺键降级 | JSONL 由 AI 手写，缺 `runs` 键按 0 处理、坏行跳过并 stderr 提示，**不崩** |
+
+它**不新建指标文件**（只读已建的 JSONL），因此不违反 §5.9 约定。16 例
+（`cli/tests/test_knowledge_metric.py`）含一条**上游契约测试**：四个 runtime 必须
+声明 `Origin Workflow`、`MEMORY_GUIDELINES` 必须声明六字段 —— 否则 `by_type` 恒空，
+分型读数静默降级为 total，而这种降级从数字上看不出来。
 
 #### 与「不新建指标文件」的关系
 

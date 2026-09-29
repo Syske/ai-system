@@ -314,7 +314,11 @@ Qualification: **verified** (root cause proven, not hypothesised) · **reusable*
 go to `governance/standards/`; not task state — that goes to the handoff
 summary) · **not a duplicate** of an existing memory entry.
 
-Write five fields: What / Why / Source / Candidate Category. `Source` must be
+Write six fields: What / Why / Source / Candidate Category / Origin Workflow.
+Add `- Origin Workflow:` naming the runtime that produced it (`develop` / `review` /
+`bugfix` / `change-impact`). Without it the per-workflow capture rate is not
+computable, and the only honest reading is the all-workflow total.
+ `Source` must be
 a real, checkable reference (file:line, commit, command output). Never
 reconstruct one — an unverifiable citation costs triage more than a missing
 entry does.
