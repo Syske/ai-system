@@ -4,6 +4,8 @@
 > **§7 未来适配项**。**本次 Fix 不实现任何 Hindsight 兼容层** —— 无 Hindsight SDK
 > 依赖、无 MCP client、无 bank/detector 映射代码、无配置项。
 
+<!-- ai-secret-scan: allow-file -->
+
 | Field | Value |
 |---|---|
 | Status | **Approved**（用户 2026-09-29 立即落地；不依赖 Hindsight，不等待 P71） |

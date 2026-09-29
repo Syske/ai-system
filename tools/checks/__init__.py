@@ -5,6 +5,7 @@ from .adr import check_adr
 from .bugfix_modes import check_bugfix_modes
 from .phase_contract import check_phase_contract
 from .reports_scope import check_reports_scope
+from .secret_scan import check_secret_scan
 from .misc import (
     check_build,
     check_commands,
@@ -70,6 +71,7 @@ def run_all():
     check_bugfix_modes(c)
     check_phase_contract(c)
     check_reports_scope(c)
+    check_secret_scan(c)
 
     print(
         f"discovered: {len(workflows)} workflows, "

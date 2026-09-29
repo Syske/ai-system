@@ -392,7 +392,7 @@ P71 §5.9 定义了派生指标 **「Memory 实际复用率」**，并已注明�
 #### ① `prompt_injection` detector 揭示了一个我们完全缺失的安全类目
 
 5 个 detector 中，**`prompt_injection` 不是 secret 泄漏，而是「记忆内容里携带指令」**——
-即一条被 retain 的经验如果包含「忽略你之前的指令」这类文本，未来 recall 出来时会被 agent 当成指令执行。
+即一条被 retain 的经验如果包含「忽略你之前的指令」这类文本，未来 recall 出来时会被 agent 当成指令执行。 <!-- ai-secret-scan: allow -->
 
 我们的 `governance/policies/security-policy.md` 覆盖 API key / token / password / private
 certificate / 内部仓库地址，**完全没有这一类**。而 P71 的 Inbox 是 **AI 自动写入**的

@@ -12,6 +12,12 @@ this file). Performs three gates:
      same rule/source as check.py item 8 (tools/checks/memory.py); blocks a
      commit that would land Chinese into AI-internal memory (recurred 3× before
      this gate existed: 2026-09-16 / 09-18 / 09-21)
+  4. secret + injection scan (all staged files) — same source as check.py item
+     18 (tools/checks/secret_scan.py). security-policy Principles 1 and 3 had
+     no machine execution until P78. S1-S5 block the commit; I1 and S4 are
+     surfaced for adjudication because the gate cannot judge them. Needed as a
+     separate line from check.py: a secret that reaches a commit is already
+     leaked, and CI only sees what was committed.
 
 Exit 0 = pass, 1 = blocked. Escape hatch stays `git commit --no-verify`.
 Python body keeps the hook logic unit-testable and platform-neutral (the only
@@ -108,7 +114,41 @@ def memory_language_check(files):
     return lines
 
 
-def run_checks(repo_root, files, memory_files=None):
+def secret_scan_check(files):
+    """Return blocked lines for staged files carrying secrets.
+
+    S1-S5 (critical) block the commit: Triage has no authority to release a
+    hardcoded credential. I1 (high) and S4 (low) surface as advisories, since
+    those require a judgement this gate cannot make.
+    """
+
+    from checks.base import Checker
+    from checks.secret_scan import check_secret_scan
+
+    c = Checker()
+    check_secret_scan(c, files)
+
+    if not c.errors and not c.warnings:
+        return []
+
+    lines = [
+        "pre-commit: secret + injection scan FAILED "
+        "(security-policy Principles 1 and 3)."
+    ]
+
+    for e in c.errors:
+        lines.append(f"  [BLOCK] {e}")
+
+    for w in c.warnings:
+        lines.append(f"  [REVIEW] {w}")
+
+    if c.errors:
+        lines.append(NO_VERIFY_HINT)
+
+    return lines
+
+
+def run_checks(repo_root, files, memory_files=None, staged_all=None):
     """Run the language + contract + memory gates. Returns (blocked, lines)."""
 
     blocked = False
@@ -155,6 +195,15 @@ def run_checks(repo_root, files, memory_files=None):
             blocked = True
             lines.extend(mem_lines)
 
+    # 4. secret + injection 扫描（check.py 第 18 项同源）。
+    #    覆盖全部 staged 文件而非仅 memory 区：secret 可能落在任何文件类型，
+    #    而 pre-commit 是唯一一道"提交前"的闸（check.py 只在 CI 跑到）。
+    if staged_all:
+        sec_lines = secret_scan_check(staged_all)
+        if sec_lines:
+            blocked = True
+            lines.extend(sec_lines)
+
     return blocked, lines
 
 
@@ -168,10 +217,12 @@ def main(argv=None):
     files = staged_zone_files(repo_root)
     memory_files = staged_memory_files(repo_root)
 
-    if not files and not memory_files:
+    staged_all = staged_files(repo_root, None)
+
+    if not files and not memory_files and not staged_all:
         return 0
 
-    blocked, lines = run_checks(repo_root, files, memory_files)
+    blocked, lines = run_checks(repo_root, files, memory_files, staged_all)
 
     for line in lines:
         print(line)
