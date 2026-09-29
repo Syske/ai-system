@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposed** |
+| Status | **Approved** (S1 implemented 2026-09-29; S2 pending) |
 | Type | Capability（Phase 从 runtime 内部章节提升为一等机器契约）+ Fix（code-review 重复内容 + bugfix Phase 6 契约破损） |
 | Author | AI Maintainer |
 | Created | 2026-09-28 |
@@ -368,4 +368,70 @@ Phase Contract 表逐 Phase 渲染进 prompt。实测预估：`bugfix` 12 行表
 
 | Role | Verdict | Notes |
 |---|---|---|
-| User | **Pending** | §3 全部设计决策已由用户 2026-09-28 逐条定案；待裁定 §9 ⑦⑧⑨ |
+| User | **Approved** | §3 全部设计决策 2026-09-28 定案；§9 ⑦⑧⑨ 2026-09-29 定案。授权 S1 实施 |
+
+---
+
+## Implementation Record (2026-09-29) — S1
+
+**范围**（用户定案 ⑦⑧⑨）：规范 + 16 workflow frontmatter `phases` 块 + 8 条门禁 +
+15 个负例测试。**不含** S2（`## Phases` 九段 / prompt 渲染注入 / code-review 压缩 /
+bugfix G1·G2 修复）。
+
+### 交付物
+
+| 文件 | 内容 |
+|---|---|
+| `governance/policies/phase-contract.md` | 规范 305 行：职责边界 · 四要素 schema · Activation 文法 · 三态语义 + 硬规则 · Declares 单向 · 禁区间合并 · 8 条门禁 · 作者纪律。0 CJK（与其他 6 个 policy 一致） |
+| `tools/checks/phase_contract.py` | 8 条门禁，接入 check.py 第 16 项 |
+| `cli/tests/test_phase_contract.py` | 15 用例，每条门禁配负例 + 真实仓库零 findings |
+| 16 × `workflows/*.md` | frontmatter `phases:` 块，共 117 个 Phase |
+
+### 顺带修两处既有缺陷（C5 门禁在建立过程中暴露）
+
+1. **`runtime-develop.md` 的 `## Phase 1` / `## Phase 2` 无标题** → 骨架化正则
+   （`prompt_builder.py:596`，要求标题含 em dash）失配 → **agent 在 prompt 里完全
+   看不到这两个阶段**。补标题后骨架恢复 4 个 Phase 标题可见。这是 P76 §1.1 F1 的
+   一个实证案例。
+2. **`runtime-release.md` 的 `# Phase 5 Dependency Validation` 用空格而非 em
+   dash** → 同样不匹配骨架化。统一为 em dash。
+
+### 门禁自证（每条短路 → 对应负例失败 → 还原 15/15 绿）
+
+| 短路 | 结果 |
+|---|---|
+| C1 引用检查 | 1 项失败 ✓ |
+| C2 pass_criterion | 1 项失败 ✓ |
+| C3 wild artifact | 1 项失败 ✓ |
+| C5 id 集比对 | 1 项失败 ✓ |
+| C6 id 唯一 | 1 项失败 ✓ |
+| C7 表达式可解析 | 1 项失败 ✓ |
+
+> C3 首次自证失败：短路方式写成 `or ["*"]` 反而让 `any()` 匹配放行。改为真正
+> 跳过循环后生效——**短路验证本身也会写错**，与门禁实现一样需要实测。
+
+### 门禁自身的 3 个 bug（首版跑挂后修正）
+
+1. `_PHASE_HEADING` 缺 `re.M` → C5 全量误报（18 error），修正后归零
+2. runtime 路径误从 frontmatter 取（权威源是 `config/workflows/*.yaml`）→ C5 全量
+   误报；改为先读 config，回退 body 的 `## Runtime`
+3. `_parse_phases` 未解 YAML 双引号标量内的转义 → `phase(\"6.5\")` 解析失败；
+   新增 `_unquote`
+
+### 已知增量
+
+`repo-lint` WARN 97 → 114，其中 17 条来自新文件（英文代码注释，与既有 `adr.py` 8 /
+`repo-lint.py` 16 / `prompt_builder.py` 7 同类）。WARN 级，不在 pre-commit strict
+范围（strict 只管 Rule 4 英文区），非质量回归。是否批量转中文注释见后续批次。
+
+### Validation
+
+全量 652 单测 OK（+15）· check.py PASS（2 WARN 为既有开放提案/开放项）·
+quick-check OK/findings 0 · path-audit 0 broken · repo-lint 0 BLOCKER/0 ERROR ·
+workflow-command-audit 0-0-0 · 16 个 workflow frontmatter YAML 全部合法。
+
+### S2 待授权
+
+`## Phases` 第九段（16 workflow，固定 3 行入口）· prompt 渲染注入 Phase Contract ·
+`workflow-command-audit` 八段→九段 · `code-review` 最小压缩 8 行（99→88+3=91）·
+bugfix Phase 6 的 G1（`Invoke` 指向不存在的 skill）与 G2（补 pass_criterion 链接）。
