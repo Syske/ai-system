@@ -50,6 +50,11 @@ Use `review-changes` (skill) instead when:
 
 - templates/runtime/runtime-review.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - Develop or BugFix completed for the task

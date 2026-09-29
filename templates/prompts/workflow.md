@@ -28,6 +28,8 @@ All relative references in the body below (`ai-system/...`, `extensions/...`,
 
 {{runtime_definition}}
 
+{{phase_contract}}
+
 {{external_capabilities}}
 
 {{language_discipline}}

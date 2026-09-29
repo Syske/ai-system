@@ -43,6 +43,11 @@ Resolve project context and prepare development environment.
 
 - templates/runtime/runtime-dev-setup.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - Bootstrap completed (Environment Context and Workspace Metadata available)

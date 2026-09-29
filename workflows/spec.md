@@ -41,6 +41,11 @@ Create specification artifacts for the next task.
 
 - templates/runtime/runtime-spec.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - Prepare completed for this change — **single definition**: `workflows/prepare.md` →

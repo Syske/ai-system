@@ -36,6 +36,11 @@ Discuss an optimization or ad-hoc idea and produce a solution document.
 
 - templates/runtime/runtime-proposal.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - None. Standalone workflow.

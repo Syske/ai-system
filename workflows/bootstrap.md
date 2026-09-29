@@ -41,6 +41,11 @@ Environment Context as a precondition.
 
 - templates/runtime/runtime-bootstrap.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - None. This is the entry point of the workflow chain.

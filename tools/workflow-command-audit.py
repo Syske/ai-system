@@ -11,7 +11,7 @@ Checks:
 Workflows (workflows/*.md):
   - File length > 100 lines (RFC-0003 gate)
   - Next section targets an unregistered workflow or a dead cycle
-  - Missing required 8-section structure (Purpose/Runtime/Preconditions/
+  - Missing required 9-section structure (Purpose/Runtime/Phases/Preconditions/
     Inputs/Context/Outputs/Exit Criteria/Next)
 
 Commands (cli/commands/aic-*.md):
@@ -36,6 +36,7 @@ except ImportError:  # pragma: no cover
 WORKFLOW_SECTIONS = [
     "Purpose",
     "Runtime",
+    "Phases",
     "Preconditions",
     "Inputs",
     "Context",

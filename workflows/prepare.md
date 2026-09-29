@@ -40,6 +40,11 @@ Prepare complete implementation context before specification.
 
 - templates/runtime/runtime-prepare.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - Bootstrap completed (Environment Context available)

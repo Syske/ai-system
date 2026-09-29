@@ -43,6 +43,11 @@ This workflow does not execute deployment.
 
 - templates/runtime/runtime-release.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - Verify completed with Status = PASS for all tasks in the release scope

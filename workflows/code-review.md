@@ -39,6 +39,11 @@ Review arbitrary code under projects/ and produce a structured review result.
 
 - templates/runtime/runtime-code-review.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - None. Standalone workflow.
@@ -70,16 +75,9 @@ Never load the entire repository tree or every branch into context.
 
 ### Target Branch Resolution
 
-(Contract: resolve each project's target branch per runtime Phase 1; ASK the
-user rather than guessing when a branch is missing/ambiguous.)
-
-1. `Branch Mapping` → explicit per-project override; adopt directly, no re-ask.
-2. `Target Theme` (e.g. `wecom_live`) → fuzzy-match each repo's `dev_branch`
-   + local git branches by theme; a single real-`cc{date}` candidate is adopted
-   directly, choices shown only when 0 or several match.
-3. No match → ASK the user; do not guess.
-4. Base Branch defaults to `master` (override via environments/config).
-5. Validate target & base exist before reviewing; else stop that project.
+Per runtime Phase 1 (target resolution): `Branch Mapping` overrides; otherwise
+`Target Theme` fuzzy-matches each repo's `dev_branch` + local git branches; no
+match → ASK the user, never guess.
 
 ## Outputs
 

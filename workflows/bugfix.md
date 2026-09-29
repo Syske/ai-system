@@ -59,6 +59,11 @@ Diagnose and fix software defects.
 
 - templates/runtime/runtime-bugfix.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - Dev Setup completed (Project Context and Workspace Context available)

@@ -251,16 +251,25 @@ This phase **is** the verification stage for bugfix/hotfix runs: the main-chain
 `verify` workflow is not re-entered afterwards (deviation recorded here; `doc`
 may follow once this phase passes — see Phase 6.7).
 
-Invoke:
-
-- testing
-- verification
+This phase runs the regression verification itself (unit / integration tests and
+the verification commands configured for the project). It does not delegate to a
+separate workflow or skill — `testing` / `verification` name the work to
+perform here, not a callable unit.
 
 Verify:
 
 - Original defect resolved
 - Existing behaviour unchanged
 - Regression tests pass
+
+Success criterion (this phase's `pass_criterion` in the workflow Phase Contract):
+
+- All configured regression verification gates passed, and no mandatory
+  verification is missing or unresolved. This mirrors the Verification Status
+  rules in `runtime-verify.md` (Phase 7 validation markers, Phase 8
+  PASS/FAIL assessment) — reused, not redefined here.
+- If any configured verification fails, or a mandatory one was not run, this
+  phase is NOT passed; Phase 6.7 does not activate.
 
 Generate:
 

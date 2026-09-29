@@ -226,6 +226,144 @@ class TestFieldContract(unittest.TestCase):
         )
 
 
+class TestPhaseContractInjection(unittest.TestCase):
+    """P76 S2: the Phase Contract must reach the prompt.
+
+    Phase identity, activation conditions and cross-Phase dependencies are
+    NOT part of the Runtime Skeleton — the skeleton keeps only the heading and
+    the first requirement line, while a conditional Phase states its condition
+    in the heading suffix or the body's "Activate only when …" sentence. Before
+    this section existed, the agent could not know that (for bugfix) five
+    hotfix-only Phases might not run.
+    """
+
+    def setUp(self):
+        self.builder = PromptBuilder()
+
+    def test_contract_present_for_conditional_workflow(self):
+        prompt = self.builder.build("bugfix", {})
+        self.assertIn("## Phase Contract", prompt)
+
+    def test_conditional_activation_visible(self):
+        prompt = self.builder.build("bugfix", {})
+        for cond in (
+            "WHEN mode.approval_gate",
+            "WHEN mode.phases ∋ branch",
+            "WHEN mode.phases ∋ commit",
+            "WHEN mode.phases ∋ mr",
+            "WHEN mode.phases ∋ doc",
+        ):
+            self.assertIn(
+                cond, prompt,
+                f"条件激活 {cond} 必须对 agent 可见（此前只在 runtime 正文中）",
+            )
+
+    def test_cross_phase_dependency_visible(self):
+        prompt = self.builder.build("bugfix", {})
+        self.assertIn('phase("6.5").completed', prompt)
+        self.assertIn('phase("6").passed', prompt)
+
+    def test_every_phase_row_present(self):
+        prompt = self.builder.build("bugfix", {})
+        rows = [
+            l for l in prompt.splitlines()
+            if l.startswith("| ") and "always" in l or "WHEN" in l
+        ]
+        # bugfix declares 12 phases; the table must carry all of them
+        self.assertGreaterEqual(len(rows), 12, f"表格行数不足: {len(rows)}")
+
+    def test_contract_sits_after_the_runtime_skeleton(self):
+        """Contract follows the skeleton (so the agent sees the map before
+        the on-demand file pointer)."""
+        prompt = self.builder.build("bugfix", {})
+        self.assertLess(
+            prompt.find("## Runtime Skeleton"),
+            prompt.find("## Phase Contract"),
+        )
+        self.assertIn("Full runtime template:", prompt)
+
+    def test_workflow_without_conditional_phases_still_lists_them(self):
+        prompt = self.builder.build("release", {})
+        self.assertIn("## Phase Contract", prompt)
+        self.assertIn("Release Scope Analysis", prompt)
+
+    def test_frontmatter_phases_parser(self):
+        from cli.services.prompt_builder import _frontmatter_phases
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[2]
+        phases = _frontmatter_phases(root / "workflows" / "bugfix.md")
+        self.assertEqual(len(phases), 12)
+        by_id = {p["id"]: p for p in phases}
+        self.assertEqual(by_id["4.5"]["name"], "Approval Gate")
+        self.assertIn("6.5", by_id["6.6"]["activation"])
+        self.assertIn(
+            "PASS", by_id["6"]["pass_criterion"],
+            "Phase 6 必须声明 pass_criterion（否则 .passed 引用非法）",
+        )
+
+
+class TestNineSectionWorkflows(unittest.TestCase):
+    """P76 S2: `## Phases` is the 9th section (after `## Runtime`)."""
+
+    def test_all_workflows_declare_phases_section(self):
+        from pathlib import Path
+        import re
+
+        root = Path(__file__).resolve().parents[2]
+        missing = []
+        for p in sorted((root / "workflows").glob("*.md")):
+            if p.name == "README.md":
+                continue
+            text = p.read_text(encoding="utf-8")
+            if not re.search(r"^## Phases\s*$", text, re.M):
+                missing.append(p.name)
+        self.assertEqual(missing, [], f"缺少 ## Phases 段: {missing}")
+
+    def test_phases_section_is_three_lines(self):
+        """Fixed pointer, never a copy of the table (policy §6)."""
+        from pathlib import Path
+        import re
+
+        root = Path(__file__).resolve().parents[2]
+        for p in sorted((root / "workflows").glob("*.md")):
+            if p.name == "README.md":
+                continue
+            text = p.read_text(encoding="utf-8")
+            m = re.search(
+                r"^## Phases\s*\n(.*?)(?=^## |\Z)", text, re.M | re.S
+            )
+            self.assertIsNotNone(m, p.name)
+            body = [
+                l for l in m.group(1).splitlines() if l.strip()
+            ]
+            self.assertLessEqual(
+                len(body), 3,
+                f"{p.name}: ## Phases 应为固定 3 行指针，实际 {len(body)} 行",
+            )
+            self.assertNotIn(
+                "|", body[0],
+                f"{p.name}: ## Phases 不得内嵌表格（真源在 frontmatter）",
+            )
+
+    def test_all_workflows_within_100_lines(self):
+        from pathlib import Path
+        import re
+
+        root = Path(__file__).resolve().parents[2]
+        over = []
+        for p in sorted((root / "workflows").glob("*.md")):
+            if p.name == "README.md":
+                continue
+            text = p.read_text(encoding="utf-8")
+            fm = re.match(r"\A---[ \t]*\n.*?\n---[ \t]*\n", text, re.S)
+            body = text[fm.end():] if fm else text
+            n = len(body.splitlines())
+            if n > 100:
+                over.append((p.name, n))
+        self.assertEqual(over, [], f"超 RFC-0003 100 行: {over}")
+
+
 
 class TestCapabilitiesPriority(unittest.TestCase):
     """Config-driven capability injection: priority=high -> must-load section

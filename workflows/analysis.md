@@ -36,6 +36,11 @@ Analyze AI System structure, quality and consistency.
 
 - templates/runtime/runtime-analysis.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - None. Standalone workflow.

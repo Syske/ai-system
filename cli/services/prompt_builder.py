@@ -4,6 +4,72 @@ from cli.utils.file import read_text
 from cli.utils.yaml import load_yaml
 
 
+def _frontmatter_phases(wf_path):
+    """Read `workflow.phases` from a workflow's frontmatter → list of dicts.
+
+    Reuses the same line-oriented reader as the gate
+    (`tools/checks/phase_contract.py`) so the prompt and the check agree on
+    what the contract says. YAML double-quoted scalars are unescaped.
+    """
+    import re
+
+    try:
+        text = wf_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+
+    m = re.match(r"\A---[ \t]*\n(.*?)\n---[ \t]*\n", text, re.S)
+    if not m:
+        return []
+
+    def unquote(raw):
+        s = raw.strip()
+        if len(s) >= 2 and s[0] == s[-1] and s[0] in "\"'":
+            inner = s[1:-1]
+            if s[0] == '"':
+                inner = inner.replace('\\"', '"').replace("\\\\", "\\")
+            return inner
+        return s
+
+    phases = []
+    in_block = False
+    current = None
+    for line in m.group(1).splitlines():
+        if re.match(r"^\s{2}phases:\s*$", line):
+            in_block = True
+            continue
+        if not in_block:
+            continue
+        head = re.match(r"^\s{4}-\s+(\w+):\s*(.*?)\s*$", line)
+        if head:
+            if current:
+                phases.append(current)
+            current = {head.group(1): unquote(head.group(2))}
+            continue
+        sub = re.match(r"^\s{6}(\w+):\s*(.*?)\s*$", line)
+        if sub and current is not None:
+            current[sub.group(1)] = unquote(sub.group(2))
+            continue
+        if line.strip() and not line.startswith("      "):
+            if current:
+                phases.append(current)
+                current = None
+            in_block = False
+    if current:
+        phases.append(current)
+    return phases
+
+
+def _declares_list(raw):
+    """`declares` may be inline (`[a.md]`) or absent."""
+    if not raw:
+        return []
+    s = raw.strip()
+    if s in ("[]", "—", "-"):
+        return []
+    return [x.strip().strip("\"'`") for x in s.strip("[]").split(",") if x.strip()]
+
+
 class PromptBuilder:
 
     def __init__(self, root=None, environment=None):
@@ -124,6 +190,10 @@ class PromptBuilder:
                         config["runtime"],
                         runtime_md
                     ),
+                "phase_contract":
+                    self._phase_contract_section(
+                        config["workflow"]
+                    ),
                 "external_capabilities":
                     self._capabilities_section(workflow_name),
                 "language_discipline":
@@ -138,6 +208,59 @@ class PromptBuilder:
         )
 
         return self._resolve_root_placeholders(prompt)
+
+    def _phase_contract_section(self, workflow_rel: str) -> str:
+        """Render the Phase Contract table from the workflow frontmatter.
+
+        Phase identity, activation conditions and cross-Phase dependencies are
+        **not** visible in the Runtime Skeleton: the skeleton keeps only the
+        heading and the first requirement line, while a conditional Phrase
+        like "hotfix mode only" lives in the heading suffix or the body's
+        "Activate only when …" sentence — neither reaches the prompt. Without
+        this section the agent cannot know that some Phases may not run.
+
+        Contract: `governance/policies/phase-contract.md`. The data lives in
+        the workflow's `workflow.phases` frontmatter block; the Runtime
+        Markdown stays the execution spec ("how"). Rendered unconditionally
+        (never skeletoned) — the whole point is that it must always be visible.
+
+        Returns an empty string when the workflow declares no contract, so a
+        runtime without one degrades to the previous behaviour.
+        """
+        wf_path = self.root / workflow_rel
+
+        if not wf_path.exists():
+            return ""
+
+        phases = _frontmatter_phases(wf_path)
+
+        if not phases:
+            return ""
+
+        lines = [
+            "## Phase Contract",
+            "",
+            "Execution map for this Runtime. `Activation` is `always` unless a "
+            "`WHEN` condition is given; a conditional Phase runs only when its "
+            "condition holds. `Declares` lists artifacts this Phase is "
+            "directly responsible for (per `governance/policies/phase-contract.md`).",
+            "",
+            "| # | Phase | Activation | Declares |",
+            "|---|---|---|---|",
+        ]
+
+        for entry in phases:
+            pid = entry.get("id", "")
+            name = entry.get("name", "")
+            activation = entry.get("activation", "") or "always"
+            declares = entry.get("declares", "")
+            artifacts = _declares_list(declares)
+            lines.append(
+                f"| {pid} | {name} | {activation} | "
+                f"{', '.join(artifacts) if artifacts else '—'} |"
+            )
+
+        return "\n".join(lines)
 
     def _language_discipline_section(self) -> str:
         """Language discipline reminder (LANGUAGE_CONVENTION) injected into every
@@ -638,7 +761,8 @@ class PromptBuilder:
         )
         skeleton.append(
             f"Full runtime template: {self.root / runtime_path} "
-            "(read the phase's section when executing it)"
+            "(read the phase's section when executing it; the Phase Contract "
+            "above lists which phases run and in what order)"
         )
 
         body = "\n".join(skeleton)

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Approved** (S1 implemented 2026-09-29; S2 pending) |
+| Status | **Implemented** (S1 + S2 both delivered 2026-09-29) |
 | Type | Capability（Phase 从 runtime 内部章节提升为一等机器契约）+ Fix（code-review 重复内容 + bugfix Phase 6 契约破损） |
 | Author | AI Maintainer |
 | Created | 2026-09-28 |
@@ -445,8 +445,85 @@ workflow-command-audit 0-0-0 · 16 个 workflow frontmatter YAML 全部合法。
 memory 门禁校验：0 error / 0 warning（三条目均含 `Context`/`Problem`/`Scope`/`Lesson`/
 `Solution` 五字段，`Lesson` 为 `MEMORY_REQUIRED`）。
 
-### S2 待授权
+---
 
-`## Phases` 第九段（16 workflow，固定 3 行入口）· prompt 渲染注入 Phase Contract ·
-`workflow-command-audit` 八段→九段 · `code-review` 最小压缩 8 行（99→88+3=91）·
-bugfix Phase 6 的 G1（`Invoke` 指向不存在的 skill）与 G2（补 pass_criterion 链接）。
+## Implementation Record (2026-09-29) — S2
+
+**范围**（用户授权）：`## Phases` 第九段 + prompt 渲染注入 + `code-review` 最小压缩 +
+bugfix Phase 6 的 G1/G2。P76 至此 **S1 + S2 全部交付**。
+
+### 核心价值：条件执行首次对 agent 可见
+
+`cli/services/prompt_builder.py` 新增 `_phase_contract_section()`，从 workflow
+frontmatter 的 `workflow.phases` 渲染 `## Phase Contract` 表，注入
+`templates/prompts/workflow.md` 的 `{{runtime_definition}}` 之后。
+**无条件渲染、绝不骨架化** —— 契约的可见性就是它的全部意义。
+
+实测 `bugfix` prompt 现在含 5 个 hotfix-only Phase 的 activation 与跨 Phase 依赖：
+
+```
+| 4.5 | Approval Gate     | WHEN mode.approval_gate                | — |
+| 4.6 | Branch            | WHEN mode.phases ∋ branch              | — |
+| 6.5 | Commit            | WHEN mode.phases ∋ commit              | — |
+| 6.6 | Submit MR         | WHEN mode.phases ∋ mr ∧ phase("6.5").completed | — |
+| 6.7 | Doc               | WHEN mode.phases ∋ doc ∧ phase("6").passed    | — |
+```
+
+此前这些条件只存在于 runtime 的标题后缀与正文 "Activate only when …" 句中，
+而骨架化只保留标题与首句 → agent **完全看不到某些阶段可能不执行**。
+
+模块级新增两个辅助函数（`_frontmatter_phases` / `_declares_list`），与门禁
+`tools/checks/phase_contract.py` **共用同一套行级解析 + 反转义逻辑** —— prompt 与
+check 对契约的解读必须一致，故不复用 yaml.safe_load 而各自实现同一 reader。
+
+### 九段契约
+
+16 个 workflow 追加固定 3 行 `## Phases` 指针段（紧跟 `## Runtime`）；
+`tools/workflow-command-audit.py` 的 `WORKFLOW_SECTIONS` 八段→九段
+（缺失即 BLOCKER）。
+
+**行数全部达标**（RFC-0003 上限 100）：`prepare` 99 · `external-review` 98 ·
+`code-review` 97 · 其余 59–80。
+
+### code-review 最小压缩（超出预期）
+
+删掉与 `runtime-code-review.md` Phase 1 完全重复的 5 条 `Target Branch Resolution`
+（runtime 侧更完整：分支来源表 + 7 条规则 + 候选采集顺序 + `cc{date}` 处理），
+保留 3 行摘要并显式指向 runtime。**99 → 92 行**（−7，目标 94–95），加 3 行指针后
+**97 行**。
+
+### bugfix Phase 6 G1 / G2
+
+- **G1**：`Invoke: testing / verification` 指向 39 个 skills 中**不存在**的名字。
+  改为明确「本阶段自行执行回归验证」并说明那两个词指**要做的工作**而非可调用单元
+  —— 与 Phase 6 开头「不走 main-chain `verify` workflow」的既有声明一致，不新增
+  执行机制。
+- **G2**：补 `Success criterion` 段，显式引用 `runtime-verify.md` Phase 7/8 的
+  Verification Status 规则（mandatory verification 缺失/失败即非 passed），
+  并点明「Phase 6.7 因此不激活」。**复用既有判据，未新增 gate**。
+
+### 门禁自证
+
+| 短路 | 结果 |
+|---|---|
+| `_phase_contract_section` 永不渲染 | **6 项** prompt-builder 测试失败 ✓ |
+| 删除某 workflow 的 `## Phases` 段 | audit **BLOCKER** + **2 项**单测失败 ✓ |
+| 还原 | 26 / 26 OK，audit 0 blocker ✓ |
+
+### 体积
+
+`prompt-metrics`：147117 → **161562** 字符（**+3611 tok / +9%**），
+`prefix_stable` **16/16** 保持。增量来自 Phase Contract 表 + 九段指针 ——
+**补的是此前完全缺失的契约信息**，不是浪费。
+
+### Validation
+
+全量 662 单测 OK（+10）· check.py PASS（2 WARN 为既有开放提案/开放项）·
+quick-check OK/findings 0 · path-audit 0 broken · repo-lint 0 BLOCKER/0 ERROR ·
+workflow-command-audit 0-0-0 · extensions-lint 0-0 · phase 契约门禁 0 error。
+
+### 未做（明确非目标）
+
+Phase 文件拆分（P75 议题；P76 建立的契约是其前置条件，现已就绪）。
+
+**follow-up 可见**：P75 §3.3 的 Phase 拆分现在有了稳定契约作前置，可重新评估。

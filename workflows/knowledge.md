@@ -37,6 +37,11 @@ Manage AI System knowledge assets.
 
 - templates/runtime/runtime-knowledge.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - None. Standalone workflow.

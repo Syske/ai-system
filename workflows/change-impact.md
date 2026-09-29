@@ -37,6 +37,11 @@ Analyze the impact, risks, and modification plan for a specific code target befo
 
 - templates/runtime/runtime-change-impact.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - None. Standalone workflow.

@@ -37,6 +37,11 @@ Generate a HotFix test document (转测文档) for a committed hotfix branch.
 
 - templates/runtime/runtime-hotfix-test-doc.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - BugFix completed in hotfix mode with a committed branch (hotfix branch committed, regression passed)

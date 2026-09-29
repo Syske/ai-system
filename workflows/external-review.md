@@ -49,6 +49,11 @@ This workflow is a **complement** to the internal gates, never a replacement.
 
 - templates/runtime/runtime-external-review.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - The artifact under review exists and is **git-tracked** (bundles are built from tracked files only).

@@ -39,6 +39,11 @@ Verify implementation correctness against specification and contract.
 
 - templates/runtime/runtime-verify.md
 
+## Phases
+
+Phase execution contract is defined by the workflow configuration.
+The configured Phase contract MUST match the Runtime Phase structure.
+
 ## Preconditions
 
 - Review completed with Status = Approved for Verification
