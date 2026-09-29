@@ -24,25 +24,20 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    python3 tools/maintain-delta.py --check # delta verdict: NO_CHANGES -> skip full audits
    ```
 
-   - `maintain-delta.py --check` verdicts: FIRST_RUN → full audit; NO_CHANGES
-     (no commits since last full run) → skip heavy audits (quick-check + state
-     hygiene + report); CHANGED → affected-area subset (`suggested` line)
+   - `maintain-delta.py --check`: FIRST_RUN → full audit; NO_CHANGES (no commits
+     since last full run) → skip heavy audits; CHANGED → affected-area subset
 
 1. **Tool checks** (run in the ai-system directory)
 
    ```bash
    python3 tools/repo-lint.py --repo-root .
    python3 tools/repo-metrics.py --repo-root . --snapshot ../metrics/maintain-{date}.json
-   python3 tools/prompt-metrics.py; python3 tools/context-audit.py   # P70 trend obs (never a token target)
+   python3 tools/prompt-metrics.py; python3 tools/context-audit.py   # P70 trend obs, never a token target
    python3 tools/path-audit.py
+   python3 tools/maintain-delta.py --record   # after the full run: baseline current HEAD
    ```
 
    Do not proceed to later steps until BLOCKER / ERROR are fixed (report only, do not fix on your own).
-   After the full run completes, record the delta baseline:
-
-   ```bash
-   python3 tools/maintain-delta.py --record   # record current HEAD as the next delta baseline
-   ```
 
 2. **Mode-based inspection** (per skills/repository-maintainer and OPERATIONS.md section 9)
    - weekly: duplication / dependency graph / orphan assets / health score
@@ -51,49 +46,55 @@ Run routine maintenance on ai-system and the workflow system: tool checks, mode-
    - on-demand: run the corresponding items above per Scope
    - Scope=extensions: `extensions-lint.py` (+ `--fix-missing-log`), verify repo sync (`git -C <workspace>/extensions status`), report per-extension health (SKILL.md / OPTIMIZATION_LOG coverage)
 
-2.5 **AI system health (analysis workflow, internal)** — run its checks
-   (structure/quality/consistency) as an internal stage; not a menu entry.
+2.5 **AI system health (analysis workflow, internal)** — run its checks as an
+   internal stage; not a menu entry.
 
 2.6 **Knowledge lifecycle (internal)** — per OPERATIONS 1.7: collect (after
    release/retrospective), review (monthly: de-dup/contradiction/stale),
    archive (quarterly). Managed by AI in the maintenance cycle.
-   - **logs recycle**: scan `logs/` for **recurring (≥2x)** observations never
+   - **logs recycle**: scan `logs/` for **recurring (>=2x)** observations never
      captured to Coding Memory / env.yaml / a proposal → decide capture /
      machine-config / proposal (Issue Capture triage). Skip single-shot
-     transient observations.
+     transients.
+   - **Experience Inbox triage** (P71) — procedure and the read-only hard rule
+     are in `MEMORY_GUIDELINES.md` "Experience Inbox"; do not restate them here.
+     Runs even when the Inbox looks empty. **Verify each `Source` before
+     promoting**; discard needs a recorded reason per candidate; no candidate is
+     a legitimate result. Commit promotions, then delete the drafts.
+   - **Record the five counts, always** (P71 5.9): generated / triaged / promoted /
+     redirected / discarded + per-discard reasons, into the report and
+     `config/maintenance.yaml`. A run reporting no counts is not a completed
+     run — "the folder is empty" is not a metric.
 
-3. **Governance consistency spot check** (always, to prevent recurrence of past issues)
-   - workflows/*.md: all eight sections present and in order (Purpose/Runtime/Preconditions/Inputs/Context/Outputs/Exit Criteria/Next); terminology matches workflows/README.md selection table; Runtime reference files exist; Preconditions/Next chain closes
+3. **Governance consistency spot check** (always — these recur otherwise)
+   - workflows/*.md: eight sections present and in order; terminology matches workflows/README.md; Runtime refs exist; Preconditions/Next chain closes
    - config/workflows/*.yaml: registry stays minimal (name/workflow/runtime), no re-bloating into inputs/outputs/next (prevent A1 recurrence)
-   - Referenced paths exist (governance/standards/, loaders/, templates/prompts/, cli/commands/); link health: junction/symlink targets like projects/ accessible (`Get-Item -Force` for LinkType/Target)
-   - Doc-vs-reality: AGENTS.md workspace structure diagram, AI_DEVELOPMENT_CONTRACT architecture diagram, OPERATIONS entry sections match the actual directory layout
+   - Referenced paths exist (governance/standards/, loaders/, templates/prompts/, cli/commands/); junction/symlink targets like projects/ resolve
+   - Doc-vs-reality: AGENTS.md + AI_DEVELOPMENT_CONTRACT diagrams, OPERATIONS sections match the actual layout
    - State hygiene: project/change references in workspaces/.aic-state.yaml still exist
-   - **Run-log coverage**: cross-check uncommitted git changes vs logs/ diagnostic records — changes with no corresponding run log (e.g. tracked files modified outside a logged run) are flagged for attribution before commit (2026-09-01 maintain finding)
-   - **Proposal leftovers**: run `python3 tools/proposal-audit.py` — evaluate open proposals (Status ≠ Implemented/Approved/Rejected/Archived) and unclosed `- [ ]` action items in reports/; refresh the index (`--refresh-index`) and report each leftover's disposition (approve / implement / reject / defer)
+   - **Run-log coverage**: uncommitted changes vs logs/ records — changes with no run log are flagged for attribution before commit (2026-09-01)
+   - **Proposal leftovers**: `python3 tools/proposal-audit.py --refresh-index`; report each open proposal / `- [ ]` item's disposition (approve / implement / reject / defer)
 
 4. **Persist report**
-   - Generate the skeleton first: `python3 tools/maintain-report.py --date {date}`,
-     then fill narrative sections (findings / consistency / fix list).
-     Non-destructive: existing file is not overwritten.
-   - Write to ai-system/reports/MAINTENANCE-{date}.md: findings (by severity), fix
-     suggestions, metric comparison (vs previous snapshot).
-   - Run the language gate on the report before presenting (P45 pilot chain,
-     runtime-base Complete step): `python3 tools/language-gate.py reports/MAINTENANCE-{date}.md`
-   - Minor issues (typos, broken links, doc drift) may be fixed in place after
-     confirmation and recorded; structural changes **output suggestions only**
-     (OPERATIONS §11: Analyze → Propose → Review → Approve)
+   - Skeleton first: `python3 tools/maintain-report.py --date {date}`, then fill
+     findings / consistency / fix list. Non-destructive.
+   - Write reports/MAINTENANCE-{date}.md: findings by severity, fix suggestions,
+     metric comparison (vs previous snapshot), and the P71 5.9 counts.
+   - Language-gate the report before presenting (P45): `python3 tools/language-gate.py reports/MAINTENANCE-{date}.md`
+   - Minor issues fixed in place after confirmation and recorded; structural
+     changes **suggestions only** (OPERATIONS 11: Analyze → Propose → Review → Approve)
 
 **Output**
 
 ## Maintenance Report
 
-报告字段、`config/maintenance.yaml` 更新与 last_findings 纪律见
-`skills/repository-maintainer/health.md` §Maintenance State Update（aic-maintain Output）。
+报告字段、`config/maintenance.yaml` 更新与 last_findings 纪律见 `skills/repository-maintainer/health.md` §Maintenance State Update（aic-maintain Output）。
 
 **Guardrails**
 
 - Follow AI_DEVELOPMENT_CONTRACT (no redesign / no responsibility moves / structural changes → suggestions only); confirm before each batch of fixes (Change Control)
 - Inspection is read-first; modifications limited to confirmed minor fixes
-- This command maintains ai-system ARCHITECTURE only; aic-tool health runs separately via quick-check (OPERATIONS 1.8.1)
-- Maintenance experience (CI env, pyc cache, repo layout) is recorded in reports/ — consult the index, not this file
+- Maintains ai-system ARCHITECTURE only; aic-tool health runs via quick-check (OPERATIONS 1.8.1)
+- Maintenance experience is recorded in reports/ — consult the index, not this file
 - CI without the extensions repo: parser/mr.provider checks degrade to WARN, not ERROR
+- The Inbox is read for triage only; never cite a candidate as knowledge (P71 4.10)

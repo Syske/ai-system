@@ -388,3 +388,25 @@ Return:
 - Fix Summary
 - Modified Files
 - Verification Status
+
+## Experience Candidates
+
+If this run produced a reusable lesson — a proven root cause, a confirmed
+solution, a non-obvious integration fact — record it as a candidate via the
+`memory-capture` skill (Inbox path by default).
+
+Qualification: **verified** (root cause proven, not hypothesised) · **reusable**
+(a future session would hit it) · **experience** (a lesson, not a rule — rules
+go to `governance/standards/`; not task state — that goes to the handoff
+summary) · **not a duplicate** of an existing memory entry.
+
+Write five fields: What / Why / Source / Candidate Category. `Source` must be
+a real, checkable reference (file:line, commit, command output). Never
+reconstruct one — an unverifiable citation costs triage more than a missing
+entry does.
+
+**No qualifying candidate is a valid outcome.** Do not manufacture one to
+appear thorough, and do not pad the Inbox.
+
+Language is free here; canonical memory is English, and translation is the
+triage step's job, not the candidate's.

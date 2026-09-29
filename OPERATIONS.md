@@ -193,6 +193,39 @@ AI manages knowledge as part of the maintenance cycle (not a standalone
 user menu entry). `governance/memory/` is validated by `tools/check.py`
 (entry format, index integrity, language).
 
+### 1.7.1 Experience Inbox (P71)
+
+Session-end experience lands in `governance/memory/drafts/` — an **Experience
+Inbox**, not a memory draft. Git-ignored, any language, five mandatory fields
+(What / Why / Source / Candidate Category). The procedure, the five-destination
+routing, and the read-only hard rule are specified once, in
+`MEMORY_GUIDELINES.md` → *Experience Inbox*; this section only fixes ownership
+and cadence.
+
+| Concern | Owner |
+|---|---|
+| Capture (write a candidate) | the session, at end — `memory-capture` skill, Inbox path by default |
+| Triage (verify source, route, discard) | the maintenance cycle, `aic-maintain` step 2.6 |
+| Translation to canonical English | triage, never capture |
+| Monthly review (de-dup / contradiction / stale) | unchanged, above — it reviews canonical entries only |
+| Hindsight | **not involved**; recall/reflect is a later stage, gated by P77 |
+
+Three separations this preserves:
+
+- **Capture does not decide.** Qualification, category, and translation happen at
+  triage. A session that is unsure still records the candidate; it does not
+  become the gatekeeper.
+- **Triage does not author.** Routing is not authoring: a candidate promoted to
+  `governance/standards/` or `skills/` is a *new* artifact following that
+  layer's own rules, not a memory entry that happens to live elsewhere.
+- **Inbox is not knowledge.** Agents must not read candidates as a basis for
+  knowledge — see the hard rule in `MEMORY_GUIDELINES.md`. Source verification
+  only means something while the candidate is still unverified.
+
+Each triage run records five counts (generated / triaged / promoted /
+redirected / discarded) plus per-discard reasons. An empty Inbox is a normal
+outcome; an unmeasured one is not.
+
 AI-operation-first health flow (ADR-0009):
 
 - Session start: AI runs `python3 tools/quick-check.py` (read-only, seconds);
