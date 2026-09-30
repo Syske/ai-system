@@ -379,21 +379,73 @@ exit 1 + verdict=undetermined  → BLOCK + 暴露 Contract Gap
 
 ## 9. 成功标准
 
-### 9.1 Layer 1 —— Evaluator 能力（必须全过）
+### 9.1 Layer 1 —— Evaluator 能力（12 项：10 场景 + 2 异常分支，全部必配必失败负例）
+
+场景集为**并集重分层**（2026-09-30 裁定）：原 §9.1 偏机制行为、F.1 偏输入边界，
+两份各持一半。合并为 10 项并按「判定路径」而非「发现顺序」分层，避免只保留一份
+再次出现「测试已覆盖但提案未完整表达」。
+
+**A. 判定路径（criterion 可判定时）**
 
 | # | 场景 | 期望 | 覆盖的裁定 |
 |---|---|---|---|
-| 1 | Completion Report 存在 | `exit 0` + `verdict=completed` | D3 主路径 |
-| 2 | Completion Report 不存在 | `exit 1` + `verdict=not-satisfied` | D3 第二终值 |
-| 3 | criterion 本身不可判定 | `exit 1` + `verdict=undetermined` + `reason=criterion-not-evaluable` | **D3 的核心语义** |
-| 4 | `change` 未提供 | `exit 1` + `verdict=undetermined` + `reason=input-missing` | §5 Input Contract |
-| 5 | 同一 criterion + 相同 workspace state 重复求值 | 结果**完全一致**（确定性） | §1 核心问题 |
-| 6 | 记录落盘 | 追加一条 JSONL，含 `verdict` / `reason` / `evidence` / `ts` | D2 |
-| 7 | stdout 前缀与 `verdict` 一致 | 两者不得矛盾 | D5 |
+| 1 | Completion Report 存在 | `completed` / exit 0 | D3 主路径 |
+| 2 | Completion Report 不存在 | `not-satisfied` / exit 1 | D3 第二终值 |
+| 3 | 历史 / 兄弟 report 污染（目录已有其他报告） | **不得误判 `completed`** | **判据 4** |
 
-> 场景 3 与 4 缺一不可 —— 若只有「存在 → completed / 不存在 → not-satisfied」，则 D3 最关键的 `undetermined` 语义未验证。
+> 第 3 项是本提案最重要的真实发现：`rpc_log-graceful_shutdown` 实测同目录有 **8 份**
+> 兄弟报告时，无报告的 `T-011` 仍判 `not-satisfied`。目录级检查会误判为 `completed`。
 
-场景 5 的必要性：若求值结果随调用时刻变化，则「确定性」这一核心主张不成立。`knowledge-runs.jsonl` 的 watermark 机制提供了「哪些 workspace 日志已被计入」的先例。
+**B. 输入与契约边界（判定条件无法建立时）**
+
+| # | 场景 | 期望 |
+|---|---|---|
+| 4 | `project` 缺失 | `undetermined` / `input-missing` |
+| 5 | `change` 缺失 | `undetermined` / `input-missing` |
+| 6 | `task` 缺失 | `undetermined` / `input-missing` |
+| 7 | `workspace` / path 无法解析（含入参含分隔符） | `undetermined` / `input-missing` |
+| 8 | criterion 不可判定（Phase 不存在 / 无 criterion / 文本被改） | `undetermined` / `criterion-missing` \| `criterion-invalid` |
+
+**C. 机制性质（求值之外的承重断言）**
+
+| # | 场景 | 期望 |
+|---|---|---|
+| 9 | 重复求值确定性 | 相同输入 → 相同 `verdict` / `evidence` / `execution_id`；JSONL 追加而非覆盖 |
+| 10 | 审计记录落盘 + stdout 前缀一致 | 记录与判定同源；前缀与 `verdict` 恒定对应；stdout 无可解析结构 |
+
+**D. 异常分支（fail-closed 原则）**
+
+| # | 场景 | 期望 |
+|---|---|---|
+| 11 | evaluator 自身异常 | `undetermined` / `evaluator-error` / **记录仍写入** / exit 1 |
+| 12 | 记录写入失败 | `undetermined` / 末条 `record-unwritable` / **首条保留原始 evidence** / exit 1 |
+
+第 11、12 项验证的是 D3 最核心的 fail-closed 原则：
+
+> **Evaluator 自己无法完成判定时，也绝不能让系统表现为 `completed`。**
+
+两者均经**反向验证**（破坏后测试确实挂），非仅正向通过：
+
+| 破坏方式 | 结果 |
+|---|---|
+| 把 record 失败的兜底改回覆盖 verdict | **4 个测试挂** |
+| 把 crash 兜底改成返回 `completed` | **2 个测试挂** |
+
+### 9.1.1 `evaluator-error` 的复核结论（2026-09-30）
+
+复核发现：**该分支原先完全未被测试** —— 把它改成假通过（返回 `completed`）后，
+原 37 个测试**仍然全绿**。经查，两处「引用」均未触达真实兜底：一处只是闭集清单
+`EVIDENCE_TYPES` 的元素，一处是 monkeypatch 的**桩值**。
+
+> **这与 `runtime-base.md` 的 8 个 Runtime API、`gates:` 注册表是同一种失败模式 ——
+> 声明了，没有消费者。** 它一度被写入报告却未验证是否真会触发。
+
+**已补两个真实测试**（注入异常 → 断言 exit 1 + `[UNDETERMINED]` + `evaluator-error`，
+并断言**崩溃后记录仍存在**）。补后：再改成假通过 → **2 个测试挂**。
+
+**保留必要性**：无该分支时，未捕获异常虽会以 exit 1 偶然 fail-closed，但
+① **stdout 不会有任何前缀**，违反裁定 12（每个路径都必须发出三前缀之一）；
+② **不产生审计记录**，Contract Gap 不可见。故正式纳入 Layer 1 异常分支。
 
 ### 9.2 Layer 2 —— 明确不验证（实验边界，非「V1 的不足」）
 

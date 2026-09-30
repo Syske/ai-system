@@ -418,6 +418,61 @@ class ExitContractTests(unittest.TestCase):
             ce.main(["--json"])
 
 
+class EvaluatorErrorTests(unittest.TestCase):
+    """The crash fallback must be observable, not merely declared.
+
+    Found during the implementation-vs-ruling review: replacing this fallback
+    with a false pass left all 37 tests green. That is the same failure shape
+    as `runtime-base.md`'s eight unimplemented APIs and the `gates:`
+    registry — declared, never exercised.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.fx = Fixture(self._tmp.name).with_task()
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def _main(self):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = ce.main([
+                "--workspace", str(self.fx.ws), "--project", PROJ,
+                "--change", CHG, "--task", TASK,
+            ])
+        return code, buf.getvalue()
+
+    def test_crash_becomes_undetermined_and_blocks(self):
+        original = ce.evaluate
+
+        def boom(*_a, **_k):
+            raise RuntimeError("synthetic crash")
+
+        ce.evaluate = boom
+        try:
+            code, out = self._main()
+        finally:
+            ce.evaluate = original
+        self.assertEqual(code, 1, "a crash must not pass")
+        self.assertIn("[UNDETERMINED]", out)
+        self.assertIn("evaluator-error", out)
+
+    def test_crash_does_not_erase_the_contract_gap(self):
+        """Even on a crash the record must exist, or the gap is invisible."""
+
+        original = ce.evaluate
+        ce.evaluate = lambda *a, **k: (_ for _ in ()).throw(OSError("x"))
+        try:
+            self._main()
+            target = ce.record_path(self.fx.ws, ce.machine_id())
+            self.assertTrue(target.is_file(), "no audit record after a crash")
+            rec = json.loads(target.read_text(encoding="utf-8").strip().splitlines()[-1])
+            self.assertEqual(rec["evidence"][-1]["type"], "evaluator-error")
+        finally:
+            ce.evaluate = original
+
+
 class ShortCircuitTests(unittest.TestCase):
     """Per-branch self-verification.
 
