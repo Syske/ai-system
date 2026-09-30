@@ -596,3 +596,99 @@ failed.update({k: v for k, v in payload.items() if k != "evidence"})
 全量单测 **786 OK**（749 → 786，+37）· check.py PASS（2 WARN 既有基线）·
 workflow-command-audit 0/0/0 · quick-check OK/findings 0 · path-audit 0 broken ·
 repo-lint 0 BLOCKER / 0 ERROR · 短路自证 11/11（已固化为 4 个常驻测试）
+
+---
+
+## P80 裁定：No-Go（2026-09-30）
+
+对 `bugfix` Phase 6 的 `pass_criterion` 做 **SSOT 审查**（只查不改），结论 **不成立**。
+本节记录 No-Go 及其重开条件，避免同一议题被反复重开。
+
+### 被审查的 criterion
+
+```yaml
+# workflows/bugfix.md:39
+pass_criterion: "Verification Status = PASS (runtime-verify Phase 7/8 criteria)"
+```
+
+### 四问的答案
+
+| 问 | 答案 | 证据 |
+|---|---|---|
+| PASS 事实存在哪里 | `workspaces/<project>/verify/<task>/verification-report.md` 的**一行 Markdown 文本**。无独立状态文件、无 schema、无 frontmatter 字段 | 55 份产物；`grep -rln "verification_status" --include=*.py/*.yaml/*.json` → **零命中** |
+| 谁产生 | **Agent**。`runtime-verify.md:298` 的 `## Verification Status` 是**空标题模板** —— 无取值规定、无格式、无产出指令 | 该行是给 Agent 填充的槽位 |
+| 谁消费 | **无人**。`grep "Verification Status" tools/ cli/` → **零消费者**；`runtime-bugfix.md:390` 仅在 `Return:` 中列出该字段名 | 无机器读取方 |
+| 能否脱离 Agent 自述确定性读取 | **不能** | 见下 |
+
+### 决定性证据
+
+54 份含该字面量的产物中，状态行有 **7 种散文形态**：
+
+| 形态 | 份数 |
+|---|---|
+| `Verification Status: **PASS**` | 24 |
+| `Verification Status: PASS**` | 12 |
+| `Verification Status**: ✅ **PASS**` | 9 |
+| 带尾注（`（零改动核验卡）`、`（批量版）`、`→ M4 全链收口`、`（1 待办转发布清单…）`） | 各 1 |
+
+**且有一份的行内同时含 `PASS` 与 `FAIL`**：
+
+```
+workspaces/202610-cool-italent-sync-plus/verify/T-021/verification-report.md:7
+## Verification Status: **PASS**（含一轮 FAIL→develop→复验闭环）
+```
+
+任何基于 `PASS`/`FAIL` 子串的判定器都会误判。另有 1 份（55 份中）完全无该行。
+
+### 四维验证中三维无机器证据
+
+| 维度 | 机器可生成的事实 |
+|---|---|
+| Specification Verification | ❌ Agent 逐条判断 MUST/SHALL |
+| Contract Verification | ❌ Agent 判断 |
+| Scenario Verification | ❌ Agent 判断 |
+| Test Verification | ⚠️ 底层有 surefire XML，但 Phase 5 指令为 `Verify: …` + `Generate: Test Verification Report` —— **仍是 Agent 写报告** |
+
+即使退到底层，`projects/*/target/surefire-reports/` 是 `target/` 下的**构建产物**（gitignored），**不与 task/change 绑定**，且不含其余三维。**无法从中确定性推出 `Verification Status = PASS`。**
+
+### 判据核对
+
+| 判据 | 结论 |
+|---|---|
+| 1 Observable | ⚠️ 可观察到，但观察到的是散文 |
+| 2 Deterministic（不依赖 LLM / Agent 自述） | ❌ **产出者即 Agent** |
+| 3 Mechanically Evaluatable | ❌ 7 种格式 + 尾注 + 内嵌 FAIL |
+| 4 Execution-Isolated | 不适用（未到该层） |
+| 5 输入与状态来源有明确 SSOT | ❌ **零机器消费者** |
+
+### 关键：98% 覆盖率不是问题
+
+**54/55 份含该字面量（98%）—— 但这 98% 全部是 Agent 生成的非结构化文本。**
+
+> 覆盖率衡量的是「Agent 有多常写这一行」，不是「是否存在机器可判定的状态」。
+
+必须连同此句一并留档，否则日后有人看到 `54/55` 极易误判为「已具备机器判定基础」。
+
+### 硬边界
+
+> **不得通过解析历史 `verification-report.md` 中的 Agent 自述来构造 P80 evaluator。**
+
+违反该边界将把自述固化成契约，且 55 份历史产物中那 1 份内嵌 `FAIL` 的会立刻成为不合格样本 —— 而它正是需要保留的反例。
+
+**同时明确不做**：❌ 改造 `runtime-verify` 以配合 P80 · ❌ 为 P80 增加解析规则 · ❌ 进入 evaluator。
+
+### 重开条件（任一满足）
+
+1. 出现**机器生成且 task/change 绑定**的验证状态
+2. 四维验证中出现足够的机器可判定锚点
+3. `Verification Status` 获得 **schema + 生产者 + 消费者 + 格式门禁**（使 7 种形态收敛为 1 种，且尾注被排除）
+
+### 审查方法上的一处自我更正
+
+审查中我一度统计「198 份中仅 19 份有状态行」并准备据此断言覆盖率极低。**该数字错误** —— 198 是所有 verify 相关文件（含 `specification-verification.md` 等），非 `verification-report.md`。
+
+精确值：**55 份 `verification-report.md`，54 份含该字面量，1 份缺失**。
+
+覆盖率其实很高，**但结论不变** —— 问题不在覆盖率，而在**产出者与格式**。高覆盖率不等于可机械解析。
+
+（这是本会话第二次因未验证即下结论而报错，第一次是 P79 之前误判 `last_findings` 为单值字段。）
