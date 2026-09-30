@@ -20,6 +20,24 @@ workflow:
       name: "Invoke Implement Skill"
     - id: "4"
       name: "Completion"
+      # SSOT for "what satisfies this Phase" (P76 schema: criterion lives in
+      # workflow frontmatter, never in the runtime).
+      #
+      # States an observable fact, not an engineering result (P79 §8.1):
+      # "generated successfully" is excluded because `successfully` is a
+      # semantic judgement no deterministic evaluator can make.
+      #
+      # Scoped to <task>, NOT "directory non-empty": measured across real
+      # workspaces, one change accumulates reports across many Task Cards
+      # (up to 16 files), so a non-empty directory was already true before this
+      # Phase ran. That is a deterministic false positive. Mapping is
+      # <task-id> verbatim — real Task IDs come in two shapes (`T-001` 116×,
+      # `2.1` 18×), so no `T-` prefix may be assumed (P79 §5, §12).
+      #
+      # Strict match on purpose: loose matching (`*<task>*report*.md`) would
+      # violate the Deterministic criterion. A non-conforming filename yields
+      # a false negative — disclosed in P79 §9.2, not worked around here.
+      pass_criterion: "Completion Report for <task> exists (workspaces/<project>/openspec/changes/<change>/completion-reports/<task>-completion-report.md)"
 ---
 # Workflow: Develop
 

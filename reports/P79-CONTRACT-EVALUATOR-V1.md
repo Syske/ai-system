@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | **Approved** |
+| Status | **Implemented**（V1 完成，2026-09-30） |
 | Type | Evaluation / Experiment（验证「AIC 能否对一个明确、可机械判定的 Phase Contract 做独立求值」，**不含业务完成性判定**） |
 | Author | AI Maintainer |
 | Created | 2026-09-29 |
@@ -173,27 +173,100 @@ Future phase_contract 门禁 → 如何防止不可判定 criterion 进入运行
 
 ---
 
-## 5. Input Contract（V1 内定，非独立决策项）
+## 5. Input Contract
 
 ```text
 AIC Evaluator
   required inputs:
     project
     change
+    task
 
-  missing project or change
+  missing any of the three
     → verdict=undetermined
     → reason=input-missing
     → exit 1
 ```
 
-**求值器不得猜测 `change-id`。** 依据 §3.5：project-id 与 change-id 同名只是 3 样本中的多数现象，第三行构成明确反例。
+求值器**不得推导** `change-id` 或 `task-id`，二者均为显式入参。
+
+| 入参 | 来源 | 依据 |
+|---|---|---|
+| `project` | 显式传入 | 现有 workflow input |
+| `change` | 显式传入 | §3.5 —— project-id 与 change-id 同名只是 3 样本中的多数现象，`202609-housekeeping-log-volume-reduction` / `log-volume-reduction` 构成明确反例 |
+| `task` | 显式传入 | **复用** `workflows/develop.md` 已声明的 Task ID input（`auto-derived (read from Task Card)`），**非新概念** |
 
 | 方案 | 判定 | 理由 |
 |---|---|---|
-| 显式 `project + change` | ✅ | 最小、确定、无猜测；且让「入参缺失」成为 `undetermined` 的**真实触发路径** |
-| 从 project 推导 | ❌ | 把偶然命名规则升格为契约 |
+| 显式 `project + change + task` | ✅ | 最小、确定、无猜测；让「入参缺失」成为 `undetermined` 的**真实触发路径** |
+| 从 project 推导 change | ❌ | 把偶然命名规则升格为契约 |
 | 建立 change-id 权威映射 | ❌ | 超出 V1（属 dev-setup / prepare 职责） |
+| 判定「目录非空」而不需要 task | ❌ | **确定性假阳性** —— 见 §12 |
+
+---
+
+## 12. Criterion 可判定性审查（2026-09-29 实测）
+
+criterion 写入后按四条判据审查。**前三条不足以排除缺陷** —— 审查过程中正是漏掉第四条，产出了一个确定性假阳性。
+
+### 12.1 四条判据
+
+| # | 判据 | 含义 |
+|---|---|---|
+| 1 | **Observable** | 能观察到客观事实 |
+| 2 | **Deterministic** | 不依赖 LLM / Agent 自述 |
+| 3 | **Mechanically Evaluatable** | 能由求值器机械判断 |
+| 4 | **Execution-Isolated** | **历史状态不能伪造本次执行成功** |
+
+第 4 条由用户裁定追加。没有它，「文件存在 → completed」会被读成「本次 Phase 产生了文件 → completed」，而 P79 的全部目的恰恰是后者。
+
+### 12.2 第一版 criterion 被判不通过（保留记录）
+
+```yaml
+pass_criterion: "Completion Report Directory Non-Empty (...)"
+```
+
+**实测证据**：
+
+| change | 文件数 | 日期跨度 |
+|---|---|---|
+| `202610-cool-italent-sync-plus` | 14 | Sep 2 – Sep 4 |
+| `202609-rpc_log-graceful_shutdown` | 8 | Sep 29 – Sep 30 |
+| `202610-public-security-storage-…` | 16 | Sep 4 – Sep 28 |
+
+文件名为 `T-001`…`T-045` —— **一个 change 跨多张 Task Card，目录在第 45 张卡跑完后仍非空**。
+
+**后果**：本次 Phase 4 完全未执行时，求值器仍返回 `completed`。这是**确定性假阳性** —— 比 `undetermined` 更危险，因为它携带 exit 0。
+
+判据 1/2/3 全部通过，**仅判据 4 不通过**。
+
+### 12.3 Task → Completion Report 映射的实测核查
+
+| 问题 | 答案 |
+|---|---|
+| Task Card 的 ID 形式 | **两套**：`T-NNN.md` **116** 个 · `<n>.<m>.md` **18** 个（全部集中在 `202610-qa-housekeeping-optimization`，且与 `T-` 系**同目录并存**） |
+| Completion Report 命名 | **两套且与 Card 同构**：`T-NNN-completion-report.md` 44 个 · `2.x-completion-report.md` 4 个 · 另有 2 个非 report 文件（`T-011-L3-check-log.md`、`completed-cards-walkthrough-log-20260909.md`） |
+| 能否机械确定映射 | **结构上能**：`<change>/tasks/cards/<task-id>.md` ↔ 同 change 下 `completion-reports/<task-id>-completion-report.md`，ID 原样透传 |
+| 是否有**成文**命名规则 | **没有**。`grep -rn "completion-report" governance/ templates/ workflows/ skills/` 只命中**路径**；`runtime-develop.md:337-339` 只规定存放目录，**未规定文件名** |
+| `T-{task}-…` 可否当契约 | **不可**。116:18 两套并存，假设 `T-` 前缀会在 `qa-housekeeping` 类项目上失效 |
+
+用户担心的「T-011 对 2.4 只能人工理解」**不存在** —— 两套 ID 是项目级差异，各自内部严格同构。
+
+### 12.4 `not-satisfied` 是真实可达状态
+
+`202609-rpc_log-graceful_shutdown` 实测：11 张 Task Card、8 份报告，**T-009 / T-010 / T-011 无报告**；反向（报告无 Card）为零。
+
+故三态在真实数据上均可达，不是理论构造。
+
+### 12.5 最终 criterion
+
+```yaml
+pass_criterion: "Completion Report for <task> exists (workspaces/<project>/openspec/changes/<change>/completion-reports/<task>-completion-report.md)"
+```
+
+**严格匹配是刻意的**（裁定 A1）：宽松匹配（`*<task>*report*.md`）会违反判据 2（Deterministic）。
+
+**已知代价**：命名不合规（如 `T-011-report.md` 漏 `-completion`）会产生**假阴性** —— 实际已完成但求值器返回 `not-satisfied`。该代价**记入 §9.2 Layer 2，不在此处绕过**。补命名规则属 runtime 职责，**本轮不改 runtime**。
 
 ---
 
@@ -335,7 +408,11 @@ V1 **不**证明 AIC 能判断：
 
 这些都需要更完整的 Phase Contract。
 
-特别是：**`Task Card fully checked`（Exit Criteria 的另一半）无判定语义** —— 谁都能打勾、无人验证。V1 **不**触碰它。
+特别是：
+
+- **`Task Card fully checked`（Exit Criteria 的另一半）无判定语义** —— 谁都能打勾、无人验证。V1 **不**触碰它。
+- **报告文件名不合规导致假阴性**（§12.5）—— 严格匹配是判据 2 的代价。命名规则属 runtime 职责，本轮不改。
+- **Task ID 两套形态**（`T-NNN` / `<n>.<m>`，§12.3）—— 求值器原样透传，不假设 `T-` 前缀。若某项目引入第三套命名，criterion 会失效并需重裁。
 
 ### 9.3 验证方式
 
@@ -383,4 +460,87 @@ phase_contract 静态门禁（criterion 必须可判定）
 |---|---|---|
 | 外部评委（三方） | **建议** | 提出「来源与裁定严格分开」；并给出 D3 的关键修正：`undetermined` 不能静默通过，否则 Agent 会说「无法判断，继续」，可靠性增益归零 |
 | User | **Approved（D1–D5 + Input Contract + 措辞纪律）** | 2026-09-29 逐项裁定：D1 A‴（develop Phase 4 单点）· D2 A（追加式 JSONL，写入者为求值器）· D3 A′（三终值，不引入 MUST/SHOULD/MAY）· D4 A″（不建 Tool API）· D4.1 A′（不改全仓 exit code 语义）· D5 A″（stdout 人读 / JSONL 机器读 / 不提供 --json）· Input Contract A（显式 project+change，禁止推导 change-id）· 措辞纪律（criterion satisfied ≠ Phase completed）· Layer 2 写成有意识的实验边界 |
+| User | **裁定 criterion 审查结论** | 2026-09-29：①criterion 方向采纳 **A**（task 级），但**先核查 Task→Report 的机械映射，不允许 AI 假设 `T-{task}-…` 就是契约** ②Input Contract 扩为 `project + change + task`（`task` 复用已有声明，非新概念）③**不引入 mtime / watermark** ④**不补命名规则**（runtime 职责）、不改 runtime、不写 evaluator、不提交 ⑤**采用 A1**：严格匹配 `<task-id>-completion-report.md`，假阴性记入 Layer 2 ⑥**evaluability 判据升级为四条**，新增 **Execution-Isolated**（历史状态不得伪造本次执行成功）—— 用户指出原三条「不足以排除这类缺陷」 |
+| AI | **criterion 审查（已应用）** | 首版「Directory Non-Empty」按原三条判据会判通过，**但实测出确定性假阳性**（目录跨多张卡累积，最多 16 文件）→ 补第 4 条判据后改写为 task 级。Q1–Q4 核查见 §12.3：Task ID **两套**（116:18）、Report 命名两套且与 Card 同构、**无成文命名规则**（仅规定目录）、`T-` 前缀不可假设；`not-satisfied` 在真实数据上可达（11 卡 8 报告）。门禁：check.py PASS、test_phase_contract 15/15 OK |
 | AI | **Proposed** | 证据见 §3。**两处更正自身先前结论**：①「117 个 Phase 都有 pass_criterion」错误 —— 实测 42 个中仅 1 个（2.4%），D1 因此从「4 个 Phase」收敛到「1 个」②「JSON 在本仓无位置」错误 —— 6 个工具已有 `--json` 输出，先例存在（D5 据此调整表述） |
+
+---
+
+## Implementation Record (2026-09-30) — V1
+
+### 交付物
+
+| 文件 | 内容 |
+|---|---|
+| `workflows/develop.md` | Phase 4 唯一 `pass_criterion`（task 级精确匹配） |
+| `tools/contract-eval.py` | 求值器：Input Resolver · Criterion Resolver · Evaluator · Recorder · CLI |
+| `cli/tests/test_contract_eval.py` | 37 例，含逐条短路自证 |
+| `tools/README.md` | 工具登记 |
+
+### 裁定落点
+
+| 裁定 | 实现 |
+|---|---|
+| D1 A‴ | 单 Phase 单 criterion；`KNOWN_CRITERION` 常量逐字比对 |
+| D2 A | `metrics/by-machine/<id>/contract-eval.jsonl`，追加式；`execution_id = sha256("project\|change\|task\|phase")[:16]`（派生值，非实体） |
+| D3 A′ | 三终值；`evidence[].type` 为**唯一**诊断分类；**无 `reason` 字段** |
+| D4 A″ | `tools/` 独立脚本 —— 非 `aic-*` 命令、非门禁、无 Tool/MCP |
+| D4.1 A′ | 仅 exit `0` / `1` |
+| D5 A″ | stdout 三前缀；**无 `--json`**（有负例断言传入即 SystemExit） |
+| Input Contract | `project` + `change` + `task` 全显式，**零推导**；`workspace` 可缺省取 `runtime_state.workspace_root()` |
+| criterion 归属 | 求值器**自行读取** frontmatter 并逐字校验，**不接受调用方注入**（有测试断言 `evaluate()` 签名无 `criterion` 参数） |
+| 解析复用 | 复用 `checks/phase_contract._frontmatter/_parse_phases` —— Phase 定义只有一份 |
+
+### 测试抓到的真实 bug：记录失败时的假通过
+
+`finalize` 原为：
+
+```python
+payload = dict(result)          # ← 复制了 verdict
+...
+failed.update({k: v for k, v in payload.items() if k != "evidence"})
+```
+
+`payload` 携带 `verdict`，`update` 把它**覆盖回 `completed`** —— 即**记录写入失败时仍返回 `completed` / exit 0**。
+
+这是 `test_record_unwritable_never_yields_completed` 抓到的。**它正是裁定 3（记录成功是判定生效前提）要关闭的那扇门**，而实现自己把它推开了。修正为排除 `verdict` 与 `evidence` 两键。
+
+> 该 bug 在纯人工审阅下不会暴露 —— 三个断言（verdict 变 undetermined / 最后一条是 record-unwritable / 首条保留原始 evidence）中前两个都会通过，只有第三个会失败。
+
+### 实测（真实 workspace，非 fixture）
+
+| 场景 | 输出 | exit |
+|---|---|---|
+| `T-001`（Card+Report 都在） | `[PASSED] … report-found` | 0 |
+| `T-011`（Card 在、无 Report，同目录另有 8 份兄弟报告） | `[NOT-SATISFIED] … report-missing` | 1 |
+| `T-999`（Card 不存在） | `[UNDETERMINED] … task-card-missing` | 1 |
+| 缺 `task` | `[UNDETERMINED] … input-missing task` | 1 |
+| `2.1`（第二套 ID 形态） | `[PASSED] … report-found` | 0 |
+
+**判据 4（Execution-Isolated）实证**：同目录 8 份兄弟报告存在时，`T-011` 仍判 `not-satisfied` —— 目录级检查会误判为 `completed`。
+
+**第二套 ID 形态实证**：`2.1` 判 `completed`，证明未假设 `T-` 前缀。
+
+**确定性实证**：`T-011` 连续两次求值产生同一 `execution_id`（`de1619d104cc4a79`），JSONL 追加两行。
+
+### 偏离设计稿的一处（实现更严格）
+
+设计稿 §1.3 预测「`--task "T-001 "` 原样透传 → `not-satisfied`」。实现改为**显式拒绝** → `input-missing`。
+
+两者都不是静默修正，但拒绝在**输入边界**指出了真实问题（入参格式错误），优于透传后在下游报「产物缺失」。测试与实现取一致，并记录该偏离。
+
+### 已知限制（如实记录）
+
+| 限制 | 说明 |
+|---|---|
+| 报告文件名不合规 → **假阴性** | §12.5 已声明；测试 `test_non_conforming_filename_is_a_known_false_negative` 显式断言其为 `not-satisfied`，使其可见而非退化为 bug report |
+| `execution_id` 不含时间 | 同一任务的多次判定靠 `ts` 排序区分；Execution 实体属 V1 之外 |
+| append 原子性 | 保证仅为「单次 `write()` 调用」这一实现事实，**非**跨进程锁契约。全仓 `open(…,"a")` 此前零命中 —— 这是 V1 引入的新机制 |
+| Task ID 第三套形态 | 若引入，`criterion` 求值会失效并需重裁 |
+| `evaluator-error` 为 8 类 evidence 之一 | 由用户给的 7 类扩展而来（崩溃无类型可用）；属**最小扩展**，可撤销 |
+
+### 门禁
+
+全量单测 **786 OK**（749 → 786，+37）· check.py PASS（2 WARN 既有基线）·
+workflow-command-audit 0/0/0 · quick-check OK/findings 0 · path-audit 0 broken ·
+repo-lint 0 BLOCKER / 0 ERROR · 短路自证 11/11（已固化为 4 个常驻测试）

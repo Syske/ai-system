@@ -82,7 +82,7 @@
 | Implemented | Phase Contract（Phase 一等契约：第九段 + Activation 语义 + Declares 校验） | 2026-09-28 | `P76-PHASE-CONTRACT.md` |
 | Proposed | Hindsight 评估：Experience Knowledge Layer 候选定位与前置验证 | 2026-09-29 | `P77-HINDSIGHT-EVALUATION.md` |
 | Implemented | Secret 与 Prompt-Injection 门禁（AI 自动写入内容的入库防线） | 2026-09-29 | `P78-SECRET-INJECTION-GATE.md` |
-| Approved | AIC Contract Evaluator V1（develop Phase 4 单点验证） | 2026-09-29 | `P79-CONTRACT-EVALUATOR-V1.md` |
+| Implemented | AIC Contract Evaluator V1（develop Phase 4 单点验证） | 2026-09-29 | `P79-CONTRACT-EVALUATOR-V1.md` |
 | Implemented | `aic-command` Authoring Command | 2026-08-05 | `P8-COMMAND-AUTHOR.md` |
 | Implemented | `aic-skill-launch` Skill Launcher | 2026-08-05 | `P9-SKILL-LAUNCHER.md` |
 
